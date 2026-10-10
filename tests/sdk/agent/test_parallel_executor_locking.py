@@ -4,9 +4,9 @@ import threading
 from typing import Any
 from unittest.mock import MagicMock
 
-from openhands.sdk.agent.parallel_executor import ParallelToolExecutor
-from openhands.sdk.conversation.resource_lock_manager import ResourceLockManager
-from openhands.sdk.tool.tool import DeclaredResources, ToolAnnotations
+from handprint.sdk.agent.parallel_executor import ParallelToolExecutor
+from handprint.sdk.conversation.resource_lock_manager import ResourceLockManager
+from handprint.sdk.tool.tool import DeclaredResources, ToolAnnotations
 
 
 _SENTINEL = object()

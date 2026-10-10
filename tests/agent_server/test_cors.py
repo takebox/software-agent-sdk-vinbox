@@ -7,29 +7,29 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config, load_config
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.dependencies import (
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config, load_config
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.dependencies import (
     WORKSPACE_SESSION_COOKIE_NAME,
     get_conversation_service,
 )
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.middleware import (
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.middleware import (
     CORSDispatcher,
     LocalhostCORSMiddleware,
     _is_workspace_cookie_path,
 )
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.workspace import LocalWorkspace
 
 
 SESSION_KEY = "test-key-cors"
 GLOBAL_ORIGIN = "https://gui.example.com"
-LOCALHOST_ORIGIN = "http://localhost:3000"
+LOCALHOST_ORIGIN = "http://localhost:4000"
 LOOPBACK_ORIGIN = "http://127.0.0.1:5173"
 DOCKER_HOST_IP = "192.168.1.206"
 DOCKER_HOST_ORIGIN = f"http://{DOCKER_HOST_IP}:42015"
-REMOTE_ORIGIN = "https://canvas.example.com"
+REMOTE_ORIGIN = "https://viczin.example.com"
 OTHER_ORIGIN = "https://attacker.example.com"
 
 
@@ -261,7 +261,7 @@ def test_workspace_wildcard_does_not_bleed_into_other_api(tmp_path):
 
 
 # Localhost / DOCKER_HOST_ADDR auto-allow regression coverage
-# (OpenHands/OpenHands#4624 intent vs the #8675 regression).
+# (Handprint/Handprint#4624 intent vs the #8675 regression).
 
 
 @pytest.mark.parametrize("origin", [LOCALHOST_ORIGIN, LOOPBACK_ORIGIN])
@@ -276,7 +276,7 @@ def test_localhost_allowed_with_empty_allow_origins(tmp_path, origin):
 
 @pytest.mark.parametrize("origin", [LOCALHOST_ORIGIN, LOOPBACK_ORIGIN])
 def test_localhost_allowed_when_allow_origins_is_set(tmp_path, origin):
-    """Regression for OpenHands/OpenHands#8675: explicit allowlist must
+    """Regression for Handprint/Handprint#8675: explicit allowlist must
     not disable the localhost auto-allow."""
     client = _build_client(
         tmp_path,

@@ -357,16 +357,16 @@ export class ConversationClient {
   async forkConversation<TConversation = ConversationInfo>(
     conversationId: string,
     request: ForkConversationRequest = {},
-    options: { includeSkills?: boolean } = {}
+    options: { includeTracks?: boolean } = {}
   ): Promise<TConversation> {
     const response = await this.client.post<TConversation>(
       `/api/conversations/${conversationId}/fork`,
       request,
       {
         params:
-          options.includeSkills === undefined
+          options.includeTracks === undefined
             ? undefined
-            : { include_skills: options.includeSkills },
+            : { include_tracks: options.includeTracks },
       }
     );
     return response.data;
@@ -385,16 +385,16 @@ export class ConversationClient {
   async navigateConversation<TConversation = ConversationInfo>(
     conversationId: string,
     request: NavigateConversationRequest = {},
-    options: { includeSkills?: boolean } = {}
+    options: { includeTracks?: boolean } = {}
   ): Promise<TConversation> {
     const response = await this.client.post<TConversation>(
       `/api/conversations/${conversationId}/navigate`,
       request,
       {
         params:
-          options.includeSkills === undefined
+          options.includeTracks === undefined
             ? undefined
-            : { include_skills: options.includeSkills },
+            : { include_tracks: options.includeTracks },
       }
     );
     return response.data;

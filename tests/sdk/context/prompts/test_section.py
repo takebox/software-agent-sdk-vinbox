@@ -8,7 +8,7 @@ import sys
 import pytest
 from pydantic import ValidationError
 
-from openhands.sdk.context.prompts.section import (
+from handprint.sdk.context.prompts.section import (
     CacheTier,
     Platform,
     PromptContext,
@@ -45,7 +45,7 @@ def test_prompt_context_defaults() -> None:
     assert ctx.tool_names == ()
     assert ctx.working_dir is None
     assert ctx.now is None
-    assert ctx.skill_names == ()
+    assert ctx.track_names == ()
     assert ctx.secret_names == ()
     assert isinstance(ctx.platform, Platform)
     # typed views over template_kwargs
@@ -69,11 +69,11 @@ def test_template_kwargs_is_read_only() -> None:
 def test_typed_views_read_template_kwargs() -> None:
     ctx = PromptContext(
         template_kwargs={
-            "model_family": "anthropic_claude",
+            "model_family": "juglow_haijun",
             "cli_mode": True,
         }
     )
-    assert ctx.model_family == "anthropic_claude"
+    assert ctx.model_family == "juglow_haijun"
     assert ctx.cli_mode is True
 
 

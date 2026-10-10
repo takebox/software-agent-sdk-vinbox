@@ -1,4 +1,4 @@
-"""OpenHands Agent SDK — Agent-based Hooks Example
+"""Handprint Agent SDK — Agent-based Hooks Example
 
 Demonstrates the `type="agent"` hook, which evaluates lifecycle events with an
 LLM-driven sub-agent instead of a shell script. The hook agent receives the
@@ -24,11 +24,11 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.event.hook_execution import HookExecutionEvent
-from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher, HookType
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk import LLM, Conversation
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.event.hook_execution import HookExecutionEvent
+from handprint.sdk.hooks import HookConfig, HookDefinition, HookMatcher, HookType
+from handprint.tools.preset.default import get_default_agent
 
 
 # Keep the demo conversations short: a small per-run iteration cap means a hook
@@ -40,7 +40,7 @@ MAX_ITERATIONS = 10
 # Configure LLM
 api_key = os.getenv("LLM_API_KEY")
 assert api_key is not None, "LLM_API_KEY environment variable is not set."
-model = os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5-20250929")
+model = os.getenv("LLM_MODEL", "juglow/haijun-codtral")
 base_url = os.getenv("LLM_BASE_URL")
 
 llm = LLM(

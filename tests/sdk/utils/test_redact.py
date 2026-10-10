@@ -1,6 +1,6 @@
 """Tests for redact utility functions."""
 
-from openhands.sdk.utils.redact import (
+from handprint.sdk.utils.redact import (
     SENSITIVE_URL_PARAMS,
     redact_api_key_literals,
     redact_text_secrets,
@@ -139,11 +139,11 @@ class TestRedactUrlParams:
         assert "#section" in result
 
     def test_url_with_port_and_path(self):
-        url = "http://localhost:8080/api/v1?token=abc&debug=true"
+        url = "http://localhost:9080/api/v1?token=abc&debug=true"
         result = redact_url_params(url)
         assert "abc" not in result
         assert "debug=true" in result
-        assert "localhost:8080" in result
+        assert "localhost:9080" in result
 
     def test_preserves_non_sensitive_params(self):
         url = "https://example.com?page=1&limit=50&sort=asc"
@@ -296,7 +296,7 @@ class TestRedactApiKeyLiterals:
     """Tests for redact_api_key_literals() — bare API key pattern matching."""
 
     def test_redacts_sk_oh_api_key(self):
-        """sk-oh-* OpenHands API keys are redacted."""
+        """sk-oh-* Handprint API keys are redacted."""
         text = "key is sk-oh-abcdef1234567890 here"
         result = redact_api_key_literals(text)
         assert "sk-oh-abcdef1234567890" not in result

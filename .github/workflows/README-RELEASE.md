@@ -1,6 +1,6 @@
 # Release Automation Workflows
 
-This document describes the automated release workflows for the OpenHands Software Agent SDK.
+This document describes the automated release workflows for the Handprint Software Agent SDK.
 
 ## Overview
 
@@ -100,7 +100,7 @@ If the matching manifest is already in GHCR, the wait step exits immediately.
 
 After successful PyPI publication, the workflow will automatically create PRs to update SDK versions in downstream repositories:
 
-- **[automation](https://github.com/OpenHands/automation)** - Updates `openhands-sdk` and `openhands-workspace` versions. Opened with a `fix:` title so the repo's release-please cuts a patch release, publishing an `openhands-automation` build pinned to this SDK (which the agent-canvas `sdk-version-sync` check requires).
+- **[automation](https://github.com/Handprint/automation)** - Updates `openhands-sdk` and `openhands-workspace` versions. Opened with a `fix:` title so the repo's release-please cuts a patch release, publishing an `openhands-automation` build pinned to this SDK (which the agent-viczin `sdk-version-sync` check requires).
 - **TypeScript client (`clients/typescript`)** - Normally a no-op: the release PR already pins the client. It only opens a PR in this repository if the client is behind the release. It waits for the exact GHCR image and release `openapi.json`, updates `config.agentServerImage`, regenerates the checked-in transport types, and includes an API-change summary.
 
 These PRs will:
@@ -122,7 +122,7 @@ To retry a registry publisher, run the latest workflow from `main` and pass the 
 
 The independently retryable publisher workflows are:
 
-- **Publish all OpenHands packages (uv)** for PyPI;
+- **Publish all Handprint packages (uv)** for PyPI;
 - **Publish TypeScript client to npm**;
 - **Publish TypeScript client to GitHub Packages**;
 - **Agent Server** for versioned container images;
@@ -154,7 +154,7 @@ If the PR creation fails, check:
 ### PyPI Publication Failed
 
 If PyPI publication fails:
-- Check that the `PYPI_TOKEN_OPENHANDS` secret is properly configured
+- Check that the `PYPI_TOKEN_HANDPRINT` secret is properly configured
 - Verify the version doesn't already exist on PyPI
 - Check the workflow logs for specific error messages
 

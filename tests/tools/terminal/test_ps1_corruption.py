@@ -14,9 +14,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from openhands.tools.terminal.constants import CMD_OUTPUT_METADATA_PS1_REGEX
-from openhands.tools.terminal.metadata import CmdOutputMetadata
-from openhands.tools.terminal.terminal.terminal_session import TerminalSession
+from handprint.tools.terminal.constants import CMD_OUTPUT_METADATA_PS1_REGEX
+from handprint.tools.terminal.metadata import CmdOutputMetadata
+from handprint.tools.terminal.terminal.terminal_session import TerminalSession
 
 
 class TestPS1Corruption:
@@ -30,7 +30,7 @@ class TestPS1Corruption:
 {
   "pid": "",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "runtime-uerbtodceoavkhsd-5f46cc485d-297jp",
   "working_dir": "/workspace/p5.js",
   "py_interpreter_path": "/usr/bin/python"
@@ -48,7 +48,7 @@ Done.
 {
   "pid": "",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "runtime-uerbtodceoavkhsd-5f46cc485d-297jp",
   "working_dir": "/workspace/p5.js",
   "py_interpreter_path": "/usr/bin/python"
@@ -61,7 +61,7 @@ Done.
 {
   "pid": "877",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "runtime-wurijejgnynchahc-f9f4f7f-ndqfp",
   "working_dir": "/workspace/p5.js",
   "py_interpreter_path": "/usr/bin/python"
@@ -79,7 +79,7 @@ Done.
 {
   "pid": "877",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "runtime-wurijejgnynchahc-f9f4f7f-ndqfp",
   "working_dir": "/workspace/p5.js",
   "py_interpreter_path": "/usr/bin/python"
@@ -159,7 +159,7 @@ class RidgeClassifierCV(sklearn.linear_model.base.LinearClassifierMixin, _BaseRi
 
         This fix addresses the production errors seen in Datadog logs.
         """
-        from openhands.tools.terminal.terminal.interface import TerminalObservation
+        from handprint.tools.terminal.terminal.interface import TerminalObservation
 
         # Create a mock terminal interface
         mock_terminal = MagicMock()
@@ -177,7 +177,7 @@ class RidgeClassifierCV(sklearn.linear_model.base.LinearClassifierMixin, _BaseRi
 {
   "pid": "",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
  8   -_-_-_-_-_,------,
  0#PS-_-_-_-_-_|   /\\_/\\
  ASCII ART BREAKS THE JSON
@@ -239,7 +239,7 @@ ALSO BROKEN
 {
   "pid": "123",
   "exit_code": "0",
-  "username": "openhands"
+  "username": "handprint"
 }
 SOME EXTRA OUTPUT BUT NO PS1END MARKER
 """
@@ -258,7 +258,7 @@ SOME EXTRA OUTPUT BUT NO PS1END MARKER
 {
   "pid": "123",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "host-with-#PS-in-name",
   "working_dir": "/path/with\\backslash",
   "py_interpreter_path": "/usr/bin/python"
@@ -306,7 +306,7 @@ class TestPS1CorruptionIntegration:
         the session now returns a valid TerminalObservation with exit_code=-1
         instead of crashing with an AssertionError.
         """
-        from openhands.tools.terminal.terminal.interface import TerminalObservation
+        from handprint.tools.terminal.terminal.interface import TerminalObservation
 
         mock_terminal = MagicMock()
         mock_terminal.work_dir = "/workspace"
@@ -343,7 +343,7 @@ class TestPS1ParserRobustness:
 {
   "pid": "123",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "localhost",
   "working_dir": "/home/user",
   "py_interpreter_path": "/usr/bin/python"
@@ -397,13 +397,13 @@ COMMAND OUTPUT BEFORE PS1
 {
   "pid": "123",
   "exit_code": "0",
-  "username": "openhands"
+  "username": "handprint"
 CONCURRENT OUTPUT CORRUPTS THIS BLOCK
 ###PS1JSON###
 {
   "pid": "456",
   "exit_code": "0",
-  "username": "openhands",
+  "username": "handprint",
   "hostname": "localhost",
   "working_dir": "/workspace",
   "py_interpreter_path": "/usr/bin/python"

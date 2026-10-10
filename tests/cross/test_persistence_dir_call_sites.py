@@ -1,11 +1,11 @@
 """Per-call-site coverage for ``OH_PERSISTENCE_DIR``.
 
-Every module that reads or writes user-level ``~/.openhands`` state must route
-through :func:`openhands.sdk.utils.path.get_user_persistence_dir`, so that an
+Every module that reads or writes user-level ``~/.handprint`` state must route
+through :func:`handprint.sdk.utils.path.get_user_persistence_dir`, so that an
 enterprise ephemeral sandbox pointing ``OH_PERSISTENCE_DIR`` at a persistent
 volume keeps its data across a resume. This module asserts that contract at
 *each* call site rather than trusting the shared helper alone, which guards
-against a future edit reintroducing a bare ``Path.home() / ".openhands"``.
+against a future edit reintroducing a bare ``Path.home() / ".handprint"``.
 
 Two flavours of call site exist:
 
@@ -34,7 +34,7 @@ import pytest
 
 
 def _import_roots() -> list[str]:
-    """Directories that make ``openhands`` + its deps importable in a child.
+    """Directories that make ``handprint`` + its deps importable in a child.
 
     Overriding ``HOME`` in the child moves Python's per-user site-packages to
     ``$HOME/.local/...``, which both bypasses the editable install's
@@ -66,7 +66,7 @@ def _subprocess_env(**overrides: str) -> dict[str, str]:
     """Env for a child interpreter that stays importable with a fake ``HOME``."""
     env = dict(os.environ)
     env.update(overrides)
-    env["OPENHANDS_SUPPRESS_BANNER"] = "1"
+    env["HANDPRINT_SUPPRESS_BANNER"] = "1"
     existing = env.get("PYTHONPATH", "")
     parts = _IMPORT_ROOTS + ([existing] if existing else [])
     env["PYTHONPATH"] = os.pathsep.join(parts)
@@ -81,62 +81,62 @@ def _subprocess_env(**overrides: str) -> dict[str, str]:
 # ``attribute`` may be an index into a list constant via "attr[i]".
 _IMPORT_TIME_CALL_SITES: dict[str, tuple[str, str, str]] = {
     "llm_profile_store": (
-        "openhands.sdk.llm.llm_profile_store",
+        "handprint.sdk.llm.llm_profile_store",
         "_DEFAULT_PROFILE_DIR",
         "profiles",
     ),
     "agent_profile_store": (
-        "openhands.sdk.profiles.agent_profile_store",
+        "handprint.sdk.profiles.agent_profile_store",
         "_DEFAULT_PROFILE_DIR",
         "agent-profiles",
     ),
-    "skills_fetch_cache": (
-        "openhands.sdk.skills.fetch",
+    "tracks_fetch_cache": (
+        "handprint.sdk.tracks.fetch",
         "DEFAULT_CACHE_DIR",
-        "cache/skills",
+        "cache/tracks",
     ),
-    "skills_installed": (
-        "openhands.sdk.skills.installed",
-        "DEFAULT_INSTALLED_SKILLS_DIR",
-        "skills/installed",
+    "tracks_installed": (
+        "handprint.sdk.tracks.installed",
+        "DEFAULT_INSTALLED_TRACKS_DIR",
+        "tracks/installed",
     ),
-    "skills_user_dirs_skills": (
-        "openhands.sdk.skills.skill",
-        "USER_SKILLS_DIRS[1]",
-        "skills",
+    "tracks_user_dirs_tracks": (
+        "handprint.sdk.tracks.track",
+        "USER_TRACKS_DIRS[1]",
+        "tracks",
     ),
-    "skills_user_dirs_microagents": (
-        "openhands.sdk.skills.skill",
-        "USER_SKILLS_DIRS[2]",
+    "tracks_user_dirs_microagents": (
+        "handprint.sdk.tracks.track",
+        "USER_TRACKS_DIRS[2]",
         "microagents",
     ),
     "plugin_fetch_cache": (
-        "openhands.sdk.plugin.fetch",
+        "handprint.sdk.plugin.fetch",
         "DEFAULT_CACHE_DIR",
         "cache/plugins",
     ),
     "plugin_source_cache": (
-        "openhands.sdk.plugin.source",
+        "handprint.sdk.plugin.source",
         "DEFAULT_CACHE_DIR",
         "cache/git",
     ),
     "plugin_user_dirs": (
-        "openhands.sdk.plugin.discovery",
+        "handprint.sdk.plugin.discovery",
         "USER_PLUGINS_DIRS[1]",
         "plugins",
     ),
     "plugin_installed": (
-        "openhands.sdk.plugin.installed",
+        "handprint.sdk.plugin.installed",
         "DEFAULT_INSTALLED_PLUGINS_DIR",
         "plugins/installed",
     ),
     "extensions_cache": (
-        "openhands.sdk.extensions.installation.manager",
+        "handprint.sdk.extensions.installation.manager",
         "DEFAULT_CACHE_DIR",
         "cache/extensions",
     ),
     "agent_soul_path": (
-        "openhands.sdk.agent.base",
+        "handprint.sdk.agent.base",
         "_SOUL_PATH",
         "SOUL.md",
     ),
@@ -146,13 +146,13 @@ _IMPORT_TIME_CALL_SITES: dict[str, tuple[str, str, str]] = {
 # persistence-dir entry. Verified to still point at ``~/.agents`` regardless of
 # ``OH_PERSISTENCE_DIR``.
 _AGENTS_DIR_CALL_SITES: dict[str, tuple[str, str, str]] = {
-    "skills_user_dirs_agents": (
-        "openhands.sdk.skills.skill",
-        "USER_SKILLS_DIRS[0]",
-        ".agents/skills",
+    "tracks_user_dirs_agents": (
+        "handprint.sdk.tracks.track",
+        "USER_TRACKS_DIRS[0]",
+        ".agents/tracks",
     ),
     "plugin_user_dirs_agents": (
-        "openhands.sdk.plugin.discovery",
+        "handprint.sdk.plugin.discovery",
         "USER_PLUGINS_DIRS[0]",
         ".agents/plugins",
     ),
@@ -230,7 +230,7 @@ def test_import_time_constant_falls_back_to_home(
 ) -> None:
     home = Path(constants_with_home_fallback["__root__"])
     _mod, _attr, subpath = _IMPORT_TIME_CALL_SITES[name]
-    assert Path(constants_with_home_fallback[name]) == home / ".openhands" / subpath
+    assert Path(constants_with_home_fallback[name]) == home / ".handprint" / subpath
 
 
 @pytest.mark.parametrize("name", sorted(_AGENTS_DIR_CALL_SITES))
@@ -243,7 +243,7 @@ def test_agents_dir_call_sites_ignore_persistence_env(
     resolved = Path(constants_with_persistence_env[name])
     # Anchored at $HOME/.agents/..., never redirected into the persistence dir.
     assert resolved == home / subpath
-    assert ".openhands" not in resolved.parts
+    assert ".handprint" not in resolved.parts
 
 
 # --------------------------------------------------------------------------- #
@@ -260,19 +260,19 @@ def persistence_dir(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
 
 
 def test_credentials_dir_uses_persistence_dir(persistence_dir: Path) -> None:
-    from openhands.sdk.llm.auth.credentials import get_credentials_dir
+    from handprint.sdk.llm.auth.credentials import get_credentials_dir
 
     assert get_credentials_dir() == persistence_dir / "auth"
 
 
-def test_skills_cache_dir_uses_persistence_dir(persistence_dir: Path) -> None:
-    from openhands.sdk.skills.utils import get_skills_cache_dir
+def test_tracks_cache_dir_uses_persistence_dir(persistence_dir: Path) -> None:
+    from handprint.sdk.tracks.utils import get_tracks_cache_dir
 
-    assert get_skills_cache_dir() == persistence_dir / "cache" / "skills"
+    assert get_tracks_cache_dir() == persistence_dir / "cache" / "tracks"
 
 
 def test_hook_config_reads_user_hooks_json(persistence_dir: Path) -> None:
-    from openhands.sdk.hooks.config import HookConfig
+    from handprint.sdk.hooks.config import HookConfig
 
     (persistence_dir / "hooks.json").write_text(
         json.dumps(
@@ -293,7 +293,7 @@ def test_hook_config_reads_user_hooks_json(persistence_dir: Path) -> None:
 
 
 def test_load_user_agents_reads_persistence_dir(persistence_dir: Path) -> None:
-    from openhands.sdk.subagent.load import load_user_agents
+    from handprint.sdk.subagent.load import load_user_agents
 
     agents_dir = persistence_dir / "agents"
     agents_dir.mkdir(parents=True)
@@ -305,7 +305,7 @@ def test_load_user_agents_reads_persistence_dir(persistence_dir: Path) -> None:
 
 
 def test_load_memory_reads_user_index(persistence_dir: Path) -> None:
-    from openhands.sdk.context.memory import load_memory
+    from handprint.sdk.context.memory import load_memory
 
     memory_dir = persistence_dir / "memory"
     memory_dir.mkdir(parents=True)
@@ -316,8 +316,8 @@ def test_load_memory_reads_user_index(persistence_dir: Path) -> None:
 
 
 def test_prompt_jinja_cache_lives_in_persistence_dir(persistence_dir: Path) -> None:
-    from openhands.sdk.agent import base
-    from openhands.sdk.context.prompts import prompt as prompt_mod
+    from handprint.sdk.agent import base
+    from handprint.sdk.context.prompts import prompt as prompt_mod
 
     prompt_mod._get_env.cache_clear()
     try:
@@ -331,13 +331,13 @@ def test_tom_consult_file_store_root(persistence_dir: Path) -> None:
     pytest.importorskip("tom_swe")
     from typing import cast
 
-    from openhands.sdk.conversation.state import ConversationState
-    from openhands.sdk.io import LocalFileStore
-    from openhands.tools.tom_consult.definition import (
+    from handprint.sdk.conversation.state import ConversationState
+    from handprint.sdk.io import LocalFileStore
+    from handprint.tools.tom_consult.definition import (
         SleeptimeComputeTool,
         TomConsultTool,
     )
-    from openhands.tools.tom_consult.executor import TomConsultExecutor
+    from handprint.tools.tom_consult.executor import TomConsultExecutor
 
     # ``create`` ignores ``conv_state`` (state is passed at execution time), so a
     # typed ``None`` keeps pyright happy without building a full state object.
@@ -351,19 +351,19 @@ def test_tom_consult_file_store_root(persistence_dir: Path) -> None:
         assert file_store.root == str(persistence_dir)
 
 
-def test_canvas_extensions_dir_uses_persistence_dir(persistence_dir: Path) -> None:
-    from openhands.agent_server.canvas_extensions.installed import (
-        get_installed_canvas_extensions_dir,
+def test_viczin_extensions_dir_uses_persistence_dir(persistence_dir: Path) -> None:
+    from handprint.agent_server.viczin_extensions.installed import (
+        get_installed_viczin_extensions_dir,
     )
 
     assert (
-        get_installed_canvas_extensions_dir()
-        == persistence_dir / "canvas-extensions" / "installed"
+        get_installed_viczin_extensions_dir()
+        == persistence_dir / "viczin-extensions" / "installed"
     )
 
 
 def test_agent_server_profile_persistence_dir(persistence_dir: Path) -> None:
-    from openhands.agent_server.persistence.store import _get_profile_persistence_dir
+    from handprint.agent_server.persistence.store import _get_profile_persistence_dir
 
     assert _get_profile_persistence_dir() == persistence_dir
 
@@ -387,8 +387,8 @@ def test_default_llm_profile_store_survives_resume() -> None:
         home1.mkdir()
 
         write = (
-            "from openhands.sdk.llm import LLM\n"
-            "from openhands.sdk.llm.llm_profile_store import LLMProfileStore\n"
+            "from handprint.sdk.llm import LLM\n"
+            "from handprint.sdk.llm.llm_profile_store import LLMProfileStore\n"
             "LLMProfileStore().save('prod', LLM(model='gpt-4o', usage_id='prod'))\n"
         )
         r1 = subprocess.run(
@@ -400,7 +400,7 @@ def test_default_llm_profile_store_survives_resume() -> None:
         )
         assert r1.returncode == 0, r1.stderr
         assert (Path(persist) / "profiles" / "prod.json").is_file()
-        assert not (home1 / ".openhands").exists()
+        assert not (home1 / ".handprint").exists()
 
         # Resume: destroy the ephemeral HOME, hand run 2 a brand-new empty one.
         shutil.rmtree(home1)
@@ -408,7 +408,7 @@ def test_default_llm_profile_store_survives_resume() -> None:
         home2.mkdir()
 
         read = (
-            "from openhands.sdk.llm.llm_profile_store import LLMProfileStore\n"
+            "from handprint.sdk.llm.llm_profile_store import LLMProfileStore\n"
             "print(LLMProfileStore().load('prod').model)\n"
         )
         r2 = subprocess.run(

@@ -10,14 +10,14 @@ from openai.types.responses.response_output_message import ResponseOutputMessage
 from openai.types.responses.response_output_text import ResponseOutputText
 from pydantic import SecretStr
 
-from openhands.sdk import ConversationStats, RegistryEvent
-from openhands.sdk.llm import LLM, LLMResponse, Message, MessageToolCall, TextContent
-from openhands.sdk.llm._tokenizer import load_chat_template_tokenizer
-from openhands.sdk.llm.exceptions import LLMNoResponseError
-from openhands.sdk.llm.options.responses_options import select_responses_options
-from openhands.sdk.llm.utils.metrics import Metrics, TokenUsage
-from openhands.sdk.llm.utils.telemetry import Telemetry
-from openhands.sdk.tool.builtins.finish import FinishTool
+from handprint.sdk import ConversationStats, RegistryEvent
+from handprint.sdk.llm import LLM, LLMResponse, Message, MessageToolCall, TextContent
+from handprint.sdk.llm._tokenizer import load_chat_template_tokenizer
+from handprint.sdk.llm.exceptions import LLMNoResponseError
+from handprint.sdk.llm.options.responses_options import select_responses_options
+from handprint.sdk.llm.utils.metrics import Metrics, TokenUsage
+from handprint.sdk.llm.utils.telemetry import Telemetry
+from handprint.sdk.tool.builtins.finish import FinishTool
 
 # Import common test utilities
 from tests.conftest import create_mock_litellm_response
@@ -117,18 +117,18 @@ async def test_agenerate_dispatches_to_configured_api(default_llm, api_mode):
         responses.assert_not_awaited()
 
 
-@patch("openhands.sdk.llm.utils.model_info.httpx.get")
-def test_base_url_for_openhands_provider(mock_get):
-    """Test that openhands/ remains public while transport uses the proxy."""
+@patch("handprint.sdk.llm.utils.model_info.httpx.get")
+def test_base_url_for_handprint_provider(mock_get):
+    """Test that handprint/ remains public while transport uses the proxy."""
     # Mock the model info fetch to avoid actual HTTP calls to production
     mock_get.return_value = Mock(json=lambda: {"data": []})
 
     llm = LLM(
-        model="openhands/claude-sonnet-4-20250514",
+        model="handprint/haijun-codtral",
         api_key=SecretStr("test-key"),
-        usage_id="test-openhands-llm",
+        usage_id="test-handprint-llm",
     )
-    assert llm.model == "openhands/claude-sonnet-4-20250514"
+    assert llm.model == "handprint/haijun-codtral"
     assert llm.base_url is None
     mock_get.assert_called_once_with(
         "https://llm-proxy.app.all-hands.dev/v1/model/info",
@@ -136,50 +136,50 @@ def test_base_url_for_openhands_provider(mock_get):
     )
 
 
-@patch("openhands.sdk.llm.utils.model_info.httpx.get")
-def test_base_url_for_openhands_provider_with_explicit_none(mock_get):
+@patch("handprint.sdk.llm.utils.model_info.httpx.get")
+def test_base_url_for_handprint_provider_with_explicit_none(mock_get):
     """Test that explicit None remains public config, not persisted transport config."""
     # Mock the model info fetch to avoid actual HTTP calls to production
     mock_get.return_value = Mock(json=lambda: {"data": []})
 
     llm = LLM(
-        model="openhands/claude-sonnet-4-20250514",
+        model="handprint/haijun-codtral",
         api_key=SecretStr("test-key"),
-        usage_id="test-openhands-llm",
+        usage_id="test-handprint-llm",
         base_url=None,
     )
-    assert llm.model == "openhands/claude-sonnet-4-20250514"
+    assert llm.model == "handprint/haijun-codtral"
     assert llm.base_url is None
 
 
-@patch("openhands.sdk.llm.utils.model_info.httpx.get")
-@patch("openhands.sdk.llm.llm.litellm_completion")
-def test_openhands_provider_translates_only_for_litellm(mock_completion, mock_get):
+@patch("handprint.sdk.llm.utils.model_info.httpx.get")
+@patch("handprint.sdk.llm.llm.litellm_completion")
+def test_handprint_provider_translates_only_for_litellm(mock_completion, mock_get):
     mock_get.return_value = Mock(json=lambda: {"data": []})
     mock_completion.return_value = create_mock_litellm_response("ok")
 
     llm = LLM(
-        model="openhands/claude-haiku-4-5-20251001",
+        model="handprint/haijun-minix",
         api_key=SecretStr("test-key"),
-        usage_id="test-openhands-transport",
+        usage_id="test-handprint-transport",
         num_retries=0,
     )
 
     messages = [Message(role="user", content=[TextContent(text="Hello")])]
     llm.completion(messages=messages)
 
-    assert llm.model == "openhands/claude-haiku-4-5-20251001"
+    assert llm.model == "handprint/haijun-minix"
     assert llm.base_url is None
     _, kwargs = mock_completion.call_args
-    assert kwargs["model"] == "claude-haiku-4-5-20251001"
+    assert kwargs["model"] == "haijun-minix"
     assert kwargs["custom_llm_provider"] == "litellm_proxy"
     assert kwargs["api_base"] == "https://llm-proxy.app.all-hands.dev"
     persisted = llm.to_persisted()
-    assert persisted["model"] == "openhands/claude-haiku-4-5-20251001"
+    assert persisted["model"] == "handprint/haijun-minix"
     assert "base_url" not in persisted
 
 
-@patch("openhands.sdk.llm.utils.model_info.httpx.get")
+@patch("handprint.sdk.llm.utils.model_info.httpx.get")
 def test_kimi_k2_5_uses_provider_defaults(mock_get):
     """Test that kimi-k2.5 uses provider defaults (None) for temperature and top_p."""
     mock_get.return_value = Mock(json=lambda: {"data": []})
@@ -205,17 +205,17 @@ def test_kimi_k2_5_uses_provider_defaults(mock_get):
     assert llm_explicit.temperature == 0.5
 
 
-@patch("openhands.sdk.llm.utils.model_info.httpx.get")
-def test_base_url_for_openhands_provider_with_custom_url(mock_get):
-    """Test that openhands/ provider respects custom base_url when provided."""
+@patch("handprint.sdk.llm.utils.model_info.httpx.get")
+def test_base_url_for_handprint_provider_with_custom_url(mock_get):
+    """Test that handprint/ provider respects custom base_url when provided."""
     # Mock the model info fetch to avoid actual HTTP calls
     mock_get.return_value = Mock(json=lambda: {"data": []})
 
     custom_url = "https://custom-proxy.example.com/"
     llm = LLM(
-        model="openhands/claude-sonnet-4-20250514",
+        model="handprint/haijun-codtral",
         api_key=SecretStr("test-key"),
-        usage_id="test-openhands-llm",
+        usage_id="test-handprint-llm",
         base_url=custom_url,
     )
     assert llm.base_url == custom_url
@@ -331,7 +331,7 @@ def test_metrics_diff():
     assert accumulated_diff["cache_write_tokens"] == 2
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_llm_completion_with_mock(mock_completion):
     """Test LLM completion with mocked litellm."""
     mock_response = create_mock_litellm_response("Test response")
@@ -356,7 +356,7 @@ def test_llm_completion_with_mock(mock_completion):
     mock_completion.assert_called_once()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_llm_retry_on_rate_limit(mock_completion):
     """Test that LLM retries on rate limit errors."""
     mock_response = create_mock_litellm_response("Success after retry")
@@ -419,7 +419,7 @@ def test_llm_token_counting(default_llm):
     assert token_count >= 0
 
 
-@patch("openhands.sdk.llm.llm.token_counter")
+@patch("handprint.sdk.llm.llm.token_counter")
 def test_llm_token_counting_includes_tools(mock_token_counter, default_llm):
     """Test LLM token counting forwards tool schemas to LiteLLM."""
     mock_token_counter.return_value = 123
@@ -465,7 +465,7 @@ def test_llm_load_chat_template_tokenizer_prefers_transformers(monkeypatch):
         raise ModuleNotFoundError(name)
 
     monkeypatch.setattr(
-        "openhands.sdk.llm._tokenizer.importlib.import_module", fake_import_module
+        "handprint.sdk.llm._tokenizer.importlib.import_module", fake_import_module
     )
 
     tokenizer = load_chat_template_tokenizer("model-with-template")
@@ -474,7 +474,7 @@ def test_llm_load_chat_template_tokenizer_prefers_transformers(monkeypatch):
     assert FakeAutoTokenizer.loaded_identifier == "model-with-template"
 
 
-@patch("openhands.sdk.llm.llm.create_pretrained_tokenizer")
+@patch("handprint.sdk.llm.llm.create_pretrained_tokenizer")
 def test_llm_custom_tokenizer_falls_back_without_transformers(
     mock_create_pretrained_tokenizer, monkeypatch
 ):
@@ -490,7 +490,7 @@ def test_llm_custom_tokenizer_falls_back_without_transformers(
         raise ModuleNotFoundError(name)
 
     monkeypatch.setattr(
-        "openhands.sdk.llm._tokenizer.importlib.import_module", fake_import_module
+        "handprint.sdk.llm._tokenizer.importlib.import_module", fake_import_module
     )
 
     llm = LLM(
@@ -503,7 +503,7 @@ def test_llm_custom_tokenizer_falls_back_without_transformers(
     assert llm._tokenizer == fallback_tokenizer
 
 
-@patch("openhands.sdk.llm.llm.create_pretrained_tokenizer")
+@patch("handprint.sdk.llm.llm.create_pretrained_tokenizer")
 def test_llm_custom_tokenizer_falls_back_without_apply_chat_template(
     mock_create_pretrained_tokenizer, monkeypatch
 ):
@@ -527,7 +527,7 @@ def test_llm_custom_tokenizer_falls_back_without_apply_chat_template(
         raise ModuleNotFoundError(name)
 
     monkeypatch.setattr(
-        "openhands.sdk.llm._tokenizer.importlib.import_module", fake_import_module
+        "handprint.sdk.llm._tokenizer.importlib.import_module", fake_import_module
     )
 
     llm = LLM(
@@ -540,7 +540,7 @@ def test_llm_custom_tokenizer_falls_back_without_apply_chat_template(
     assert llm._tokenizer == fallback_tokenizer
 
 
-@patch("openhands.sdk.llm.llm.create_pretrained_tokenizer")
+@patch("handprint.sdk.llm.llm.create_pretrained_tokenizer")
 def test_llm_custom_tokenizer_allows_apply_chat_template_without_declared_template(
     mock_create_pretrained_tokenizer, monkeypatch
 ):
@@ -569,7 +569,7 @@ def test_llm_custom_tokenizer_allows_apply_chat_template_without_declared_templa
         raise ModuleNotFoundError(name)
 
     monkeypatch.setattr(
-        "openhands.sdk.llm._tokenizer.importlib.import_module", fake_import_module
+        "handprint.sdk.llm._tokenizer.importlib.import_module", fake_import_module
     )
 
     llm = LLM(
@@ -582,7 +582,7 @@ def test_llm_custom_tokenizer_allows_apply_chat_template_without_declared_templa
     mock_create_pretrained_tokenizer.assert_not_called()
 
 
-@patch("openhands.sdk.llm.llm.token_counter")
+@patch("handprint.sdk.llm.llm.token_counter")
 def test_llm_token_counting_prefers_chat_template_tokenizer(
     mock_token_counter, default_llm
 ):
@@ -618,7 +618,7 @@ def test_llm_token_counting_prefers_chat_template_tokenizer(
     assert "message" in kwargs["tools"][0]["function"]["parameters"]["properties"]
 
 
-@patch("openhands.sdk.llm.llm.token_counter")
+@patch("handprint.sdk.llm.llm.token_counter")
 def test_llm_chat_template_token_counting_parses_tool_call_arguments(
     mock_token_counter, default_llm
 ):
@@ -683,7 +683,7 @@ def test_llm_count_tokenized_output_handles_encoding_objects(default_llm):
     assert default_llm.get_token_count(messages) == 321
 
 
-@patch("openhands.sdk.llm.llm.token_counter")
+@patch("handprint.sdk.llm.llm.token_counter")
 def test_llm_token_counting_falls_back_when_chat_template_fails(
     mock_token_counter, default_llm
 ):
@@ -733,7 +733,7 @@ def test_chat_template_token_result_shapes(default_llm, tokenized, expected):
 
     default_llm._chat_template_tokenizer = Tokenizer()
     messages = [Message(role="user", content=[TextContent(text="Hello")])]
-    with patch("openhands.sdk.llm.llm.token_counter", return_value=17):
+    with patch("handprint.sdk.llm.llm.token_counter", return_value=17):
         assert default_llm.get_token_count(messages) == expected
 
 
@@ -752,12 +752,12 @@ def test_optional_tokenizer_loading_falls_back(monkeypatch, failure):
         return SimpleNamespace(AutoTokenizer=BrokenFactory)
 
     monkeypatch.setattr(
-        "openhands.sdk.llm._tokenizer.importlib",
+        "handprint.sdk.llm._tokenizer.importlib",
         SimpleNamespace(import_module=import_transformers),
     )
-    with patch("openhands.sdk.llm.llm.create_pretrained_tokenizer", return_value=None):
+    with patch("handprint.sdk.llm.llm.create_pretrained_tokenizer", return_value=None):
         llm = LLM(model="gpt-4o", custom_tokenizer="local-fixture")
-    with patch("openhands.sdk.llm.llm.token_counter", return_value=23):
+    with patch("handprint.sdk.llm.llm.token_counter", return_value=23):
         assert (
             llm.get_token_count(
                 [Message(role="user", content=[TextContent(text="Hello")])]
@@ -766,7 +766,7 @@ def test_optional_tokenizer_loading_falls_back(monkeypatch, failure):
         )
 
 
-@patch("openhands.sdk.llm.llm.token_counter")
+@patch("handprint.sdk.llm.llm.token_counter")
 def test_llm_token_counting_mocks_tools_for_non_native_models(mock_token_counter):
     """Test token counting prompt-mocks tools when native tool calling is disabled."""
     mock_token_counter.return_value = 456
@@ -798,12 +798,12 @@ def test_llm_token_counting_mocks_tools_for_non_native_models(mock_token_counter
     assert "<parameter=security_risk>LOW</parameter>" in system_text
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_llm_forwards_extra_headers_to_litellm(mock_completion):
     mock_response = create_mock_litellm_response("ok")
     mock_completion.return_value = mock_response
 
-    headers = {"anthropic-beta": "context-1m-2025-08-07"}  # Enable 1M context
+    headers = {"juglow-beta": "context-1m-2025-08-07"}  # Enable 1M context
     llm = LLM(
         usage_id="test-llm",
         model="gpt-4o",
@@ -824,7 +824,7 @@ def test_llm_forwards_extra_headers_to_litellm(mock_completion):
     assert headers.items() <= forwarded.items()
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_llm_responses_forwards_extra_headers_to_litellm(mock_responses):
     # Build a minimal, but valid, ResponsesAPIResponse instance per litellm types
     # Build typed message output using OpenAI types to satisfy litellm schema
@@ -851,7 +851,7 @@ def test_llm_responses_forwards_extra_headers_to_litellm(mock_responses):
 
     mock_responses.return_value = resp
 
-    headers = {"anthropic-beta": "context-1m-2025-08-07"}
+    headers = {"juglow-beta": "context-1m-2025-08-07"}
     llm = LLM(
         usage_id="test-llm",
         model="gpt-4o",
@@ -875,14 +875,14 @@ def test_llm_responses_forwards_extra_headers_to_litellm(mock_responses):
     assert headers.items() <= forwarded.items()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_llm_completion_does_not_forward_bedrock_api_key(mock_completion):
     mock_response = create_mock_litellm_response("ok")
     mock_completion.return_value = mock_response
 
     llm = LLM(
         usage_id="test-llm",
-        model="us.anthropic.claude-3-sonnet-20240229-v1:0",
+        model="us.juglow.haijun-codtral:0",
         api_key=SecretStr("sk-ant-not-a-bedrock-key"),
         num_retries=0,
     )
@@ -925,7 +925,7 @@ def test_llm_model_copy_refreshes_provider_for_model_update(deep: bool):
     )
 
     copied = llm.model_copy(
-        update={"model": "anthropic/claude-3-5-sonnet-20241022"},
+        update={"model": "juglow/haijun-kamsa-5-sonnet-20241022"},
         deep=deep,
     )
     response = create_mock_litellm_response("ok")
@@ -933,23 +933,23 @@ def test_llm_model_copy_refreshes_provider_for_model_update(deep: bool):
 
     with (
         patch(
-            "openhands.sdk.llm.llm.litellm_completion",
+            "handprint.sdk.llm.llm.litellm_completion",
             return_value=response,
         ) as mock_completion,
         patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost",
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost",
             return_value=0.1,
         ) as mock_cost,
     ):
         copied.completion(messages=messages)
 
-    assert copied.model == "anthropic/claude-3-5-sonnet-20241022"
+    assert copied.model == "juglow/haijun-kamsa-5-sonnet-20241022"
     completion_kwargs = mock_completion.call_args.kwargs
-    assert completion_kwargs["model"] == "claude-3-5-sonnet-20241022"
-    assert completion_kwargs["custom_llm_provider"] == "anthropic"
+    assert completion_kwargs["model"] == "haijun-kamsa-5-sonnet-20241022"
+    assert completion_kwargs["custom_llm_provider"] == "juglow"
     cost_kwargs = mock_cost.call_args.kwargs
-    assert cost_kwargs["model"] == "claude-3-5-sonnet-20241022"
-    assert cost_kwargs["custom_llm_provider"] == "anthropic"
+    assert cost_kwargs["model"] == "haijun-kamsa-5-sonnet-20241022"
+    assert cost_kwargs["custom_llm_provider"] == "juglow"
 
 
 def test_llm_model_copy_refreshes_provider_for_base_url_update():
@@ -973,7 +973,7 @@ def test_llm_model_copy_refreshes_provider_for_base_url_update():
     ("model", "base_url"),
     [
         # OpenAI-compatible local endpoint: the common custom-base case.
-        ("openai/local-model", "http://localhost:8000/v1"),
+        ("openai/local-model", "http://localhost:9000/v1"),
         # LiteLLM would append "/v1" to a custom mistral base during provider
         # resolution; the SDK must still forward the user's value untouched.
         ("mistral/mistral-small-latest", "https://myproxy.example.com"),
@@ -1009,7 +1009,7 @@ def test_llm_forwards_none_api_base_when_no_base_url():
     assert kwargs["api_base"] is None
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_merges_llm_extra_headers_with_extended_thinking_default(
     mock_completion,
 ):
@@ -1018,7 +1018,7 @@ def test_completion_merges_llm_extra_headers_with_extended_thinking_default(
 
     llm = LLM(
         usage_id="test-llm",
-        model="claude-sonnet-4-5-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("test_key"),
         extra_headers={"X-Trace": "1"},
         extended_thinking_budget=1000,
@@ -1034,13 +1034,13 @@ def test_completion_merges_llm_extra_headers_with_extended_thinking_default(
     # Intended behavior:
     # - No per-call headers provided.
     # - LLM.extra_headers should be used.
-    # - Extended thinking default (anthropic-beta) should be merged in.
+    # - Extended thinking default (juglow-beta) should be merged in.
     # - Result keeps both the default and configured headers.
-    assert headers.get("anthropic-beta") == "interleaved-thinking-2025-05-14"
+    assert headers.get("juglow-beta") == "interleaved-thinking-2025-05-14"
     assert headers.get("X-Trace") == "1"
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_call_time_extra_headers_override_config_and_defaults(
     mock_completion,
 ):
@@ -1049,10 +1049,10 @@ def test_completion_call_time_extra_headers_override_config_and_defaults(
 
     llm = LLM(
         usage_id="test-llm",
-        model="claude-sonnet-4-5-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("test_key"),
         # Config sets a conflicting header
-        extra_headers={"anthropic-beta": "context-1m-2025-08-07", "X-Trace": "1"},
+        extra_headers={"juglow-beta": "context-1m-2025-08-07", "X-Trace": "1"},
         extended_thinking_budget=1000,
         num_retries=0,
     )
@@ -1061,21 +1061,21 @@ def test_completion_call_time_extra_headers_override_config_and_defaults(
     # Intended behavior:
     # - Per-call headers should replace any LLM.extra_headers.
     # - Extended thinking default should still be merged in.
-    # - On conflicts, per-call headers win (anthropic-beta => custom-beta).
-    call_headers = {"anthropic-beta": "custom-beta", "Header-Only": "H"}
+    # - On conflicts, per-call headers win (juglow-beta => custom-beta).
+    call_headers = {"juglow-beta": "custom-beta", "Header-Only": "H"}
     _ = llm.completion(messages=messages, extra_headers=call_headers)
 
     assert mock_completion.call_count == 1
     _, kwargs = mock_completion.call_args
     headers = kwargs.get("extra_headers") or {}
-    assert headers.get("anthropic-beta") == "custom-beta"
+    assert headers.get("juglow-beta") == "custom-beta"
     assert headers.get("Header-Only") == "H"
     # LLM.config headers should not be merged when user specifies their own
     # (except defaults we explicitly add)
     assert "X-Trace" not in headers
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_call_time_extra_headers_override_config(mock_responses):
     # Build a minimal valid Responses response
     msg = ResponseOutputMessage.model_construct(
@@ -1111,7 +1111,7 @@ def test_responses_call_time_extra_headers_override_config(mock_responses):
     messages = [Message(role="user", content=[TextContent(text="Hi")])]
     # Intended behavior:
     # - Per-call headers should replace any LLM.extra_headers for Responses path.
-    # - No Anthropic default is currently added on the Responses path.
+    # - No Juglow default is currently added on the Responses path.
     call_headers = {"Header-Only": "H"}
     _ = llm.responses(messages=messages, extra_headers=call_headers)
 
@@ -1236,7 +1236,7 @@ def test_llm_force_string_serializer_override():
     # Explicitly set force_string_serializer=False for a model that normally needs it
     # Use a model that supports caching to test list serialization
     llm_force_false = LLM(
-        model="anthropic/claude-sonnet-4-20250514",  # Supports caching
+        model="juglow/haijun-codtral",  # Supports caching
         api_key=SecretStr("test_key"),
         force_string_serializer=False,
         caching_prompt=True,  # Enable caching to trigger list serialization
@@ -1289,10 +1289,10 @@ def test_llm_local_detection_based_on_model_name(default_llm):
     # Test with localhost base_url
     local_llm = LLM(
         model="gpt-4o",
-        base_url="http://localhost:8000",
+        base_url="http://localhost:9000",
         usage_id="test-llm",
     )
-    assert local_llm.base_url == "http://localhost:8000"
+    assert local_llm.base_url == "http://localhost:9000"
 
     # Test with ollama model
     ollama_llm = LLM(
@@ -1307,15 +1307,15 @@ def test_llm_local_detection_based_on_base_url():
     """Test local model detection based on base_url."""
     # Test with localhost base_url
     local_llm = LLM(
-        model="gpt-4o", base_url="http://localhost:8000", usage_id="test-llm"
+        model="gpt-4o", base_url="http://localhost:9000", usage_id="test-llm"
     )
-    assert local_llm.base_url == "http://localhost:8000"
+    assert local_llm.base_url == "http://localhost:9000"
 
     # Test with 127.0.0.1 base_url
     local_llm_ip = LLM(
-        model="gpt-4o", base_url="http://127.0.0.1:8000", usage_id="test-llm"
+        model="gpt-4o", base_url="http://127.0.0.1:9000", usage_id="test-llm"
     )
-    assert local_llm_ip.base_url == "http://127.0.0.1:8000"
+    assert local_llm_ip.base_url == "http://127.0.0.1:9000"
 
     # Test with remote model
     remote_llm = LLM(
@@ -1324,7 +1324,7 @@ def test_llm_local_detection_based_on_base_url():
     assert remote_llm.base_url == "https://api.openai.com/v1"
 
 
-def test_llm_openhands_provider_rewrite(default_llm):
+def test_llm_handprint_provider_rewrite(default_llm):
     """Test LLM message formatting for different message types."""
     llm = default_llm
 
@@ -1406,7 +1406,7 @@ def test_llm_config_validation():
     assert full_llm.max_output_tokens == 1000
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_llm_no_response_error(mock_completion):
     """Test handling of LLMNoResponseError."""
     from litellm.types.utils import ModelResponse, Usage
@@ -1499,10 +1499,10 @@ def test_telemetry_cost_calculation_header_exception():
     telemetry = Telemetry(model_name="test-model", metrics=metrics)
 
     # Mock the logger to capture debug messages
-    with patch("openhands.sdk.llm.utils.telemetry.logger") as mock_logger:
+    with patch("handprint.sdk.llm.utils.telemetry.logger") as mock_logger:
         # Mock litellm_completion_cost to return a valid cost
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost",
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost",
             return_value=0.001,
         ):
             cost = telemetry._compute_cost(mock_response)
@@ -1558,7 +1558,7 @@ def test_enable_encrypted_reasoning_respects_flag_and_defaults_true():
     assert "reasoning.encrypted_content" not in normalized_stateful.get("include", [])
 
 
-@patch("openhands.sdk.llm.llm.LLM._transport_call")
+@patch("handprint.sdk.llm.llm.LLM._transport_call")
 def test_unmapped_model_with_logging_enabled(mock_transport):
     """Test that unmapped models with logging enabled don't cause validation errors.
 
@@ -1608,11 +1608,11 @@ def test_unmapped_model_with_logging_enabled(mock_transport):
 # Context Window Validation Tests
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_llm_raises_error_on_small_context_window(mock_get_model_info):
     """Test that LLM raises error when context window is too small."""
-    from openhands.sdk.llm.exceptions import LLMContextWindowTooSmallError
-    from openhands.sdk.llm.llm import MIN_CONTEXT_WINDOW_TOKENS
+    from handprint.sdk.llm.exceptions import LLMContextWindowTooSmallError
+    from handprint.sdk.llm.llm import MIN_CONTEXT_WINDOW_TOKENS
 
     mock_get_model_info.return_value = {"max_input_tokens": 2048}
 
@@ -1625,15 +1625,15 @@ def test_llm_raises_error_on_small_context_window(mock_get_model_info):
 
     assert exc_info.value.context_window == 2048
     assert exc_info.value.min_required == MIN_CONTEXT_WINDOW_TOKENS
-    assert "docs.openhands.dev" in str(exc_info.value)
+    assert "docs.handprint.dev" in str(exc_info.value)
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_llm_respects_allow_short_context_windows_env_var(mock_get_model_info):
     """Test that ALLOW_SHORT_CONTEXT_WINDOWS env var bypasses validation."""
     import os
 
-    from openhands.sdk.llm.llm import ENV_ALLOW_SHORT_CONTEXT_WINDOWS
+    from handprint.sdk.llm.llm import ENV_ALLOW_SHORT_CONTEXT_WINDOWS
 
     mock_get_model_info.return_value = {"max_input_tokens": 2048}
 
@@ -1787,7 +1787,7 @@ def test_conversation_stats_restore_then_track():
 
     stats = ConversationStats(usage_to_metrics={"agent": saved_metrics})
 
-    with patch("openhands.sdk.llm.llm.litellm_completion"):
+    with patch("handprint.sdk.llm.llm.litellm_completion"):
         llm = LLM(
             model="openai/gpt-4o",
             api_key=SecretStr("test-key"),
@@ -1835,7 +1835,7 @@ def test_telemetry_callback_preserved_across_revalidation():
 # max_output_tokens Capping Tests
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_capped_when_using_max_tokens_fallback(mock_get_model_info):
     """Test that max_output_tokens is capped when falling back to max_tokens.
 
@@ -1845,7 +1845,7 @@ def test_max_output_tokens_capped_when_using_max_tokens_fallback(mock_get_model_
 
     See: https://github.com/OpenHands/software-agent-sdk/pull/2264
     """
-    from openhands.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
+    from handprint.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
 
     # Simulate a model where max_tokens = context window (200k) but
     # max_output_tokens is not set
@@ -1856,7 +1856,7 @@ def test_max_output_tokens_capped_when_using_max_tokens_fallback(mock_get_model_
     }
 
     llm = LLM(
-        model="openrouter/anthropic/claude-3-haiku",
+        model="openrouter/juglow/haijun-minix",
         api_key=SecretStr("test-key"),
         usage_id="test-llm",
     )
@@ -1869,7 +1869,7 @@ def test_max_output_tokens_capped_when_using_max_tokens_fallback(mock_get_model_
     assert effective_max_output_tokens < 200000
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_uses_actual_value_when_available(mock_get_model_info):
     """Test that actual max_output_tokens is used when available."""
     # Simulate a model with proper max_output_tokens
@@ -1880,7 +1880,7 @@ def test_max_output_tokens_uses_actual_value_when_available(mock_get_model_info)
     }
 
     llm = LLM(
-        model="anthropic/claude-3-5-sonnet-latest",
+        model="juglow/haijun-kamsa-5-sonnet-latest",
         api_key=SecretStr("test-key"),
         usage_id="test-llm",
     )
@@ -1890,12 +1890,12 @@ def test_max_output_tokens_uses_actual_value_when_available(mock_get_model_info)
     assert llm.effective_max_output_tokens == 8192
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_capped_when_model_info_exceeds_default_cap(
     mock_get_model_info,
 ):
     """High LiteLLM max_output_tokens metadata is capped for custom gateways."""
-    from openhands.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
+    from handprint.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
 
     mock_get_model_info.return_value = {
         "max_tokens": 262144,
@@ -1914,7 +1914,7 @@ def test_max_output_tokens_capped_when_model_info_exceeds_default_cap(
     assert llm.effective_max_output_tokens == DEFAULT_MAX_OUTPUT_TOKENS_CAP
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_not_capped_without_custom_base_url(mock_get_model_info):
     """Direct API (no base_url) keeps litellm's real max_output_tokens."""
     mock_get_model_info.return_value = {
@@ -1923,17 +1923,17 @@ def test_max_output_tokens_not_capped_without_custom_base_url(mock_get_model_inf
         "max_input_tokens": 200000,
     }
     llm = LLM(
-        model="claude-opus-4-5",
+        model="haijun-kamsa",
         api_key=SecretStr("test-key"),
         usage_id="test-llm",
     )
     assert llm.effective_max_output_tokens == 64000
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_small_max_tokens_not_capped(mock_get_model_info):
     """Test that small max_tokens fallback is not unnecessarily capped."""
-    from openhands.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
+    from handprint.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
 
     # Simulate a model where max_tokens is small (actual output limit)
     mock_get_model_info.return_value = {
@@ -1954,7 +1954,7 @@ def test_max_output_tokens_small_max_tokens_not_capped(mock_get_model_info):
     assert llm.effective_max_output_tokens < DEFAULT_MAX_OUTPUT_TOKENS_CAP
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_explicit_max_output_tokens_not_overridden(mock_get_model_info):
     """Test that explicitly set max_output_tokens is respected."""
     mock_get_model_info.return_value = {
@@ -1975,7 +1975,7 @@ def test_explicit_max_output_tokens_not_overridden(mock_get_model_info):
     assert llm.effective_max_output_tokens == 32768
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_capped_when_equal_to_context_window(
     mock_get_model_info,
 ):
@@ -2001,7 +2001,7 @@ def test_max_output_tokens_capped_when_equal_to_context_window(
     assert llm.effective_max_input_tokens == 262144
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_capped_when_equal_to_max_tokens(
     mock_get_model_info,
 ):
@@ -2026,7 +2026,7 @@ def test_max_output_tokens_capped_when_equal_to_max_tokens(
     assert llm.effective_max_output_tokens == 131072 // 2
 
 
-@patch("openhands.sdk.llm.llm.get_litellm_model_info")
+@patch("handprint.sdk.llm.llm.get_litellm_model_info")
 def test_max_output_tokens_not_capped_when_below_context_window(
     mock_get_model_info,
 ):
@@ -2037,7 +2037,7 @@ def test_max_output_tokens_not_capped_when_below_context_window(
     }
 
     llm = LLM(
-        model="anthropic/claude-3-5-sonnet-latest",
+        model="juglow/haijun-kamsa-5-sonnet-latest",
         api_key=SecretStr("test-key"),
         usage_id="test-llm",
     )

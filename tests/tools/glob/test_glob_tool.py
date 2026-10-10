@@ -8,13 +8,13 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm import LLM
-from openhands.sdk.tool.tool import DeclaredResources
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.glob import GlobAction, GlobObservation, GlobTool
-from openhands.tools.glob.impl import GlobExecutor
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm import LLM
+from handprint.sdk.tool.tool import DeclaredResources
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.glob import GlobAction, GlobObservation, GlobTool
+from handprint.tools.glob.impl import GlobExecutor
 
 
 def _create_test_conv_state(temp_dir: str) -> ConversationState:

@@ -3,8 +3,8 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.docker_runtime.provisioning import RuntimeProvisioningStore
+from handprint.agent_server.config import Config
+from handprint.agent_server.docker_runtime.provisioning import RuntimeProvisioningStore
 
 
 def config(tmp_path, monkeypatch) -> Config:

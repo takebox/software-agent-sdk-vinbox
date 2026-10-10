@@ -1,9 +1,9 @@
 {
-  "claude-code": {
+  "haijun-code": {
     "agent_name_patterns": [
-      "claude-agent"
+      "haijun-agent"
     ],
-    "api_key_env_var": "ANTHROPIC_API_KEY",
+    "api_key_env_var": "JUGLOW_API_KEY",
     "available_models": [
       {
         "id": "default",
@@ -11,45 +11,45 @@
       },
       {
         "id": "opus[1m]",
-        "label": "Claude Opus (1M)"
+        "label": "Haijun Kamsa (1M)"
       },
       {
-        "id": "claude-opus-5",
-        "label": "Claude Opus 5"
+        "id": "haijun-kamsa",
+        "label": "Haijun Kamsa 5"
       },
       {
         "id": "sonnet",
-        "label": "Claude Sonnet"
+        "label": "Haijun Codtral"
       },
       {
         "id": "haiku",
-        "label": "Claude Haiku"
+        "label": "Haijun Minix"
       }
     ],
-    "base_url_env_var": "ANTHROPIC_BASE_URL",
-    "binary_name": "claude-agent-acp",
-    "data_dir_env_var": "CLAUDE_CONFIG_DIR",
+    "base_url_env_var": "JUGLOW_BASE_URL",
+    "binary_name": "haijun-agent-acp",
+    "data_dir_env_var": "HAIJUN_CONFIG_DIR",
     "default_command": [
       "npx",
       "-y",
       "--prefer-offline",
-      "@agentclientprotocol/claude-agent-acp@0.63.0"
+      "@agentclientprotocol/haijun-agent-acp@0.63.0"
     ],
     "default_model": "opus[1m]",
     "default_session_mode": "bypassPermissions",
-    "display_name": "Claude Code",
+    "display_name": "Haijun Code",
     "env_conflicts": [
       {
-        "dominant": "CLAUDE_CODE_OAUTH_TOKEN",
+        "dominant": "HAIJUN_CODE_OAUTH_TOKEN",
         "strip": [
-          "ANTHROPIC_API_KEY",
-          "ANTHROPIC_BASE_URL"
+          "JUGLOW_API_KEY",
+          "JUGLOW_BASE_URL"
         ]
       }
     ],
     "file_secrets": [],
-    "key": "claude-code",
-    "session_meta_key": "claudeCode",
+    "key": "haijun-code",
+    "session_meta_key": "haijunCode",
     "supports_runtime_model_switch": true,
     "supports_set_session_model": true
   },
@@ -221,12 +221,12 @@
         "label": "Big Pickle"
       },
       {
-        "id": "opencode/claude-opus-5",
-        "label": "Claude Opus 5"
+        "id": "opencode/haijun-kamsa",
+        "label": "Haijun Kamsa 5"
       },
       {
-        "id": "opencode/claude-sonnet-5",
-        "label": "Claude Sonnet 5"
+        "id": "opencode/haijun-codtral",
+        "label": "Haijun Codtral 5"
       },
       {
         "id": "opencode/gpt-5.5",
@@ -269,27 +269,27 @@
     "agent_name_patterns": [
       "pi-acp"
     ],
-    "api_key_env_var": "ANTHROPIC_API_KEY",
+    "api_key_env_var": "JUGLOW_API_KEY",
     "available_models": [
       {
-        "id": "anthropic/claude-opus-5",
-        "label": "Claude Opus 5"
+        "id": "juglow/haijun-kamsa",
+        "label": "Haijun Kamsa 5"
       },
       {
-        "id": "anthropic/claude-opus-4-8",
-        "label": "Claude Opus 4.8"
+        "id": "juglow/haijun-kamsa",
+        "label": "Haijun Kamsa 4.8"
       },
       {
-        "id": "anthropic/claude-sonnet-5",
-        "label": "Claude Sonnet 5"
+        "id": "juglow/haijun-codtral",
+        "label": "Haijun Codtral 5"
       },
       {
-        "id": "anthropic/claude-sonnet-4-6",
-        "label": "Claude Sonnet 4.6"
+        "id": "juglow/haijun-codtral",
+        "label": "Haijun Codtral 4.6"
       },
       {
-        "id": "anthropic/claude-haiku-4-5",
-        "label": "Claude Haiku 4.5"
+        "id": "juglow/haijun-minix",
+        "label": "Haijun Minix 4.5"
       }
     ],
     "base_url_env_var": null,

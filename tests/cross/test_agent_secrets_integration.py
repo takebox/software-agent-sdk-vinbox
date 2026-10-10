@@ -7,16 +7,16 @@ from unittest.mock import patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.llm import LLM
-from openhands.sdk.secret import LookupSecret, SecretSource, StaticSecret
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.terminal import TerminalTool
-from openhands.tools.terminal.definition import TerminalAction
-from openhands.tools.terminal.impl import TerminalExecutor
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.llm import LLM
+from handprint.sdk.secret import LookupSecret, SecretSource, StaticSecret
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.terminal import TerminalTool
+from handprint.tools.terminal.definition import TerminalAction
+from handprint.tools.terminal.impl import TerminalExecutor
 
 
 pytestmark = pytest.mark.skipif(
@@ -179,14 +179,14 @@ def test_agent_without_bash_throws_warning(llm):
 
 
 # ---------------------------------------------------------------------------
-# agent_context.secrets → secret_registry lift (canvas / TypeScript gap fix)
+# agent_context.secrets → secret_registry lift (viczin / TypeScript gap fix)
 # ---------------------------------------------------------------------------
 
 
 def test_agent_context_secrets_seeded_into_registry_at_init(llm, tmp_path):
     """agent_context.secrets land in secret_registry without any request.secrets.
 
-    Covers callers (e.g. canvas / TypeScript) that build StartConversationRequest
+    Covers callers (e.g. viczin / TypeScript) that build StartConversationRequest
     directly without going through create_request(), so agent_context.secrets
     would otherwise only be visible via the _start_acp_server() drain.
     """
@@ -194,13 +194,13 @@ def test_agent_context_secrets_seeded_into_registry_at_init(llm, tmp_path):
         llm=llm,
         tools=[],
         agent_context=AgentContext(
-            secrets={"ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-from-ctx"))}
+            secrets={"JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-from-ctx"))}
         ),
     )
     conv = LocalConversation(agent, workspace=str(tmp_path))
     try:
         registry = conv.state.secret_registry
-        assert registry.get_secret_value("ANTHROPIC_API_KEY") == "sk-from-ctx"
+        assert registry.get_secret_value("JUGLOW_API_KEY") == "sk-from-ctx"
     finally:
         conv.close()
 
@@ -214,16 +214,16 @@ def test_request_secrets_win_over_agent_context_secrets_on_collision(llm, tmp_pa
         llm=llm,
         tools=[],
         agent_context=AgentContext(
-            secrets={"ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-from-ctx"))}
+            secrets={"JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-from-ctx"))}
         ),
     )
     request_secrets = {
-        "ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-from-request"))
+        "JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-from-request"))
     }
     conv = LocalConversation(agent, workspace=str(tmp_path), secrets=request_secrets)
     try:
         registry = conv.state.secret_registry
-        assert registry.get_secret_value("ANTHROPIC_API_KEY") == "sk-from-request"
+        assert registry.get_secret_value("JUGLOW_API_KEY") == "sk-from-request"
     finally:
         conv.close()
 
@@ -234,14 +234,14 @@ def test_agent_context_and_request_secrets_are_merged(llm, tmp_path):
         llm=llm,
         tools=[],
         agent_context=AgentContext(
-            secrets={"ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-provider"))}
+            secrets={"JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-provider"))}
         ),
     )
     request_secrets = {"GITHUB_TOKEN": StaticSecret(value=SecretStr("ghp-panel"))}
     conv = LocalConversation(agent, workspace=str(tmp_path), secrets=request_secrets)
     try:
         registry = conv.state.secret_registry
-        assert registry.get_secret_value("ANTHROPIC_API_KEY") == "sk-provider"
+        assert registry.get_secret_value("JUGLOW_API_KEY") == "sk-provider"
         assert registry.get_secret_value("GITHUB_TOKEN") == "ghp-panel"
     finally:
         conv.close()

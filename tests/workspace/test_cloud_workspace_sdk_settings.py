@@ -1,4 +1,4 @@
-"""Tests for OpenHandsCloudWorkspace settings methods.
+"""Tests for HandprintCloudWorkspace settings methods.
 
 Tests for get_llm(), get_secrets(), and get_mcp_config().
 
@@ -14,9 +14,9 @@ import httpx
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.mcp.config import dump_mcp_config
-from openhands.sdk.secret import LookupSecret
-from openhands.workspace.cloud.workspace import OpenHandsCloudWorkspace
+from handprint.sdk.mcp.config import dump_mcp_config
+from handprint.sdk.secret import LookupSecret
+from handprint.workspace.cloud.workspace import HandprintCloudWorkspace
 
 
 SANDBOX_ID = "sb-test-123"
@@ -28,12 +28,12 @@ CLOUD_URL = "https://app.all-hands.dev"
 def mock_workspace():
     """Create a workspace instance with mocked sandbox lifecycle."""
     with patch.object(
-        OpenHandsCloudWorkspace, "model_post_init", lambda self, ctx: None
+        HandprintCloudWorkspace, "model_post_init", lambda self, ctx: None
     ):
-        workspace = OpenHandsCloudWorkspace(
+        workspace = HandprintCloudWorkspace(
             cloud_api_url=CLOUD_URL,
             cloud_api_key="test-api-key",
-            host="http://localhost:8000",
+            host="http://localhost:9000",
         )
     # Simulate a running sandbox
     workspace._sandbox_id = SANDBOX_ID
@@ -44,13 +44,13 @@ def mock_workspace():
 
 
 class TestGetLLM:
-    """Tests for OpenHandsCloudWorkspace.get_llm()."""
+    """Tests for HandprintCloudWorkspace.get_llm()."""
 
     def test_get_llm_returns_usable_llm(self, mock_workspace):
         """get_llm fetches SaaS config and returns a usable LLM."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
-            "llm_model": "anthropic/claude-sonnet-4-20250514",
+            "llm_model": "juglow/haijun-codtral",
             "llm_api_key": "sk-test-key-123",
             "llm_base_url": "https://litellm.example.com",
         }
@@ -67,7 +67,7 @@ class TestGetLLM:
             params={"expose_secrets": "true"},
             headers={"X-Session-API-Key": SESSION_KEY},
         )
-        assert llm.model == "anthropic/claude-sonnet-4-20250514"
+        assert llm.model == "juglow/haijun-codtral"
         # api_key is a real SecretStr (LLM validator converts str → SecretStr)
         assert isinstance(llm.api_key, SecretStr)
         assert llm.api_key.get_secret_value() == "sk-test-key-123"
@@ -77,7 +77,7 @@ class TestGetLLM:
         """User-provided kwargs override SaaS settings."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
-            "llm_model": "anthropic/claude-sonnet-4-20250514",
+            "llm_model": "juglow/haijun-codtral",
             "llm_api_key": "sk-test-key",
             "llm_base_url": None,
         }
@@ -96,7 +96,7 @@ class TestGetLLM:
         """get_llm can load a named profile from SaaS metadata."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
-            "llm_model": "anthropic/claude-sonnet-4-20250514",
+            "llm_model": "juglow/haijun-codtral",
             "llm_api_key": "sk-default-key",
             "llm_base_url": None,
             "llm_profiles": {
@@ -180,7 +180,7 @@ class TestGetLLM:
 
 
 class TestGetSecrets:
-    """Tests for OpenHandsCloudWorkspace.get_secrets()."""
+    """Tests for HandprintCloudWorkspace.get_secrets()."""
 
     def test_get_all_secrets_returns_lookup_secrets(self, mock_workspace):
         """get_secrets returns LookupSecret instances, not raw values."""
@@ -272,7 +272,7 @@ class TestGetSecrets:
 
 
 class TestGetMcpServers:
-    """Tests for OpenHandsCloudWorkspace.get_mcp_config()."""
+    """Tests for HandprintCloudWorkspace.get_mcp_config()."""
 
     def test_get_mcp_config_returns_empty_when_no_config(self, mock_workspace):
         """get_mcp_config returns empty dict when no MCP servers is set."""

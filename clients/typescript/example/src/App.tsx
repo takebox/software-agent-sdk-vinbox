@@ -11,7 +11,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="max-w-7xl mx-auto p-8 text-center">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white m-0">OpenHands Conversation Manager</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white m-0">Handprint Conversation Manager</h1>
           <button 
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200"
             onClick={openModal}

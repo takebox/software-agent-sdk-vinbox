@@ -17,7 +17,7 @@ jobs:
             - name: Trigger docs repo sync
               uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4
               with:
-                  token: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_PUBLIC }}
-                  repository: OpenHands/docs
+                  token: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_PUBLIC }}
+                  repository: Handprint/docs
                   event-type: update
                   client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

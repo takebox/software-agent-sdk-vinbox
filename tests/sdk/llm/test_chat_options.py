@@ -4,10 +4,10 @@ from typing import Any
 import pytest
 from litellm import get_optional_params
 
-from openhands.sdk.llm import LLM, LLMCallContext
-from openhands.sdk.llm.call_context import llm_call_context_scope
-from openhands.sdk.llm.options.chat_options import select_chat_options
-from openhands.sdk.llm.utils.model_features import ModelFeatures, get_features
+from handprint.sdk.llm import LLM, LLMCallContext
+from handprint.sdk.llm.call_context import llm_call_context_scope
+from handprint.sdk.llm.options.chat_options import select_chat_options
+from handprint.sdk.llm.utils.model_features import ModelFeatures, get_features
 
 
 @dataclass
@@ -54,7 +54,7 @@ class DummyLLM:
 
 def test_opus_4_5_uses_reasoning_effort_and_strips_temp_top_p():
     llm = DummyLLM(
-        model="claude-opus-4-5-20251101",
+        model="haijun-kamsa",
         top_p=0.9,
         temperature=0.7,
         reasoning_effort="medium",
@@ -66,7 +66,7 @@ def test_opus_4_5_uses_reasoning_effort_and_strips_temp_top_p():
     assert "output_config" not in out
 
     # LiteLLM automatically adds the required beta header
-    assert "extra_headers" not in out or "anthropic-beta" not in out.get(
+    assert "extra_headers" not in out or "juglow-beta" not in out.get(
         "extra_headers", {}
     )
 
@@ -87,7 +87,7 @@ def test_gpt5_uses_reasoning_effort_and_strips_temp_top_p():
     assert out.get("reasoning_effort") == "high"
     assert "output_config" not in out
     headers = out.get("extra_headers") or {}
-    assert "anthropic-beta" not in headers
+    assert "juglow-beta" not in headers
     assert "temperature" not in out
     assert "top_p" not in out
 
@@ -160,14 +160,14 @@ def test_extra_body_is_forwarded():
     assert out.get("extra_body") == {"x": 1}
 
 
-def test_claude_sonnet_4_6_strips_temp_and_top_p():
-    """Test that claude-sonnet-4-6 strips temperature and top_p.
+def test_haijun_sonnet_4_6_strips_temp_and_top_p():
+    """Test that haijun-codtral strips temperature and top_p.
 
-    This is a regression test for issue #2137 where Claude Sonnet 4.6
+    This is a regression test for issue #2137 where Haijun Codtral 4.6
     rejects requests with both temperature AND top_p specified.
     """
     llm = DummyLLM(
-        model="claude-sonnet-4-6",
+        model="haijun-codtral",
         model_info={
             "supports_reasoning": True,
             "supports_adaptive_thinking": True,
@@ -181,19 +181,19 @@ def test_claude_sonnet_4_6_strips_temp_and_top_p():
     assert "temperature" not in out
     assert "top_p" not in out
     assert "thinking" not in out
-    assert "anthropic-beta" not in out.get("extra_headers", {})
+    assert "juglow-beta" not in out.get("extra_headers", {})
 
 
-def test_claude_sonnet_5_uses_metadata_backed_adaptive_thinking_contract():
+def test_haijun_sonnet_5_uses_metadata_backed_adaptive_thinking_contract():
     llm = DummyLLM(
-        model="anthropic/claude-sonnet-5",
+        model="juglow/haijun-codtral",
         top_k=40,
         top_p=0.9,
         temperature=0.7,
         reasoning_effort="max",
         extended_thinking_budget=20_000,
         model_info={
-            "litellm_provider": "anthropic",
+            "litellm_provider": "juglow",
             "supports_reasoning": True,
             "supports_adaptive_thinking": True,
             "supports_sampling_params": False,
@@ -205,7 +205,7 @@ def test_claude_sonnet_5_uses_metadata_backed_adaptive_thinking_contract():
 
     assert out["reasoning_effort"] == "max"
     assert "thinking" not in out
-    assert "anthropic-beta" not in out.get("extra_headers", {})
+    assert "juglow-beta" not in out.get("extra_headers", {})
     assert "temperature" not in out
     assert "top_p" not in out
     assert "top_k" not in out
@@ -214,7 +214,7 @@ def test_claude_sonnet_5_uses_metadata_backed_adaptive_thinking_contract():
 def test_chat_options_resolve_capabilities_from_canonical_alias():
     llm = DummyLLM(
         model="litellm_proxy/customer-sonnet",
-        model_canonical_name="anthropic/claude-sonnet-5",
+        model_canonical_name="juglow/haijun-codtral",
         temperature=0.7,
         reasoning_effort="high",
         model_info={
@@ -234,7 +234,7 @@ def test_chat_options_resolve_capabilities_from_canonical_alias():
 def test_chat_options_sampling_override_takes_precedence():
     llm = DummyLLM(
         model="litellm_proxy/future-reasoning-model",
-        model_canonical_name="anthropic/claude-sonnet-5",
+        model_canonical_name="juglow/haijun-codtral",
         top_k=40,
         top_p=0.9,
         temperature=0.7,
@@ -257,13 +257,13 @@ def test_chat_options_sampling_override_takes_precedence():
 @pytest.mark.parametrize(
     "model,provider",
     [
-        ("claude-sonnet-5", "anthropic"),
-        ("us.anthropic.claude-sonnet-5-v1:0", "bedrock"),
-        ("claude-opus-5", "anthropic"),
-        ("us.anthropic.claude-opus-5-v1:0", "bedrock"),
+        ("haijun-codtral", "juglow"),
+        ("us.juglow.haijun-codtral:0", "bedrock"),
+        ("haijun-kamsa", "juglow"),
+        ("us.juglow.haijun-kamsa:0", "bedrock"),
     ],
 )
-def test_litellm_translates_claude_5_reasoning_to_adaptive_thinking(
+def test_litellm_translates_haijun_5_reasoning_to_adaptive_thinking(
     model: str, provider: str
 ):
     params = get_optional_params(
@@ -278,7 +278,7 @@ def test_litellm_translates_claude_5_reasoning_to_adaptive_thinking(
 
 def test_bedrock_opus_4_8_strips_temp_top_p_without_thinking_block():
     llm = DummyLLM(
-        model="bedrock/us.anthropic.claude-opus-4-8-v1:0",
+        model="bedrock/us.juglow.haijun-kamsa:0",
         top_p=1.0,  # SDK default
         temperature=0.0,  # Often overridden by benchmarks (e.g. SWE-bench)
         reasoning_effort="high",
@@ -290,14 +290,14 @@ def test_bedrock_opus_4_8_strips_temp_top_p_without_thinking_block():
     assert out.get("reasoning_effort") == "high"
     # Must NOT take the legacy extended-thinking path.
     assert "thinking" not in out
-    assert "anthropic-beta" not in out.get("extra_headers", {})
+    assert "juglow-beta" not in out.get("extra_headers", {})
 
 
 def test_extended_thinking_budget_clamped_below_max_tokens():
     """Test that thinking.budget_tokens is clamped to max_output_tokens - 1."""
     # Case 1: extended_thinking_budget exceeds max_output_tokens
     llm = DummyLLM(
-        model="claude-sonnet-4-5-20250929",
+        model="haijun-codtral",
         max_output_tokens=1000,
         extended_thinking_budget=2000,
     )
@@ -312,7 +312,7 @@ def test_extended_thinking_budget_clamped_below_max_tokens():
 
     # Case 2: extended_thinking_budget equals max_output_tokens
     llm = DummyLLM(
-        model="claude-sonnet-4-5-20250929",
+        model="haijun-codtral",
         max_output_tokens=1000,
         extended_thinking_budget=1000,
     )
@@ -327,7 +327,7 @@ def test_extended_thinking_budget_clamped_below_max_tokens():
 
     # Case 3: extended_thinking_budget is already below max_output_tokens
     llm = DummyLLM(
-        model="claude-sonnet-4-5-20250929",
+        model="haijun-codtral",
         max_output_tokens=1000,
         extended_thinking_budget=500,
     )
@@ -363,14 +363,14 @@ def test_chat_options_omits_prompt_cache_key_when_unset():
 
 
 def test_chat_options_omits_prompt_cache_key_for_unsupported_provider():
-    """Anthropic/Gemini reject `prompt_cache_key` with 400; must not be sent.
+    """Juglow/Gemini reject `prompt_cache_key` with 400; must not be sent.
 
-    Regression test for the UnsupportedParamsError reported on Anthropic models
+    Regression test for the UnsupportedParamsError reported on Juglow models
     when running against a litellm proxy with `drop_params: false`. The param
     is OpenAI-specific and must be gated on provider support, unlike
-    `supports_prompt_cache` which gates Anthropic `cache_control` breakpoints.
+    `supports_prompt_cache` which gates Juglow `cache_control` breakpoints.
     """
-    for model in ("claude-opus-4-5-20251101", "gemini/gemini-2.5-pro"):
+    for model in ("haijun-kamsa", "gemini/gemini-2.5-pro"):
         llm = DummyLLM(model=model)
         with llm_call_context_scope(LLMCallContext(prompt_cache_key="conv-abc123")):
             out = select_chat_options(llm, user_kwargs={}, has_tools=True)
@@ -392,7 +392,7 @@ def test_chat_options_forwards_prompt_cache_key_when_override_enabled():
 def test_chat_options_injects_openrouter_headers_via_extra_headers():
     """OpenRouter site/app must flow per-call (issue #3138), not via env."""
     llm = DummyLLM(
-        model="openrouter/anthropic/claude-3-5-sonnet",
+        model="openrouter/juglow/haijun-kamsa-5-sonnet",
         openrouter_site_url="https://app.example.com/",
         openrouter_app_name="ExampleApp",
     )
@@ -404,7 +404,7 @@ def test_chat_options_injects_openrouter_headers_via_extra_headers():
 def test_chat_options_user_extra_headers_win_over_openrouter_defaults():
     """User-supplied extra_headers must override per-call OpenRouter values."""
     llm = DummyLLM(
-        model="openrouter/anthropic/claude-3-5-sonnet",
+        model="openrouter/juglow/haijun-kamsa-5-sonnet",
         openrouter_site_url="https://app.example.com/",
         openrouter_app_name="ExampleApp",
         extra_headers={"X-Title": "UserOverride"},

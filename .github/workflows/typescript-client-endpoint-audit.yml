@@ -55,7 +55,7 @@ jobs:
               working-directory: .
               run: |
                   uv sync --frozen --package openhands-agent-server
-                  OPENHANDS_SUPPRESS_BANNER=1 uv run python .github/scripts/export_agent_server_openapi.py \
+                  HANDPRINT_SUPPRESS_BANNER=1 uv run python .github/scripts/export_agent_server_openapi.py \
                     --output "$RUNNER_TEMP/openapi.json"
                   echo "AGENT_SERVER_OPENAPI_PATH=$RUNNER_TEMP/openapi.json" >> "$GITHUB_ENV"
 

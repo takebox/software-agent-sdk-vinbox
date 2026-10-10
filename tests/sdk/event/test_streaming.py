@@ -2,7 +2,7 @@
 
 import pytest
 
-from openhands.sdk.event import StreamingDeltaEvent
+from handprint.sdk.event import StreamingDeltaEvent
 
 
 @pytest.mark.parametrize(

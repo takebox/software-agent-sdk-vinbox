@@ -14,12 +14,12 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.bash_router import bash_router
-from openhands.agent_server.conversation_router import conversation_router
-from openhands.agent_server.dependencies import get_event_service
-from openhands.agent_server.event_router import event_router
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.file_router import file_discovery_router
+from handprint.agent_server.bash_router import bash_router
+from handprint.agent_server.conversation_router import conversation_router
+from handprint.agent_server.dependencies import get_event_service
+from handprint.agent_server.event_router import event_router
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.file_router import file_discovery_router
 
 
 SEARCH_ROUTES = [

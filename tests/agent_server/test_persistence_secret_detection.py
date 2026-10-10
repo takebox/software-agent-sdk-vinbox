@@ -11,15 +11,15 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.persistence import (
+from handprint.agent_server.persistence import (
     CustomSecret,
     FileSecretsStore,
     FileSettingsStore,
     PersistedSettings,
     Secrets,
 )
-from openhands.sdk.settings import ACPAgentSettings
-from openhands.sdk.utils.cipher import Cipher
+from handprint.sdk.settings import ACPAgentSettings
+from handprint.sdk.utils.cipher import Cipher
 
 
 @pytest.fixture

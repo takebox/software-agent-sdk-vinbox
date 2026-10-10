@@ -3,7 +3,7 @@
   "name": "switches-explicit",
   "llm_profile_ref": "default",
   "revision": 0,
-  "disabled_skills": [],
+  "disabled_tracks": [],
   "tools": [{ "name": "glob", "params": {} }],
   "enable_sub_agents": true,
   "__expected__": {

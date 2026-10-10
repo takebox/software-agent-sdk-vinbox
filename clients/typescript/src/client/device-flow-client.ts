@@ -44,7 +44,7 @@ interface DeviceTokenErrorResponse {
 const DEFAULT_TIMEOUT_MS = 600_000;
 const MAX_INTERVAL_MS = 30_000;
 
-export function isOpenHandsCloudHost(host: string): boolean {
+export function isHandprintCloudHost(host: string): boolean {
   try {
     const trimmed = host.trim().toLowerCase();
     const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
@@ -52,8 +52,8 @@ export function isOpenHandsCloudHost(host: string): boolean {
     return (
       hostname.endsWith('.all-hands.dev') ||
       hostname === 'all-hands.dev' ||
-      hostname.endsWith('.openhands.dev') ||
-      hostname === 'openhands.dev'
+      hostname.endsWith('.handprint.dev') ||
+      hostname === 'handprint.dev'
     );
   } catch {
     return false;

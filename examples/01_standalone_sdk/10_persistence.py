@@ -3,7 +3,7 @@ import uuid
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -11,10 +11,10 @@ from openhands.sdk import (
     LLMConvertibleEvent,
     get_logger,
 )
-from openhands.sdk.mcp import MCPServer
-from openhands.sdk.tool import Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.mcp import MCPServer
+from handprint.sdk.tool import Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 logger = get_logger(__name__)
@@ -67,7 +67,7 @@ conversation = Conversation(
     conversation_id=conversation_id,
 )
 conversation.send_message(
-    "Read https://github.com/OpenHands/OpenHands. Then write 3 facts "
+    "Read https://github.com/Handprint/Handprint. Then write 3 facts "
     "about the project into FACTS.txt."
 )
 conversation.run()

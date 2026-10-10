@@ -1,6 +1,6 @@
-# OpenHands SDK React Example
+# Handprint SDK React Example
 
-This is a basic React application built with Vite that demonstrates successful integration with the OpenHands Agent Server TypeScript Client SDK.
+This is a basic React application built with Vite that demonstrates successful integration with the Handprint Agent Server TypeScript Client SDK.
 
 ## Features
 
@@ -70,7 +70,7 @@ example/
 ## Key Configuration
 
 ### package.json
-- **Local SDK Dependency**: `"@openhands/agent-server-typescript-client": "file:../agent-server-typescript-client"`
+- **Local SDK Dependency**: `"@takebox-ai/agent-server-typescript-client": "file:../agent-server-typescript-client"`
 - **Build Script**: `"build:sdk": "cd ../agent-server-typescript-client && npm run build"`
 - **Dev Script**: Builds SDK before starting Vite
 

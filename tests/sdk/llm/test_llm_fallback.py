@@ -16,14 +16,14 @@ from litellm.types.utils import (
 )
 from pydantic import SecretStr
 
-from openhands.sdk.llm import (
+from handprint.sdk.llm import (
     LLM,
     FallbackStrategy,
     LLMCallContext,
     Message,
     TextContent,
 )
-from openhands.sdk.llm.exceptions import (
+from handprint.sdk.llm.exceptions import (
     LLMContextWindowExceedError,
     LLMRateLimitError,
     LLMServiceUnavailableError,
@@ -68,7 +68,7 @@ def _patch_resolve(primary: LLM, fallback_instances: list[LLM]):
     primary.fallback_strategy._resolved = fallback_instances
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_primary_succeeds_fallback_not_tried(mock_comp):
     mock_comp.return_value = _get_mock_response("primary ok")
 
@@ -85,7 +85,7 @@ def test_primary_succeeds_fallback_not_tried(mock_comp):
     assert mock_comp.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_fallback_succeeds_after_primary_transient_failure(mock_comp):
     primary_error = APIConnectionError(
         message="connection reset", llm_provider="openai", model="gpt-4o"
@@ -109,7 +109,7 @@ def test_fallback_succeeds_after_primary_transient_failure(mock_comp):
     assert content.text == "fallback ok"
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_all_fallbacks_fail_raises_primary_error(mock_comp):
     mock_comp.side_effect = APIConnectionError(
         message="down", llm_provider="openai", model="gpt-4o"
@@ -130,8 +130,8 @@ def test_all_fallbacks_fail_raises_primary_error(mock_comp):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("use_async", [False, True], ids=["sync", "async"])
 @pytest.mark.parametrize("quota_code", ["usage_limit_reached", "insufficient_quota"])
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_completion")
 async def test_quota_exhaustion_fails_over_without_retries(
     mock_comp, mock_acomp, use_async, quota_code
 ):
@@ -185,8 +185,8 @@ async def test_quota_exhaustion_fails_over_without_retries(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("use_async", [False, True], ids=["sync", "async"])
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_completion")
 async def test_transient_quota_rate_limit_still_retries(
     mock_comp, mock_acomp, use_async
 ):
@@ -238,8 +238,8 @@ async def test_transient_quota_rate_limit_still_retries(
         "Budget has been exceeded! User=u, Team=t. Current cost: 2, Max budget: 1",
     ],
 )
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_completion")
 async def test_budget_denial_stops_retries_and_fallbacks(
     mock_comp, mock_acomp, use_async, denied_model, message
 ):
@@ -288,7 +288,7 @@ async def test_budget_denial_stops_retries_and_fallbacks(
     )
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_non_transient_error_skips_fallback(mock_comp):
     """A plain Exception is NOT in LLM_FALLBACK_EXCEPTIONS, so fallback
     should be skipped."""
@@ -306,7 +306,7 @@ def test_non_transient_error_skips_fallback(mock_comp):
     assert mock_comp.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_no_fallbacks_configured_normal_error(mock_comp):
     mock_comp.side_effect = APIConnectionError(
         message="down", llm_provider="openai", model="gpt-4o"
@@ -319,7 +319,7 @@ def test_no_fallbacks_configured_normal_error(mock_comp):
         _ = primary.completion(_MSGS)
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_metrics_merged_from_fallback(mock_comp):
     primary_error = RateLimitError(
         message="rate limited", llm_provider="openai", model="gpt-4o"
@@ -357,7 +357,7 @@ def test_metrics_merged_from_fallback(mock_comp):
     )
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_second_fallback_succeeds(mock_comp):
     # Second fallback succeeds after first fallback fails
     call_count = {"n": 0}
@@ -385,7 +385,7 @@ def test_second_fallback_succeeds(mock_comp):
     assert call_count["n"] == 3
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_fallback_succeeds(mock_resp):
     """Ensure fallback works through the responses() code path too."""
     from litellm.types.llms.openai import ResponsesAPIResponse
@@ -434,7 +434,7 @@ def test_responses_fallback_succeeds(mock_resp):
     assert content.text == "fb ok"
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_non_transient_skips_fallback(mock_resp):
     mock_resp.side_effect = Exception("not transient")
 
@@ -449,10 +449,10 @@ def test_responses_non_transient_skips_fallback(mock_resp):
     assert mock_resp.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_fallback_profiles_resolved_via_store(mock_comp, tmp_path):
     """Verify that fallback profile names are resolved through LLMProfileStore."""
-    from openhands.sdk.llm.llm_profile_store import LLMProfileStore
+    from handprint.sdk.llm.llm_profile_store import LLMProfileStore
 
     primary_error = APIConnectionError(
         message="down", llm_provider="openai", model="gpt-4o"
@@ -461,13 +461,13 @@ def test_fallback_profiles_resolved_via_store(mock_comp, tmp_path):
     def side_effect(**kwargs):
         if kwargs.get("model") == "gpt-4o":
             raise primary_error
-        return _get_mock_response("from store", model="claude-sonnet-4-20250514")
+        return _get_mock_response("from store", model="haijun-codtral")
 
     mock_comp.side_effect = side_effect
 
     # Save a fallback profile to a temp store
     store = LLMProfileStore(base_dir=tmp_path)
-    fb_llm = _get_llm("claude-sonnet-4-20250514")
+    fb_llm = _get_llm("haijun-codtral")
     store.save("my-fallback", fb_llm, include_secrets=True)
 
     strategy = FallbackStrategy(
@@ -487,8 +487,8 @@ def test_fallback_profiles_resolved_via_store(mock_comp, tmp_path):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_completion")
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
 async def test_acompletion_fallback_on_transport_error(mock_acomp, mock_comp):
     """acompletion must invoke fallback when the primary transport raises."""
     primary_error = APIConnectionError(
@@ -511,7 +511,7 @@ async def test_acompletion_fallback_on_transport_error(mock_acomp, mock_comp):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
 async def test_acompletion_maps_context_window_error(mock_acomp):
     """acompletion must map ContextWindowExceededError to SDK type."""
     mock_acomp.side_effect = ContextWindowExceededError(
@@ -525,7 +525,7 @@ async def test_acompletion_maps_context_window_error(mock_acomp):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
 async def test_acompletion_maps_connection_error(mock_acomp):
     """acompletion must map APIConnectionError to LLMServiceUnavailableError."""
     mock_acomp.side_effect = APIConnectionError(
@@ -537,8 +537,8 @@ async def test_acompletion_maps_connection_error(mock_acomp):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_responses")
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_fallback_on_transport_error(mock_aresp, mock_resp):
     """aresponses must invoke fallback when the primary transport raises."""
 
@@ -581,7 +581,7 @@ async def test_aresponses_fallback_on_transport_error(mock_aresp, mock_resp):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_maps_context_window_error(mock_aresp):
     """aresponses must map ContextWindowExceededError to SDK type."""
     mock_aresp.side_effect = ContextWindowExceededError(
@@ -595,7 +595,7 @@ async def test_aresponses_maps_context_window_error(mock_aresp):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_maps_connection_error(mock_aresp):
     """aresponses must map APIConnectionError to LLMServiceUnavailableError."""
     mock_aresp.side_effect = APIConnectionError(
@@ -606,7 +606,7 @@ async def test_aresponses_maps_connection_error(mock_aresp):
         await primary.aresponses(_MSGS)
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_fallback_forwards_caller_kwargs(mock_comp):
     """Caller kwargs (e.g. ``metadata``) must reach the fallback LLM call.
 
@@ -648,7 +648,7 @@ def test_fallback_forwards_caller_kwargs(mock_comp):
 _CTX = LLMCallContext(prompt_cache_key="cache-abc", session_id="sess-xyz")
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_fallback_receives_call_context(mock_comp):
     """call_context must reach the fallback LLM's completion call."""
     primary_error = APIConnectionError(
@@ -677,7 +677,7 @@ def test_completion_fallback_receives_call_context(mock_comp):
     assert fb_call_kwargs["extra_headers"]["x-litellm-session-id"] == "sess-xyz"
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_fallback_receives_call_context(mock_resp):
     """call_context must reach the fallback LLM's responses call."""
     primary_error = APIConnectionError(
@@ -726,8 +726,8 @@ def test_responses_fallback_receives_call_context(mock_resp):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_completion")
-@patch("openhands.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion", new_callable=AsyncMock)
 async def test_acompletion_fallback_receives_call_context(mock_acomp, mock_comp):
     """call_context must reach the fallback through acompletion."""
     mock_acomp.side_effect = APIConnectionError(
@@ -750,8 +750,8 @@ async def test_acompletion_fallback_receives_call_context(mock_acomp, mock_comp)
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_responses")
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_fallback_receives_call_context(mock_aresp, mock_resp):
     """call_context must reach the fallback through aresponses."""
     mock_aresp.side_effect = APIConnectionError(

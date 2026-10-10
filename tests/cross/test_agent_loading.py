@@ -8,19 +8,19 @@ from unittest.mock import patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import Agent
-from openhands.sdk.context import AgentContext, Skill
-from openhands.sdk.context.condenser.llm_summarizing_condenser import (
+from handprint.sdk import Agent
+from handprint.sdk.context import AgentContext, Track
+from handprint.sdk.context.condenser.llm_summarizing_condenser import (
     LLMSummarizingCondenser,
 )
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.llm import LLM, Message, TextContent
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.preset.default import get_default_agent
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.llm import LLM, Message, TextContent
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.preset.default import get_default_agent
+from handprint.tools.terminal import TerminalTool
 
 
 pytestmark = pytest.mark.skipif(
@@ -124,7 +124,7 @@ def test_conversation_fails_when_removing_tools():
 
     Tools are part of the system prompt and cannot be changed mid-conversation.
     To use different tools, start a new conversation or use conversation forking.
-    See: https://github.com/OpenHands/OpenHands/issues/8560
+    See: https://github.com/Handprint/Handprint/issues/8560
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create conversation with original agent having 2 tools
@@ -226,7 +226,7 @@ def test_conversation_fails_when_used_tool_is_missing():
     were used or not. This test verifies the behavior when a used tool
     is removed.
     """
-    from openhands.sdk.event import ActionEvent
+    from handprint.sdk.event import ActionEvent
 
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create conversation with two tools
@@ -249,7 +249,7 @@ def test_conversation_fails_when_used_tool_is_missing():
         conversation.agent.init_state(conversation.state, lambda e: None)
 
         # Simulate that TerminalTool was used by adding an ActionEvent
-        from openhands.sdk.llm import MessageToolCall, TextContent
+        from handprint.sdk.llm import MessageToolCall, TextContent
 
         action_event = ActionEvent(
             tool_name="TerminalTool",
@@ -421,7 +421,7 @@ def test_conversation_fails_when_agent_type_changes():
             )
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_persistence_lifecycle(mock_completion):
     """Test full conversation persistence lifecycle similar to examples/10_persistence.py."""  # noqa: E501
     from tests.conftest import create_mock_litellm_response
@@ -510,7 +510,7 @@ def test_conversation_resume_overrides_agent_llm_but_preserves_state_settings():
     couple of state settings, then resume with a different LLM configuration.
     """
 
-    from openhands.sdk.security.confirmation_policy import AlwaysConfirm
+    from handprint.sdk.security.confirmation_policy import AlwaysConfirm
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tools = [Tool(name="TerminalTool")]
@@ -573,8 +573,8 @@ def test_conversation_restart_with_different_agent_context():
     This simulates resuming an ACP conversation in regular CLI mode.
     """
     with tempfile.TemporaryDirectory() as temp_dir:
-        # Simulate ACP mode: Create agent with user_provided_resources skill
-        acp_skill = Skill(
+        # Simulate ACP mode: Create agent with user_provided_resources track
+        acp_track = Track(
             name="user_provided_resources",
             content=(
                 "You may encounter sections labeled as user-provided additional "
@@ -583,7 +583,7 @@ def test_conversation_restart_with_different_agent_context():
             trigger=None,
         )
         acp_context = AgentContext(
-            skills=[acp_skill],
+            tracks=[acp_track],
             system_message_suffix=(
                 "You current working directory is: /Users/jpshack/code/all-hands"
             ),
@@ -614,15 +614,15 @@ def test_conversation_restart_with_different_agent_context():
         conversation_id = conversation.state.id
         del conversation
 
-        # Simulate regular CLI mode: Create agent without user_provided_resources skill
+        # Simulate regular CLI mode: Create agent without user_provided_resources track
         # and different working directory
-        cli_skill = Skill(
+        cli_track = Track(
             name="project_info",
             content="Information about the current project",
             trigger=None,
         )
         cli_context = AgentContext(
-            skills=[cli_skill],
+            tracks=[cli_track],
             system_message_suffix="You current working directory is: /Users/jpshack",
         )
 
@@ -642,8 +642,8 @@ def test_conversation_restart_with_different_agent_context():
         assert len(new_conversation.state.events) > 0
         # The new conversation should use the CLI agent's context
         assert new_conversation.agent.agent_context is not None
-        assert len(new_conversation.agent.agent_context.skills) == 1
-        assert new_conversation.agent.agent_context.skills[0].name == "project_info"
+        assert len(new_conversation.agent.agent_context.tracks) == 1
+        assert new_conversation.agent.agent_context.tracks[0].name == "project_info"
         assert new_conversation.agent.agent_context.system_message_suffix is not None
         assert (
             "You current working directory is: /Users/jpshack"

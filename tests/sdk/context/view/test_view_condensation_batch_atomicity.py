@@ -4,7 +4,7 @@ This test reproduces the bug where condensation forgets an ObservationEvent,
 causing its corresponding ActionEvent to be filtered out by filter_unmatched_tool_calls,
 but other ActionEvents in the same batch (same llm_response_id) are NOT filtered out.
 
-This breaks the Anthropic API requirement that tool_use blocks must have corresponding
+This breaks the Juglow API requirement that tool_use blocks must have corresponding
 tool_result blocks.
 
 Error message:
@@ -13,9 +13,9 @@ toolu_01L5zJ74i3tPdZDVGoMzeMHm. Each `tool_use` block must have a corresponding
 `tool_result` block in the next message."
 """
 
-from openhands.sdk.context.view import View
-from openhands.sdk.event.condenser import Condensation
-from openhands.sdk.event.llm_convertible import (
+from handprint.sdk.context.view import View
+from handprint.sdk.event.condenser import Condensation
+from handprint.sdk.event.llm_convertible import (
     ActionEvent,
     ObservationEvent,
 )
@@ -37,7 +37,7 @@ def test_batch_atomicity_when_observation_forgotten() -> None:
     4. filter_unmatched_tool_calls filters out Action1 (no matching Obs1)
     5. But Action2 is kept (because Obs2 matches Action2)
 
-    This breaks the Anthropic API because Action1 and Action2 were originally
+    This breaks the Juglow API because Action1 and Action2 were originally
     in the same LLM response, and now Action2 is orphaned without its batch mate.
     """
     # Create a batch of 2 actions from the same LLM response

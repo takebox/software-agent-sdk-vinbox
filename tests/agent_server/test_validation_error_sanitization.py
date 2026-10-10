@@ -3,7 +3,7 @@
 Verifies that 422 error responses do not leak sensitive fields such as
 ``api_key``, ``env``, or other secret-bearing request values.
 
-Refs: OpenHands/evaluation#385
+Refs: Handprint/evaluation#385
 """
 
 import pytest
@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
-from openhands.agent_server.api import (
+from handprint.agent_server.api import (
     _add_exception_handlers,
     _sanitize_validation_errors,
 )
@@ -82,14 +82,14 @@ class TestSanitizeValidationErrors:
                 "msg": "Field required",
                 "input": {
                     "agent": {
-                        "llm": {"model": "claude-3"},
+                        "llm": {"model": "haijun-kamsa"},
                         "tools": [{"name": "bash"}],
                     },
                 },
             }
         ]
         result = _sanitize_validation_errors(errors)
-        assert result[0]["input"]["agent"]["llm"]["model"] == "claude-3"
+        assert result[0]["input"]["agent"]["llm"]["model"] == "haijun-kamsa"
         assert result[0]["input"]["agent"]["tools"] == [{"name": "bash"}]
 
     def test_handles_errors_without_input(self):

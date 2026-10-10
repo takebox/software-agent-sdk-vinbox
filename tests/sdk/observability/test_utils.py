@@ -3,8 +3,8 @@
 import os
 from unittest.mock import patch
 
-import openhands.sdk.observability.utils as utils
-from openhands.sdk.observability.utils import get_env
+import handprint.sdk.observability.utils as utils
+from handprint.sdk.observability.utils import get_env
 
 
 def test_get_env_from_environment():

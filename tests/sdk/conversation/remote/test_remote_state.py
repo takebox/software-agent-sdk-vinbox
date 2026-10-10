@@ -7,12 +7,12 @@ import httpx
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.impl.remote_conversation import RemoteState
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.hooks import HookConfig
-from openhands.sdk.llm import LLM
-from openhands.sdk.security.confirmation_policy import AlwaysConfirm
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.impl.remote_conversation import RemoteState
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.hooks import HookConfig
+from handprint.sdk.llm import LLM
+from handprint.sdk.security.confirmation_policy import AlwaysConfirm
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def create_mock_conversation_info(conversation_id: str, mock_agent: Agent, **ove
         "id": conversation_id,
         "execution_status": "running",
         "confirmation_policy": {"kind": "NeverConfirm"},
-        "activated_knowledge_skills": [],
+        "activated_knowledge_tracks": [],
         "agent": mock_agent.model_dump(mode="json"),
     }
     default_info.update(overrides)
@@ -79,7 +79,7 @@ def test_remote_state_initialization(mock_client, conversation_id):
     assert str(state.id) == conversation_id
 
     # Events should be RemoteEventsList type
-    from openhands.sdk.conversation.impl.remote_conversation import RemoteEventsList
+    from handprint.sdk.conversation.impl.remote_conversation import RemoteEventsList
 
     assert isinstance(state.events, RemoteEventsList)
 
@@ -136,19 +136,19 @@ def test_remote_state_hook_config(mock_client, conversation_id, mock_agent):
     assert state.hook_config.stop[0].hooks[0].command == "echo test"
 
 
-def test_remote_state_activated_knowledge_skills(
+def test_remote_state_activated_knowledge_tracks(
     mock_client, conversation_id, mock_agent
 ):
-    """Test activated_knowledge_skills property."""
+    """Test activated_knowledge_tracks property."""
     microagents = ["agent1", "agent2", "agent3"]
     conversation_info = create_mock_conversation_info(
-        conversation_id, mock_agent, activated_knowledge_skills=microagents
+        conversation_id, mock_agent, activated_knowledge_tracks=microagents
     )
     setup_mock_responses(mock_client, conversation_info)
 
     state = RemoteState(mock_client, conversation_id)
 
-    assert state.activated_knowledge_skills == microagents
+    assert state.activated_knowledge_tracks == microagents
 
 
 def test_remote_state_agent_property(mock_client, conversation_id, mock_agent):

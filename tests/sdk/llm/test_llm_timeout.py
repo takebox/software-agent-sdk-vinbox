@@ -11,12 +11,12 @@ from aiohttp import web
 from litellm.exceptions import Timeout as LiteLLMTimeout
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.exceptions import ConversationRunError
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.llm import LLM, Message, TextContent
-from openhands.sdk.llm.exceptions import LLMTimeoutError
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.exceptions import ConversationRunError
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.llm import LLM, Message, TextContent
+from handprint.sdk.llm.exceptions import LLMTimeoutError
 
 
 # Default timeout in seconds (5 minutes)
@@ -91,7 +91,7 @@ class TestLLMTimeoutDefaults:
 class TestLLMTimeoutPassthrough:
     """Tests that timeout is correctly passed to litellm."""
 
-    @patch("openhands.sdk.llm.llm.litellm_completion")
+    @patch("handprint.sdk.llm.llm.litellm_completion")
     def test_default_timeout_passed_to_litellm(self, mock_completion):
         """Test that the default timeout is passed to litellm completion calls."""
         from litellm.types.utils import (
@@ -137,7 +137,7 @@ class TestLLMTimeoutPassthrough:
             f"to litellm, but got {call_kwargs['timeout']}"
         )
 
-    @patch("openhands.sdk.llm.llm.litellm_completion")
+    @patch("handprint.sdk.llm.llm.litellm_completion")
     def test_custom_timeout_passed_to_litellm(self, mock_completion):
         """Test that a custom timeout is passed to litellm completion calls."""
         from litellm.types.utils import (
@@ -179,7 +179,7 @@ class TestLLMTimeoutPassthrough:
 
         assert call_kwargs["timeout"] == custom_timeout
 
-    @patch("openhands.sdk.llm.llm.litellm_completion")
+    @patch("handprint.sdk.llm.llm.litellm_completion")
     def test_none_timeout_passed_to_litellm(self, mock_completion):
         """Test that None timeout is passed to litellm (no timeout)."""
         from litellm.types.utils import (

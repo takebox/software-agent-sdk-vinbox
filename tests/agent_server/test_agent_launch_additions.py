@@ -6,32 +6,32 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.models import StoredConversation
-from openhands.sdk import LLM, Agent, AgentContext
-from openhands.sdk.agent.acp_agent import ACPAgent
-from openhands.sdk.conversation.request import (
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.models import StoredConversation
+from handprint.sdk import LLM, Agent, AgentContext
+from handprint.sdk.agent.acp_agent import ACPAgent
+from handprint.sdk.conversation.request import (
     AgentLaunchAdditions,
     StartConversationRequest,
 )
-from openhands.sdk.conversation.state import (
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.launch import LaunchRuntime, finalize
-from openhands.sdk.profiles import OpenHandsAgentProfile
-from openhands.sdk.tool.client_tool import ClientToolSpec
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.launch import LaunchRuntime, finalize
+from handprint.sdk.profiles import HandprintAgentProfile
+from handprint.sdk.tool.client_tool import ClientToolSpec
+from handprint.sdk.workspace import LocalWorkspace
 from tests.sdk.launch import fakes
 
 
 _RUNTIME_SERVICES = """<RUNTIME_SERVICES>
-* Automation: http://localhost:18001
+* Automation: http://localhost:19001
 </RUNTIME_SERVICES>"""
-_CANVAS_UI = ClientToolSpec(
-    name="canvas_ui_client",
-    description="Control the Canvas UI.",
+_VICZIN_UI = ClientToolSpec(
+    name="viczin_ui_client",
+    description="Control the Viczin UI.",
     parameters={"type": "object", "properties": {}},
 )
 
@@ -99,7 +99,7 @@ def test_launch_addition_uses_existing_acp_prompt_path():
 @pytest.mark.parametrize("profile_launch", [False, True])
 @pytest.mark.asyncio
 async def test_launch_additions_apply_after_agent_resolution(profile_launch, tmp_path):
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="p",
         llm_profile_ref="default",
         tools=[],
@@ -114,14 +114,14 @@ async def test_launch_additions_apply_after_agent_resolution(profile_launch, tmp
             agent_profile_id=profile.id,
             workspace=LocalWorkspace(working_dir=str(tmp_path)),
             agent_launch_additions=additions,
-            client_tools=[_CANVAS_UI],
+            client_tools=[_VICZIN_UI],
         )
         if profile_launch
         else StartConversationRequest(
             agent=raw_agent,
             workspace=LocalWorkspace(working_dir=str(tmp_path)),
             agent_launch_additions=additions,
-            client_tools=[_CANVAS_UI],
+            client_tools=[_VICZIN_UI],
         )
     )
     state = ConversationState(
@@ -141,7 +141,7 @@ async def test_launch_additions_apply_after_agent_resolution(profile_launch, tmp
 
     with (
         patch(
-            "openhands.agent_server.conversation_service.server_launch_stores",
+            "handprint.agent_server.conversation_service.server_launch_stores",
             return_value=fakes.stores(profile),
         ),
         patch.object(
@@ -158,9 +158,9 @@ async def test_launch_additions_apply_after_agent_resolution(profile_launch, tmp
     assert agent.agent_context is not None
     suffix = agent.agent_context.system_message_suffix
     assert suffix == f"PROFILE_BASELINE\n\n{_RUNTIME_SERVICES}"
-    assert [tool.name for tool in agent.tools] == ["canvas_ui_client"]
+    assert [tool.name for tool in agent.tools] == ["viczin_ui_client"]
     assert stored.agent_launch_additions is None
-    assert stored.client_tools == [_CANVAS_UI]
+    assert stored.client_tools == [_VICZIN_UI]
     assert stored.tool_module_qualnames == {}
     assert (stored.launched_agent_profile is not None) is profile_launch
 
@@ -169,6 +169,6 @@ async def test_launch_additions_apply_after_agent_resolution(profile_launch, tmp
     restored_suffix = restored_agent.agent_context.system_message_suffix
     assert restored_suffix is not None
     assert restored_suffix.count("<RUNTIME_SERVICES>") == 1
-    assert [tool.name for tool in restored_agent.tools] == ["canvas_ui_client"]
+    assert [tool.name for tool in restored_agent.tools] == ["viczin_ui_client"]
     restored = StoredConversation.model_validate(stored.model_dump(mode="json"))
-    assert restored.client_tools == [_CANVAS_UI]
+    assert restored.client_tools == [_VICZIN_UI]

@@ -16,7 +16,7 @@ interface SettingsModalProps {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-  agentServerUrl: 'http://localhost:8000',
+  agentServerUrl: 'http://localhost:9000',
   modelName: 'gpt-4',
   apiKey: '',
   agentServerApiKey: ''
@@ -120,7 +120,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               id="agentServerUrl"
               value={settings.agentServerUrl}
               onChange={(e) => handleInputChange('agentServerUrl', e.target.value)}
-              placeholder="http://localhost:8000"
+              placeholder="http://localhost:9000"
               className={`w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 box-border ${
                 errors.agentServerUrl 
                   ? 'border-red-500 shadow-red-100 dark:shadow-red-900/20' 

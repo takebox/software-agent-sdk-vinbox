@@ -12,15 +12,15 @@ so the suite runs offline.
 
 | Package | What it is for |
 | --- | --- |
-| `agent-plugins-example/` | The official example plugin, vendored verbatim (see below). Skills-only. |
-| `full-package/` | Every component type the SDK implements: skills, an `mcp.json` with both supported transports, and a `dev.openhands` extension (manifest data plus commands, agents and hooks). |
+| `agent-plugins-example/` | The official example plugin, vendored verbatim (see below). Tracks-only. |
+| `full-package/` | Every component type the SDK implements: tracks, an `mcp.json` with both supported transports, and a `dev.handprint` extension (manifest data plus commands, agents and hooks). |
 | `manifest-only/` | A manifest and nothing else — every fixed component location is absent. |
 | `non-fatal-manifest/` | Carries both violations the spec marks non-fatal: an unknown top-level field and a non-object `extensions`. |
 | `unsupported-schema/` | Declares `1.1.0`, a published schema version this SDK does not vendor. |
-| `fatal-manifest/` | A `name` that violates §5.5. Ships a skill and an `mcp.json` that must never be discovered. |
-| `partial-failures/` | One broken entry per component type beside a working sibling: a malformed skill, a malformed agent, and five MCP entries that must each be skipped on their own (unsupported `sse` transport, escaping `command`, a `${PLUGIN_ROOT}` `command` that must not be expanded, escaping `cwd`, plain-`http` remote URL). Its `good-server` carries neither `args` nor `cwd`, so it also pins the stdio defaults. |
-| `wrong-locations/` | The Claude Code layout (`.mcp.json`, `hooks/`, `commands/`, `agents/`) plus an unsupported `lsp/` component type, all at the root. Only `skills/` may load. |
-| `mcp-version-mismatch/` | A 1.0.0 manifest beside an `mcp.json` targeting 1.1.0: MCP is disabled, the skill is not. |
+| `fatal-manifest/` | A `name` that violates §5.5. Ships a track and an `mcp.json` that must never be discovered. |
+| `partial-failures/` | One broken entry per component type beside a working sibling: a malformed track, a malformed agent, and five MCP entries that must each be skipped on their own (unsupported `sse` transport, escaping `command`, a `${PLUGIN_ROOT}` `command` that must not be expanded, escaping `cwd`, plain-`http` remote URL). Its `good-server` carries neither `args` nor `cwd`, so it also pins the stdio defaults. |
+| `wrong-locations/` | The Haijun Code layout (`.mcp.json`, `hooks/`, `commands/`, `agents/`) plus an unsupported `lsp/` component type, all at the root. Only `tracks/` may load. |
+| `mcp-version-mismatch/` | A 1.0.0 manifest beside an `mcp.json` targeting 1.1.0: MCP is disabled, the track is not. |
 
 ## The vendored example plugin
 

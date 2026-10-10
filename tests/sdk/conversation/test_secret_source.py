@@ -5,8 +5,8 @@ from unittest.mock import Mock, patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.secret import LookupSecret, StaticSecret
-from openhands.sdk.utils.cipher import Cipher
+from handprint.sdk.secret import LookupSecret, StaticSecret
+from handprint.sdk.utils.cipher import Cipher
 
 
 @pytest.fixture
@@ -175,7 +175,7 @@ def test_lookup_secret_validate_with_cipher_preserves_plaintext_headers():
     """Plaintext auth headers must survive validation when a cipher is in
     the context.
 
-    Regression test: agent-canvas (and any other client that round-trips
+    Regression test: agent-viczin (and any other client that round-trips
     encrypted agent secrets via ``secrets_encrypted=True``) sends a
     ``LookupSecret`` whose ``headers`` carry a plaintext ``X-Session-API-Key``
     used to authenticate the lazy lookup. The validator used to feed that
@@ -190,7 +190,7 @@ def test_lookup_secret_validate_with_cipher_preserves_plaintext_headers():
 
     serialized = {
         "kind": "LookupSecret",
-        "url": "http://localhost:8000/api/settings/secrets/MY_TOKEN",
+        "url": "http://localhost:9000/api/settings/secrets/MY_TOKEN",
         "headers": {
             "X-Session-API-Key": plaintext_session_key,
             "Content-Type": "application/json",
@@ -291,7 +291,7 @@ def test_lookup_secret_get_value_resolves_relative_url(monkeypatch):
     response.raise_for_status = Mock()
 
     with patch(
-        "openhands.sdk.secret.secrets.httpx.get", return_value=response
+        "handprint.sdk.secret.secrets.httpx.get", return_value=response
     ) as mock_get:
         secret = LookupSecret(url="api/settings/secrets/OPENAI_API_KEY")
 
@@ -307,7 +307,7 @@ def test_lookup_secret_get_value_resolves_relative_url(monkeypatch):
 @pytest.fixture
 def local_resolvers_cleared():
     """Keep the process-wide resolver registry isolated per test."""
-    from openhands.sdk.secret import secrets as secrets_module
+    from handprint.sdk.secret import secrets as secrets_module
 
     original = list(secrets_module._local_secret_resolvers)
     secrets_module._local_secret_resolvers.clear()
@@ -321,9 +321,9 @@ def test_local_resolver_short_circuits_http(local_resolvers_cleared):
     This is the deadlock guard: resolving over loopback from the event loop
     blocks the loop that would serve the request.
     """
-    from openhands.sdk.secret import register_local_secret_resolver
+    from handprint.sdk.secret import register_local_secret_resolver
 
-    secret = LookupSecret(url="http://127.0.0.1:8000/api/settings/secrets/TOKEN")
+    secret = LookupSecret(url="http://127.0.0.1:9000/api/settings/secrets/TOKEN")
     register_local_secret_resolver(
         lambda url: "resolved-locally" if url.endswith("/TOKEN") else None
     )
@@ -334,7 +334,7 @@ def test_local_resolver_short_circuits_http(local_resolvers_cleared):
 
 def test_local_resolver_declining_falls_back_to_http(local_resolvers_cleared):
     """A resolver returning None leaves the URL to HTTP."""
-    from openhands.sdk.secret import register_local_secret_resolver
+    from handprint.sdk.secret import register_local_secret_resolver
 
     secret = LookupSecret(url="https://remote.example/api/settings/secrets/TOKEN")
     register_local_secret_resolver(lambda url: None)
@@ -348,7 +348,7 @@ def test_local_resolver_declining_falls_back_to_http(local_resolvers_cleared):
 
 def test_local_resolver_raising_falls_back_to_http(local_resolvers_cleared):
     """A broken resolver must not take secret resolution down with it."""
-    from openhands.sdk.secret import register_local_secret_resolver
+    from handprint.sdk.secret import register_local_secret_resolver
 
     def boom(url: str) -> str | None:
         raise RuntimeError("resolver is broken")
@@ -363,7 +363,7 @@ def test_local_resolver_raising_falls_back_to_http(local_resolvers_cleared):
 
 
 def test_unregister_local_secret_resolver(local_resolvers_cleared):
-    from openhands.sdk.secret import (
+    from handprint.sdk.secret import (
         register_local_secret_resolver,
         unregister_local_secret_resolver,
     )

@@ -13,22 +13,22 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.launch import resolve
-from openhands.sdk.llm.meta_profile_store import MetaProfile, MetaProfileClass
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles.agent_profile import (
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.launch import resolve
+from handprint.sdk.llm.meta_profile_store import MetaProfile, MetaProfileClass
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles.agent_profile import (
     ACPAgentProfile,
-    OpenHandsAgentProfile,
+    HandprintAgentProfile,
     ProfileVerificationSettings,
 )
-from openhands.sdk.settings.model import (
+from handprint.sdk.settings.model import (
     ACPAgentSettings,
     NoOpCondenserSettings,
-    OpenHandsAgentSettings,
+    HandprintAgentSettings,
     VerificationSettings,
 )
-from openhands.sdk.tool import Tool
+from handprint.sdk.tool import Tool
 from tests.sdk.launch import fakes
 
 
@@ -79,25 +79,25 @@ LAUNCH = Launch()
 
 _CATALOG = Fixed(False)
 
-OPENHANDS_CONTEXT = {
-    "skills": Reference("disabled_skills"),
+HANDPRINT_CONTEXT = {
+    "tracks": Reference("disabled_tracks"),
     "system_message_suffix": PROFILE,
     "user_message_suffix": NotOnProfile("no profile field yet"),
-    "load_user_skills": _CATALOG,
-    "load_public_skills": _CATALOG,
-    "marketplace_path": NotOnProfile("only read when load_public_skills is set"),
+    "load_user_tracks": _CATALOG,
+    "load_public_tracks": _CATALOG,
+    "marketplace_path": NotOnProfile("only read when load_public_tracks is set"),
     "registered_marketplaces": NotOnProfile(
         "marketplace plugins are server settings, not yet applied to profiles"
     ),
-    "load_project_skills": Fixed(True),
+    "load_project_tracks": Fixed(True),
     "load_memory": LAUNCH,
     "memory_context": LAUNCH,
-    "disabled_skills": PROFILE,
+    "disabled_tracks": PROFILE,
     "secrets": NotOnProfile("a profile is secret-free; secrets ride the request"),
     "current_datetime": LAUNCH,
 }
 
-OPENHANDS_FIELDS: dict[str, Any] = {
+HANDPRINT_FIELDS: dict[str, Any] = {
     "schema_version": STRUCTURAL,
     "agent_kind": STRUCTURAL,
     "agent": PROFILE,
@@ -110,7 +110,7 @@ OPENHANDS_FIELDS: dict[str, Any] = {
     "tool_concurrency_limit": PROFILE,
     "persona": PROFILE,
     "mcp_config": Reference("mcp_server_refs"),
-    "agent_context": Nested(OPENHANDS_CONTEXT),
+    "agent_context": Nested(HANDPRINT_CONTEXT),
     "condenser": PROFILE,
     "verification": Nested(
         {
@@ -123,11 +123,11 @@ OPENHANDS_FIELDS: dict[str, Any] = {
 }
 
 ACP_CONTEXT = {
-    **OPENHANDS_CONTEXT,
-    "skills": Reference("catalog"),
+    **HANDPRINT_CONTEXT,
+    "tracks": Reference("catalog"),
     "system_message_suffix": NotOnProfile("the ACP CLI owns its prompt"),
-    "disabled_skills": NotOnProfile("the ACP CLI owns its skills"),
-    "load_project_skills": Fixed(False),
+    "disabled_tracks": NotOnProfile("the ACP CLI owns its tracks"),
+    "load_project_tracks": Fixed(False),
     "current_datetime": Fixed(None),
 }
 
@@ -154,7 +154,7 @@ PROFILE_IDENTITY = {"schema_version", "id", "name", "revision", "agent_kind"}
 PROFILE_SCOPE = {"secret_refs"}
 
 SETTINGS_MODELS: dict[type[BaseModel], dict[str, Any]] = {
-    OpenHandsAgentSettings: OPENHANDS_FIELDS,
+    HandprintAgentSettings: HANDPRINT_FIELDS,
     ACPAgentSettings: ACP_FIELDS,
 }
 NESTED_MODELS: dict[str, type[BaseModel]] = {
@@ -191,10 +191,10 @@ def test_every_settings_field_is_classified(settings_model):
 @pytest.mark.parametrize(
     ("settings_model", "profile_model"),
     [
-        (OpenHandsAgentSettings, OpenHandsAgentProfile),
+        (HandprintAgentSettings, HandprintAgentProfile),
         (ACPAgentSettings, ACPAgentProfile),
     ],
-    ids=["openhands", "acp"],
+    ids=["handprint", "acp"],
 )
 def test_every_profile_owned_field_exists_on_the_profile(settings_model, profile_model):
     for path, owner in _leaves(SETTINGS_MODELS[settings_model]):
@@ -209,10 +209,10 @@ def test_every_profile_owned_field_exists_on_the_profile(settings_model, profile
 @pytest.mark.parametrize(
     ("settings_model", "profile_model"),
     [
-        (OpenHandsAgentSettings, OpenHandsAgentProfile),
+        (HandprintAgentSettings, HandprintAgentProfile),
         (ACPAgentSettings, ACPAgentProfile),
     ],
-    ids=["openhands", "acp"],
+    ids=["handprint", "acp"],
 )
 def test_every_profile_field_has_a_use(settings_model, profile_model):
     used = PROFILE_IDENTITY | PROFILE_SCOPE
@@ -224,15 +224,15 @@ def test_every_profile_field_has_a_use(settings_model, profile_model):
     assert set(profile_model.model_fields) <= used
 
 
-def _non_default_openhands_profile() -> OpenHandsAgentProfile:
-    return OpenHandsAgentProfile(
+def _non_default_handprint_profile() -> HandprintAgentProfile:
+    return HandprintAgentProfile(
         name="p",
         llm_profile_ref="default",
         agent="PlanningAgent",
         tools=[Tool(name="terminal")],
         persona="persona",
         system_message_suffix="suffix",
-        disabled_skills=["beta"],
+        disabled_tracks=["beta"],
         condenser=NoOpCondenserSettings(),
         verification=ProfileVerificationSettings(
             critic_enabled=True,
@@ -276,10 +276,10 @@ def _stores():
 @pytest.mark.parametrize(
     ("profile", "table"),
     [
-        (_non_default_openhands_profile(), OPENHANDS_FIELDS),
+        (_non_default_handprint_profile(), HANDPRINT_FIELDS),
         (_non_default_acp_profile(), ACP_FIELDS),
     ],
-    ids=["openhands", "acp"],
+    ids=["handprint", "acp"],
 )
 def test_resolve_copies_profile_fields_and_fixed_values(profile, table):
     settings = resolve(profile, _stores()).settings

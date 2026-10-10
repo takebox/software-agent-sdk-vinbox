@@ -17,10 +17,10 @@ from dataclasses import dataclass
 import psutil
 import pytest
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.pub_sub import Subscriber
-from openhands.sdk.event import Event
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.pub_sub import Subscriber
+from handprint.sdk.event import Event
 from tests.agent_server.stress.budgets import WEBSOCKET_RECONNECT_STORM
 from tests.agent_server.stress.scripts import (
     SlowTestLLM,

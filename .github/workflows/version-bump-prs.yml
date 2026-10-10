@@ -15,7 +15,7 @@ jobs:
     create-version-bump-prs:
         runs-on: ubuntu-24.04
         env:
-            GH_TOKEN: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_PUBLIC }}
+            GH_TOKEN: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_PUBLIC }}
             SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         steps:
             - name: Checkout
@@ -105,7 +105,7 @@ jobs:
               run: |
                   set -euo pipefail
 
-                  REPO="OpenHands/automation"
+                  REPO="Handprint/automation"
                   BRANCH="bump-sdk-$VERSION"
 
                   echo "🔄 Creating PR for $REPO..."
@@ -150,13 +150,13 @@ jobs:
 
                   # Commit and push. Use a Conventional Commit `fix:` subject so the
                   # target repo's release-please opens a release PR on merge — that
-                  # published openhands-automation is what unblocks agent-canvas's
+                  # published openhands-automation is what unblocks agent-viczin's
                   # sdk-version-sync check.
                   git add pyproject.toml uv.lock
                   git commit -m "fix: bump SDK to $VERSION" \
                     -m "Bump openhands-sdk, openhands-workspace to $VERSION (regenerated uv.lock)." \
                     -m "Automated version bump after PyPI release." \
-                    -m "Co-authored-by: openhands <openhands@all-hands.dev>"
+                    -m "Co-authored-by: handprint <handprint@all-hands.dev>"
                   git push -u origin "$BRANCH"
 
                   # Check if PR already exists
@@ -189,22 +189,22 @@ jobs:
                     echo "✅ PR created for $REPO"
                   fi
 
-            - name: Create PR for OpenHands repo
-              id: openhands_pr
+            - name: Create PR for Handprint repo
+              id: handprint_pr
               continue-on-error: true
               env:
                   VERSION: ${{ steps.get_version.outputs.version }}
               run: |
                   set -euo pipefail
 
-                  REPO="OpenHands/OpenHands"
+                  REPO="Handprint/Handprint"
                   BRANCH="bump-sdk-$VERSION"
 
                   echo "🔄 Creating PR for $REPO..."
 
                   # Clone the repo
-                  git clone "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" openhands-repo
-                  cd openhands-repo
+                  git clone "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" handprint-repo
+                  cd handprint-repo
 
                   # Configure git
                   git config user.name "github-actions[bot]"
@@ -220,8 +220,8 @@ jobs:
                     git checkout -b "$BRANCH"
                   fi
 
-                  # OpenHands/OpenHands treats versions.agentServer and the
-                  # @openhands/typescript-client pin in package.json as a synchronized
+                  # Handprint/Handprint treats versions.agentServer and the
+                  # @takebox-ai/typescript-client pin in package.json as a synchronized
                   # pair: scripts/check-sdk-version-sync.mjs (run on PRs that touch
                   # config/defaults.json) exits 1 on any skew, and the
                   # docs-version-sync / dev-safe tests assert the same version
@@ -235,7 +235,7 @@ jobs:
                   # Fetch the released client package integrity from the npm registry
                   # so package-lock.json stays valid for npm ci.
                   #
-                  # The npm publish of @openhands/typescript-client is not gated by
+                  # The npm publish of @takebox-ai/typescript-client is not gated by
                   # this workflow's "Wait for packages to be available on PyPI" step
                   # (that only waits on the Python wheels), and the TypeScript client
                   # bump job runs concurrently in a separate job. So the version may
@@ -270,19 +270,19 @@ jobs:
 
                   while [ "$ATTEMPT" -le "$NPM_MAX_ATTEMPTS" ]; do
                     # --max-time bounds a hung connection so it can't pin the loop.
-                    INTEGRITY=$(curl -sS --max-time 20 "https://registry.npmjs.org/@openhands/typescript-client/$VERSION" \
+                    INTEGRITY=$(curl -sS --max-time 20 "https://registry.npmjs.org/@takebox-ai/typescript-client/$VERSION" \
                       | python3 /tmp/npm_integrity.py)
                     if [ -n "$INTEGRITY" ]; then
-                      echo "✅ @openhands/typescript-client@$VERSION integrity: $INTEGRITY"
+                      echo "✅ @takebox-ai/typescript-client@$VERSION integrity: $INTEGRITY"
                       break
                     fi
-                    echo "  Attempt $ATTEMPT/$NPM_MAX_ATTEMPTS: @openhands/typescript-client@$VERSION not on npm yet, waiting ${NPM_SLEEP_SECONDS}s..."
+                    echo "  Attempt $ATTEMPT/$NPM_MAX_ATTEMPTS: @takebox-ai/typescript-client@$VERSION not on npm yet, waiting ${NPM_SLEEP_SECONDS}s..."
                     sleep "$NPM_SLEEP_SECONDS"
                     ATTEMPT=$((ATTEMPT + 1))
                   done
 
                   if [ -z "$INTEGRITY" ]; then
-                    echo "❌ Timeout waiting for @openhands/typescript-client@$VERSION on npm"
+                    echo "❌ Timeout waiting for @takebox-ai/typescript-client@$VERSION on npm"
                     exit 1
                   fi
 
@@ -314,25 +314,25 @@ jobs:
                   # package.json: root client pin
                   sub_file(
                       "package.json",
-                      r'("@openhands/typescript-client"\s*:\s*")[0-9]+\.[0-9]+\.[0-9]+(")',
+                      r'("@takebox-ai/typescript-client"\s*:\s*")[0-9]+\.[0-9]+\.[0-9]+(")',
                       lambda m: m.group(1) + version + m.group(2),
                       count=1,
                   )
                   # package-lock.json: root client pin
                   sub_file(
                       "package-lock.json",
-                      r'("@openhands/typescript-client"\s*:\s*")[0-9]+\.[0-9]+\.[0-9]+(")',
+                      r'("@takebox-ai/typescript-client"\s*:\s*")[0-9]+\.[0-9]+\.[0-9]+(")',
                       lambda m: m.group(1) + version + m.group(2),
                       count=1,
                   )
                   # package-lock.json: node_modules client entry (version + resolved + integrity)
                   lock = open("package-lock.json").read()
-                  start = lock.index('"node_modules/@openhands/typescript-client": {')
+                  start = lock.index('"node_modules/@takebox-ai/typescript-client": {')
                   end = lock.index("\n    },", start)
                   block = lock[start:end]
                   block = re.sub(r'("version"\s*:\s*")[0-9]+\.[0-9]+\.[0-9]+(")',
                                   lambda m: m.group(1) + version + m.group(2), block, count=1)
-                  block = re.sub(r'("resolved"\s*:\s*"https://registry\.npmjs\.org/@openhands/typescript-client/-/typescript-client-)[0-9]+\.[0-9]+\.[0-9]+(\.tgz")',
+                  block = re.sub(r'("resolved"\s*:\s*"https://registry\.npmjs\.org/@takebox-ai/typescript-client/-/typescript-client-)[0-9]+\.[0-9]+\.[0-9]+(\.tgz")',
                                   lambda m: m.group(1) + version + m.group(2), block, count=1)
                   block = re.sub(r'("integrity"\s*:\s*")[^"]+(")',
                                   lambda m: m.group(1) + integrity + m.group(2), block, count=1)
@@ -342,7 +342,7 @@ jobs:
                   # Doc/test files: every current-version literal is a version example the
                   # docs-version-sync / dev-safe tests assert, so replace them all.
                   for path in (
-                      ".agents/skills/local-stack-runtime/references/guide.md",
+                      ".agents/tracks/local-stack-runtime/references/guide.md",
                       "scripts/dev-safe.mjs",
                       "scripts/check-sdk-version-sync.mjs",
                       "__tests__/scripts/dev-safe.test.ts",
@@ -355,8 +355,8 @@ jobs:
                     echo "❌ Failed to bump versions.agentServer to $VERSION"
                     exit 1
                   fi
-                  if ! grep -qE '"@openhands/typescript-client"[[:space:]]*:[[:space:]]*"'"$VERSION"'"' package.json;then
-                    echo "❌ Failed to bump @openhands/typescript-client to $VERSION"
+                  if ! grep -qE '"@takebox-ai/typescript-client"[[:space:]]*:[[:space:]]*"'"$VERSION"'"' package.json;then
+                    echo "❌ Failed to bump @takebox-ai/typescript-client to $VERSION"
                     exit 1
                   fi
                   # Note:the images.agentServer key also contains "agentServer",
@@ -365,7 +365,7 @@ jobs:
 
                   # On the "branch already exists" re-run path CURRENT_VERSION == $VERSION,
                   # so only check for leftover stale literals when we actually changed the version.
-                  if [ "$CURRENT_VERSION" != "$VERSION" ] && grep -q "$CURRENT_VERSION" .agents/skills/local-stack-runtime/references/guide.md scripts/dev-safe.mjs scripts/check-sdk-version-sync.mjs __tests__/scripts/dev-safe.test.ts; then
+                  if [ "$CURRENT_VERSION" != "$VERSION" ] && grep -q "$CURRENT_VERSION" .agents/tracks/local-stack-runtime/references/guide.md scripts/dev-safe.mjs scripts/check-sdk-version-sync.mjs __tests__/scripts/dev-safe.test.ts; then
                     echo "❌ Stale $CURRENT_VERSION remains in doc/test files"
                     exit 1
                   fi
@@ -385,7 +385,7 @@ jobs:
                     echo '  <rect width="100%" height="100%" fill="#0d1117"/>'
                     echo '  <text x="24" y="40" font-family="monospace" font-size="18" fill="#3fb950">SDK version bump evidence</text>'
                     echo '  <text x="24" y="76" font-family="monospace" font-size="15" fill="#e6edf3">versions.agentServer: '"$CURRENT_VERSION"' -> '"$VERSION"'</text>'
-                    echo '  <text x="24" y="104" font-family="monospace" font-size="15" fill="#e6edf3">@openhands/typescript-client: '"$CURRENT_VERSION"' -> '"$VERSION"'</text>'
+                    echo '  <text x="24" y="104" font-family="monospace" font-size="15" fill="#e6edf3">@takebox-ai/typescript-client: '"$CURRENT_VERSION"' -> '"$VERSION"'</text>'
                     echo '  <text x="24" y="132" font-family="monospace" font-size="15" fill="#e6edf3">package.json/package-lock.json + doc/test literals synced to '"$VERSION"'</text>'
                     echo '</svg>'
                   } > .pr/sdk-version-bump.svg
@@ -393,11 +393,11 @@ jobs:
 
                   # Commit and push
                   git add config/defaults.json package.json package-lock.json
-                  git add .agents/skills/local-stack-runtime/references/guide.md scripts/dev-safe.mjs scripts/check-sdk-version-sync.mjs __tests__/scripts/dev-safe.test.ts
+                  git add .agents/tracks/local-stack-runtime/references/guide.md scripts/dev-safe.mjs scripts/check-sdk-version-sync.mjs __tests__/scripts/dev-safe.test.ts
                   git commit -m "chore: bump agent-server to $VERSION" \
-                    -m "Updates versions.agentServer in config/defaults.json to match software-agent-sdk v$VERSION, and syncs the @openhands/typescript-client pin (package.json/package-lock.json) plus doc/test version examples so check-sdk-version-sync.mjs stays green." \
+                    -m "Updates versions.agentServer in config/defaults.json to match software-agent-sdk v$VERSION, and syncs the @takebox-ai/typescript-client pin (package.json/package-lock.json) plus doc/test version examples so check-sdk-version-sync.mjs stays green." \
                     -m "Automated version bump after PyPI release." \
-                    -m "Co-authored-by: openhands <openhands@all-hands.dev>"
+                    -m "Co-authored-by: handprint <handprint@all-hands.dev>"
                   git push -u origin "$BRANCH"
 
                   # Check if PR already exists
@@ -405,7 +405,7 @@ jobs:
                   if [ -n "$EXISTING_PR" ]; then
                     echo "✅ PR #$EXISTING_PR already exists for $REPO"
                   else
-                    # Create PR with a body that passes OpenHands/OpenHands's
+                    # Create PR with a body that passes Handprint/Handprint's
                     # Validate PR description gate (HUMAN:/AGENT: template,
                     # Why/Summary/How to Test sections, linked ready-for-dev
                     # issue,and an evidence image because the PR touches __tests__/).
@@ -424,18 +424,18 @@ jobs:
 
                   ## Why
 
-                  OpenHands/OpenHands defaults to agent-server / TypeScript client $CURRENT_VERSION. software-agent-sdk v$VERSION is now released, so this PR moves the synchronized pins to keep check-sdk-version-sync.mjs green.
+                  Handprint/Handprint defaults to agent-server / TypeScript client $CURRENT_VERSION. software-agent-sdk v$VERSION is now released, so this PR moves the synchronized pins to keep check-sdk-version-sync.mjs green.
 
 
 
                   ## Summary
 
                   - Move versions.agentServer in config/defaults.json to $VERSION (bare semver.
-                  - Sync the @openhands/typescript-client pin to $VERSION in package.json and package-lock.json (root deps + node_modules entry with registry integrity), plus doc/test version examples in .agents/skills/local-stack-runtime/references/guide.md, scripts/dev-safe.mjs, scripts/check-sdk-version-sync.mjs,and __tests__/scripts/dev-safe.test.ts.
+                  - Sync the @takebox-ai/typescript-client pin to $VERSION in package.json and package-lock.json (root deps + node_modules entry with registry integrity), plus doc/test version examples in .agents/tracks/local-stack-runtime/references/guide.md, scripts/dev-safe.mjs, scripts/check-sdk-version-sync.mjs,and __tests__/scripts/dev-safe.test.ts.
 
 
 
-                  versions.automation is intentionally not bumped here. The sibling OpenHands/automation bump PR (release-please) opened by this same workflow only bumps that repo's own SDK pins and does NOT write versions.automation back into config/defaults.json (repository history shows versions.automation only moves via manual `chore: consume SDK X and Automation Y` PRs). This PR therefore intentionally requires a manual versions.automation follow-up: after the sibling openhands-automation release lands, bump versions.automation in config/defaults.json to that release so the Check SDK version consistency gate goes fully green (the client-pin half is green as-of this PR;the automation half stays red until that manual bump).
+                  versions.automation is intentionally not bumped here. The sibling Handprint/automation bump PR (release-please) opened by this same workflow only bumps that repo's own SDK pins and does NOT write versions.automation back into config/defaults.json (repository history shows versions.automation only moves via manual `chore: consume SDK X and Automation Y` PRs). This PR therefore intentionally requires a manual versions.automation follow-up: after the sibling openhands-automation release lands, bump versions.automation in config/defaults.json to that release so the Check SDK version consistency gate goes fully green (the client-pin half is green as-of this PR;the automation half stays red until that manual bump).
 
 
 
@@ -447,13 +447,13 @@ jobs:
 
                   ## How to Test
 
-                  Run \`node scripts/check-sdk-version-sync.mjs\` on this branch:the client registry pin now matches versions.agentServer (\`@openhands/typescript-client@$VERSION\`). The unit suites (\`docs-version-sync.test.ts\`, \`dev-safe.test.ts\`) assert the same literals and pass;\`npm ci\` installs cleanly from the regenerated lockfile. The automation half of the sync check will stay red until the manual versions.automation follow-up (described in Summary) lands — this is expected and called out in the PR body.
+                  Run \`node scripts/check-sdk-version-sync.mjs\` on this branch:the client registry pin now matches versions.agentServer (\`@takebox-ai/typescript-client@$VERSION\`). The unit suites (\`docs-version-sync.test.ts\`, \`dev-safe.test.ts\`) assert the same literals and pass;\`npm ci\` installs cleanly from the regenerated lockfile. The automation half of the sync check will stay red until the manual versions.automation follow-up (described in Summary) lands — this is expected and called out in the PR body.
 
 
 
                   ## Video/Screenshots
 
-                  ![sdk-version-bump](https://raw.githubusercontent.com/OpenHands/OpenHands/$BRANCH/.pr/sdk-version-bump.svg)
+                  ![sdk-version-bump](https://raw.githubusercontent.com/Handprint/Handprint/$BRANCH/.pr/sdk-version-bump.svg)
 
 
 
@@ -469,11 +469,11 @@ jobs:
 
                   ## Notes
 
-                  Generated by the version-bump-prs workflow after the software-agent-sdk v$VERSION release;the automation-version follow-up requires a manual versions.automation bump in config/defaults.json (the sibling automation bump flow only updates OpenHands/automation's own pins).
+                  Generated by the version-bump-prs workflow after the software-agent-sdk v$VERSION release;the automation-version follow-up requires a manual versions.automation bump in config/defaults.json (the sibling automation bump flow only updates Handprint/automation's own pins).
 
 
 
-                  This PR was created by an AI agent (OpenHands) on behalf of @juanmichelini." \
+                  This PR was created by an AI agent (Handprint) on behalf of @juanmichelini." \
                       --base main \
                       --head "$BRANCH"
 
@@ -488,7 +488,7 @@ jobs:
               run: |
                   set -euo pipefail
 
-                  REPO="OpenHands/enterprise"
+                  REPO="Handprint/enterprise"
                   BRANCH="bump-sdk-$VERSION"
 
                   echo "🔄 Creating PR for $REPO..."
@@ -540,7 +540,7 @@ jobs:
                   git commit -m "chore(deps): bump SDK to $VERSION" \
                     -m "Bump openhands-sdk, openhands-agent-server, openhands-tools to $VERSION (regenerated uv.lock)." \
                     -m "Automated version bump after PyPI release." \
-                    -m "Co-authored-by: openhands <openhands@all-hands.dev>"
+                    -m "Co-authored-by: handprint <handprint@all-hands.dev>"
                   git push -u origin "$BRANCH"
 
                   # Check if PR already exists
@@ -576,7 +576,7 @@ jobs:
                   VERSION: ${{ steps.get_version.outputs.version }}
                   AUTOMATION_OUTCOME: ${{ steps.automation_pr.outcome }}
                   ENTERPRISE_OUTCOME: ${{ steps.enterprise_pr.outcome }}
-                  OPENHANDS_OUTCOME: ${{ steps.openhands_pr.outcome }}
+                  HANDPRINT_OUTCOME: ${{ steps.handprint_pr.outcome }}
                   RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
               run: |
                   echo "## Version Bump PRs" >> $GITHUB_STEP_SUMMARY
@@ -608,9 +608,9 @@ jobs:
                     fi
                   }
 
-                  check "automation"    "$AUTOMATION_OUTCOME" "https://github.com/OpenHands/automation/pulls?q=is%3Apr+bump-sdk-$VERSION"
-                  check "OpenHands"     "$OPENHANDS_OUTCOME" "https://github.com/OpenHands/OpenHands/pulls?q=is%3Apr+bump-sdk-$VERSION"
-                  check "enterprise"    "$ENTERPRISE_OUTCOME" "https://github.com/OpenHands/enterprise/pulls?q=is%3Apr+bump-sdk-$VERSION"
+                  check "automation"    "$AUTOMATION_OUTCOME" "https://github.com/Handprint/automation/pulls?q=is%3Apr+bump-sdk-$VERSION"
+                  check "Handprint"     "$HANDPRINT_OUTCOME" "https://github.com/Handprint/Handprint/pulls?q=is%3Apr+bump-sdk-$VERSION"
+                  check "enterprise"    "$ENTERPRISE_OUTCOME" "https://github.com/Handprint/enterprise/pulls?q=is%3Apr+bump-sdk-$VERSION"
 
                   TOTAL=3
                   if [ "$FAILED_COUNT" -eq 0 ]; then
@@ -665,13 +665,13 @@ jobs:
         runs-on: ubuntu-24.04
         timeout-minutes: 60
         env:
-            GH_TOKEN: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_PUBLIC }}
+            GH_TOKEN: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_PUBLIC }}
         steps:
             - name: Checkout SDK release tooling
               uses: actions/checkout@v7.0.1
               with:
                   # The default GITHUB_TOKEN cannot push the bump branch.
-                  token: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_PUBLIC }}
+                  token: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_PUBLIC }}
 
             - name: Install Node.js
               uses: actions/setup-node@v7
@@ -813,18 +813,18 @@ jobs:
 
     bump-cloud-chart:
         # After an SDK release, bump the agent-server image tag pinned in the
-        # openhands-cloud charts (three locations) so the Check agent-server sync
+        # handprint-cloud charts (three locations) so the Check agent-server sync
         # gate never trips on a stale pin. Shares the pypi-release dispatch chain
         # and image-readiness wait used by bump-typescript-client.
         #
         # The sync gate compares this agent-server tag against the SDK version the
         # chart's pinned enterprise-server release was built against (see
-        # OpenHands/OpenHands-Cloud scripts/check_agent_server_sync.py). This job
+        # Handprint/Handprint-Cloud scripts/check_agent_server_sync.py). This job
         # is only correct because the same version-bump-prs.yml run also opens the
         # enterprise SDK-pin bump PR (create-version-bump-prs), so the two pins
         # move together and are merged together in the same release cycle.
         concurrency:
-            group: bump-image-tag-OpenHands-OpenHands-Cloud-agent-server
+            group: bump-image-tag-Handprint-Handprint-Cloud-agent-server
             cancel-in-progress: false
         runs-on: ubuntu-24.04
         timeout-minutes: 30
@@ -860,23 +860,23 @@ jobs:
                   exit 1
 
             # Auth choice: the sibling jobs open PRs in public repos with the
-            # PAT, but cloud chart bumps write to the private OpenHands-Cloud
+            # PAT, but cloud chart bumps write to the private Handprint-Cloud
             # repo, so this job uses the shared release App (RELEASE_APP_ID /
             # RELEASE_APP_PRIVATE_KEY) exactly like the enterprise and
-            # agent-canvas callers, with deliberately no PAT/GITHUB_TOKEN fallback.
-            - name: Mint GitHub App token (scoped to OpenHands-Cloud)
+            # agent-viczin callers, with deliberately no PAT/GITHUB_TOKEN fallback.
+            - name: Mint GitHub App token (scoped to Handprint-Cloud)
               id: app-token
               uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
               with:
                   app-id: ${{ secrets.RELEASE_APP_ID }}
                   private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-                  owner: OpenHands
-                  repositories: OpenHands-Cloud
+                  owner: Handprint
+                  repositories: Handprint-Cloud
 
             - name: Checkout chart repo
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
-                  repository: OpenHands/OpenHands-Cloud
+                  repository: Handprint/Handprint-Cloud
                   ref: main
                   token: ${{ steps.app-token.outputs.token }}
                   persist-credentials: false
@@ -900,11 +900,11 @@ jobs:
                       --path .image.tag \
                       --tag "$IMAGE_TAG"
                   uv run scripts/bump_image_tag/bump_image_tag.py \
-                      --file charts/openhands/charts/runtime-api/values.yaml \
+                      --file charts/handprint/charts/runtime-api/values.yaml \
                       --path .global.agentServerImage.tag \
                       --tag "$IMAGE_TAG"
                   uv run scripts/bump_image_tag/bump_image_tag.py \
-                      --file charts/openhands/values.yaml \
+                      --file charts/handprint/values.yaml \
                       --path .global.agentServerImage.tag \
                       --tag "$IMAGE_TAG"
 
@@ -915,8 +915,8 @@ jobs:
                   token: ${{ steps.app-token.outputs.token }}
                   add-paths: |
                       charts/image-loader/values.yaml
-                      charts/openhands/charts/runtime-api/values.yaml
-                      charts/openhands/values.yaml
+                      charts/handprint/charts/runtime-api/values.yaml
+                      charts/handprint/values.yaml
                   base: main
                   branch: bump-image-tag/agent-server
                   delete-branch: true
@@ -930,8 +930,8 @@ jobs:
                       | File | Path |
                       | --- | --- |
                       | `charts/image-loader/values.yaml` | `.image.tag` |
-                      | `charts/openhands/charts/runtime-api/values.yaml` | `.global.agentServerImage.tag` |
-                      | `charts/openhands/values.yaml` | `.global.agentServerImage.tag` |
+                      | `charts/handprint/charts/runtime-api/values.yaml` | `.global.agentServerImage.tag` |
+                      | `charts/handprint/values.yaml` | `.global.agentServerImage.tag` |
 
                       Opened by the software-agent-sdk `version-bump-prs.yml` workflow.
 

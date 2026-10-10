@@ -22,7 +22,7 @@ export type AcpAgentInput = {
   /**
    * Acp Command
    *
-   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/claude-agent-acp']
+   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/haijun-agent-acp']
    */
   acp_command: Array<string>;
   /**
@@ -34,13 +34,13 @@ export type AcpAgentInput = {
   /**
    * Acp Isolate Data Dir
    *
-   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``CLAUDE_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
+   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``HAIJUN_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
    */
   acp_isolate_data_dir?: boolean;
   /**
    * Acp Model
    *
-   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, claude), else set_session_model. If None, the server picks its default.
+   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, haijun), else set_session_model. If None, the server picks its default.
    */
   acp_model?: string | null;
   /**
@@ -64,7 +64,7 @@ export type AcpAgentInput = {
   /**
    * Acp Session Mode
    *
-   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for claude-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
+   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for haijun-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
    */
   acp_session_mode?: string | null;
   /**
@@ -122,7 +122,7 @@ export type AcpAgentInput = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -168,7 +168,7 @@ export type AcpAgentOutput = {
   /**
    * Acp Command
    *
-   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/claude-agent-acp']
+   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/haijun-agent-acp']
    */
   acp_command: Array<string>;
   /**
@@ -180,13 +180,13 @@ export type AcpAgentOutput = {
   /**
    * Acp Isolate Data Dir
    *
-   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``CLAUDE_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
+   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``HAIJUN_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
    */
   acp_isolate_data_dir?: boolean;
   /**
    * Acp Model
    *
-   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, claude), else set_session_model. If None, the server picks its default.
+   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, haijun), else set_session_model. If None, the server picks its default.
    */
   acp_model?: string | null;
   /**
@@ -210,7 +210,7 @@ export type AcpAgentOutput = {
   /**
    * Acp Session Mode
    *
-   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for claude-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
+   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for haijun-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
    */
   acp_session_mode?: string | null;
   /**
@@ -268,7 +268,7 @@ export type AcpAgentOutput = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -296,7 +296,7 @@ export type AcpAgentOutput = {
   /**
    * Tools
    */
-  tools?: Array<OpenhandsSdkToolSpecTool>;
+  tools?: Array<HandprintSdkToolSpecTool>;
 };
 
 /**
@@ -307,7 +307,7 @@ export type AcpAgentOutput = {
  * There is no ``llm_profile_ref`` and no embedded credential: the ACP
  * subprocess makes its own model calls, and the provider's credential
  * (env-var name) is derived from :attr:`acp_server` via the
- * :data:`~openhands.sdk.settings.acp_providers.ACP_PROVIDERS` registry. The
+ * :data:`~handprint.sdk.settings.acp_providers.ACP_PROVIDERS` registry. The
  * value rides the conversation secrets channel, never the profile.
  */
 export type AcpAgentProfile = {
@@ -326,7 +326,7 @@ export type AcpAgentProfile = {
   /**
    * Acp Model
    *
-   * Model identifier for the ACP server (e.g. 'claude-opus-4-8'). Leave blank to let the server pick its default.
+   * Model identifier for the ACP server (e.g. 'haijun-kamsa'). Leave blank to let the server pick its default.
    */
   acp_model?: string | null;
   /**
@@ -340,7 +340,7 @@ export type AcpAgentProfile = {
    *
    * Which ACP-compatible backend to launch. The provider's credential env-var name is derived from this via the ACP_PROVIDERS registry.
    */
-  acp_server?: 'claude-code' | 'codex' | 'gemini-cli' | 'kimi-code' | 'pi' | 'opencode' | 'custom';
+  acp_server?: 'haijun-code' | 'codex' | 'gemini-cli' | 'kimi-code' | 'pi' | 'opencode' | 'custom';
   /**
    * Acp Session Mode
    *
@@ -405,7 +405,7 @@ export type AcpAgentProfile = {
  * env var: Codex reads ``$CODEX_HOME/auth.json``; Gemini (Vertex AI) reads a
  * service-account JSON pointed at by ``GOOGLE_APPLICATION_CREDENTIALS``. The
  * user supplies that credential as a pasted blob — a reserved secret named
- * :attr:`secret_name` — and :class:`~openhands.sdk.agent.ACPAgent` materialises
+ * :attr:`secret_name` — and :class:`~handprint.sdk.agent.ACPAgent` materialises
  * it to :attr:`filename` under the conversation's durable per-conversation root
  * (seed-if-absent), then sets :attr:`env_var` so the CLI can find it.
  *
@@ -417,7 +417,7 @@ export type AcpAgentProfile = {
  * the env var, seed-if-absent, permissions); the *policy* — which secrets map
  * to which files for which CLIs — lives in these specs. Built-in defaults
  * cover the supported providers, but downstream applications can override
- * :attr:`~openhands.sdk.agent.ACPAgent.acp_file_secrets` to support other ACP
+ * :attr:`~handprint.sdk.agent.ACPAgent.acp_file_secrets` to support other ACP
  * servers with different file-auth schemes without an SDK change.
  */
 export type AcpFileSecretSpec = {
@@ -490,7 +490,7 @@ export type AcpModelInfo = {
  *
  * Captures the tool name, inputs, outputs, and status from ACP
  * ``ToolCallStart`` / ``ToolCallProgress`` notifications so they can
- * be surfaced in the OpenHands event stream and visualizer.
+ * be surfaced in the Handprint event stream and visualizer.
  *
  * This is *not* an ``LLMConvertibleEvent`` — ACP tool calls do not
  * participate in LLM message conversion.
@@ -742,112 +742,112 @@ export type ApiBasedCriticOutput = {
 
 export type Action =
   | ({
-      kind: 'openhands__sdk__mcp__definition__MCPToolAction-Output__1';
+      kind: 'handprint__sdk__mcp__definition__MCPToolAction-Output__1';
     } & McpToolAction)
   | ({
-      kind: 'openhands__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMAction-Output__1';
+      kind: 'handprint__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMAction-Output__1';
     } & ClassifyAndSwitchLlmAction)
   | ({
-      kind: 'openhands__sdk__tool__builtins__finish__FinishAction-Output__1';
+      kind: 'handprint__sdk__tool__builtins__finish__FinishAction-Output__1';
     } & FinishAction)
   | ({
-      kind: 'openhands__sdk__tool__builtins__invoke_skill__InvokeSkillAction-Output__1';
-    } & InvokeSkillAction)
+      kind: 'handprint__sdk__tool__builtins__invoke_track__InvokeTrackAction-Output__1';
+    } & InvokeTrackAction)
   | ({
-      kind: 'openhands__sdk__tool__builtins__switch_llm__SwitchLLMAction-Output__1';
+      kind: 'handprint__sdk__tool__builtins__switch_llm__SwitchLLMAction-Output__1';
     } & SwitchLlmAction)
   | ({
-      kind: 'openhands__sdk__tool__builtins__think__ThinkAction-Output__1';
+      kind: 'handprint__sdk__tool__builtins__think__ThinkAction-Output__1';
     } & ThinkAction)
   | ({
-      kind: 'openhands__sdk__tool__builtins__vision_inspect__VisionInspectAction-Output__1';
+      kind: 'handprint__sdk__tool__builtins__vision_inspect__VisionInspectAction-Output__1';
     } & VisionInspectAction)
   | ({
-      kind: 'openhands__tools__ask_oracle__definition__AskOracleAction-Output__1';
+      kind: 'handprint__tools__ask_oracle__definition__AskOracleAction-Output__1';
     } & AskOracleAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserAction-Output__1';
     } & BrowserAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserClickAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserClickAction-Output__1';
     } & BrowserClickAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserCloseTabAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserCloseTabAction-Output__1';
     } & BrowserCloseTabAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetContentAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetContentAction-Output__1';
     } & BrowserGetContentAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetStateAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetStateAction-Output__1';
     } & BrowserGetStateAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetStorageAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetStorageAction-Output__1';
     } & BrowserGetStorageAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGoBackAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGoBackAction-Output__1';
     } & BrowserGoBackAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserListTabsAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserListTabsAction-Output__1';
     } & BrowserListTabsAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserNavigateAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserNavigateAction-Output__1';
     } & BrowserNavigateAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserScrollAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserScrollAction-Output__1';
     } & BrowserScrollAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserSetStorageAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserSetStorageAction-Output__1';
     } & BrowserSetStorageAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserStartRecordingAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserStartRecordingAction-Output__1';
     } & BrowserStartRecordingAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserStopRecordingAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserStopRecordingAction-Output__1';
     } & BrowserStopRecordingAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserSwitchTabAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserSwitchTabAction-Output__1';
     } & BrowserSwitchTabAction)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserTypeAction-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserTypeAction-Output__1';
     } & BrowserTypeAction)
   | ({
-      kind: 'openhands__tools__delegate__definition__DelegateAction-Output__1';
+      kind: 'handprint__tools__delegate__definition__DelegateAction-Output__1';
     } & DelegateAction)
   | ({
-      kind: 'openhands__tools__file_editor__definition__FileEditorAction-Output__1';
+      kind: 'handprint__tools__file_editor__definition__FileEditorAction-Output__1';
     } & FileEditorAction)
   | ({
-      kind: 'openhands__tools__gemini__edit__definition__EditAction-Output__1';
+      kind: 'handprint__tools__gemini__edit__definition__EditAction-Output__1';
     } & EditAction)
   | ({
-      kind: 'openhands__tools__gemini__list_directory__definition__ListDirectoryAction-Output__1';
+      kind: 'handprint__tools__gemini__list_directory__definition__ListDirectoryAction-Output__1';
     } & ListDirectoryAction)
   | ({
-      kind: 'openhands__tools__gemini__read_file__definition__ReadFileAction-Output__1';
+      kind: 'handprint__tools__gemini__read_file__definition__ReadFileAction-Output__1';
     } & ReadFileAction)
   | ({
-      kind: 'openhands__tools__gemini__write_file__definition__WriteFileAction-Output__1';
+      kind: 'handprint__tools__gemini__write_file__definition__WriteFileAction-Output__1';
     } & WriteFileAction)
   | ({
-      kind: 'openhands__tools__glob__definition__GlobAction-Output__1';
+      kind: 'handprint__tools__glob__definition__GlobAction-Output__1';
     } & GlobAction)
   | ({
-      kind: 'openhands__tools__grep__definition__GrepAction-Output__1';
+      kind: 'handprint__tools__grep__definition__GrepAction-Output__1';
     } & GrepAction)
   | ({
-      kind: 'openhands__tools__planning_file_editor__definition__PlanningFileEditorAction-Output__1';
+      kind: 'handprint__tools__planning_file_editor__definition__PlanningFileEditorAction-Output__1';
     } & PlanningFileEditorAction)
   | ({
-      kind: 'openhands__tools__task__definition__TaskAction-Output__1';
+      kind: 'handprint__tools__task__definition__TaskAction-Output__1';
     } & TaskAction)
   | ({
-      kind: 'openhands__tools__task_tracker__definition__TaskTrackerAction-Output__1';
+      kind: 'handprint__tools__task_tracker__definition__TaskTrackerAction-Output__1';
     } & TaskTrackerAction)
   | ({
-      kind: 'openhands__tools__terminal__definition__TerminalAction-Output__1';
+      kind: 'handprint__tools__terminal__definition__TerminalAction-Output__1';
     } & TerminalAction)
   | ({
-      kind: 'openhands__tools__workflow__definition__WorkflowAction-Output__1';
+      kind: 'handprint__tools__workflow__definition__WorkflowAction-Output__1';
     } & WorkflowAction);
 
 /**
@@ -911,7 +911,7 @@ export type ActionEvent = {
   /**
    * Thinking Blocks
    *
-   * Anthropic thinking blocks from the LLM response
+   * Juglow thinking blocks from the LLM response
    */
   thinking_blocks?: Array<ThinkingBlock | RedactedThinkingBlock>;
   /**
@@ -1019,7 +1019,7 @@ export type AddWorkspacesRequest = {
 /**
  * Agent
  *
- * Main agent implementation for OpenHands.
+ * Main agent implementation for Handprint.
  *
  * The Agent class provides the core functionality for running AI agents that can
  * interact with tools, process messages, and execute actions. It inherits from
@@ -1034,7 +1034,7 @@ export type AddWorkspacesRequest = {
  * Mutually exclusive with a non-default ``system_prompt_filename``.
  * **Not recommended** unless you know what you are doing (e.g.
  * customising agent behaviour for a completely different task) —
- * this will override OpenHands' built-in system instructions.
+ * this will override Handprint' built-in system instructions.
  * system_prompt_filename: Jinja2 template filename resolved relative to
  * the agent's prompts directory, or an absolute path. Defaults to
  * ``"system_prompt.j2"``.
@@ -1042,7 +1042,7 @@ export type AddWorkspacesRequest = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM, Agent, Tool
+ * from handprint.sdk import LLM, Agent, Tool
  * from pydantic import SecretStr
  *
  * llm = LLM(model="gpt-5.6", api_key=SecretStr("key"))
@@ -1102,7 +1102,7 @@ export type AgentInput = {
   /**
    * Persona
    *
-   * Persona text that replaces OpenHands' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
+   * Persona text that replaces Handprint' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
    */
   persona?: string | null;
   /**
@@ -1119,7 +1119,7 @@ export type AgentInput = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -1155,7 +1155,7 @@ export type AgentInput = {
 /**
  * Agent
  *
- * Main agent implementation for OpenHands.
+ * Main agent implementation for Handprint.
  *
  * The Agent class provides the core functionality for running AI agents that can
  * interact with tools, process messages, and execute actions. It inherits from
@@ -1170,7 +1170,7 @@ export type AgentInput = {
  * Mutually exclusive with a non-default ``system_prompt_filename``.
  * **Not recommended** unless you know what you are doing (e.g.
  * customising agent behaviour for a completely different task) —
- * this will override OpenHands' built-in system instructions.
+ * this will override Handprint' built-in system instructions.
  * system_prompt_filename: Jinja2 template filename resolved relative to
  * the agent's prompts directory, or an absolute path. Defaults to
  * ``"system_prompt.j2"``.
@@ -1178,7 +1178,7 @@ export type AgentInput = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM, Agent, Tool
+ * from handprint.sdk import LLM, Agent, Tool
  * from pydantic import SecretStr
  *
  * llm = LLM(model="gpt-5.6", api_key=SecretStr("key"))
@@ -1238,7 +1238,7 @@ export type AgentOutput = {
   /**
    * Persona
    *
-   * Persona text that replaces OpenHands' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
+   * Persona text that replaces Handprint' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
    */
   persona?: string | null;
   /**
@@ -1255,7 +1255,7 @@ export type AgentOutput = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -1285,23 +1285,23 @@ export type AgentOutput = {
    *
    * List of tools to initialize for the agent.
    */
-  tools?: Array<OpenhandsSdkToolSpecTool>;
+  tools?: Array<HandprintSdkToolSpecTool>;
 };
 
 export type AgentBaseInput =
   | ({
-      kind: 'openhands__sdk__agent__acp_agent__ACPAgent-Input__1';
+      kind: 'handprint__sdk__agent__acp_agent__ACPAgent-Input__1';
     } & AcpAgentInput)
   | ({
-      kind: 'openhands__sdk__agent__agent__Agent-Input__1';
+      kind: 'handprint__sdk__agent__agent__Agent-Input__1';
     } & AgentInput);
 
 export type AgentBaseOutput =
   | ({
-      kind: 'openhands__sdk__agent__acp_agent__ACPAgent-Output__1';
+      kind: 'handprint__sdk__agent__acp_agent__ACPAgent-Output__1';
     } & AcpAgentOutput)
   | ({
-      kind: 'openhands__sdk__agent__agent__Agent-Output__1';
+      kind: 'handprint__sdk__agent__agent__Agent-Output__1';
     } & AgentOutput);
 
 /**
@@ -1311,16 +1311,16 @@ export type AgentBaseOutput =
  *
  * AgentContext unifies all the contextual inputs that shape how the system
  * extends and interprets user prompts. It combines both static environment
- * details and dynamic, user-activated extensions from skills.
+ * details and dynamic, user-activated extensions from tracks.
  *
  * Specifically, it provides:
- * - **Repository context / Repo Skills**: Information about the active codebase,
- * branches, and repo-specific instructions contributed by repo skills.
+ * - **Repository context / Repo Tracks**: Information about the active codebase,
+ * branches, and repo-specific instructions contributed by repo tracks.
  * - **Runtime context**: Current execution environment (hosts, working
  * directory, secrets, date, etc.).
  * - **Conversation instructions**: Optional task- or channel-specific rules
  * that constrain or guide the agent’s behavior across the session.
- * - **Knowledge Skills**: Extensible components that can be triggered by user input
+ * - **Knowledge Tracks**: Extensible components that can be triggered by user input
  * to inject knowledge or domain-specific guidance.
  *
  * Together, these elements make AgentContext the primary container responsible
@@ -1335,39 +1335,39 @@ export type AgentContextInput = {
    */
   current_datetime?: string | string | null;
   /**
-   * Disabled Skills
+   * Disabled Tracks
    *
-   * Names of skills to EXCLUDE from this context — a deny-list applied after every skill source is loaded (auto-loaded user/public, explicit, and lazily-loaded project skills). A listed name absent from the loaded set is a harmless no-op. [] (the default) keeps every skill. This is the single, drift-tolerant skill-selection mechanism (agent profiles set it from their own deny-list; #4017).
+   * Names of tracks to EXCLUDE from this context — a deny-list applied after every track source is loaded (auto-loaded user/public, explicit, and lazily-loaded project tracks). A listed name absent from the loaded set is a harmless no-op. [] (the default) keeps every track. This is the single, drift-tolerant track-selection mechanism (agent profiles set it from their own deny-list; #4017).
    */
-  disabled_skills?: Array<string>;
+  disabled_tracks?: Array<string>;
   /**
    * Load Memory
    *
-   * Whether to load persistent agent memory (MEMORY.md indexes under ~/.openhands/memory/ and <workspace>/.openhands/memory/) into the system prompt. Like load_project_skills, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run() and stores the result in memory_context.
+   * Whether to load persistent agent memory (MEMORY.md indexes under ~/.handprint/memory/ and <workspace>/.handprint/memory/) into the system prompt. Like load_project_tracks, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run() and stores the result in memory_context.
    */
   load_memory?: boolean;
   /**
-   * Load Project Skills
+   * Load Project Tracks
    *
-   * Whether to automatically load project skills from the conversation workspace (e.g. .openhands/skills/, AGENTS.md). Unlike load_user_skills / load_public_skills, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run(), when the workspace is known. Also unlike load_user_skills / load_public_skills (which yield to explicit skills on a name conflict), resolved project skills are authoritative: a project skill overrides a same-named skill already present in `skills`.
+   * Whether to automatically load project tracks from the conversation workspace (e.g. .handprint/tracks/, AGENTS.md). Unlike load_user_tracks / load_public_tracks, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run(), when the workspace is known. Also unlike load_user_tracks / load_public_tracks (which yield to explicit tracks on a name conflict), resolved project tracks are authoritative: a project track overrides a same-named track already present in `tracks`.
    */
-  load_project_skills?: boolean;
+  load_project_tracks?: boolean;
   /**
-   * Load Public Skills
+   * Load Public Tracks
    *
-   * Whether to automatically load skills from the public OpenHands skills repository at https://github.com/OpenHands/extensions. This allows you to get the latest skills without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/Handprint/extensions. This allows you to get the latest tracks without SDK updates.
    */
-  load_public_skills?: boolean;
+  load_public_tracks?: boolean;
   /**
-   * Load User Skills
+   * Load User Tracks
    *
-   * Whether to automatically load user skills from ~/.openhands/skills/ and ~/.openhands/microagents/ (for backward compatibility).
+   * Whether to automatically load user tracks from ~/.handprint/tracks/ and ~/.handprint/microagents/ (for backward compatibility).
    */
-  load_user_skills?: boolean;
+  load_user_tracks?: boolean;
   /**
    * Marketplace Path
    *
-   * Relative marketplace JSON path within the public skills repository. Set to None to load all public skills without marketplace filtering.
+   * Relative marketplace JSON path within the public tracks repository. Set to None to load all public tracks without marketplace filtering.
    */
   marketplace_path?: string | null;
   /**
@@ -1391,11 +1391,11 @@ export type AgentContextInput = {
     [key: string]: string | SecretSourceInput;
   } | null;
   /**
-   * Skills
+   * Tracks
    *
-   * List of available skills that can extend the user's input.
+   * List of available tracks that can extend the user's input.
    */
-  skills?: Array<SkillInput>;
+  tracks?: Array<TrackInput>;
   /**
    * System Message Suffix
    *
@@ -1417,16 +1417,16 @@ export type AgentContextInput = {
  *
  * AgentContext unifies all the contextual inputs that shape how the system
  * extends and interprets user prompts. It combines both static environment
- * details and dynamic, user-activated extensions from skills.
+ * details and dynamic, user-activated extensions from tracks.
  *
  * Specifically, it provides:
- * - **Repository context / Repo Skills**: Information about the active codebase,
- * branches, and repo-specific instructions contributed by repo skills.
+ * - **Repository context / Repo Tracks**: Information about the active codebase,
+ * branches, and repo-specific instructions contributed by repo tracks.
  * - **Runtime context**: Current execution environment (hosts, working
  * directory, secrets, date, etc.).
  * - **Conversation instructions**: Optional task- or channel-specific rules
  * that constrain or guide the agent’s behavior across the session.
- * - **Knowledge Skills**: Extensible components that can be triggered by user input
+ * - **Knowledge Tracks**: Extensible components that can be triggered by user input
  * to inject knowledge or domain-specific guidance.
  *
  * Together, these elements make AgentContext the primary container responsible
@@ -1441,39 +1441,39 @@ export type AgentContextOutput = {
    */
   current_datetime?: string | string | null;
   /**
-   * Disabled Skills
+   * Disabled Tracks
    *
-   * Names of skills to EXCLUDE from this context — a deny-list applied after every skill source is loaded (auto-loaded user/public, explicit, and lazily-loaded project skills). A listed name absent from the loaded set is a harmless no-op. [] (the default) keeps every skill. This is the single, drift-tolerant skill-selection mechanism (agent profiles set it from their own deny-list; #4017).
+   * Names of tracks to EXCLUDE from this context — a deny-list applied after every track source is loaded (auto-loaded user/public, explicit, and lazily-loaded project tracks). A listed name absent from the loaded set is a harmless no-op. [] (the default) keeps every track. This is the single, drift-tolerant track-selection mechanism (agent profiles set it from their own deny-list; #4017).
    */
-  disabled_skills?: Array<string>;
+  disabled_tracks?: Array<string>;
   /**
    * Load Memory
    *
-   * Whether to load persistent agent memory (MEMORY.md indexes under ~/.openhands/memory/ and <workspace>/.openhands/memory/) into the system prompt. Like load_project_skills, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run() and stores the result in memory_context.
+   * Whether to load persistent agent memory (MEMORY.md indexes under ~/.handprint/memory/ and <workspace>/.handprint/memory/) into the system prompt. Like load_project_tracks, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run() and stores the result in memory_context.
    */
   load_memory?: boolean;
   /**
-   * Load Project Skills
+   * Load Project Tracks
    *
-   * Whether to automatically load project skills from the conversation workspace (e.g. .openhands/skills/, AGENTS.md). Unlike load_user_skills / load_public_skills, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run(), when the workspace is known. Also unlike load_user_skills / load_public_skills (which yield to explicit skills on a name conflict), resolved project skills are authoritative: a project skill overrides a same-named skill already present in `skills`.
+   * Whether to automatically load project tracks from the conversation workspace (e.g. .handprint/tracks/, AGENTS.md). Unlike load_user_tracks / load_public_tracks, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run(), when the workspace is known. Also unlike load_user_tracks / load_public_tracks (which yield to explicit tracks on a name conflict), resolved project tracks are authoritative: a project track overrides a same-named track already present in `tracks`.
    */
-  load_project_skills?: boolean;
+  load_project_tracks?: boolean;
   /**
-   * Load Public Skills
+   * Load Public Tracks
    *
-   * Whether to automatically load skills from the public OpenHands skills repository at https://github.com/OpenHands/extensions. This allows you to get the latest skills without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/Handprint/extensions. This allows you to get the latest tracks without SDK updates.
    */
-  load_public_skills?: boolean;
+  load_public_tracks?: boolean;
   /**
-   * Load User Skills
+   * Load User Tracks
    *
-   * Whether to automatically load user skills from ~/.openhands/skills/ and ~/.openhands/microagents/ (for backward compatibility).
+   * Whether to automatically load user tracks from ~/.handprint/tracks/ and ~/.handprint/microagents/ (for backward compatibility).
    */
-  load_user_skills?: boolean;
+  load_user_tracks?: boolean;
   /**
    * Marketplace Path
    *
-   * Relative marketplace JSON path within the public skills repository. Set to None to load all public skills without marketplace filtering.
+   * Relative marketplace JSON path within the public tracks repository. Set to None to load all public tracks without marketplace filtering.
    */
   marketplace_path?: string | null;
   /**
@@ -1491,11 +1491,11 @@ export type AgentContextOutput = {
     [key: string]: unknown;
   } | null;
   /**
-   * Skills
+   * Tracks
    *
-   * List of available skills that can extend the user's input.
+   * List of available tracks that can extend the user's input.
    */
-  skills?: Array<SkillOutput>;
+  tracks?: Array<TrackOutput>;
   /**
    * System Message Suffix
    *
@@ -1598,11 +1598,11 @@ export type AgentDefinition = {
    */
   profile_store_dir?: string | null;
   /**
-   * Skills
+   * Tracks
    *
-   * List of skill names for this agent. Resolved from project/user directories.
+   * List of track names for this agent. Resolved from project/user directories.
    */
-  skills?: Array<string>;
+  tracks?: Array<string>;
   /**
    * Source
    *
@@ -1779,7 +1779,7 @@ export type AgentProfileDetailResponse = {
  *
  * Side-effect-free report of what :func:`resolve_agent_profile` would do.
  *
- * Consumed by ``POST /{id}/materialize`` (#3719) and the canvas editor. The
+ * Consumed by ``POST /{id}/materialize`` (#3719) and the viczin editor. The
  * verdict (:attr:`valid`) and the dangling-ref lists match exactly what a real
  * resolve produces; :attr:`resolved_settings` is the redacted settings dump
  * (present only when :attr:`valid`).
@@ -1814,9 +1814,9 @@ export type AgentProfileDiagnostics = {
    */
   dangling_meta_profile_ref?: string | null;
   /**
-   * Disabled Skills
+   * Disabled Tracks
    */
-  disabled_skills?: Array<string>;
+  disabled_tracks?: Array<string>;
   /**
    * Errors
    */
@@ -1852,9 +1852,9 @@ export type AgentProfileDiagnostics = {
     [key: string]: unknown;
   } | null;
   /**
-   * Resolved Skills
+   * Resolved Tracks
    */
-  resolved_skills?: Array<string>;
+  resolved_tracks?: Array<string>;
   /**
    * Secret Refs
    */
@@ -1955,7 +1955,7 @@ export type AgentSettings = {
   /**
    * Agent Kind
    */
-  agent_kind?: 'openhands' | 'acp' | null;
+  agent_kind?: 'handprint' | 'acp' | null;
   mcp_config: McpConfig;
   /**
    * Schema Version
@@ -2078,7 +2078,7 @@ export type AskOracleTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2138,7 +2138,7 @@ export type BackendRevisionRequest = {
 /**
  * BackendStatus
  *
- * Current state of an installed Canvas App backend.
+ * Current state of an installed Viczin App backend.
  */
 export type BackendStatus = {
   /**
@@ -2173,10 +2173,10 @@ export type BackendStatus = {
 
 export type BaseWorkspace =
   | ({
-      kind: 'openhands__sdk__workspace__local__LocalWorkspace-Output__1';
+      kind: 'handprint__sdk__workspace__local__LocalWorkspace-Output__1';
     } & LocalWorkspaceOutput)
   | ({
-      kind: 'openhands__sdk__workspace__remote__base__RemoteWorkspace-Output__1';
+      kind: 'handprint__sdk__workspace__remote__base__RemoteWorkspace-Output__1';
     } & RemoteWorkspace);
 
 /**
@@ -2247,13 +2247,13 @@ export type BashError = {
 
 export type BashEventBase =
   | ({
-      kind: 'openhands__agent_server__models__BashCommand-Output__1';
+      kind: 'handprint__agent_server__models__BashCommand-Output__1';
     } & BashCommand)
   | ({
-      kind: 'openhands__agent_server__models__BashError-Output__1';
+      kind: 'handprint__agent_server__models__BashError-Output__1';
     } & BashError)
   | ({
-      kind: 'openhands__agent_server__models__BashOutput-Output__1';
+      kind: 'handprint__agent_server__models__BashOutput-Output__1';
     } & BashOutput);
 
 /**
@@ -2430,7 +2430,7 @@ export type BrowserClickTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2483,7 +2483,7 @@ export type BrowserCloseTabTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2542,7 +2542,7 @@ export type BrowserGetContentTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2595,7 +2595,7 @@ export type BrowserGetStateTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2642,7 +2642,7 @@ export type BrowserGetStorageTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2689,7 +2689,7 @@ export type BrowserGoBackTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2736,7 +2736,7 @@ export type BrowserListTabsTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2795,7 +2795,7 @@ export type BrowserNavigateTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2884,7 +2884,7 @@ export type BrowserScrollTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2939,7 +2939,7 @@ export type BrowserSetStorageTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -2986,7 +2986,7 @@ export type BrowserStartRecordingTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -3033,7 +3033,7 @@ export type BrowserStopRecordingTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -3086,7 +3086,7 @@ export type BrowserSwitchTabTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -3127,7 +3127,7 @@ export type BrowserToolSet = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -3186,7 +3186,7 @@ export type BrowserTypeTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -3212,11 +3212,11 @@ export type BrowserTypeTool = {
 };
 
 /**
- * CanvasExtensionBackend
+ * ViczinExtensionBackend
  *
- * Optional trusted backend declaration for schema-1 Canvas Apps.
+ * Optional trusted backend declaration for schema-1 Viczin Apps.
  */
-export type CanvasExtensionBackend = {
+export type ViczinExtensionBackend = {
   /**
    * Argv
    */
@@ -3225,9 +3225,9 @@ export type CanvasExtensionBackend = {
    * Artifacts
    */
   artifacts: {
-    [key: string]: CanvasExtensionBackendArtifact;
+    [key: string]: ViczinExtensionBackendArtifact;
   };
-  health?: CanvasExtensionBackendHealth;
+  health?: ViczinExtensionBackendHealth;
   /**
    * Inherit Environment
    */
@@ -3239,11 +3239,11 @@ export type CanvasExtensionBackend = {
 };
 
 /**
- * CanvasExtensionBackendArtifact
+ * ViczinExtensionBackendArtifact
  *
  * Immutable backend artifact for one supported platform.
  */
-export type CanvasExtensionBackendArtifact = {
+export type ViczinExtensionBackendArtifact = {
   /**
    * Path
    *
@@ -3259,11 +3259,11 @@ export type CanvasExtensionBackendArtifact = {
 };
 
 /**
- * CanvasExtensionBackendHealth
+ * ViczinExtensionBackendHealth
  *
  * Loopback HTTP readiness probe for a backend process.
  */
-export type CanvasExtensionBackendHealth = {
+export type ViczinExtensionBackendHealth = {
   /**
    * Interval Seconds
    */
@@ -3279,33 +3279,33 @@ export type CanvasExtensionBackendHealth = {
 };
 
 /**
- * CanvasExtensionContributes
+ * ViczinExtensionContributes
  *
- * Contributions an extension makes to the Canvas UI.
+ * Contributions an extension makes to the Viczin UI.
  */
-export type CanvasExtensionContributes = {
+export type ViczinExtensionContributes = {
   /**
    * Pages
    *
-   * Pages contributed to Canvas navigation
+   * Pages contributed to Viczin navigation
    */
-  pages?: Array<CanvasExtensionPage>;
+  pages?: Array<ViczinExtensionPage>;
 };
 
 /**
- * CanvasExtensionManifest
+ * ViczinExtensionManifest
  *
- * Canvas extension manifest (``canvas-extension.json``).
+ * Viczin extension manifest (``viczin-extension.json``).
  */
-export type CanvasExtensionManifest = {
+export type ViczinExtensionManifest = {
   /**
    * Optional explicitly prepared and started backend service
    */
-  backend?: CanvasExtensionBackend | null;
+  backend?: ViczinExtensionBackend | null;
   /**
-   * Contributions this extension makes to the Canvas UI
+   * Contributions this extension makes to the Viczin UI
    */
-  contributes?: CanvasExtensionContributes;
+  contributes?: ViczinExtensionContributes;
   /**
    * Description
    *
@@ -3351,11 +3351,11 @@ export type CanvasExtensionManifest = {
 };
 
 /**
- * CanvasExtensionPage
+ * ViczinExtensionPage
  *
- * A single page contributed to the Canvas UI by an extension.
+ * A single page contributed to the Viczin UI by an extension.
  */
-export type CanvasExtensionPage = {
+export type ViczinExtensionPage = {
   /**
    * Id
    *
@@ -3371,7 +3371,7 @@ export type CanvasExtensionPage = {
   /**
    * Title
    *
-   * Page title shown in Canvas navigation
+   * Page title shown in Viczin navigation
    */
   title: string;
 };
@@ -3440,7 +3440,7 @@ export type ClassifyAndSwitchLlmTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -3479,7 +3479,7 @@ export type ClientTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Client Tool Name
    *
@@ -3594,7 +3594,7 @@ export type ClientToolSpecOutput = {
   /**
    * Optional MCP-style annotations for the tool. When omitted, the tool is treated conservatively (not read-only), so the agent is asked to predict a security risk before calling it.
    */
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    *
@@ -3808,24 +3808,24 @@ export type CondensationSummaryEvent = {
 
 export type CondenserBaseInput =
   | ({
-      kind: 'openhands__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Input__1';
+      kind: 'handprint__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Input__1';
     } & LlmSummarizingCondenserInput)
   | ({
-      kind: 'openhands__sdk__context__condenser__no_op_condenser__NoOpCondenser-Input__1';
+      kind: 'handprint__sdk__context__condenser__no_op_condenser__NoOpCondenser-Input__1';
     } & NoOpCondenserInput)
   | ({
-      kind: 'openhands__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Input__1';
+      kind: 'handprint__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Input__1';
     } & PipelineCondenserInput);
 
 export type CondenserBaseOutput =
   | ({
-      kind: 'openhands__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Output__1';
+      kind: 'handprint__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Output__1';
     } & LlmSummarizingCondenserOutput)
   | ({
-      kind: 'openhands__sdk__context__condenser__no_op_condenser__NoOpCondenser-Output__1';
+      kind: 'handprint__sdk__context__condenser__no_op_condenser__NoOpCondenser-Output__1';
     } & NoOpCondenserOutput)
   | ({
-      kind: 'openhands__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Output__1';
+      kind: 'handprint__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Output__1';
     } & PipelineCondenserOutput);
 
 /**
@@ -3860,24 +3860,24 @@ export type ConfirmRiskyOutput = {
 
 export type ConfirmationPolicyBaseInput =
   | ({
-      kind: 'openhands__sdk__security__confirmation_policy__AlwaysConfirm-Input__1';
+      kind: 'handprint__sdk__security__confirmation_policy__AlwaysConfirm-Input__1';
     } & AlwaysConfirmInput)
   | ({
-      kind: 'openhands__sdk__security__confirmation_policy__ConfirmRisky-Input__1';
+      kind: 'handprint__sdk__security__confirmation_policy__ConfirmRisky-Input__1';
     } & ConfirmRiskyInput)
   | ({
-      kind: 'openhands__sdk__security__confirmation_policy__NeverConfirm-Input__1';
+      kind: 'handprint__sdk__security__confirmation_policy__NeverConfirm-Input__1';
     } & NeverConfirmInput);
 
 export type ConfirmationPolicyBaseOutput =
   | ({
-      kind: 'openhands__sdk__security__confirmation_policy__AlwaysConfirm-Output__1';
+      kind: 'handprint__sdk__security__confirmation_policy__AlwaysConfirm-Output__1';
     } & AlwaysConfirmOutput)
   | ({
-      kind: 'openhands__sdk__security__confirmation_policy__ConfirmRisky-Output__1';
+      kind: 'handprint__sdk__security__confirmation_policy__ConfirmRisky-Output__1';
     } & ConfirmRiskyOutput)
   | ({
-      kind: 'openhands__sdk__security__confirmation_policy__NeverConfirm-Output__1';
+      kind: 'handprint__sdk__security__confirmation_policy__NeverConfirm-Output__1';
     } & NeverConfirmOutput);
 
 /**
@@ -3983,11 +3983,11 @@ export type ConversationExecutionStatus =
  */
 export type ConversationInfo = {
   /**
-   * Activated Knowledge Skills
+   * Activated Knowledge Tracks
    *
-   * List of activated knowledge skills name
+   * List of activated knowledge tracks name
    */
-  activated_knowledge_skills?: Array<string>;
+  activated_knowledge_tracks?: Array<string>;
   /**
    * The agent running in the conversation.
    */
@@ -4003,7 +4003,7 @@ export type ConversationInfo = {
   /**
    * Available Models
    *
-   * Models the ACP server offers for this session, lifted off ``ACPAgent.available_models`` (the ``models.availableModels`` field on the ACP session response). Each entry carries a ``model_id`` plus an optional ``name``/``description``. Surfaced verbatim so clients can render a model picker and resolve ``current_model_id`` to a display label themselves — the server does no name curation. Empty for ACP servers that don't surface the (UNSTABLE) capability and for native OpenHands agents. Client contract: ``current_model_id`` is NOT guaranteed to be a member — a forced ``acp_model`` override may name a model absent from the list — so treat a miss as 'show the raw id'. Some entries are opaque aliases whose human identity lives in ``description`` (e.g. claude-agent-acp's ``"default"`` -> ``"Opus 4.7 with 1M context · ..."``).
+   * Models the ACP server offers for this session, lifted off ``ACPAgent.available_models`` (the ``models.availableModels`` field on the ACP session response). Each entry carries a ``model_id`` plus an optional ``name``/``description``. Surfaced verbatim so clients can render a model picker and resolve ``current_model_id`` to a display label themselves — the server does no name curation. Empty for ACP servers that don't surface the (UNSTABLE) capability and for native Handprint agents. Client contract: ``current_model_id`` is NOT guaranteed to be a member — a forced ``acp_model`` override may name a model absent from the list — so treat a miss as 'show the raw id'. Some entries are opaque aliases whose human identity lives in ``description`` (e.g. haijun-agent-acp's ``"default"`` -> ``"Opus 4.7 with 1M context · ..."``).
    */
   available_models?: Array<AcpModelInfo>;
   /**
@@ -4036,7 +4036,7 @@ export type ConversationInfo = {
   /**
    * Current Model Id
    *
-   * Model the agent is actually using for this session. For ACP agents, this is lifted off ``ACPAgent.current_model_id`` (populated from the ``models.currentModelId`` field on the ACP session response, or from ``acp_model`` when the caller forced an override). May be an opaque alias (e.g. claude-agent-acp's ``"default"``); match it against ``available_models`` to get a display label. ``None`` for older ACP servers that don't surface the field, or while the agent is still initializing. Native OpenHands agents leave this ``None`` — consumers should read ``agent.llm.model`` for those.
+   * Model the agent is actually using for this session. For ACP agents, this is lifted off ``ACPAgent.current_model_id`` (populated from the ``models.currentModelId`` field on the ACP session response, or from ``acp_model`` when the caller forced an override). May be an opaque alias (e.g. haijun-agent-acp's ``"default"``); match it against ``available_models`` to get a display label. ``None`` for older ACP servers that don't surface the field, or while the agent is still initializing. Native Handprint agents leave this ``None`` — consumers should read ``agent.llm.model`` for those.
    */
   current_model_id?: string | null;
   execution_status?: ConversationExecutionStatus;
@@ -4063,11 +4063,11 @@ export type ConversationInfo = {
    */
   id: string;
   /**
-   * Invoked Skills
+   * Invoked Tracks
    *
-   * Names of progressive-disclosure skills explicitly invoked via the `invoke_skill` tool.
+   * Names of progressive-disclosure tracks explicitly invoked via the `invoke_track` tool.
    */
-  invoked_skills?: Array<string>;
+  invoked_tracks?: Array<string>;
   /**
    * Last User Message Id
    *
@@ -4134,7 +4134,7 @@ export type ConversationInfo = {
   /**
    * Supports Runtime Model Switch
    *
-   * Whether a live, mid-conversation model switch will be attempted for this conversation — tells the inline picker whether to offer a live-switch control. Mirrors the SDK's switch gate: ``True`` for known switch-capable providers; ``False`` for unknown/custom ACP servers because their generic config writes are not guaranteed live-switch primitives. ``False`` for native OpenHands agents, for a known provider that declares no support, and before the conversation has started a session.
+   * Whether a live, mid-conversation model switch will be attempted for this conversation — tells the inline picker whether to offer a live-switch control. Mirrors the SDK's switch gate: ``True`` for known switch-capable providers; ``False`` for unknown/custom ACP servers because their generic config writes are not guaranteed live-switch primitives. ``False`` for native Handprint agents, for a known provider that declares no support, and before the conversation has started a session.
    */
   supports_runtime_model_switch?: boolean;
   /**
@@ -4287,30 +4287,30 @@ export type ConversationStats = {
 
 export type CriticBaseInput =
   | ({
-      kind: 'openhands__sdk__critic__impl__agent_finished__AgentFinishedCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__agent_finished__AgentFinishedCritic-Input__1';
     } & AgentFinishedCriticInput)
   | ({
-      kind: 'openhands__sdk__critic__impl__api__critic__APIBasedCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__api__critic__APIBasedCritic-Input__1';
     } & ApiBasedCriticInput)
   | ({
-      kind: 'openhands__sdk__critic__impl__empty_patch__EmptyPatchCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__empty_patch__EmptyPatchCritic-Input__1';
     } & EmptyPatchCriticInput)
   | ({
-      kind: 'openhands__sdk__critic__impl__pass_critic__PassCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__pass_critic__PassCritic-Input__1';
     } & PassCriticInput);
 
 export type CriticBaseOutput =
   | ({
-      kind: 'openhands__sdk__critic__impl__agent_finished__AgentFinishedCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__agent_finished__AgentFinishedCritic-Output__1';
     } & AgentFinishedCriticOutput)
   | ({
-      kind: 'openhands__sdk__critic__impl__api__critic__APIBasedCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__api__critic__APIBasedCritic-Output__1';
     } & ApiBasedCriticOutput)
   | ({
-      kind: 'openhands__sdk__critic__impl__empty_patch__EmptyPatchCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__empty_patch__EmptyPatchCritic-Output__1';
     } & EmptyPatchCriticOutput)
   | ({
-      kind: 'openhands__sdk__critic__impl__pass_critic__PassCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__pass_critic__PassCritic-Output__1';
     } & PassCriticOutput);
 
 /**
@@ -4519,7 +4519,7 @@ export type EditTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -4631,7 +4631,7 @@ export type EmptyPatchCriticOutput = {
  *
  * Example::
  *
- * from openhands.sdk.security import (
+ * from handprint.sdk.security import (
  * EnsembleSecurityAnalyzer,
  * PatternSecurityAnalyzer,
  * PolicyRailSecurityAnalyzer,
@@ -4693,7 +4693,7 @@ export type EnsembleSecurityAnalyzerInput = {
  *
  * Example::
  *
- * from openhands.sdk.security import (
+ * from handprint.sdk.security import (
  * EnsembleSecurityAnalyzer,
  * PatternSecurityAnalyzer,
  * PolicyRailSecurityAnalyzer,
@@ -4755,61 +4755,61 @@ export type ErrorClassification = {
 
 export type Event =
   | ({
-      kind: 'openhands__agent_server__models__ServerErrorEvent-Output__1';
+      kind: 'handprint__agent_server__models__ServerErrorEvent-Output__1';
     } & ServerErrorEvent)
   | ({
-      kind: 'openhands__sdk__event__acp_tool_call__ACPToolCallEvent-Output__1';
+      kind: 'handprint__sdk__event__acp_tool_call__ACPToolCallEvent-Output__1';
     } & AcpToolCallEvent)
   | ({
-      kind: 'openhands__sdk__event__condenser__Condensation-Output__1';
+      kind: 'handprint__sdk__event__condenser__Condensation-Output__1';
     } & Condensation)
   | ({
-      kind: 'openhands__sdk__event__condenser__CondensationRequest-Output__1';
+      kind: 'handprint__sdk__event__condenser__CondensationRequest-Output__1';
     } & CondensationRequest)
   | ({
-      kind: 'openhands__sdk__event__condenser__CondensationSummaryEvent-Output__1';
+      kind: 'handprint__sdk__event__condenser__CondensationSummaryEvent-Output__1';
     } & CondensationSummaryEvent)
   | ({
-      kind: 'openhands__sdk__event__conversation_error__ConversationErrorEvent-Output__1';
+      kind: 'handprint__sdk__event__conversation_error__ConversationErrorEvent-Output__1';
     } & ConversationErrorEvent)
   | ({
-      kind: 'openhands__sdk__event__conversation_state__ConversationStateUpdateEvent-Output__1';
+      kind: 'handprint__sdk__event__conversation_state__ConversationStateUpdateEvent-Output__1';
     } & ConversationStateUpdateEvent)
   | ({
-      kind: 'openhands__sdk__event__hook_execution__HookExecutionEvent-Output__1';
+      kind: 'handprint__sdk__event__hook_execution__HookExecutionEvent-Output__1';
     } & HookExecutionEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_completion_log__LLMCompletionLogEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_completion_log__LLMCompletionLogEvent-Output__1';
     } & LlmCompletionLogEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__action__ActionEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__action__ActionEvent-Output__1';
     } & ActionEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__message__MessageEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__message__MessageEvent-Output__1';
     } & MessageEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__observation__AgentErrorEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__observation__AgentErrorEvent-Output__1';
     } & AgentErrorEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__observation__ObservationEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__observation__ObservationEvent-Output__1';
     } & ObservationEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__observation__UserRejectObservation-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__observation__UserRejectObservation-Output__1';
     } & UserRejectObservation)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__system__SystemPromptEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__system__SystemPromptEvent-Output__1';
     } & SystemPromptEvent)
   | ({
-      kind: 'openhands__sdk__event__streaming_delta__StreamingDeltaEvent-Output__1';
+      kind: 'handprint__sdk__event__streaming_delta__StreamingDeltaEvent-Output__1';
     } & StreamingDeltaEvent)
   | ({
-      kind: 'openhands__sdk__event__token__TokenEvent-Output__1';
+      kind: 'handprint__sdk__event__token__TokenEvent-Output__1';
     } & TokenEvent)
   | ({
-      kind: 'openhands__sdk__event__user_action__InterruptEvent-Output__1';
+      kind: 'handprint__sdk__event__user_action__InterruptEvent-Output__1';
     } & InterruptEvent)
   | ({
-      kind: 'openhands__sdk__event__user_action__PauseEvent-Output__1';
+      kind: 'handprint__sdk__event__user_action__PauseEvent-Output__1';
     } & PauseEvent);
 
 /**
@@ -4895,7 +4895,7 @@ export type FallbackStrategy = {
   /**
    * Profile Store Dir
    *
-   * Path to directory containing profiles. If not specified, defaults to `.openhands/profiles`.
+   * Path to directory containing profiles. If not specified, defaults to `.handprint/profiles`.
    */
   profile_store_dir?: string | string | null;
 };
@@ -5032,7 +5032,7 @@ export type FileEditorTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -5147,7 +5147,7 @@ export type FinishTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -5423,7 +5423,7 @@ export type GlobTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -5462,7 +5462,7 @@ export type GlobTool = {
  * GRAYSWAN_POLICY_ID: Optional policy ID for custom GraySwan policy
  *
  * Example:
- * >>> from openhands.sdk.security.grayswan import GraySwanAnalyzer
+ * >>> from handprint.sdk.security.grayswan import GraySwanAnalyzer
  * >>> analyzer = GraySwanAnalyzer()
  * >>> risk = analyzer.security_risk(action_event)
  */
@@ -5535,7 +5535,7 @@ export type GraySwanAnalyzerInput = {
  * GRAYSWAN_POLICY_ID: Optional policy ID for custom GraySwan policy
  *
  * Example:
- * >>> from openhands.sdk.security.grayswan import GraySwanAnalyzer
+ * >>> from handprint.sdk.security.grayswan import GraySwanAnalyzer
  * >>> analyzer = GraySwanAnalyzer()
  * >>> risk = analyzer.security_risk(action_event)
  */
@@ -5688,7 +5688,7 @@ export type GrepTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -5746,7 +5746,7 @@ export type HomeResponse = {
  *
  * Configuration for all hooks.
  *
- * Hooks can be configured either by loading from `.openhands/hooks.json` or
+ * Hooks can be configured either by loading from `.handprint/hooks.json` or
  * by directly instantiating with typed fields:
  *
  * # Direct instantiation with typed fields (recommended):
@@ -5760,7 +5760,7 @@ export type HomeResponse = {
  * )
  *
  * # Load from JSON file:
- * config = HookConfig.load(".openhands/hooks.json")
+ * config = HookConfig.load(".handprint/hooks.json")
  */
 export type HookConfig = {
   /**
@@ -6166,7 +6166,7 @@ export type InitStatus = {
 /**
  * InputMetadata
  *
- * Metadata for task skill inputs.
+ * Metadata for task track inputs.
  */
 export type InputMetadata = {
   /**
@@ -6184,11 +6184,11 @@ export type InputMetadata = {
 };
 
 /**
- * InstallCanvasExtensionRequest
+ * InstallViczinExtensionRequest
  *
- * Request body for installing a canvas extension.
+ * Request body for installing a viczin extension.
  */
-export type InstallCanvasExtensionRequest = {
+export type InstallViczinExtensionRequest = {
   /**
    * Force
    *
@@ -6210,7 +6210,7 @@ export type InstallCanvasExtensionRequest = {
   /**
    * Source
    *
-   * Canvas extension source - git URL, GitHub shorthand, or local path. Examples: 'github:owner/repo', '/path/to/extension'
+   * Viczin extension source - git URL, GitHub shorthand, or local path. Examples: 'github:owner/repo', '/path/to/extension'
    */
   source: string;
 };
@@ -6242,17 +6242,17 @@ export type InstallPluginRequest = {
   /**
    * Source
    *
-   * Plugin source - git URL, GitHub shorthand, or local path. Examples: 'github:OpenHands/extensions/plugins/city-weather', '/path/to/plugin'
+   * Plugin source - git URL, GitHub shorthand, or local path. Examples: 'github:Handprint/extensions/plugins/city-weather', '/path/to/plugin'
    */
   source: string;
 };
 
 /**
- * InstallSkillRequest
+ * InstallTrackRequest
  *
- * Request body for installing a skill.
+ * Request body for installing a track.
  */
-export type InstallSkillRequest = {
+export type InstallTrackRequest = {
   /**
    * Force
    *
@@ -6274,27 +6274,27 @@ export type InstallSkillRequest = {
   /**
    * Source
    *
-   * Skill source - git URL, GitHub shorthand, or local path. Examples: 'https://github.com/OpenHands/extensions/tree/main/skills/github', 'github:OpenHands/extensions/skills/github', '/path/to/skill'
+   * Track source - git URL, GitHub shorthand, or local path. Examples: 'https://github.com/Handprint/extensions/tree/main/tracks/github', 'github:Handprint/extensions/tracks/github', '/path/to/track'
    */
   source: string;
 };
 
 /**
- * InstalledCanvasExtensionResponse
+ * InstalledViczinExtensionResponse
  *
- * Response containing installed canvas extension information.
+ * Response containing installed viczin extension information.
  */
-export type InstalledCanvasExtensionResponse = {
+export type InstalledViczinExtensionResponse = {
   /**
    * Description
    *
-   * Canvas extension description
+   * Viczin extension description
    */
   description?: string;
   /**
    * Enabled
    *
-   * Whether the canvas extension is enabled
+   * Whether the viczin extension is enabled
    */
   enabled?: boolean;
   /**
@@ -6312,11 +6312,11 @@ export type InstalledCanvasExtensionResponse = {
   /**
    * The extension's validated manifest (display_name, contributes.pages, ...). None if the installed manifest can no longer be read.
    */
-  manifest?: CanvasExtensionManifest | null;
+  manifest?: ViczinExtensionManifest | null;
   /**
    * Name
    *
-   * Canvas extension name
+   * Viczin extension name
    */
   name: string;
   /**
@@ -6340,21 +6340,21 @@ export type InstalledCanvasExtensionResponse = {
   /**
    * Version
    *
-   * Canvas extension version
+   * Viczin extension version
    */
   version?: string;
 };
 
 /**
- * InstalledCanvasExtensionsListResponse
+ * InstalledViczinExtensionsListResponse
  *
- * Response containing the list of installed canvas extensions.
+ * Response containing the list of installed viczin extensions.
  */
-export type InstalledCanvasExtensionsListResponse = {
+export type InstalledViczinExtensionsListResponse = {
   /**
-   * Canvas Extensions
+   * Viczin Extensions
    */
-  canvas_extensions: Array<InstalledCanvasExtensionResponse>;
+  viczin_extensions: Array<InstalledViczinExtensionResponse>;
 };
 
 /**
@@ -6412,11 +6412,11 @@ export type InstalledPluginResponse = {
    */
   resolved_ref?: string | null;
   /**
-   * Skills
+   * Tracks
    *
-   * Skills bundled in the plugin (None if it failed to load)
+   * Tracks bundled in the plugin (None if it failed to load)
    */
-  skills?: Array<PluginSkillSummary> | null;
+  tracks?: Array<PluginTrackSummary> | null;
   /**
    * Source
    *
@@ -6444,27 +6444,27 @@ export type InstalledPluginsListResponse = {
 };
 
 /**
- * InstalledSkillResponse
+ * InstalledTrackResponse
  *
- * Response containing installed skill information.
+ * Response containing installed track information.
  */
-export type InstalledSkillResponse = {
+export type InstalledTrackResponse = {
   /**
    * Description
    *
-   * Skill description
+   * Track description
    */
   description?: string;
   /**
    * Enabled
    *
-   * Whether the skill is enabled
+   * Whether the track is enabled
    */
   enabled?: boolean;
   /**
    * Install Path
    *
-   * Path where the skill is installed
+   * Path where the track is installed
    */
   install_path: string;
   /**
@@ -6476,7 +6476,7 @@ export type InstalledSkillResponse = {
   /**
    * Name
    *
-   * Skill name
+   * Track name
    */
   name: string;
   /**
@@ -6500,21 +6500,21 @@ export type InstalledSkillResponse = {
   /**
    * Version
    *
-   * Skill version
+   * Track version
    */
   version?: string;
 };
 
 /**
- * InstalledSkillsListResponse
+ * InstalledTracksListResponse
  *
- * Response containing list of installed skills.
+ * Response containing list of installed tracks.
  */
-export type InstalledSkillsListResponse = {
+export type InstalledTracksListResponse = {
   /**
-   * Skills
+   * Tracks
    */
-  skills: Array<InstalledSkillResponse>;
+  tracks: Array<InstalledTrackResponse>;
 };
 
 /**
@@ -6556,25 +6556,25 @@ export type InterruptEvent = {
 };
 
 /**
- * InvokeSkillAction
+ * InvokeTrackAction
  */
-export type InvokeSkillAction = {
+export type InvokeTrackAction = {
   /**
    * Kind
    */
-  kind: 'InvokeSkillAction';
+  kind: 'InvokeTrackAction';
   /**
    * Name
    *
-   * Name of the loaded skill to invoke.
+   * Name of the loaded track to invoke.
    */
   name: string;
 };
 
 /**
- * InvokeSkillObservation
+ * InvokeTrackObservation
  */
-export type InvokeSkillObservation = {
+export type InvokeTrackObservation = {
   /**
    * Content
    *
@@ -6590,26 +6590,26 @@ export type InvokeSkillObservation = {
   /**
    * Kind
    */
-  kind: 'InvokeSkillObservation';
+  kind: 'InvokeTrackObservation';
   /**
-   * Skill Name
+   * Track Name
    *
-   * Name of the skill this observation corresponds to.
+   * Name of the track this observation corresponds to.
    */
-  skill_name: string;
+  track_name: string;
 };
 
 /**
- * InvokeSkillTool
+ * InvokeTrackTool
  *
- * Built-in tool for explicit invocation of progressive-disclosure skills.
+ * Built-in tool for explicit invocation of progressive-disclosure tracks.
  */
-export type InvokeSkillTool = {
+export type InvokeTrackTool = {
   /**
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -6617,7 +6617,7 @@ export type InvokeSkillTool = {
   /**
    * Kind
    */
-  kind: 'InvokeSkillTool';
+  kind: 'InvokeTrackTool';
   /**
    * Meta
    */
@@ -6675,9 +6675,9 @@ export type IterativeRefinementConfig = {
 /**
  * KeywordTrigger
  *
- * Trigger for keyword-based skills.
+ * Trigger for keyword-based tracks.
  *
- * These skills are activated when specific keywords appear in the user's query.
+ * These tracks are activated when specific keywords appear in the user's query.
  */
 export type KeywordTrigger = {
   /**
@@ -6693,7 +6693,7 @@ export type KeywordTrigger = {
 /**
  * LLM
  *
- * Language model interface for OpenHands agents.
+ * Language model interface for Handprint agents.
  *
  * The LLM class provides a unified interface for interacting with various
  * language models through the litellm library. It handles model configuration,
@@ -6708,7 +6708,7 @@ export type KeywordTrigger = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM
+ * from handprint.sdk import LLM
  * from pydantic import SecretStr
  *
  * llm = LLM(
@@ -6827,7 +6827,7 @@ export type LlmInput = {
   /**
    * Extended Thinking Budget
    *
-   * Legacy token budget for models confirmed to use manual Anthropic extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
+   * Legacy token budget for models confirmed to use manual Juglow extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
    */
   extended_thinking_budget?: number | null;
   /**
@@ -6907,7 +6907,7 @@ export type LlmInput = {
   /**
    * Model Canonical Name
    *
-   * Optional canonical model name for feature registry lookups. The OpenHands SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
+   * Optional canonical model name for feature registry lookups. The Handprint SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
    */
   model_canonical_name?: string | null;
   /**
@@ -7031,7 +7031,7 @@ export type LlmInput = {
 /**
  * LLM
  *
- * Language model interface for OpenHands agents.
+ * Language model interface for Handprint agents.
  *
  * The LLM class provides a unified interface for interacting with various
  * language models through the litellm library. It handles model configuration,
@@ -7046,7 +7046,7 @@ export type LlmInput = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM
+ * from handprint.sdk import LLM
  * from pydantic import SecretStr
  *
  * llm = LLM(
@@ -7165,7 +7165,7 @@ export type LlmOutput = {
   /**
    * Extended Thinking Budget
    *
-   * Legacy token budget for models confirmed to use manual Anthropic extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
+   * Legacy token budget for models confirmed to use manual Juglow extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
    */
   extended_thinking_budget?: number | null;
   /**
@@ -7247,7 +7247,7 @@ export type LlmOutput = {
   /**
    * Model Canonical Name
    *
-   * Optional canonical model name for feature registry lookups. The OpenHands SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
+   * Optional canonical model name for feature registry lookups. The Handprint SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
    */
   model_canonical_name?: string | null;
   /**
@@ -7436,7 +7436,7 @@ export type LlmCompletionLogEvent = {
  * LLM-based security analyzer.
  *
  * This analyzer respects the security_risk attribute that can be set by the LLM
- * when generating actions, similar to OpenHands' LLMRiskAnalyzer.
+ * when generating actions, similar to Handprint' LLMRiskAnalyzer.
  *
  * It provides a lightweight security analysis approach that leverages the LLM's
  * understanding of action context and potential risks.
@@ -7454,7 +7454,7 @@ export type LlmSecurityAnalyzerInput = {
  * LLM-based security analyzer.
  *
  * This analyzer respects the security_risk attribute that can be set by the LLM
- * when generating actions, similar to OpenHands' LLMRiskAnalyzer.
+ * when generating actions, similar to Handprint' LLMRiskAnalyzer.
  *
  * It provides a lightweight security analysis approach that leverages the LLM's
  * understanding of action context and potential risks.
@@ -7718,7 +7718,7 @@ export type ListDirectoryTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -8881,7 +8881,7 @@ export type McpToolDefinition = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -8975,9 +8975,9 @@ export type MarketplacePluginInfo = {
    */
   repo_path?: string | null;
   /**
-   * Skills
+   * Tracks
    */
-  skills?: Array<PluginSkillSummary> | null;
+  tracks?: Array<PluginTrackSummary> | null;
   /**
    * Source
    */
@@ -8993,7 +8993,7 @@ export type MarketplaceRegistration = {
   /**
    * Auto Load
    *
-   * Whether to load marketplace plugins and standalone skills at conversation start. Use True for all, False or [] for none, or a list of plugin/skill names for selective loading.
+   * Whether to load marketplace plugins and standalone tracks at conversation start. Use True for all, False or [] for none, or a list of plugin/track names for selective loading.
    */
   auto_load?: boolean | Array<string>;
   /**
@@ -9023,11 +9023,11 @@ export type MarketplaceRegistration = {
 };
 
 /**
- * MarketplaceSkillInfo
+ * MarketplaceTrackInfo
  *
- * Information about a skill in the marketplace catalog.
+ * Information about a track in the marketplace catalog.
  */
-export type MarketplaceSkillInfo = {
+export type MarketplaceTrackInfo = {
   /**
    * Description
    */
@@ -9055,7 +9055,7 @@ export type MaterializeAgentProfileRequest = {
    *
    * Draft profile to evaluate instead of the stored one. The path name overrides the draft's name.
    */
-  profile?: OpenHandsAgentProfile | AcpAgentProfile | null;
+  profile?: HandprintAgentProfile | AcpAgentProfile | null;
 };
 
 /**
@@ -9087,7 +9087,7 @@ export type Message = {
   /**
    * Thinking Blocks
    *
-   * Raw Anthropic thinking blocks for extended thinking feature
+   * Raw Juglow thinking blocks for extended thinking feature
    */
   thinking_blocks?: Array<ThinkingBlock | RedactedThinkingBlock>;
   /**
@@ -9109,11 +9109,11 @@ export type Message = {
  */
 export type MessageEvent = {
   /**
-   * Activated Skills
+   * Activated Tracks
    *
-   * List of activated skill name
+   * List of activated track name
    */
-  activated_skills?: Array<string>;
+  activated_tracks?: Array<string>;
   /**
    * Optional critic evaluation of this message and preceding history.
    */
@@ -9446,73 +9446,73 @@ export type NoOpCondenserSettings = {
 
 export type Observation =
   | ({
-      kind: 'openhands__sdk__mcp__definition__MCPToolObservation-Output__1';
+      kind: 'handprint__sdk__mcp__definition__MCPToolObservation-Output__1';
     } & McpToolObservation)
   | ({
-      kind: 'openhands__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMObservation-Output__1';
+      kind: 'handprint__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMObservation-Output__1';
     } & ClassifyAndSwitchLlmObservation)
   | ({
-      kind: 'openhands__sdk__tool__builtins__finish__FinishObservation-Output__1';
+      kind: 'handprint__sdk__tool__builtins__finish__FinishObservation-Output__1';
     } & FinishObservation)
   | ({
-      kind: 'openhands__sdk__tool__builtins__invoke_skill__InvokeSkillObservation-Output__1';
-    } & InvokeSkillObservation)
+      kind: 'handprint__sdk__tool__builtins__invoke_track__InvokeTrackObservation-Output__1';
+    } & InvokeTrackObservation)
   | ({
-      kind: 'openhands__sdk__tool__builtins__switch_llm__SwitchLLMObservation-Output__1';
+      kind: 'handprint__sdk__tool__builtins__switch_llm__SwitchLLMObservation-Output__1';
     } & SwitchLlmObservation)
   | ({
-      kind: 'openhands__sdk__tool__builtins__think__ThinkObservation-Output__1';
+      kind: 'handprint__sdk__tool__builtins__think__ThinkObservation-Output__1';
     } & ThinkObservation)
   | ({
-      kind: 'openhands__sdk__tool__builtins__vision_inspect__VisionInspectObservation-Output__1';
+      kind: 'handprint__sdk__tool__builtins__vision_inspect__VisionInspectObservation-Output__1';
     } & VisionInspectObservation)
   | ({
-      kind: 'openhands__sdk__tool__client_tool__ClientToolObservation-Output__1';
+      kind: 'handprint__sdk__tool__client_tool__ClientToolObservation-Output__1';
     } & ClientToolObservation)
   | ({
-      kind: 'openhands__tools__ask_oracle__definition__AskOracleObservation-Output__1';
+      kind: 'handprint__tools__ask_oracle__definition__AskOracleObservation-Output__1';
     } & AskOracleObservation)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserObservation-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserObservation-Output__1';
     } & BrowserObservation)
   | ({
-      kind: 'openhands__tools__delegate__definition__DelegateObservation-Output__1';
+      kind: 'handprint__tools__delegate__definition__DelegateObservation-Output__1';
     } & DelegateObservation)
   | ({
-      kind: 'openhands__tools__file_editor__definition__FileEditorObservation-Output__1';
+      kind: 'handprint__tools__file_editor__definition__FileEditorObservation-Output__1';
     } & FileEditorObservation)
   | ({
-      kind: 'openhands__tools__gemini__edit__definition__EditObservation-Output__1';
+      kind: 'handprint__tools__gemini__edit__definition__EditObservation-Output__1';
     } & EditObservation)
   | ({
-      kind: 'openhands__tools__gemini__list_directory__definition__ListDirectoryObservation-Output__1';
+      kind: 'handprint__tools__gemini__list_directory__definition__ListDirectoryObservation-Output__1';
     } & ListDirectoryObservation)
   | ({
-      kind: 'openhands__tools__gemini__read_file__definition__ReadFileObservation-Output__1';
+      kind: 'handprint__tools__gemini__read_file__definition__ReadFileObservation-Output__1';
     } & ReadFileObservation)
   | ({
-      kind: 'openhands__tools__gemini__write_file__definition__WriteFileObservation-Output__1';
+      kind: 'handprint__tools__gemini__write_file__definition__WriteFileObservation-Output__1';
     } & WriteFileObservation)
   | ({
-      kind: 'openhands__tools__glob__definition__GlobObservation-Output__1';
+      kind: 'handprint__tools__glob__definition__GlobObservation-Output__1';
     } & GlobObservation)
   | ({
-      kind: 'openhands__tools__grep__definition__GrepObservation-Output__1';
+      kind: 'handprint__tools__grep__definition__GrepObservation-Output__1';
     } & GrepObservation)
   | ({
-      kind: 'openhands__tools__planning_file_editor__definition__PlanningFileEditorObservation-Output__1';
+      kind: 'handprint__tools__planning_file_editor__definition__PlanningFileEditorObservation-Output__1';
     } & PlanningFileEditorObservation)
   | ({
-      kind: 'openhands__tools__task__definition__TaskObservation-Output__1';
+      kind: 'handprint__tools__task__definition__TaskObservation-Output__1';
     } & TaskObservation)
   | ({
-      kind: 'openhands__tools__task_tracker__definition__TaskTrackerObservation-Output__1';
+      kind: 'handprint__tools__task_tracker__definition__TaskTrackerObservation-Output__1';
     } & TaskTrackerObservation)
   | ({
-      kind: 'openhands__tools__terminal__definition__TerminalObservation-Output__1';
+      kind: 'handprint__tools__terminal__definition__TerminalObservation-Output__1';
     } & TerminalObservation)
   | ({
-      kind: 'openhands__tools__workflow__definition__WorkflowObservation-Output__1';
+      kind: 'handprint__tools__workflow__definition__WorkflowObservation-Output__1';
     } & WorkflowObservation);
 
 /**
@@ -9576,17 +9576,17 @@ export type ObservationEvent = {
 };
 
 /**
- * OpenHandsAgentProfile
+ * HandprintAgentProfile
  *
- * ``agent_kind="openhands"`` profile — references an LLM profile by name.
+ * ``agent_kind="handprint"`` profile — references an LLM profile by name.
  *
  * Mirrors the configurable surface of
- * :class:`~openhands.sdk.settings.model.OpenHandsAgentSettings`, except the
+ * :class:`~handprint.sdk.settings.model.HandprintAgentSettings`, except the
  * concrete ``llm`` is replaced by :attr:`llm_profile_ref` (resolved against
  * the LLM profile store) and ``mcp_config`` by the inherited
  * :attr:`~AgentProfileBase.mcp_server_refs`.
  */
-export type OpenHandsAgentProfile = {
+export type HandprintAgentProfile = {
   /**
    * Agent
    *
@@ -9596,9 +9596,9 @@ export type OpenHandsAgentProfile = {
   /**
    * Agent Kind
    *
-   * Discriminator for the ``AgentProfile`` union. ``'openhands'`` selects the standard built-in OpenHands agent.
+   * Discriminator for the ``AgentProfile`` union. ``'handprint'`` selects the standard built-in Handprint agent.
    */
-  agent_kind?: 'openhands';
+  agent_kind?: 'handprint';
   /**
    * Condenser
    *
@@ -9606,11 +9606,11 @@ export type OpenHandsAgentProfile = {
    */
   condenser?: LlmSummarizingCondenserSettings | NoOpCondenserSettings;
   /**
-   * Disabled Skills
+   * Disabled Tracks
    *
-   * Names of server-discovered skills to EXCLUDE from this agent's prompt — a deny-list over the discovered catalog. [] (the default) = all discovered skills; a listed name that is absent from the catalog is simply a no-op, so the field never fails a launch when the catalog drifts. Replaces the former allow-list ``skill_refs`` (#4017): skills are discovered from many incomplete sources, so exclusion is the only selection model that can't dangle.
+   * Names of server-discovered tracks to EXCLUDE from this agent's prompt — a deny-list over the discovered catalog. [] (the default) = all discovered tracks; a listed name that is absent from the catalog is simply a no-op, so the field never fails a launch when the catalog drifts. Replaces the former allow-list ``track_refs`` (#4017): tracks are discovered from many incomplete sources, so exclusion is the only selection model that can't dangle.
    */
-  disabled_skills?: Array<string>;
+  disabled_tracks?: Array<string>;
   /**
    * Enable Classify And Switch Llm Tool
    *
@@ -9650,7 +9650,7 @@ export type OpenHandsAgentProfile = {
   /**
    * Persona
    *
-   * Persona text that replaces OpenHands' built-in persona and coding-workflow guidance. Capability and policy guidance (memory, security policy, risk assessment, browser, external services, process management, model-specific notes) and the dynamic context are still included. None keeps the built-in persona.
+   * Persona text that replaces Handprint' built-in persona and coding-workflow guidance. Capability and policy guidance (memory, security policy, risk assessment, browser, external services, process management, model-specific notes) and the dynamic context are still included. None keeps the built-in persona.
    */
   persona?: string | null;
   /**
@@ -9696,7 +9696,7 @@ export type OpenHandsAgentProfile = {
 /**
  * OrgConfig
  *
- * Configuration for loading organization-level skills.
+ * Configuration for loading organization-level tracks.
  */
 export type OrgConfig = {
   /**
@@ -9782,9 +9782,9 @@ export type PassCriticOutput = {
 /**
  * PathTrigger
  *
- * Trigger for path-scoped skills ("rules").
+ * Trigger for path-scoped tracks ("rules").
  *
- * These skills are activated when the agent touches a file whose path matches
+ * These tracks are activated when the agent touches a file whose path matches
  * one of the ``paths`` glob patterns (gitignore-style ``**`` semantics).
  */
 export type PathTrigger = {
@@ -9817,7 +9817,7 @@ export type PathTrigger = {
  *
  * Example::
  *
- * from openhands.sdk.security import PatternSecurityAnalyzer, ConfirmRisky
+ * from handprint.sdk.security import PatternSecurityAnalyzer, ConfirmRisky
  *
  * analyzer = PatternSecurityAnalyzer()
  * policy = ConfirmRisky(threshold=SecurityRisk.MEDIUM)
@@ -9872,7 +9872,7 @@ export type PatternSecurityAnalyzerInput = {
  *
  * Example::
  *
- * from openhands.sdk.security import PatternSecurityAnalyzer, ConfirmRisky
+ * from handprint.sdk.security import PatternSecurityAnalyzer, ConfirmRisky
  *
  * analyzer = PatternSecurityAnalyzer()
  * policy = ConfirmRisky(threshold=SecurityRisk.MEDIUM)
@@ -10159,7 +10159,7 @@ export type PlanningFileEditorTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -10211,11 +10211,11 @@ export type PluginInfo = {
    */
   path?: string;
   /**
-   * Skills
+   * Tracks
    *
-   * Skills bundled in the plugin
+   * Tracks bundled in the plugin
    */
-  skills?: Array<PluginSkillSummary>;
+  tracks?: Array<PluginTrackSummary>;
   /**
    * Version
    */
@@ -10223,11 +10223,11 @@ export type PluginInfo = {
 };
 
 /**
- * PluginSkillSummary
+ * PluginTrackSummary
  *
- * Summary of a skill bundled in a plugin.
+ * Summary of a track bundled in a plugin.
  */
-export type PluginSkillSummary = {
+export type PluginTrackSummary = {
   /**
    * Description
    */
@@ -10340,7 +10340,7 @@ export type PluginsResponse = {
  *
  * Example::
  *
- * from openhands.sdk.security import PolicyRailSecurityAnalyzer
+ * from handprint.sdk.security import PolicyRailSecurityAnalyzer
  *
  * analyzer = PolicyRailSecurityAnalyzer()
  * # risk = analyzer.security_risk(action)
@@ -10374,7 +10374,7 @@ export type PolicyRailSecurityAnalyzerInput = {
  *
  * Example::
  *
- * from openhands.sdk.security import PolicyRailSecurityAnalyzer
+ * from handprint.sdk.security import PolicyRailSecurityAnalyzer
  *
  * analyzer = PolicyRailSecurityAnalyzer()
  * # risk = analyzer.security_risk(action)
@@ -10472,7 +10472,7 @@ export type ProfileMutationResponse = {
  * Secret-free critic/refinement policy for a profile.
  *
  * The non-credential subset of
- * :class:`~openhands.sdk.settings.model.VerificationSettings`: ``critic_api_key``
+ * :class:`~handprint.sdk.settings.model.VerificationSettings`: ``critic_api_key``
  * is omitted so the profile holds no secret. The critic reuses the resolved
  * LLM profile's key (the existing ``critic_api_key=None`` behavior).
  */
@@ -10687,7 +10687,7 @@ export type ReadFileTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -10823,10 +10823,10 @@ export type RemoteMcpServer = {
 /**
  * RemoteWorkspace
  *
- * Remote workspace implementation that connects to an OpenHands agent server.
+ * Remote workspace implementation that connects to an Handprint agent server.
  *
  * RemoteWorkspace provides access to a sandboxed environment running on a remote
- * OpenHands agent server. This is the recommended approach for production deployments
+ * Handprint agent server. This is the recommended approach for production deployments
  * as it provides better isolation and security.
  *
  * Supports optional completion callbacks on exit via environment variables:
@@ -10909,7 +10909,7 @@ export type RenameProfileRequest = {
 /**
  * SandboxConfig
  *
- * Configuration for loading sandbox-specific skills.
+ * Configuration for loading sandbox-specific tracks.
  */
 export type SandboxConfig = {
   /**
@@ -10999,18 +10999,18 @@ export type SecretRegistry = {
 
 export type SecretSourceInput =
   | ({
-      kind: 'openhands__sdk__secret__secrets__LookupSecret-Input__1';
+      kind: 'handprint__sdk__secret__secrets__LookupSecret-Input__1';
     } & LookupSecretInput)
   | ({
-      kind: 'openhands__sdk__secret__secrets__StaticSecret-Input__1';
+      kind: 'handprint__sdk__secret__secrets__StaticSecret-Input__1';
     } & StaticSecretInput);
 
 export type SecretSourceOutput =
   | ({
-      kind: 'openhands__sdk__secret__secrets__LookupSecret-Output__1';
+      kind: 'handprint__sdk__secret__secrets__LookupSecret-Output__1';
     } & LookupSecretOutput)
   | ({
-      kind: 'openhands__sdk__secret__secrets__StaticSecret-Output__1';
+      kind: 'handprint__sdk__secret__secrets__StaticSecret-Output__1';
     } & StaticSecretOutput);
 
 /**
@@ -11030,42 +11030,42 @@ export type SecretsListResponse = {
 
 export type SecurityAnalyzerBaseInput =
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Input__1';
     } & PatternSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Input__1';
     } & PolicyRailSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__ensemble__EnsembleSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__ensemble__EnsembleSecurityAnalyzer-Input__1';
     } & EnsembleSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Input__1';
     } & GraySwanAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Input__1';
     } & LlmSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Input__1';
     } & ToolShieldLlmSecurityAnalyzerInput);
 
 export type SecurityAnalyzerBaseOutput =
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Output__1';
     } & PatternSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Output__1';
     } & PolicyRailSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__ensemble__EnsembleSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__ensemble__EnsembleSecurityAnalyzer-Output__1';
     } & EnsembleSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Output__1';
     } & GraySwanAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Output__1';
     } & LlmSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Output__1';
     } & ToolShieldLlmSecurityAnalyzerOutput);
 
 /**
@@ -11073,7 +11073,7 @@ export type SecurityAnalyzerBaseOutput =
  *
  * Security risk levels for actions.
  *
- * Based on OpenHands security risk levels but adapted for agent-sdk.
+ * Based on Handprint security risk levels but adapted for agent-sdk.
  * Integer values allow for easy comparison and ordering.
  */
 export type SecurityRisk = 'UNKNOWN' | 'LOW' | 'MEDIUM' | 'HIGH';
@@ -11244,7 +11244,7 @@ export type SettingsFieldSchema = {
   /**
    * Variant
    *
-   * When set, the field only applies to the named ``AgentSettings`` variant (``'openhands'`` or ``'acp'``). The GUI filters fields by the user's current variant; fields with ``variant=None`` are shown regardless.
+   * When set, the field only applies to the named ``AgentSettings`` variant (``'handprint'`` or ``'acp'``). The GUI filters fields by the user's current variant; fields with ``variant=None`` are shown regardless.
    */
   variant?: string | null;
 };
@@ -11298,7 +11298,7 @@ export type SettingsResponse = {
     /**
      * Agent Kind
      */
-    agent_kind?: 'openhands' | 'acp' | null;
+    agent_kind?: 'handprint' | 'acp' | null;
     mcp_config: McpConfig;
     /**
      * Schema Version
@@ -11357,7 +11357,7 @@ export type SettingsSectionSchema = {
   /**
    * Variant
    *
-   * When set, this section only applies to the named ``AgentSettings`` variant (e.g. ``'openhands'`` or ``'acp'``). The GUI filters sections by the current ``agent_kind`` value; sections with ``variant=None`` are always shown.
+   * When set, this section only applies to the named ``AgentSettings`` variant (e.g. ``'handprint'`` or ``'acp'``). The GUI filters sections by the current ``agent_kind`` value; sections with ``variant=None`` are always shown.
    */
   variant?: string | null;
 };
@@ -11416,35 +11416,35 @@ export type SettingsUpdateRequest = {
 };
 
 /**
- * Skill
+ * Track
  *
- * A skill provides specialized knowledge or functionality.
+ * A track provides specialized knowledge or functionality.
  *
- * Skill behavior depends on format (is_agentskills_format) and trigger:
+ * Track behavior depends on format (is_agenttracks_format) and trigger:
  *
- * AgentSkills format (SKILL.md files):
- * - Always listed in <available_skills> with name, description, location
+ * AgentTracks format (TRACK.md files):
+ * - Always listed in <available_tracks> with name, description, location
  * - Agent reads full content on demand (progressive disclosure)
  * - If has triggers: content is ALSO auto-injected when triggered
  *
- * Legacy OpenHands format:
- * - With triggers: Listed in <available_skills>, content injected on trigger
+ * Legacy Handprint format:
+ * - With triggers: Listed in <available_tracks>, content injected on trigger
  * - Without triggers (None): Full content in <REPO_CONTEXT>, always active
  *
- * This model supports both OpenHands-specific fields and AgentSkills standard
- * fields (https://agentskills.io/specification) for cross-platform compatibility.
+ * This model supports both Handprint-specific fields and AgentTracks standard
+ * fields (https://agenttracks.io/specification) for cross-platform compatibility.
  */
-export type SkillInput = {
+export type TrackInput = {
   /**
    * Allowed Tools
    *
-   * List of pre-approved tools for this skill. AgentSkills standard field (parsed from space-delimited string).
+   * List of pre-approved tools for this track. AgentTracks standard field (parsed from space-delimited string).
    */
   allowed_tools?: Array<string> | null;
   /**
    * Compatibility
    *
-   * Environment requirements or compatibility notes for the skill. AgentSkills standard field (e.g., 'Requires git and docker').
+   * Environment requirements or compatibility notes for the track. AgentTracks standard field (e.g., 'Requires git and docker').
    */
   compatibility?: string | null;
   /**
@@ -11454,37 +11454,37 @@ export type SkillInput = {
   /**
    * Description
    *
-   * A brief description of what the skill does and when to use it. Descriptions exceeding MAX_DESCRIPTION_LENGTH are truncated with a notice pointing to the skill's source path.
+   * A brief description of what the track does and when to use it. Descriptions exceeding MAX_DESCRIPTION_LENGTH are truncated with a notice pointing to the track's source path.
    */
   description?: string | null;
   /**
    * Disable Model Invocation
    *
-   * Whether this skill can only be activated by trigger matching and should not be advertised to the model for direct invocation.
+   * Whether this track can only be activated by trigger matching and should not be advertised to the model for direct invocation.
    */
   disable_model_invocation?: boolean;
   /**
    * Inputs
    *
-   * Input metadata for the skill (task skills only)
+   * Input metadata for the track (task tracks only)
    */
   inputs?: Array<InputMetadata>;
   /**
-   * Is Agentskills Format
+   * Is Agenttracks Format
    *
-   * Whether this skill was loaded from a SKILL.md file following the AgentSkills standard. AgentSkills-format skills use progressive disclosure: always listed in <available_skills> with name, description, and location. If the skill also has triggers, content is auto-injected when triggered AND agent can read file anytime.
+   * Whether this track was loaded from a TRACK.md file following the AgentTracks standard. AgentTracks-format tracks use progressive disclosure: always listed in <available_tracks> with name, description, and location. If the track also has triggers, content is auto-injected when triggered AND agent can read file anytime.
    */
-  is_agentskills_format?: boolean;
+  is_agenttracks_format?: boolean;
   /**
    * License
    *
-   * The license under which the skill is distributed. AgentSkills standard field (e.g., 'Apache-2.0', 'MIT').
+   * The license under which the track is distributed. AgentTracks standard field (e.g., 'Apache-2.0', 'MIT').
    */
   license?: string | null;
   /**
    * Mcp Tools
    *
-   * MCP servers for the skill (repo skills only).
+   * MCP servers for the track (repo tracks only).
    */
   mcp_tools?: {
     [key: string]: McpServerInput;
@@ -11492,7 +11492,7 @@ export type SkillInput = {
   /**
    * Metadata
    *
-   * Arbitrary key-value metadata for the skill. AgentSkills standard field for extensibility.
+   * Arbitrary key-value metadata for the track. AgentTracks standard field for extensibility.
    */
   metadata?: {
     [key: string]: string;
@@ -11502,19 +11502,19 @@ export type SkillInput = {
    */
   name: string;
   /**
-   * Resource directories for the skill (scripts/, references/, assets/). AgentSkills standard field. Only populated for SKILL.md directory format.
+   * Resource directories for the track (scripts/, references/, assets/). AgentTracks standard field. Only populated for TRACK.md directory format.
    */
-  resources?: SkillResources | null;
+  resources?: TrackResources | null;
   /**
    * Source
    *
-   * The source path or identifier of the skill. When it is None, it is treated as a programmatically defined skill.
+   * The source path or identifier of the track. When it is None, it is treated as a programmatically defined track.
    */
   source?: string | null;
   /**
    * Trigger
    *
-   * Trigger determines when skill content is auto-injected. None = no auto-injection (for AgentSkills: agent reads on demand; for legacy: full content always in system prompt). KeywordTrigger = auto-inject when keywords appear in user messages. TaskTrigger = auto-inject for specific tasks, may require user input.
+   * Trigger determines when track content is auto-injected. None = no auto-injection (for AgentTracks: agent reads on demand; for legacy: full content always in system prompt). KeywordTrigger = auto-inject when keywords appear in user messages. TaskTrigger = auto-inject for specific tasks, may require user input.
    */
   trigger?:
     | ({
@@ -11530,41 +11530,41 @@ export type SkillInput = {
   /**
    * Version
    *
-   * Skill version (AgentSkills standard field).
+   * Track version (AgentTracks standard field).
    */
   version?: string;
 };
 
 /**
- * Skill
+ * Track
  *
- * A skill provides specialized knowledge or functionality.
+ * A track provides specialized knowledge or functionality.
  *
- * Skill behavior depends on format (is_agentskills_format) and trigger:
+ * Track behavior depends on format (is_agenttracks_format) and trigger:
  *
- * AgentSkills format (SKILL.md files):
- * - Always listed in <available_skills> with name, description, location
+ * AgentTracks format (TRACK.md files):
+ * - Always listed in <available_tracks> with name, description, location
  * - Agent reads full content on demand (progressive disclosure)
  * - If has triggers: content is ALSO auto-injected when triggered
  *
- * Legacy OpenHands format:
- * - With triggers: Listed in <available_skills>, content injected on trigger
+ * Legacy Handprint format:
+ * - With triggers: Listed in <available_tracks>, content injected on trigger
  * - Without triggers (None): Full content in <REPO_CONTEXT>, always active
  *
- * This model supports both OpenHands-specific fields and AgentSkills standard
- * fields (https://agentskills.io/specification) for cross-platform compatibility.
+ * This model supports both Handprint-specific fields and AgentTracks standard
+ * fields (https://agenttracks.io/specification) for cross-platform compatibility.
  */
-export type SkillOutput = {
+export type TrackOutput = {
   /**
    * Allowed Tools
    *
-   * List of pre-approved tools for this skill. AgentSkills standard field (parsed from space-delimited string).
+   * List of pre-approved tools for this track. AgentTracks standard field (parsed from space-delimited string).
    */
   allowed_tools?: Array<string> | null;
   /**
    * Compatibility
    *
-   * Environment requirements or compatibility notes for the skill. AgentSkills standard field (e.g., 'Requires git and docker').
+   * Environment requirements or compatibility notes for the track. AgentTracks standard field (e.g., 'Requires git and docker').
    */
   compatibility?: string | null;
   /**
@@ -11574,37 +11574,37 @@ export type SkillOutput = {
   /**
    * Description
    *
-   * A brief description of what the skill does and when to use it. Descriptions exceeding MAX_DESCRIPTION_LENGTH are truncated with a notice pointing to the skill's source path.
+   * A brief description of what the track does and when to use it. Descriptions exceeding MAX_DESCRIPTION_LENGTH are truncated with a notice pointing to the track's source path.
    */
   description?: string | null;
   /**
    * Disable Model Invocation
    *
-   * Whether this skill can only be activated by trigger matching and should not be advertised to the model for direct invocation.
+   * Whether this track can only be activated by trigger matching and should not be advertised to the model for direct invocation.
    */
   disable_model_invocation?: boolean;
   /**
    * Inputs
    *
-   * Input metadata for the skill (task skills only)
+   * Input metadata for the track (task tracks only)
    */
   inputs?: Array<InputMetadata>;
   /**
-   * Is Agentskills Format
+   * Is Agenttracks Format
    *
-   * Whether this skill was loaded from a SKILL.md file following the AgentSkills standard. AgentSkills-format skills use progressive disclosure: always listed in <available_skills> with name, description, and location. If the skill also has triggers, content is auto-injected when triggered AND agent can read file anytime.
+   * Whether this track was loaded from a TRACK.md file following the AgentTracks standard. AgentTracks-format tracks use progressive disclosure: always listed in <available_tracks> with name, description, and location. If the track also has triggers, content is auto-injected when triggered AND agent can read file anytime.
    */
-  is_agentskills_format?: boolean;
+  is_agenttracks_format?: boolean;
   /**
    * License
    *
-   * The license under which the skill is distributed. AgentSkills standard field (e.g., 'Apache-2.0', 'MIT').
+   * The license under which the track is distributed. AgentTracks standard field (e.g., 'Apache-2.0', 'MIT').
    */
   license?: string | null;
   /**
    * Mcp Tools
    *
-   * MCP servers for the skill (repo skills only).
+   * MCP servers for the track (repo tracks only).
    */
   mcp_tools?: {
     [key: string]: {
@@ -11614,7 +11614,7 @@ export type SkillOutput = {
   /**
    * Metadata
    *
-   * Arbitrary key-value metadata for the skill. AgentSkills standard field for extensibility.
+   * Arbitrary key-value metadata for the track. AgentTracks standard field for extensibility.
    */
   metadata?: {
     [key: string]: string;
@@ -11624,19 +11624,19 @@ export type SkillOutput = {
    */
   name: string;
   /**
-   * Resource directories for the skill (scripts/, references/, assets/). AgentSkills standard field. Only populated for SKILL.md directory format.
+   * Resource directories for the track (scripts/, references/, assets/). AgentTracks standard field. Only populated for TRACK.md directory format.
    */
-  resources?: SkillResources | null;
+  resources?: TrackResources | null;
   /**
    * Source
    *
-   * The source path or identifier of the skill. When it is None, it is treated as a programmatically defined skill.
+   * The source path or identifier of the track. When it is None, it is treated as a programmatically defined track.
    */
   source?: string | null;
   /**
    * Trigger
    *
-   * Trigger determines when skill content is auto-injected. None = no auto-injection (for AgentSkills: agent reads on demand; for legacy: full content always in system prompt). KeywordTrigger = auto-inject when keywords appear in user messages. TaskTrigger = auto-inject for specific tasks, may require user input.
+   * Trigger determines when track content is auto-injected. None = no auto-injection (for AgentTracks: agent reads on demand; for legacy: full content always in system prompt). KeywordTrigger = auto-inject when keywords appear in user messages. TaskTrigger = auto-inject for specific tasks, may require user input.
    */
   trigger?:
     | ({
@@ -11652,20 +11652,20 @@ export type SkillOutput = {
   /**
    * Version
    *
-   * Skill version (AgentSkills standard field).
+   * Track version (AgentTracks standard field).
    */
   version?: string;
 };
 
 /**
- * SkillInfo
+ * TrackInfo
  *
- * Lightweight representation of a skill's essential information.
+ * Lightweight representation of a track's essential information.
  *
- * This class provides a standardized, serializable format for skill metadata
+ * This class provides a standardized, serializable format for track metadata
  * that can be used across different components of the system.
  */
-export type SkillInfo = {
+export type TrackInfo = {
   /**
    * Content
    */
@@ -11679,9 +11679,9 @@ export type SkillInfo = {
    */
   disable_model_invocation?: boolean;
   /**
-   * Is Agentskills Format
+   * Is Agenttracks Format
    */
-  is_agentskills_format?: boolean;
+  is_agenttracks_format?: boolean;
   /**
    * Name
    */
@@ -11697,20 +11697,20 @@ export type SkillInfo = {
   /**
    * Type
    */
-  type: 'repo' | 'knowledge' | 'agentskills';
+  type: 'repo' | 'knowledge' | 'agenttracks';
 };
 
 /**
- * SkillResources
+ * TrackResources
  *
- * Resource directories for a skill (AgentSkills standard).
+ * Resource directories for a track (AgentTracks standard).
  *
- * Per the AgentSkills specification, skills can include:
+ * Per the AgentTracks specification, tracks can include:
  * - scripts/: Executable scripts the agent can run
  * - references/: Reference documentation and examples
  * - assets/: Static assets (images, data files, etc.)
  */
-export type SkillResources = {
+export type TrackResources = {
   /**
    * Assets
    *
@@ -11730,87 +11730,87 @@ export type SkillResources = {
    */
   scripts?: Array<string>;
   /**
-   * Skill Root
+   * Track Root
    *
-   * Root directory of the skill (absolute path)
+   * Root directory of the track (absolute path)
    */
-  skill_root: string;
+  track_root: string;
 };
 
 /**
- * SkillsRequest
+ * TracksRequest
  *
- * Request body for loading skills.
+ * Request body for loading tracks.
  */
-export type SkillsRequest = {
+export type TracksRequest = {
   /**
    * Load Org
    *
-   * Load organization-level skills
+   * Load organization-level tracks
    */
   load_org?: boolean;
   /**
    * Load Project
    *
-   * Load project skills from workspace
+   * Load project tracks from workspace
    */
   load_project?: boolean;
   /**
    * Load Public
    *
-   * Load public skills from OpenHands/extensions repo
+   * Load public tracks from Handprint/extensions repo
    */
   load_public?: boolean;
   /**
    * Load User
    *
-   * Load user skills from ~/.openhands/skills/
+   * Load user tracks from ~/.handprint/tracks/
    */
   load_user?: boolean;
   /**
    * Marketplace Path
    *
-   * Relative marketplace JSON path for public skills. Set to null to load all public skills.
+   * Relative marketplace JSON path for public tracks. Set to null to load all public tracks.
    */
   marketplace_path?: string | null;
   /**
    * Org Configs
    *
-   * Organization/user skill repositories to load concurrently
+   * Organization/user track repositories to load concurrently
    */
   org_configs?: Array<OrgConfig> | null;
   /**
    * Project Dir
    *
-   * Workspace directory path for project skills
+   * Workspace directory path for project tracks
    */
   project_dir?: string | null;
   /**
    * Registered Marketplaces
    *
-   * Marketplace registrations for plugin-based skill loading. Registrations with auto_load=True or a list of plugin names add their skills to the public skills.
+   * Marketplace registrations for plugin-based track loading. Registrations with auto_load=True or a list of plugin names add their tracks to the public tracks.
    */
   registered_marketplaces?: Array<MarketplaceRegistration>;
   /**
-   * Sandbox skills configuration
+   * Sandbox tracks configuration
    */
   sandbox_config?: SandboxConfig | null;
 };
 
 /**
- * SkillsResponse
+ * TracksResponse
  *
- * Response containing all available skills.
+ * Response containing all available tracks.
  */
-export type SkillsResponse = {
+export type TracksResponse = {
   /**
-   * Skills
+   * Tracks
    */
-  skills: Array<SkillInfo>;
+  tracks: Array<TrackInfo>;
   /**
    * Sources
    *
-   * Count of skills loaded from each source
+   * Count of tracks loaded from each source
    */
   sources?: {
     [key: string]: number;
@@ -11929,7 +11929,7 @@ export type StartConversationRequest = {
   /**
    * Plugins
    *
-   * List of plugins to load for this conversation. Plugins are loaded and their skills/MCP config are merged into the agent. Hooks are extracted and stored for runtime execution.
+   * List of plugins to load for this conversation. Plugins are loaded and their tracks/MCP config are merged into the agent. Hooks are extracted and stored for runtime execution.
    */
   plugins?: Array<PluginSource> | null;
   /**
@@ -11967,7 +11967,7 @@ export type StartConversationRequest = {
   /**
    * Title Llm Profile
    *
-   * Optional LLM profile name for title generation. If set, the LLM is loaded from LLMProfileStore (~/.openhands/profiles/) and used for LLM-based title generation. This enables using a fast/cheap model for titles regardless of the agent's main model. If not set (or profile loading fails), title generation falls back to the agent's LLM.
+   * Optional LLM profile name for title generation. If set, the LLM is loaded from LLMProfileStore (~/.handprint/profiles/) and used for LLM-based title generation. This enables using a fast/cheap model for titles regardless of the agent's main model. If not set (or profile loading fails), title generation falls back to the agent's LLM.
    */
   title_llm_profile?: string | null;
   /**
@@ -12216,9 +12216,9 @@ export type SubAgentInfo = {
    */
   profile_store_dir?: string | null;
   /**
-   * Skills
+   * Tracks
    */
-  skills?: Array<string>;
+  tracks?: Array<string>;
   /**
    * Source
    */
@@ -12258,7 +12258,7 @@ export type SubAgentsRequest = {
   /**
    * Load User
    *
-   * Load user agents from ~/.agents/agents and ~/.openhands/agents
+   * Load user agents from ~/.agents/agents and ~/.handprint/agents
    */
   load_user?: boolean;
   /**
@@ -12481,7 +12481,7 @@ export type SwitchLlmTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -12509,7 +12509,7 @@ export type SwitchLlmTool = {
 /**
  * SyncResponse
  *
- * Response from skill sync operation.
+ * Response from track sync operation.
  */
 export type SyncResponse = {
   /**
@@ -12695,7 +12695,7 @@ export type TaskTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -12728,7 +12728,7 @@ export type TaskTool = {
  * Creates the Task tool backed by a shared TaskManager.
  *
  * Usage:
- * from openhands.tools.task import TaskToolSet
+ * from handprint.tools.task import TaskToolSet
  *
  * agent = Agent(
  * llm=llm,
@@ -12744,7 +12744,7 @@ export type TaskToolSet = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -12839,7 +12839,7 @@ export type TaskTrackerTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -12867,9 +12867,9 @@ export type TaskTrackerTool = {
 /**
  * TaskTrigger
  *
- * Trigger for task-specific skills.
+ * Trigger for task-specific tracks.
  *
- * These skills are activated for specific task types and can modify prompts.
+ * These tracks are activated for specific task types and can modify prompts.
  */
 export type TaskTrigger = {
   /**
@@ -12896,7 +12896,7 @@ export type TelemetrySpec = {
   /**
    * Deployment Kind
    *
-   * Deployment kind attached to diagnostic events. Use 'remote' for hosted OpenHands and 'local' for self-hosted or developer runs.
+   * Deployment kind attached to diagnostic events. Use 'remote' for hosted Handprint and 'local' for self-hosted or developer runs.
    */
   deployment_kind?: 'local' | 'remote';
   /**
@@ -13065,7 +13065,7 @@ export type TerminalTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -13162,7 +13162,7 @@ export type ThinkTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -13190,9 +13190,9 @@ export type ThinkTool = {
 /**
  * ThinkingBlock
  *
- * Anthropic thinking block for extended thinking feature.
+ * Juglow thinking block for extended thinking feature.
  *
- * This represents the raw thinking blocks returned by Anthropic models
+ * This represents the raw thinking blocks returned by Juglow models
  * when extended thinking is enabled. These blocks must be preserved
  * and passed back to the API for tool use scenarios.
  */
@@ -13330,7 +13330,7 @@ export type ToolInput = {
   /**
    * Name
    *
-   * Name of the tool class, e.g., 'TerminalTool'. Import it from an `openhands.tools.<module>` subpackage.
+   * Name of the tool class, e.g., 'TerminalTool'. Import it from an `handprint.tools.<module>` subpackage.
    */
   name: string;
   /**
@@ -13344,7 +13344,7 @@ export type ToolInput = {
 };
 
 /**
- * openhands.sdk.tool.tool.ToolAnnotations
+ * handprint.sdk.tool.tool.ToolAnnotations
  *
  * Annotations to provide hints about the tool's behavior.
  *
@@ -13424,118 +13424,118 @@ export type ToolCatalogResponse = {
 
 export type ToolDefinition =
   | ({
-      kind: 'openhands__sdk__mcp__tool__MCPToolDefinition-Output__1';
+      kind: 'handprint__sdk__mcp__tool__MCPToolDefinition-Output__1';
     } & McpToolDefinition)
   | ({
-      kind: 'openhands__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMTool-Output__1';
     } & ClassifyAndSwitchLlmTool)
   | ({
-      kind: 'openhands__sdk__tool__builtins__finish__FinishTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__finish__FinishTool-Output__1';
     } & FinishTool)
   | ({
-      kind: 'openhands__sdk__tool__builtins__invoke_skill__InvokeSkillTool-Output__1';
-    } & InvokeSkillTool)
+      kind: 'handprint__sdk__tool__builtins__invoke_track__InvokeTrackTool-Output__1';
+    } & InvokeTrackTool)
   | ({
-      kind: 'openhands__sdk__tool__builtins__switch_llm__SwitchLLMTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__switch_llm__SwitchLLMTool-Output__1';
     } & SwitchLlmTool)
   | ({
-      kind: 'openhands__sdk__tool__builtins__think__ThinkTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__think__ThinkTool-Output__1';
     } & ThinkTool)
   | ({
-      kind: 'openhands__sdk__tool__builtins__vision_inspect__VisionInspectTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__vision_inspect__VisionInspectTool-Output__1';
     } & VisionInspectTool)
   | ({
-      kind: 'openhands__sdk__tool__client_tool__ClientTool-Output__1';
+      kind: 'handprint__sdk__tool__client_tool__ClientTool-Output__1';
     } & ClientTool)
   | ({
-      kind: 'openhands__tools__ask_oracle__definition__AskOracleTool-Output__1';
+      kind: 'handprint__tools__ask_oracle__definition__AskOracleTool-Output__1';
     } & AskOracleTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserClickTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserClickTool-Output__1';
     } & BrowserClickTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserCloseTabTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserCloseTabTool-Output__1';
     } & BrowserCloseTabTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetContentTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetContentTool-Output__1';
     } & BrowserGetContentTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetStateTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetStateTool-Output__1';
     } & BrowserGetStateTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetStorageTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetStorageTool-Output__1';
     } & BrowserGetStorageTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGoBackTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGoBackTool-Output__1';
     } & BrowserGoBackTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserListTabsTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserListTabsTool-Output__1';
     } & BrowserListTabsTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserNavigateTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserNavigateTool-Output__1';
     } & BrowserNavigateTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserScrollTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserScrollTool-Output__1';
     } & BrowserScrollTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserSetStorageTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserSetStorageTool-Output__1';
     } & BrowserSetStorageTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserStartRecordingTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserStartRecordingTool-Output__1';
     } & BrowserStartRecordingTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserStopRecordingTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserStopRecordingTool-Output__1';
     } & BrowserStopRecordingTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserSwitchTabTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserSwitchTabTool-Output__1';
     } & BrowserSwitchTabTool)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserToolSet-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserToolSet-Output__1';
     } & BrowserToolSet)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserTypeTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserTypeTool-Output__1';
     } & BrowserTypeTool)
   | ({
-      kind: 'openhands__tools__file_editor__definition__FileEditorTool-Output__1';
+      kind: 'handprint__tools__file_editor__definition__FileEditorTool-Output__1';
     } & FileEditorTool)
   | ({
-      kind: 'openhands__tools__gemini__edit__definition__EditTool-Output__1';
+      kind: 'handprint__tools__gemini__edit__definition__EditTool-Output__1';
     } & EditTool)
   | ({
-      kind: 'openhands__tools__gemini__list_directory__definition__ListDirectoryTool-Output__1';
+      kind: 'handprint__tools__gemini__list_directory__definition__ListDirectoryTool-Output__1';
     } & ListDirectoryTool)
   | ({
-      kind: 'openhands__tools__gemini__read_file__definition__ReadFileTool-Output__1';
+      kind: 'handprint__tools__gemini__read_file__definition__ReadFileTool-Output__1';
     } & ReadFileTool)
   | ({
-      kind: 'openhands__tools__gemini__write_file__definition__WriteFileTool-Output__1';
+      kind: 'handprint__tools__gemini__write_file__definition__WriteFileTool-Output__1';
     } & WriteFileTool)
   | ({
-      kind: 'openhands__tools__glob__definition__GlobTool-Output__1';
+      kind: 'handprint__tools__glob__definition__GlobTool-Output__1';
     } & GlobTool)
   | ({
-      kind: 'openhands__tools__grep__definition__GrepTool-Output__1';
+      kind: 'handprint__tools__grep__definition__GrepTool-Output__1';
     } & GrepTool)
   | ({
-      kind: 'openhands__tools__planning_file_editor__definition__PlanningFileEditorTool-Output__1';
+      kind: 'handprint__tools__planning_file_editor__definition__PlanningFileEditorTool-Output__1';
     } & PlanningFileEditorTool)
   | ({
-      kind: 'openhands__tools__task__definition__TaskTool-Output__1';
+      kind: 'handprint__tools__task__definition__TaskTool-Output__1';
     } & TaskTool)
   | ({
-      kind: 'openhands__tools__task__definition__TaskToolSet-Output__1';
+      kind: 'handprint__tools__task__definition__TaskToolSet-Output__1';
     } & TaskToolSet)
   | ({
-      kind: 'openhands__tools__task_tracker__definition__TaskTrackerTool-Output__1';
+      kind: 'handprint__tools__task_tracker__definition__TaskTrackerTool-Output__1';
     } & TaskTrackerTool)
   | ({
-      kind: 'openhands__tools__terminal__definition__TerminalTool-Output__1';
+      kind: 'handprint__tools__terminal__definition__TerminalTool-Output__1';
     } & TerminalTool)
   | ({
-      kind: 'openhands__tools__workflow__definition__WorkflowTool-Output__1';
+      kind: 'handprint__tools__workflow__definition__WorkflowTool-Output__1';
     } & WorkflowTool)
   | ({
-      kind: 'openhands__tools__workflow__definition__WorkflowToolSet-Output__1';
+      kind: 'handprint__tools__workflow__definition__WorkflowToolSet-Output__1';
     } & WorkflowToolSet);
 
 /**
@@ -13708,11 +13708,11 @@ export type TraceMetadataValue =
   | Array<number>;
 
 /**
- * UninstallCanvasExtensionResponse
+ * UninstallViczinExtensionResponse
  *
- * Response from a canvas extension uninstall.
+ * Response from a viczin extension uninstall.
  */
-export type UninstallCanvasExtensionResponse = {
+export type UninstallViczinExtensionResponse = {
   /**
    * Message
    */
@@ -13732,11 +13732,11 @@ export type UninstallPluginResponse = {
 };
 
 /**
- * UninstallSkillResponse
+ * UninstallTrackResponse
  *
- * Response from skill uninstall operation.
+ * Response from track uninstall operation.
  */
-export type UninstallSkillResponse = {
+export type UninstallTrackResponse = {
   /**
    * Message
    */
@@ -13744,11 +13744,11 @@ export type UninstallSkillResponse = {
 };
 
 /**
- * UpdateCanvasExtensionStateRequest
+ * UpdateViczinExtensionStateRequest
  *
- * Request body for updating canvas extension state (enable/disable).
+ * Request body for updating viczin extension state (enable/disable).
  */
-export type UpdateCanvasExtensionStateRequest = {
+export type UpdateViczinExtensionStateRequest = {
   /**
    * Enabled
    */
@@ -13756,11 +13756,11 @@ export type UpdateCanvasExtensionStateRequest = {
 };
 
 /**
- * UpdateCanvasExtensionStateResponse
+ * UpdateViczinExtensionStateResponse
  *
- * Response from a canvas extension state update.
+ * Response from a viczin extension state update.
  */
-export type UpdateCanvasExtensionStateResponse = {
+export type UpdateViczinExtensionStateResponse = {
   /**
    * Enabled
    */
@@ -13851,24 +13851,24 @@ export type UpdateSecretsRequest = {
 };
 
 /**
- * UpdateSkillResponse
+ * UpdateTrackResponse
  *
- * Response from skill update operation.
+ * Response from track update operation.
  */
-export type UpdateSkillResponse = {
+export type UpdateTrackResponse = {
   /**
    * Message
    */
   message: string;
-  skill: InstalledSkillResponse;
+  track: InstalledTrackResponse;
 };
 
 /**
- * UpdateSkillStateRequest
+ * UpdateTrackStateRequest
  *
- * Request body for updating skill state (enable/disable).
+ * Request body for updating track state (enable/disable).
  */
-export type UpdateSkillStateRequest = {
+export type UpdateTrackStateRequest = {
   /**
    * Enabled
    */
@@ -13876,11 +13876,11 @@ export type UpdateSkillStateRequest = {
 };
 
 /**
- * UpdateSkillStateResponse
+ * UpdateTrackStateResponse
  *
- * Response from skill state update operation.
+ * Response from track state update operation.
  */
-export type UpdateSkillStateResponse = {
+export type UpdateTrackStateResponse = {
   /**
    * Enabled
    */
@@ -14154,7 +14154,7 @@ export type VisionInspectTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -14321,7 +14321,7 @@ export type WorkflowTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -14356,7 +14356,7 @@ export type WorkflowToolSet = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -14517,7 +14517,7 @@ export type WriteFileTool = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -14717,7 +14717,7 @@ export type McpTypesToolAnnotations = {
  *
  * Response containing the plugins marketplace catalog.
  */
-export type OpenhandsAgentServerPluginsRouterMarketplaceCatalogResponse = {
+export type HandprintAgentServerPluginsRouterMarketplaceCatalogResponse = {
   /**
    * Plugins
    */
@@ -14729,11 +14729,11 @@ export type OpenhandsAgentServerPluginsRouterMarketplaceCatalogResponse = {
  *
  * Response containing the marketplace catalog.
  */
-export type OpenhandsAgentServerSkillsRouterMarketplaceCatalogResponse = {
+export type HandprintAgentServerTracksRouterMarketplaceCatalogResponse = {
   /**
-   * Skills
+   * Tracks
    */
-  skills: Array<MarketplaceSkillInfo>;
+  tracks: Array<MarketplaceTrackInfo>;
 };
 
 /**
@@ -14743,11 +14743,11 @@ export type OpenhandsAgentServerSkillsRouterMarketplaceCatalogResponse = {
  *
  * This is only used in agent-sdk for type schema for server use.
  */
-export type OpenhandsSdkToolSpecTool = {
+export type HandprintSdkToolSpecTool = {
   /**
    * Name
    *
-   * Name of the tool class, e.g., 'TerminalTool'. Import it from an `openhands.tools.<module>` subpackage.
+   * Name of the tool class, e.g., 'TerminalTool'. Import it from an `handprint.tools.<module>` subpackage.
    */
   name: string;
   /**
@@ -14761,14 +14761,14 @@ export type OpenhandsSdkToolSpecTool = {
 };
 
 /**
- * openhands.sdk.tool.tool.ToolAnnotations
+ * handprint.sdk.tool.tool.ToolAnnotations
  *
  * Annotations to provide hints about the tool's behavior.
  *
  * Based on Model Context Protocol (MCP) spec:
  * https://github.com/modelcontextprotocol/modelcontextprotocol/blob/caf3424488b10b4a7b1f8cb634244a450a1f4400/schema/2025-06-18/schema.ts#L838
  */
-export type OpenhandsSdkToolToolToolAnnotations = {
+export type HandprintSdkToolToolToolAnnotations = {
   /**
    * Destructivehint
    *
@@ -14816,7 +14816,7 @@ export type AcpAgentInputWritable = {
   /**
    * Acp Command
    *
-   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/claude-agent-acp']
+   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/haijun-agent-acp']
    */
   acp_command: Array<string>;
   /**
@@ -14828,13 +14828,13 @@ export type AcpAgentInputWritable = {
   /**
    * Acp Isolate Data Dir
    *
-   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``CLAUDE_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
+   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``HAIJUN_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
    */
   acp_isolate_data_dir?: boolean;
   /**
    * Acp Model
    *
-   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, claude), else set_session_model. If None, the server picks its default.
+   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, haijun), else set_session_model. If None, the server picks its default.
    */
   acp_model?: string | null;
   /**
@@ -14858,7 +14858,7 @@ export type AcpAgentInputWritable = {
   /**
    * Acp Session Mode
    *
-   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for claude-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
+   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for haijun-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
    */
   acp_session_mode?: string | null;
   /**
@@ -14916,7 +14916,7 @@ export type AcpAgentInputWritable = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -14962,7 +14962,7 @@ export type AcpAgentOutputWritable = {
   /**
    * Acp Command
    *
-   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/claude-agent-acp']
+   * Command to start the ACP server, e.g. ['npx', '-y', '@agentclientprotocol/haijun-agent-acp']
    */
   acp_command: Array<string>;
   /**
@@ -14974,13 +14974,13 @@ export type AcpAgentOutputWritable = {
   /**
    * Acp Isolate Data Dir
    *
-   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``CLAUDE_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
+   * Give the ACP subprocess a per-conversation CLI data/config root instead of the shared user ``HOME``. When True and the provider is recognised, point its data-dir env var (``CODEX_HOME`` / ``HAIJUN_CONFIG_DIR`` / ``HOME``; see ``ACPProviderInfo.data_dir_env_var``) at ``<persistence_dir>/acp/<provider>`` — the same per-conversation tree materialised file-secrets use. Required for correctness when several of a user's conversations share one sandbox (``SandboxGroupingStrategy != NO_GROUPING``), where they would otherwise race on one set of CLI auth/config/cache/lock files (see #1019). Off by default: with one sandbox per conversation the shared HOME is already private, and relocating it would hide a pre-existing interactive login. Downstream policy decides when to enable it; the SDK owns where the root lives.
    */
   acp_isolate_data_dir?: boolean;
   /**
    * Acp Model
    *
-   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, claude), else set_session_model. If None, the server picks its default.
+   * Model for the ACP server to use (e.g. 'sonnet' or 'gpt-5.5'). Applied via the protocol — set_config_option(model) for configOptions-based servers (codex, haijun), else set_session_model. If None, the server picks its default.
    */
   acp_model?: string | null;
   /**
@@ -15004,7 +15004,7 @@ export type AcpAgentOutputWritable = {
   /**
    * Acp Session Mode
    *
-   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for claude-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
+   * Session mode ID to set after creating a session. If None (default), auto-detected from the ACP server type: 'bypassPermissions' for haijun-agent-acp, 'agent-full-access' for codex-acp; a provider with no such mode (pi-acp) skips the call.
    */
   acp_session_mode?: string | null;
   /**
@@ -15062,7 +15062,7 @@ export type AcpAgentOutputWritable = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -15090,7 +15090,7 @@ export type AcpAgentOutputWritable = {
   /**
    * Tools
    */
-  tools?: Array<OpenhandsSdkToolSpecTool>;
+  tools?: Array<HandprintSdkToolSpecTool>;
 };
 
 /**
@@ -15280,7 +15280,7 @@ export type ApiBasedCriticOutputWritable = {
 /**
  * Agent
  *
- * Main agent implementation for OpenHands.
+ * Main agent implementation for Handprint.
  *
  * The Agent class provides the core functionality for running AI agents that can
  * interact with tools, process messages, and execute actions. It inherits from
@@ -15295,7 +15295,7 @@ export type ApiBasedCriticOutputWritable = {
  * Mutually exclusive with a non-default ``system_prompt_filename``.
  * **Not recommended** unless you know what you are doing (e.g.
  * customising agent behaviour for a completely different task) —
- * this will override OpenHands' built-in system instructions.
+ * this will override Handprint' built-in system instructions.
  * system_prompt_filename: Jinja2 template filename resolved relative to
  * the agent's prompts directory, or an absolute path. Defaults to
  * ``"system_prompt.j2"``.
@@ -15303,7 +15303,7 @@ export type ApiBasedCriticOutputWritable = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM, Agent, Tool
+ * from handprint.sdk import LLM, Agent, Tool
  * from pydantic import SecretStr
  *
  * llm = LLM(model="gpt-5.6", api_key=SecretStr("key"))
@@ -15363,7 +15363,7 @@ export type AgentInputWritable = {
   /**
    * Persona
    *
-   * Persona text that replaces OpenHands' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
+   * Persona text that replaces Handprint' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
    */
   persona?: string | null;
   /**
@@ -15380,7 +15380,7 @@ export type AgentInputWritable = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -15416,7 +15416,7 @@ export type AgentInputWritable = {
 /**
  * Agent
  *
- * Main agent implementation for OpenHands.
+ * Main agent implementation for Handprint.
  *
  * The Agent class provides the core functionality for running AI agents that can
  * interact with tools, process messages, and execute actions. It inherits from
@@ -15431,7 +15431,7 @@ export type AgentInputWritable = {
  * Mutually exclusive with a non-default ``system_prompt_filename``.
  * **Not recommended** unless you know what you are doing (e.g.
  * customising agent behaviour for a completely different task) —
- * this will override OpenHands' built-in system instructions.
+ * this will override Handprint' built-in system instructions.
  * system_prompt_filename: Jinja2 template filename resolved relative to
  * the agent's prompts directory, or an absolute path. Defaults to
  * ``"system_prompt.j2"``.
@@ -15439,7 +15439,7 @@ export type AgentInputWritable = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM, Agent, Tool
+ * from handprint.sdk import LLM, Agent, Tool
  * from pydantic import SecretStr
  *
  * llm = LLM(model="gpt-5.6", api_key=SecretStr("key"))
@@ -15499,7 +15499,7 @@ export type AgentOutputWritable = {
   /**
    * Persona
    *
-   * Persona text that replaces OpenHands' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
+   * Persona text that replaces Handprint' built-in persona and coding-workflow sections of the system prompt. Capability and policy sections (memory, security policy, risk assessment, browser, external services, process management, model-specific guidance) and the dynamic context still apply. Ignored when `system_prompt` is set; a custom template receives it as the `persona` kwarg.
    */
   persona?: string | null;
   /**
@@ -15516,7 +15516,7 @@ export type AgentOutputWritable = {
    *
    * Inline system prompt string.  When provided, the agent uses this text verbatim as the system message instead of rendering from `system_prompt_filename`.  Mutually exclusive with a non-default `system_prompt_filename`.
    *
-   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override OpenHands' built-in system instructions that govern default agent behaviour.
+   * **Warning**: This is not recommended unless you know what you are doing (e.g. customising agent behaviour for a completely different task).  Setting this will override Handprint' built-in system instructions that govern default agent behaviour.
    */
   system_prompt?: string | null;
   /**
@@ -15546,23 +15546,23 @@ export type AgentOutputWritable = {
    *
    * List of tools to initialize for the agent.
    */
-  tools?: Array<OpenhandsSdkToolSpecTool>;
+  tools?: Array<HandprintSdkToolSpecTool>;
 };
 
 export type AgentBaseInputWritable =
   | ({
-      kind: 'openhands__sdk__agent__acp_agent__ACPAgent-Input__1';
+      kind: 'handprint__sdk__agent__acp_agent__ACPAgent-Input__1';
     } & AcpAgentInputWritable)
   | ({
-      kind: 'openhands__sdk__agent__agent__Agent-Input__1';
+      kind: 'handprint__sdk__agent__agent__Agent-Input__1';
     } & AgentInputWritable);
 
 export type AgentBaseOutputWritable =
   | ({
-      kind: 'openhands__sdk__agent__acp_agent__ACPAgent-Output__1';
+      kind: 'handprint__sdk__agent__acp_agent__ACPAgent-Output__1';
     } & AcpAgentOutputWritable)
   | ({
-      kind: 'openhands__sdk__agent__agent__Agent-Output__1';
+      kind: 'handprint__sdk__agent__agent__Agent-Output__1';
     } & AgentOutputWritable);
 
 /**
@@ -15572,16 +15572,16 @@ export type AgentBaseOutputWritable =
  *
  * AgentContext unifies all the contextual inputs that shape how the system
  * extends and interprets user prompts. It combines both static environment
- * details and dynamic, user-activated extensions from skills.
+ * details and dynamic, user-activated extensions from tracks.
  *
  * Specifically, it provides:
- * - **Repository context / Repo Skills**: Information about the active codebase,
- * branches, and repo-specific instructions contributed by repo skills.
+ * - **Repository context / Repo Tracks**: Information about the active codebase,
+ * branches, and repo-specific instructions contributed by repo tracks.
  * - **Runtime context**: Current execution environment (hosts, working
  * directory, secrets, date, etc.).
  * - **Conversation instructions**: Optional task- or channel-specific rules
  * that constrain or guide the agent’s behavior across the session.
- * - **Knowledge Skills**: Extensible components that can be triggered by user input
+ * - **Knowledge Tracks**: Extensible components that can be triggered by user input
  * to inject knowledge or domain-specific guidance.
  *
  * Together, these elements make AgentContext the primary container responsible
@@ -15596,39 +15596,39 @@ export type AgentContextInputWritable = {
    */
   current_datetime?: string | string | null;
   /**
-   * Disabled Skills
+   * Disabled Tracks
    *
-   * Names of skills to EXCLUDE from this context — a deny-list applied after every skill source is loaded (auto-loaded user/public, explicit, and lazily-loaded project skills). A listed name absent from the loaded set is a harmless no-op. [] (the default) keeps every skill. This is the single, drift-tolerant skill-selection mechanism (agent profiles set it from their own deny-list; #4017).
+   * Names of tracks to EXCLUDE from this context — a deny-list applied after every track source is loaded (auto-loaded user/public, explicit, and lazily-loaded project tracks). A listed name absent from the loaded set is a harmless no-op. [] (the default) keeps every track. This is the single, drift-tolerant track-selection mechanism (agent profiles set it from their own deny-list; #4017).
    */
-  disabled_skills?: Array<string>;
+  disabled_tracks?: Array<string>;
   /**
    * Load Memory
    *
-   * Whether to load persistent agent memory (MEMORY.md indexes under ~/.openhands/memory/ and <workspace>/.openhands/memory/) into the system prompt. Like load_project_skills, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run() and stores the result in memory_context.
+   * Whether to load persistent agent memory (MEMORY.md indexes under ~/.handprint/memory/ and <workspace>/.handprint/memory/) into the system prompt. Like load_project_tracks, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run() and stores the result in memory_context.
    */
   load_memory?: boolean;
   /**
-   * Load Project Skills
+   * Load Project Tracks
    *
-   * Whether to automatically load project skills from the conversation workspace (e.g. .openhands/skills/, AGENTS.md). Unlike load_user_skills / load_public_skills, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run(), when the workspace is known. Also unlike load_user_skills / load_public_skills (which yield to explicit skills on a name conflict), resolved project skills are authoritative: a project skill overrides a same-named skill already present in `skills`.
+   * Whether to automatically load project tracks from the conversation workspace (e.g. .handprint/tracks/, AGENTS.md). Unlike load_user_tracks / load_public_tracks, this flag is not resolved by AgentContext itself (the workspace path is unknown at validation time); LocalConversation resolves it lazily on the first send_message() / run(), when the workspace is known. Also unlike load_user_tracks / load_public_tracks (which yield to explicit tracks on a name conflict), resolved project tracks are authoritative: a project track overrides a same-named track already present in `tracks`.
    */
-  load_project_skills?: boolean;
+  load_project_tracks?: boolean;
   /**
-   * Load Public Skills
+   * Load Public Tracks
    *
-   * Whether to automatically load skills from the public OpenHands skills repository at https://github.com/OpenHands/extensions. This allows you to get the latest skills without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/Handprint/extensions. This allows you to get the latest tracks without SDK updates.
    */
-  load_public_skills?: boolean;
+  load_public_tracks?: boolean;
   /**
-   * Load User Skills
+   * Load User Tracks
    *
-   * Whether to automatically load user skills from ~/.openhands/skills/ and ~/.openhands/microagents/ (for backward compatibility).
+   * Whether to automatically load user tracks from ~/.handprint/tracks/ and ~/.handprint/microagents/ (for backward compatibility).
    */
-  load_user_skills?: boolean;
+  load_user_tracks?: boolean;
   /**
    * Marketplace Path
    *
-   * Relative marketplace JSON path within the public skills repository. Set to None to load all public skills without marketplace filtering.
+   * Relative marketplace JSON path within the public tracks repository. Set to None to load all public tracks without marketplace filtering.
    */
   marketplace_path?: string | null;
   /**
@@ -15652,11 +15652,11 @@ export type AgentContextInputWritable = {
     [key: string]: string | SecretSourceInputWritable;
   } | null;
   /**
-   * Skills
+   * Tracks
    *
-   * List of available skills that can extend the user's input.
+   * List of available tracks that can extend the user's input.
    */
-  skills?: Array<SkillInputWritable>;
+  tracks?: Array<TrackInputWritable>;
   /**
    * System Message Suffix
    *
@@ -15759,11 +15759,11 @@ export type AgentDefinitionWritable = {
    */
   profile_store_dir?: string | null;
   /**
-   * Skills
+   * Tracks
    *
-   * List of skill names for this agent. Resolved from project/user directories.
+   * List of track names for this agent. Resolved from project/user directories.
    */
-  skills?: Array<string>;
+  tracks?: Array<string>;
   /**
    * Source
    *
@@ -15808,7 +15808,7 @@ export type AskOracleToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -15846,7 +15846,7 @@ export type BrowserClickToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -15877,7 +15877,7 @@ export type BrowserCloseTabToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -15908,7 +15908,7 @@ export type BrowserGetContentToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -15939,7 +15939,7 @@ export type BrowserGetStateToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -15970,7 +15970,7 @@ export type BrowserGetStorageToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16001,7 +16001,7 @@ export type BrowserGoBackToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16032,7 +16032,7 @@ export type BrowserListTabsToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16063,7 +16063,7 @@ export type BrowserNavigateToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16094,7 +16094,7 @@ export type BrowserScrollToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16125,7 +16125,7 @@ export type BrowserSetStorageToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16156,7 +16156,7 @@ export type BrowserStartRecordingToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16187,7 +16187,7 @@ export type BrowserStopRecordingToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16218,7 +16218,7 @@ export type BrowserSwitchTabToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16255,7 +16255,7 @@ export type BrowserToolSetWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16286,7 +16286,7 @@ export type BrowserTypeToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16317,7 +16317,7 @@ export type ClassifyAndSwitchLlmToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16352,7 +16352,7 @@ export type ClientToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Client Tool Name
    *
@@ -16389,24 +16389,24 @@ export type ClientToolWritable = {
 
 export type CondenserBaseInputWritable =
   | ({
-      kind: 'openhands__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Input__1';
+      kind: 'handprint__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Input__1';
     } & LlmSummarizingCondenserInputWritable)
   | ({
-      kind: 'openhands__sdk__context__condenser__no_op_condenser__NoOpCondenser-Input__1';
+      kind: 'handprint__sdk__context__condenser__no_op_condenser__NoOpCondenser-Input__1';
     } & NoOpCondenserInput)
   | ({
-      kind: 'openhands__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Input__1';
+      kind: 'handprint__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Input__1';
     } & PipelineCondenserInputWritable);
 
 export type CondenserBaseOutputWritable =
   | ({
-      kind: 'openhands__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Output__1';
+      kind: 'handprint__sdk__context__condenser__llm_summarizing_condenser__LLMSummarizingCondenser-Output__1';
     } & LlmSummarizingCondenserOutputWritable)
   | ({
-      kind: 'openhands__sdk__context__condenser__no_op_condenser__NoOpCondenser-Output__1';
+      kind: 'handprint__sdk__context__condenser__no_op_condenser__NoOpCondenser-Output__1';
     } & NoOpCondenserOutput)
   | ({
-      kind: 'openhands__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Output__1';
+      kind: 'handprint__sdk__context__condenser__pipeline_condenser__PipelineCondenser-Output__1';
     } & PipelineCondenserOutputWritable);
 
 /**
@@ -16416,11 +16416,11 @@ export type CondenserBaseOutputWritable =
  */
 export type ConversationInfoWritable = {
   /**
-   * Activated Knowledge Skills
+   * Activated Knowledge Tracks
    *
-   * List of activated knowledge skills name
+   * List of activated knowledge tracks name
    */
-  activated_knowledge_skills?: Array<string>;
+  activated_knowledge_tracks?: Array<string>;
   /**
    * The agent running in the conversation.
    */
@@ -16436,7 +16436,7 @@ export type ConversationInfoWritable = {
   /**
    * Available Models
    *
-   * Models the ACP server offers for this session, lifted off ``ACPAgent.available_models`` (the ``models.availableModels`` field on the ACP session response). Each entry carries a ``model_id`` plus an optional ``name``/``description``. Surfaced verbatim so clients can render a model picker and resolve ``current_model_id`` to a display label themselves — the server does no name curation. Empty for ACP servers that don't surface the (UNSTABLE) capability and for native OpenHands agents. Client contract: ``current_model_id`` is NOT guaranteed to be a member — a forced ``acp_model`` override may name a model absent from the list — so treat a miss as 'show the raw id'. Some entries are opaque aliases whose human identity lives in ``description`` (e.g. claude-agent-acp's ``"default"`` -> ``"Opus 4.7 with 1M context · ..."``).
+   * Models the ACP server offers for this session, lifted off ``ACPAgent.available_models`` (the ``models.availableModels`` field on the ACP session response). Each entry carries a ``model_id`` plus an optional ``name``/``description``. Surfaced verbatim so clients can render a model picker and resolve ``current_model_id`` to a display label themselves — the server does no name curation. Empty for ACP servers that don't surface the (UNSTABLE) capability and for native Handprint agents. Client contract: ``current_model_id`` is NOT guaranteed to be a member — a forced ``acp_model`` override may name a model absent from the list — so treat a miss as 'show the raw id'. Some entries are opaque aliases whose human identity lives in ``description`` (e.g. haijun-agent-acp's ``"default"`` -> ``"Opus 4.7 with 1M context · ..."``).
    */
   available_models?: Array<AcpModelInfo>;
   /**
@@ -16469,7 +16469,7 @@ export type ConversationInfoWritable = {
   /**
    * Current Model Id
    *
-   * Model the agent is actually using for this session. For ACP agents, this is lifted off ``ACPAgent.current_model_id`` (populated from the ``models.currentModelId`` field on the ACP session response, or from ``acp_model`` when the caller forced an override). May be an opaque alias (e.g. claude-agent-acp's ``"default"``); match it against ``available_models`` to get a display label. ``None`` for older ACP servers that don't surface the field, or while the agent is still initializing. Native OpenHands agents leave this ``None`` — consumers should read ``agent.llm.model`` for those.
+   * Model the agent is actually using for this session. For ACP agents, this is lifted off ``ACPAgent.current_model_id`` (populated from the ``models.currentModelId`` field on the ACP session response, or from ``acp_model`` when the caller forced an override). May be an opaque alias (e.g. haijun-agent-acp's ``"default"``); match it against ``available_models`` to get a display label. ``None`` for older ACP servers that don't surface the field, or while the agent is still initializing. Native Handprint agents leave this ``None`` — consumers should read ``agent.llm.model`` for those.
    */
   current_model_id?: string | null;
   execution_status?: ConversationExecutionStatus;
@@ -16496,11 +16496,11 @@ export type ConversationInfoWritable = {
    */
   id: string;
   /**
-   * Invoked Skills
+   * Invoked Tracks
    *
-   * Names of progressive-disclosure skills explicitly invoked via the `invoke_skill` tool.
+   * Names of progressive-disclosure tracks explicitly invoked via the `invoke_track` tool.
    */
-  invoked_skills?: Array<string>;
+  invoked_tracks?: Array<string>;
   /**
    * Last User Message Id
    *
@@ -16567,7 +16567,7 @@ export type ConversationInfoWritable = {
   /**
    * Supports Runtime Model Switch
    *
-   * Whether a live, mid-conversation model switch will be attempted for this conversation — tells the inline picker whether to offer a live-switch control. Mirrors the SDK's switch gate: ``True`` for known switch-capable providers; ``False`` for unknown/custom ACP servers because their generic config writes are not guaranteed live-switch primitives. ``False`` for native OpenHands agents, for a known provider that declares no support, and before the conversation has started a session.
+   * Whether a live, mid-conversation model switch will be attempted for this conversation — tells the inline picker whether to offer a live-switch control. Mirrors the SDK's switch gate: ``True`` for known switch-capable providers; ``False`` for unknown/custom ACP servers because their generic config writes are not guaranteed live-switch primitives. ``False`` for native Handprint agents, for a known provider that declares no support, and before the conversation has started a session.
    */
   supports_runtime_model_switch?: boolean;
   /**
@@ -16618,30 +16618,30 @@ export type ConversationPageWritable = {
 
 export type CriticBaseInputWritable =
   | ({
-      kind: 'openhands__sdk__critic__impl__agent_finished__AgentFinishedCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__agent_finished__AgentFinishedCritic-Input__1';
     } & AgentFinishedCriticInput)
   | ({
-      kind: 'openhands__sdk__critic__impl__api__critic__APIBasedCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__api__critic__APIBasedCritic-Input__1';
     } & ApiBasedCriticInputWritable)
   | ({
-      kind: 'openhands__sdk__critic__impl__empty_patch__EmptyPatchCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__empty_patch__EmptyPatchCritic-Input__1';
     } & EmptyPatchCriticInput)
   | ({
-      kind: 'openhands__sdk__critic__impl__pass_critic__PassCritic-Input__1';
+      kind: 'handprint__sdk__critic__impl__pass_critic__PassCritic-Input__1';
     } & PassCriticInput);
 
 export type CriticBaseOutputWritable =
   | ({
-      kind: 'openhands__sdk__critic__impl__agent_finished__AgentFinishedCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__agent_finished__AgentFinishedCritic-Output__1';
     } & AgentFinishedCriticOutput)
   | ({
-      kind: 'openhands__sdk__critic__impl__api__critic__APIBasedCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__api__critic__APIBasedCritic-Output__1';
     } & ApiBasedCriticOutputWritable)
   | ({
-      kind: 'openhands__sdk__critic__impl__empty_patch__EmptyPatchCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__empty_patch__EmptyPatchCritic-Output__1';
     } & EmptyPatchCriticOutput)
   | ({
-      kind: 'openhands__sdk__critic__impl__pass_critic__PassCritic-Output__1';
+      kind: 'handprint__sdk__critic__impl__pass_critic__PassCritic-Output__1';
     } & PassCriticOutput);
 
 /**
@@ -16654,7 +16654,7 @@ export type EditToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16702,7 +16702,7 @@ export type EditToolWritable = {
  *
  * Example::
  *
- * from openhands.sdk.security import (
+ * from handprint.sdk.security import (
  * EnsembleSecurityAnalyzer,
  * PatternSecurityAnalyzer,
  * PolicyRailSecurityAnalyzer,
@@ -16764,7 +16764,7 @@ export type EnsembleSecurityAnalyzerInputWritable = {
  *
  * Example::
  *
- * from openhands.sdk.security import (
+ * from handprint.sdk.security import (
  * EnsembleSecurityAnalyzer,
  * PatternSecurityAnalyzer,
  * PolicyRailSecurityAnalyzer,
@@ -16801,61 +16801,61 @@ export type EnsembleSecurityAnalyzerOutputWritable = {
 
 export type EventWritable =
   | ({
-      kind: 'openhands__agent_server__models__ServerErrorEvent-Output__1';
+      kind: 'handprint__agent_server__models__ServerErrorEvent-Output__1';
     } & ServerErrorEvent)
   | ({
-      kind: 'openhands__sdk__event__acp_tool_call__ACPToolCallEvent-Output__1';
+      kind: 'handprint__sdk__event__acp_tool_call__ACPToolCallEvent-Output__1';
     } & AcpToolCallEvent)
   | ({
-      kind: 'openhands__sdk__event__condenser__Condensation-Output__1';
+      kind: 'handprint__sdk__event__condenser__Condensation-Output__1';
     } & Condensation)
   | ({
-      kind: 'openhands__sdk__event__condenser__CondensationRequest-Output__1';
+      kind: 'handprint__sdk__event__condenser__CondensationRequest-Output__1';
     } & CondensationRequest)
   | ({
-      kind: 'openhands__sdk__event__condenser__CondensationSummaryEvent-Output__1';
+      kind: 'handprint__sdk__event__condenser__CondensationSummaryEvent-Output__1';
     } & CondensationSummaryEvent)
   | ({
-      kind: 'openhands__sdk__event__conversation_error__ConversationErrorEvent-Output__1';
+      kind: 'handprint__sdk__event__conversation_error__ConversationErrorEvent-Output__1';
     } & ConversationErrorEvent)
   | ({
-      kind: 'openhands__sdk__event__conversation_state__ConversationStateUpdateEvent-Output__1';
+      kind: 'handprint__sdk__event__conversation_state__ConversationStateUpdateEvent-Output__1';
     } & ConversationStateUpdateEvent)
   | ({
-      kind: 'openhands__sdk__event__hook_execution__HookExecutionEvent-Output__1';
+      kind: 'handprint__sdk__event__hook_execution__HookExecutionEvent-Output__1';
     } & HookExecutionEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_completion_log__LLMCompletionLogEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_completion_log__LLMCompletionLogEvent-Output__1';
     } & LlmCompletionLogEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__action__ActionEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__action__ActionEvent-Output__1';
     } & ActionEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__message__MessageEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__message__MessageEvent-Output__1';
     } & MessageEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__observation__AgentErrorEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__observation__AgentErrorEvent-Output__1';
     } & AgentErrorEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__observation__ObservationEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__observation__ObservationEvent-Output__1';
     } & ObservationEvent)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__observation__UserRejectObservation-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__observation__UserRejectObservation-Output__1';
     } & UserRejectObservation)
   | ({
-      kind: 'openhands__sdk__event__llm_convertible__system__SystemPromptEvent-Output__1';
+      kind: 'handprint__sdk__event__llm_convertible__system__SystemPromptEvent-Output__1';
     } & SystemPromptEventWritable)
   | ({
-      kind: 'openhands__sdk__event__streaming_delta__StreamingDeltaEvent-Output__1';
+      kind: 'handprint__sdk__event__streaming_delta__StreamingDeltaEvent-Output__1';
     } & StreamingDeltaEvent)
   | ({
-      kind: 'openhands__sdk__event__token__TokenEvent-Output__1';
+      kind: 'handprint__sdk__event__token__TokenEvent-Output__1';
     } & TokenEvent)
   | ({
-      kind: 'openhands__sdk__event__user_action__InterruptEvent-Output__1';
+      kind: 'handprint__sdk__event__user_action__InterruptEvent-Output__1';
     } & InterruptEvent)
   | ({
-      kind: 'openhands__sdk__event__user_action__PauseEvent-Output__1';
+      kind: 'handprint__sdk__event__user_action__PauseEvent-Output__1';
     } & PauseEvent);
 
 /**
@@ -16868,7 +16868,7 @@ export type FileEditorToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16899,7 +16899,7 @@ export type FinishToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16930,7 +16930,7 @@ export type GlobToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -16965,7 +16965,7 @@ export type GlobToolWritable = {
  * GRAYSWAN_POLICY_ID: Optional policy ID for custom GraySwan policy
  *
  * Example:
- * >>> from openhands.sdk.security.grayswan import GraySwanAnalyzer
+ * >>> from handprint.sdk.security.grayswan import GraySwanAnalyzer
  * >>> analyzer = GraySwanAnalyzer()
  * >>> risk = analyzer.security_risk(action_event)
  */
@@ -17038,7 +17038,7 @@ export type GraySwanAnalyzerInputWritable = {
  * GRAYSWAN_POLICY_ID: Optional policy ID for custom GraySwan policy
  *
  * Example:
- * >>> from openhands.sdk.security.grayswan import GraySwanAnalyzer
+ * >>> from handprint.sdk.security.grayswan import GraySwanAnalyzer
  * >>> analyzer = GraySwanAnalyzer()
  * >>> risk = analyzer.security_risk(action_event)
  */
@@ -17107,7 +17107,7 @@ export type GrepToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -17211,16 +17211,16 @@ export type InitRequestWritable = {
 };
 
 /**
- * InvokeSkillTool
+ * InvokeTrackTool
  *
- * Built-in tool for explicit invocation of progressive-disclosure skills.
+ * Built-in tool for explicit invocation of progressive-disclosure tracks.
  */
-export type InvokeSkillToolWritable = {
+export type InvokeTrackToolWritable = {
   /**
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -17228,7 +17228,7 @@ export type InvokeSkillToolWritable = {
   /**
    * Kind
    */
-  kind: 'InvokeSkillTool';
+  kind: 'InvokeTrackTool';
   /**
    * Meta
    */
@@ -17244,7 +17244,7 @@ export type InvokeSkillToolWritable = {
 /**
  * LLM
  *
- * Language model interface for OpenHands agents.
+ * Language model interface for Handprint agents.
  *
  * The LLM class provides a unified interface for interacting with various
  * language models through the litellm library. It handles model configuration,
@@ -17259,7 +17259,7 @@ export type InvokeSkillToolWritable = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM
+ * from handprint.sdk import LLM
  * from pydantic import SecretStr
  *
  * llm = LLM(
@@ -17378,7 +17378,7 @@ export type LlmInputWritable = {
   /**
    * Extended Thinking Budget
    *
-   * Legacy token budget for models confirmed to use manual Anthropic extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
+   * Legacy token budget for models confirmed to use manual Juglow extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
    */
   extended_thinking_budget?: number | null;
   /**
@@ -17458,7 +17458,7 @@ export type LlmInputWritable = {
   /**
    * Model Canonical Name
    *
-   * Optional canonical model name for feature registry lookups. The OpenHands SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
+   * Optional canonical model name for feature registry lookups. The Handprint SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
    */
   model_canonical_name?: string | null;
   /**
@@ -17582,7 +17582,7 @@ export type LlmInputWritable = {
 /**
  * LLM
  *
- * Language model interface for OpenHands agents.
+ * Language model interface for Handprint agents.
  *
  * The LLM class provides a unified interface for interacting with various
  * language models through the litellm library. It handles model configuration,
@@ -17597,7 +17597,7 @@ export type LlmInputWritable = {
  *
  * Example:
  * ```python
- * from openhands.sdk import LLM
+ * from handprint.sdk import LLM
  * from pydantic import SecretStr
  *
  * llm = LLM(
@@ -17716,7 +17716,7 @@ export type LlmOutputWritable = {
   /**
    * Extended Thinking Budget
    *
-   * Legacy token budget for models confirmed to use manual Anthropic extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
+   * Legacy token budget for models confirmed to use manual Juglow extended thinking. Ignored for adaptive-thinking models. Prefer reasoning_effort for new integrations.
    */
   extended_thinking_budget?: number | null;
   /**
@@ -17792,7 +17792,7 @@ export type LlmOutputWritable = {
   /**
    * Model Canonical Name
    *
-   * Optional canonical model name for feature registry lookups. The OpenHands SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
+   * Optional canonical model name for feature registry lookups. The Handprint SDK maintains a model feature registry that maps model names to capabilities (e.g., vision support, prompt caching, responses API support). When using proxied or aliased model identifiers, set this field to the canonical model name (e.g., 'openai/gpt-4o') to ensure correct capability detection. If not provided, the 'model' field will be used for capability lookups.
    */
   model_canonical_name?: string | null;
   /**
@@ -18007,7 +18007,7 @@ export type ListDirectoryToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -18416,7 +18416,7 @@ export type McpToolDefinitionWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -18545,7 +18545,7 @@ export type PlanningFileEditorToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -18620,7 +18620,7 @@ export type ReadFileToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -18763,58 +18763,58 @@ export type SecretRegistryWritable = {
 
 export type SecretSourceInputWritable =
   | ({
-      kind: 'openhands__sdk__secret__secrets__LookupSecret-Input__1';
+      kind: 'handprint__sdk__secret__secrets__LookupSecret-Input__1';
     } & LookupSecretInput)
   | ({
-      kind: 'openhands__sdk__secret__secrets__StaticSecret-Input__1';
+      kind: 'handprint__sdk__secret__secrets__StaticSecret-Input__1';
     } & StaticSecretInputWritable);
 
 export type SecretSourceOutputWritable =
   | ({
-      kind: 'openhands__sdk__secret__secrets__LookupSecret-Output__1';
+      kind: 'handprint__sdk__secret__secrets__LookupSecret-Output__1';
     } & LookupSecretOutput)
   | ({
-      kind: 'openhands__sdk__secret__secrets__StaticSecret-Output__1';
+      kind: 'handprint__sdk__secret__secrets__StaticSecret-Output__1';
     } & StaticSecretOutputWritable);
 
 export type SecurityAnalyzerBaseInputWritable =
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Input__1';
     } & PatternSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Input__1';
     } & PolicyRailSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__ensemble__EnsembleSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__ensemble__EnsembleSecurityAnalyzer-Input__1';
     } & EnsembleSecurityAnalyzerInputWritable)
   | ({
-      kind: 'openhands__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Input__1';
     } & GraySwanAnalyzerInputWritable)
   | ({
-      kind: 'openhands__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Input__1';
     } & LlmSecurityAnalyzerInput)
   | ({
-      kind: 'openhands__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Input__1';
+      kind: 'handprint__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Input__1';
     } & ToolShieldLlmSecurityAnalyzerInputWritable);
 
 export type SecurityAnalyzerBaseOutputWritable =
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__defense_in_depth__pattern__PatternSecurityAnalyzer-Output__1';
     } & PatternSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__defense_in_depth__policy_rails__PolicyRailSecurityAnalyzer-Output__1';
     } & PolicyRailSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__ensemble__EnsembleSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__ensemble__EnsembleSecurityAnalyzer-Output__1';
     } & EnsembleSecurityAnalyzerOutputWritable)
   | ({
-      kind: 'openhands__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__grayswan__analyzer__GraySwanAnalyzer-Output__1';
     } & GraySwanAnalyzerOutputWritable)
   | ({
-      kind: 'openhands__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__llm_analyzer__LLMSecurityAnalyzer-Output__1';
     } & LlmSecurityAnalyzerOutput)
   | ({
-      kind: 'openhands__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Output__1';
+      kind: 'handprint__sdk__security__toolshield_llm_analyzer__ToolShieldLLMSecurityAnalyzer-Output__1';
     } & ToolShieldLlmSecurityAnalyzerOutputWritable);
 
 /**
@@ -18883,35 +18883,35 @@ export type SettingsUpdateRequestWritable = {
 };
 
 /**
- * Skill
+ * Track
  *
- * A skill provides specialized knowledge or functionality.
+ * A track provides specialized knowledge or functionality.
  *
- * Skill behavior depends on format (is_agentskills_format) and trigger:
+ * Track behavior depends on format (is_agenttracks_format) and trigger:
  *
- * AgentSkills format (SKILL.md files):
- * - Always listed in <available_skills> with name, description, location
+ * AgentTracks format (TRACK.md files):
+ * - Always listed in <available_tracks> with name, description, location
  * - Agent reads full content on demand (progressive disclosure)
  * - If has triggers: content is ALSO auto-injected when triggered
  *
- * Legacy OpenHands format:
- * - With triggers: Listed in <available_skills>, content injected on trigger
+ * Legacy Handprint format:
+ * - With triggers: Listed in <available_tracks>, content injected on trigger
  * - Without triggers (None): Full content in <REPO_CONTEXT>, always active
  *
- * This model supports both OpenHands-specific fields and AgentSkills standard
- * fields (https://agentskills.io/specification) for cross-platform compatibility.
+ * This model supports both Handprint-specific fields and AgentTracks standard
+ * fields (https://agenttracks.io/specification) for cross-platform compatibility.
  */
-export type SkillInputWritable = {
+export type TrackInputWritable = {
   /**
    * Allowed Tools
    *
-   * List of pre-approved tools for this skill. AgentSkills standard field (parsed from space-delimited string).
+   * List of pre-approved tools for this track. AgentTracks standard field (parsed from space-delimited string).
    */
   allowed_tools?: Array<string> | null;
   /**
    * Compatibility
    *
-   * Environment requirements or compatibility notes for the skill. AgentSkills standard field (e.g., 'Requires git and docker').
+   * Environment requirements or compatibility notes for the track. AgentTracks standard field (e.g., 'Requires git and docker').
    */
   compatibility?: string | null;
   /**
@@ -18921,37 +18921,37 @@ export type SkillInputWritable = {
   /**
    * Description
    *
-   * A brief description of what the skill does and when to use it. Descriptions exceeding MAX_DESCRIPTION_LENGTH are truncated with a notice pointing to the skill's source path.
+   * A brief description of what the track does and when to use it. Descriptions exceeding MAX_DESCRIPTION_LENGTH are truncated with a notice pointing to the track's source path.
    */
   description?: string | null;
   /**
    * Disable Model Invocation
    *
-   * Whether this skill can only be activated by trigger matching and should not be advertised to the model for direct invocation.
+   * Whether this track can only be activated by trigger matching and should not be advertised to the model for direct invocation.
    */
   disable_model_invocation?: boolean;
   /**
    * Inputs
    *
-   * Input metadata for the skill (task skills only)
+   * Input metadata for the track (task tracks only)
    */
   inputs?: Array<InputMetadata>;
   /**
-   * Is Agentskills Format
+   * Is Agenttracks Format
    *
-   * Whether this skill was loaded from a SKILL.md file following the AgentSkills standard. AgentSkills-format skills use progressive disclosure: always listed in <available_skills> with name, description, and location. If the skill also has triggers, content is auto-injected when triggered AND agent can read file anytime.
+   * Whether this track was loaded from a TRACK.md file following the AgentTracks standard. AgentTracks-format tracks use progressive disclosure: always listed in <available_tracks> with name, description, and location. If the track also has triggers, content is auto-injected when triggered AND agent can read file anytime.
    */
-  is_agentskills_format?: boolean;
+  is_agenttracks_format?: boolean;
   /**
    * License
    *
-   * The license under which the skill is distributed. AgentSkills standard field (e.g., 'Apache-2.0', 'MIT').
+   * The license under which the track is distributed. AgentTracks standard field (e.g., 'Apache-2.0', 'MIT').
    */
   license?: string | null;
   /**
    * Mcp Tools
    *
-   * MCP servers for the skill (repo skills only).
+   * MCP servers for the track (repo tracks only).
    */
   mcp_tools?: {
     [key: string]: McpServerInputWritable;
@@ -18959,7 +18959,7 @@ export type SkillInputWritable = {
   /**
    * Metadata
    *
-   * Arbitrary key-value metadata for the skill. AgentSkills standard field for extensibility.
+   * Arbitrary key-value metadata for the track. AgentTracks standard field for extensibility.
    */
   metadata?: {
     [key: string]: string;
@@ -18969,19 +18969,19 @@ export type SkillInputWritable = {
    */
   name: string;
   /**
-   * Resource directories for the skill (scripts/, references/, assets/). AgentSkills standard field. Only populated for SKILL.md directory format.
+   * Resource directories for the track (scripts/, references/, assets/). AgentTracks standard field. Only populated for TRACK.md directory format.
    */
-  resources?: SkillResources | null;
+  resources?: TrackResources | null;
   /**
    * Source
    *
-   * The source path or identifier of the skill. When it is None, it is treated as a programmatically defined skill.
+   * The source path or identifier of the track. When it is None, it is treated as a programmatically defined track.
    */
   source?: string | null;
   /**
    * Trigger
    *
-   * Trigger determines when skill content is auto-injected. None = no auto-injection (for AgentSkills: agent reads on demand; for legacy: full content always in system prompt). KeywordTrigger = auto-inject when keywords appear in user messages. TaskTrigger = auto-inject for specific tasks, may require user input.
+   * Trigger determines when track content is auto-injected. None = no auto-injection (for AgentTracks: agent reads on demand; for legacy: full content always in system prompt). KeywordTrigger = auto-inject when keywords appear in user messages. TaskTrigger = auto-inject for specific tasks, may require user input.
    */
   trigger?:
     | ({
@@ -18997,7 +18997,7 @@ export type SkillInputWritable = {
   /**
    * Version
    *
-   * Skill version (AgentSkills standard field).
+   * Track version (AgentTracks standard field).
    */
   version?: string;
 };
@@ -19114,7 +19114,7 @@ export type StartConversationRequestWritable = {
   /**
    * Plugins
    *
-   * List of plugins to load for this conversation. Plugins are loaded and their skills/MCP config are merged into the agent. Hooks are extracted and stored for runtime execution.
+   * List of plugins to load for this conversation. Plugins are loaded and their tracks/MCP config are merged into the agent. Hooks are extracted and stored for runtime execution.
    */
   plugins?: Array<PluginSource> | null;
   /**
@@ -19152,7 +19152,7 @@ export type StartConversationRequestWritable = {
   /**
    * Title Llm Profile
    *
-   * Optional LLM profile name for title generation. If set, the LLM is loaded from LLMProfileStore (~/.openhands/profiles/) and used for LLM-based title generation. This enables using a fast/cheap model for titles regardless of the agent's main model. If not set (or profile loading fails), title generation falls back to the agent's LLM.
+   * Optional LLM profile name for title generation. If set, the LLM is loaded from LLMProfileStore (~/.handprint/profiles/) and used for LLM-based title generation. This enables using a fast/cheap model for titles regardless of the agent's main model. If not set (or profile loading fails), title generation falls back to the agent's LLM.
    */
   title_llm_profile?: string | null;
   /**
@@ -19300,9 +19300,9 @@ export type SubAgentInfoWritable = {
    */
   profile_store_dir?: string | null;
   /**
-   * Skills
+   * Tracks
    */
-  skills?: Array<string>;
+  tracks?: Array<string>;
   /**
    * Source
    */
@@ -19343,7 +19343,7 @@ export type SwitchLlmToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -19435,7 +19435,7 @@ export type TaskToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -19464,7 +19464,7 @@ export type TaskToolWritable = {
  * Creates the Task tool backed by a shared TaskManager.
  *
  * Usage:
- * from openhands.tools.task import TaskToolSet
+ * from handprint.tools.task import TaskToolSet
  *
  * agent = Agent(
  * llm=llm,
@@ -19480,7 +19480,7 @@ export type TaskToolSetWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -19511,7 +19511,7 @@ export type TaskTrackerToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -19546,7 +19546,7 @@ export type TelemetrySpecWritable = {
   /**
    * Deployment Kind
    *
-   * Deployment kind attached to diagnostic events. Use 'remote' for hosted OpenHands and 'local' for self-hosted or developer runs.
+   * Deployment kind attached to diagnostic events. Use 'remote' for hosted Handprint and 'local' for self-hosted or developer runs.
    */
   deployment_kind?: 'local' | 'remote';
   /**
@@ -19627,7 +19627,7 @@ export type TerminalToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -19658,7 +19658,7 @@ export type ThinkToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -19681,118 +19681,118 @@ export type ThinkToolWritable = {
 
 export type ToolDefinitionWritable =
   | ({
-      kind: 'openhands__sdk__mcp__tool__MCPToolDefinition-Output__1';
+      kind: 'handprint__sdk__mcp__tool__MCPToolDefinition-Output__1';
     } & McpToolDefinitionWritable)
   | ({
-      kind: 'openhands__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__classify_and_switch_llm__ClassifyAndSwitchLLMTool-Output__1';
     } & ClassifyAndSwitchLlmToolWritable)
   | ({
-      kind: 'openhands__sdk__tool__builtins__finish__FinishTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__finish__FinishTool-Output__1';
     } & FinishToolWritable)
   | ({
-      kind: 'openhands__sdk__tool__builtins__invoke_skill__InvokeSkillTool-Output__1';
-    } & InvokeSkillToolWritable)
+      kind: 'handprint__sdk__tool__builtins__invoke_track__InvokeTrackTool-Output__1';
+    } & InvokeTrackToolWritable)
   | ({
-      kind: 'openhands__sdk__tool__builtins__switch_llm__SwitchLLMTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__switch_llm__SwitchLLMTool-Output__1';
     } & SwitchLlmToolWritable)
   | ({
-      kind: 'openhands__sdk__tool__builtins__think__ThinkTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__think__ThinkTool-Output__1';
     } & ThinkToolWritable)
   | ({
-      kind: 'openhands__sdk__tool__builtins__vision_inspect__VisionInspectTool-Output__1';
+      kind: 'handprint__sdk__tool__builtins__vision_inspect__VisionInspectTool-Output__1';
     } & VisionInspectToolWritable)
   | ({
-      kind: 'openhands__sdk__tool__client_tool__ClientTool-Output__1';
+      kind: 'handprint__sdk__tool__client_tool__ClientTool-Output__1';
     } & ClientToolWritable)
   | ({
-      kind: 'openhands__tools__ask_oracle__definition__AskOracleTool-Output__1';
+      kind: 'handprint__tools__ask_oracle__definition__AskOracleTool-Output__1';
     } & AskOracleToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserClickTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserClickTool-Output__1';
     } & BrowserClickToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserCloseTabTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserCloseTabTool-Output__1';
     } & BrowserCloseTabToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetContentTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetContentTool-Output__1';
     } & BrowserGetContentToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetStateTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetStateTool-Output__1';
     } & BrowserGetStateToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGetStorageTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGetStorageTool-Output__1';
     } & BrowserGetStorageToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserGoBackTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserGoBackTool-Output__1';
     } & BrowserGoBackToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserListTabsTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserListTabsTool-Output__1';
     } & BrowserListTabsToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserNavigateTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserNavigateTool-Output__1';
     } & BrowserNavigateToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserScrollTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserScrollTool-Output__1';
     } & BrowserScrollToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserSetStorageTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserSetStorageTool-Output__1';
     } & BrowserSetStorageToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserStartRecordingTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserStartRecordingTool-Output__1';
     } & BrowserStartRecordingToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserStopRecordingTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserStopRecordingTool-Output__1';
     } & BrowserStopRecordingToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserSwitchTabTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserSwitchTabTool-Output__1';
     } & BrowserSwitchTabToolWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserToolSet-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserToolSet-Output__1';
     } & BrowserToolSetWritable)
   | ({
-      kind: 'openhands__tools__browser_use__definition__BrowserTypeTool-Output__1';
+      kind: 'handprint__tools__browser_use__definition__BrowserTypeTool-Output__1';
     } & BrowserTypeToolWritable)
   | ({
-      kind: 'openhands__tools__file_editor__definition__FileEditorTool-Output__1';
+      kind: 'handprint__tools__file_editor__definition__FileEditorTool-Output__1';
     } & FileEditorToolWritable)
   | ({
-      kind: 'openhands__tools__gemini__edit__definition__EditTool-Output__1';
+      kind: 'handprint__tools__gemini__edit__definition__EditTool-Output__1';
     } & EditToolWritable)
   | ({
-      kind: 'openhands__tools__gemini__list_directory__definition__ListDirectoryTool-Output__1';
+      kind: 'handprint__tools__gemini__list_directory__definition__ListDirectoryTool-Output__1';
     } & ListDirectoryToolWritable)
   | ({
-      kind: 'openhands__tools__gemini__read_file__definition__ReadFileTool-Output__1';
+      kind: 'handprint__tools__gemini__read_file__definition__ReadFileTool-Output__1';
     } & ReadFileToolWritable)
   | ({
-      kind: 'openhands__tools__gemini__write_file__definition__WriteFileTool-Output__1';
+      kind: 'handprint__tools__gemini__write_file__definition__WriteFileTool-Output__1';
     } & WriteFileToolWritable)
   | ({
-      kind: 'openhands__tools__glob__definition__GlobTool-Output__1';
+      kind: 'handprint__tools__glob__definition__GlobTool-Output__1';
     } & GlobToolWritable)
   | ({
-      kind: 'openhands__tools__grep__definition__GrepTool-Output__1';
+      kind: 'handprint__tools__grep__definition__GrepTool-Output__1';
     } & GrepToolWritable)
   | ({
-      kind: 'openhands__tools__planning_file_editor__definition__PlanningFileEditorTool-Output__1';
+      kind: 'handprint__tools__planning_file_editor__definition__PlanningFileEditorTool-Output__1';
     } & PlanningFileEditorToolWritable)
   | ({
-      kind: 'openhands__tools__task__definition__TaskTool-Output__1';
+      kind: 'handprint__tools__task__definition__TaskTool-Output__1';
     } & TaskToolWritable)
   | ({
-      kind: 'openhands__tools__task__definition__TaskToolSet-Output__1';
+      kind: 'handprint__tools__task__definition__TaskToolSet-Output__1';
     } & TaskToolSetWritable)
   | ({
-      kind: 'openhands__tools__task_tracker__definition__TaskTrackerTool-Output__1';
+      kind: 'handprint__tools__task_tracker__definition__TaskTrackerTool-Output__1';
     } & TaskTrackerToolWritable)
   | ({
-      kind: 'openhands__tools__terminal__definition__TerminalTool-Output__1';
+      kind: 'handprint__tools__terminal__definition__TerminalTool-Output__1';
     } & TerminalToolWritable)
   | ({
-      kind: 'openhands__tools__workflow__definition__WorkflowTool-Output__1';
+      kind: 'handprint__tools__workflow__definition__WorkflowTool-Output__1';
     } & WorkflowToolWritable)
   | ({
-      kind: 'openhands__tools__workflow__definition__WorkflowToolSet-Output__1';
+      kind: 'handprint__tools__workflow__definition__WorkflowToolSet-Output__1';
     } & WorkflowToolSetWritable);
 
 /**
@@ -19979,7 +19979,7 @@ export type VisionInspectToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -20014,7 +20014,7 @@ export type WorkflowToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -20045,7 +20045,7 @@ export type WorkflowToolSetWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -20076,7 +20076,7 @@ export type WriteFileToolWritable = {
    * Action Type
    */
   action_type: string;
-  annotations?: OpenhandsSdkToolToolToolAnnotations | null;
+  annotations?: HandprintSdkToolToolToolAnnotations | null;
   /**
    * Description
    */
@@ -20650,73 +20650,73 @@ export type StartBashCommandApiBashStartBashCommandPostResponses = {
 export type StartBashCommandApiBashStartBashCommandPostResponse =
   StartBashCommandApiBashStartBashCommandPostResponses[keyof StartBashCommandApiBashStartBashCommandPostResponses];
 
-export type InstallCanvasExtensionEndpointApiCanvasExtensionsInstallPostData = {
-  body: InstallCanvasExtensionRequest;
+export type InstallViczinExtensionEndpointApiViczinExtensionsInstallPostData = {
+  body: InstallViczinExtensionRequest;
   path?: never;
   query?: never;
-  url: '/api/canvas-extensions/install';
+  url: '/api/viczin-extensions/install';
 };
 
-export type InstallCanvasExtensionEndpointApiCanvasExtensionsInstallPostErrors = {
+export type InstallViczinExtensionEndpointApiViczinExtensionsInstallPostErrors = {
   /**
-   * Could not read canvas extension source
+   * Could not read viczin extension source
    */
   400: unknown;
   /**
-   * Canvas extension already installed (use force=true)
+   * Viczin extension already installed (use force=true)
    */
   409: unknown;
   /**
-   * Invalid canvas extension (bad manifest, etc.)
+   * Invalid viczin extension (bad manifest, etc.)
    */
   422: unknown;
 };
 
-export type InstallCanvasExtensionEndpointApiCanvasExtensionsInstallPostResponses = {
+export type InstallViczinExtensionEndpointApiViczinExtensionsInstallPostResponses = {
   /**
    * Successful Response
    */
-  200: InstalledCanvasExtensionResponse;
+  200: InstalledViczinExtensionResponse;
 };
 
-export type InstallCanvasExtensionEndpointApiCanvasExtensionsInstallPostResponse =
-  InstallCanvasExtensionEndpointApiCanvasExtensionsInstallPostResponses[keyof InstallCanvasExtensionEndpointApiCanvasExtensionsInstallPostResponses];
+export type InstallViczinExtensionEndpointApiViczinExtensionsInstallPostResponse =
+  InstallViczinExtensionEndpointApiViczinExtensionsInstallPostResponses[keyof InstallViczinExtensionEndpointApiViczinExtensionsInstallPostResponses];
 
-export type ListInstalledCanvasExtensionsEndpointApiCanvasExtensionsInstalledGetData = {
+export type ListInstalledViczinExtensionsEndpointApiViczinExtensionsInstalledGetData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/canvas-extensions/installed';
+  url: '/api/viczin-extensions/installed';
 };
 
-export type ListInstalledCanvasExtensionsEndpointApiCanvasExtensionsInstalledGetResponses = {
+export type ListInstalledViczinExtensionsEndpointApiViczinExtensionsInstalledGetResponses = {
   /**
    * Successful Response
    */
-  200: InstalledCanvasExtensionsListResponse;
+  200: InstalledViczinExtensionsListResponse;
 };
 
-export type ListInstalledCanvasExtensionsEndpointApiCanvasExtensionsInstalledGetResponse =
-  ListInstalledCanvasExtensionsEndpointApiCanvasExtensionsInstalledGetResponses[keyof ListInstalledCanvasExtensionsEndpointApiCanvasExtensionsInstalledGetResponses];
+export type ListInstalledViczinExtensionsEndpointApiViczinExtensionsInstalledGetResponse =
+  ListInstalledViczinExtensionsEndpointApiViczinExtensionsInstalledGetResponses[keyof ListInstalledViczinExtensionsEndpointApiViczinExtensionsInstalledGetResponses];
 
-export type UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteData = {
+export type UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteData = {
   body?: never;
   path: {
     /**
      * Extension Name
      *
-     * Canvas extension name (lowercase alphanumeric, hyphens)
+     * Viczin extension name (lowercase alphanumeric, hyphens)
      */
     extension_name: string;
   };
   query?: never;
-  url: '/api/canvas-extensions/installed/{extension_name}';
+  url: '/api/viczin-extensions/installed/{extension_name}';
 };
 
-export type UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteErrors =
+export type UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteErrors =
   {
     /**
-     * Canvas extension not installed
+     * Viczin extension not installed
      */
     404: unknown;
     /**
@@ -20725,38 +20725,38 @@ export type UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensio
     422: HttpValidationError;
   };
 
-export type UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteError =
-  UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteErrors[keyof UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteErrors];
+export type UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteError =
+  UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteErrors[keyof UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteErrors];
 
-export type UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteResponses =
+export type UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteResponses =
   {
     /**
      * Successful Response
      */
-    200: UninstallCanvasExtensionResponse;
+    200: UninstallViczinExtensionResponse;
   };
 
-export type UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteResponse =
-  UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteResponses[keyof UninstallCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameDeleteResponses];
+export type UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteResponse =
+  UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteResponses[keyof UninstallViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameDeleteResponses];
 
-export type GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetData = {
+export type GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetData = {
   body?: never;
   path: {
     /**
      * Extension Name
      *
-     * Canvas extension name (lowercase alphanumeric, hyphens)
+     * Viczin extension name (lowercase alphanumeric, hyphens)
      */
     extension_name: string;
   };
   query?: never;
-  url: '/api/canvas-extensions/installed/{extension_name}';
+  url: '/api/viczin-extensions/installed/{extension_name}';
 };
 
-export type GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetErrors =
+export type GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetErrors =
   {
     /**
-     * Canvas extension not installed
+     * Viczin extension not installed
      */
     404: unknown;
     /**
@@ -20765,38 +20765,38 @@ export type GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExten
     422: HttpValidationError;
   };
 
-export type GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetError =
-  GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetErrors[keyof GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetErrors];
+export type GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetError =
+  GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetErrors[keyof GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetErrors];
 
-export type GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetResponses =
+export type GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetResponses =
   {
     /**
      * Successful Response
      */
-    200: InstalledCanvasExtensionResponse;
+    200: InstalledViczinExtensionResponse;
   };
 
-export type GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetResponse =
-  GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetResponses[keyof GetInstalledCanvasExtensionEndpointApiCanvasExtensionsInstalledExtensionNameGetResponses];
+export type GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetResponse =
+  GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetResponses[keyof GetInstalledViczinExtensionEndpointApiViczinExtensionsInstalledExtensionNameGetResponses];
 
-export type SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchData = {
-  body: UpdateCanvasExtensionStateRequest;
+export type SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchData = {
+  body: UpdateViczinExtensionStateRequest;
   path: {
     /**
      * Extension Name
      *
-     * Canvas extension name (lowercase alphanumeric, hyphens)
+     * Viczin extension name (lowercase alphanumeric, hyphens)
      */
     extension_name: string;
   };
   query?: never;
-  url: '/api/canvas-extensions/installed/{extension_name}';
+  url: '/api/viczin-extensions/installed/{extension_name}';
 };
 
-export type SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchErrors =
+export type SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchErrors =
   {
     /**
-     * Canvas extension not installed
+     * Viczin extension not installed
      */
     404: unknown;
     /**
@@ -20805,36 +20805,36 @@ export type SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensi
     422: HttpValidationError;
   };
 
-export type SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchError =
-  SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchErrors[keyof SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchErrors];
+export type SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchError =
+  SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchErrors[keyof SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchErrors];
 
-export type SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchResponses =
+export type SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchResponses =
   {
     /**
      * Successful Response
      */
-    200: UpdateCanvasExtensionStateResponse;
+    200: UpdateViczinExtensionStateResponse;
   };
 
-export type SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchResponse =
-  SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchResponses[keyof SetCanvasExtensionEnabledEndpointApiCanvasExtensionsInstalledExtensionNamePatchResponses];
+export type SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchResponse =
+  SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchResponses[keyof SetViczinExtensionEnabledEndpointApiViczinExtensionsInstalledExtensionNamePatchResponses];
 
-export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetData =
+export type GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetData =
   {
     body?: never;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
     query?: never;
-    url: '/api/canvas-extensions/installed/{extension_name}/backend';
+    url: '/api/viczin-extensions/installed/{extension_name}/backend';
   };
 
-export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetErrors =
+export type GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetErrors =
   {
     /**
      * Validation Error
@@ -20842,10 +20842,10 @@ export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledE
     422: HttpValidationError;
   };
 
-export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetError =
-  GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetErrors[keyof GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetErrors];
+export type GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetError =
+  GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetErrors[keyof GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetErrors];
 
-export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetResponses =
+export type GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetResponses =
   {
     /**
      * Successful Response
@@ -20853,25 +20853,25 @@ export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledE
     200: BackendStatus;
   };
 
-export type GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetResponse =
-  GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetResponses[keyof GetCanvasExtensionBackendStatusEndpointApiCanvasExtensionsInstalledExtensionNameBackendGetResponses];
+export type GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetResponse =
+  GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetResponses[keyof GetViczinExtensionBackendStatusEndpointApiViczinExtensionsInstalledExtensionNameBackendGetResponses];
 
-export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteData =
+export type DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteData =
   {
     body?: never;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
     query?: never;
-    url: '/api/canvas-extensions/installed/{extension_name}/backend/data';
+    url: '/api/viczin-extensions/installed/{extension_name}/backend/data';
   };
 
-export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteErrors =
+export type DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteErrors =
   {
     /**
      * Backend must be stopped first
@@ -20883,10 +20883,10 @@ export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalled
     422: HttpValidationError;
   };
 
-export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteError =
-  DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteErrors[keyof DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteErrors];
+export type DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteError =
+  DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteErrors[keyof DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteErrors];
 
-export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteResponses =
+export type DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteResponses =
   {
     /**
      * Successful Response
@@ -20894,17 +20894,17 @@ export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalled
     200: BackendStatus;
   };
 
-export type DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteResponse =
-  DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteResponses[keyof DeleteCanvasExtensionBackendDataEndpointApiCanvasExtensionsInstalledExtensionNameBackendDataDeleteResponses];
+export type DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteResponse =
+  DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteResponses[keyof DeleteViczinExtensionBackendDataEndpointApiViczinExtensionsInstalledExtensionNameBackendDataDeleteResponses];
 
-export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetData =
+export type GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetData =
   {
     body?: never;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
@@ -20914,10 +20914,10 @@ export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExt
        */
       limit_bytes?: number;
     };
-    url: '/api/canvas-extensions/installed/{extension_name}/backend/logs';
+    url: '/api/viczin-extensions/installed/{extension_name}/backend/logs';
   };
 
-export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetErrors =
+export type GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetErrors =
   {
     /**
      * Validation Error
@@ -20925,10 +20925,10 @@ export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExt
     422: HttpValidationError;
   };
 
-export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetError =
-  GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetErrors[keyof GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetErrors];
+export type GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetError =
+  GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetErrors[keyof GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetErrors];
 
-export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetResponses =
+export type GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetResponses =
   {
     /**
      * Successful Response
@@ -20936,25 +20936,25 @@ export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExt
     200: BackendLogs;
   };
 
-export type GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetResponse =
-  GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetResponses[keyof GetCanvasExtensionBackendLogsEndpointApiCanvasExtensionsInstalledExtensionNameBackendLogsGetResponses];
+export type GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetResponse =
+  GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetResponses[keyof GetViczinExtensionBackendLogsEndpointApiViczinExtensionsInstalledExtensionNameBackendLogsGetResponses];
 
-export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostData =
+export type PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostData =
   {
     body: BackendRevisionRequest;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
     query?: never;
-    url: '/api/canvas-extensions/installed/{extension_name}/backend/prepare';
+    url: '/api/viczin-extensions/installed/{extension_name}/backend/prepare';
   };
 
-export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostErrors =
+export type PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostErrors =
   {
     /**
      * Revision or checksum approval conflict
@@ -20966,10 +20966,10 @@ export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExt
     422: HttpValidationError;
   };
 
-export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostError =
-  PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostErrors[keyof PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostErrors];
+export type PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostError =
+  PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostErrors[keyof PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostErrors];
 
-export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostResponses =
+export type PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostResponses =
   {
     /**
      * Successful Response
@@ -20977,25 +20977,25 @@ export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExt
     200: BackendStatus;
   };
 
-export type PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostResponse =
-  PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostResponses[keyof PrepareCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendPreparePostResponses];
+export type PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostResponse =
+  PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostResponses[keyof PrepareViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendPreparePostResponses];
 
-export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostData =
+export type StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostData =
   {
     body: BackendRevisionRequest;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
     query?: never;
-    url: '/api/canvas-extensions/installed/{extension_name}/backend/start';
+    url: '/api/viczin-extensions/installed/{extension_name}/backend/start';
   };
 
-export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostErrors =
+export type StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostErrors =
   {
     /**
      * Revision is not prepared or cannot start
@@ -21007,10 +21007,10 @@ export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExten
     422: HttpValidationError;
   };
 
-export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostError =
-  StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostErrors[keyof StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostErrors];
+export type StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostError =
+  StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostErrors[keyof StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostErrors];
 
-export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostResponses =
+export type StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostResponses =
   {
     /**
      * Successful Response
@@ -21018,25 +21018,25 @@ export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExten
     200: BackendStatus;
   };
 
-export type StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostResponse =
-  StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostResponses[keyof StartCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStartPostResponses];
+export type StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostResponse =
+  StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostResponses[keyof StartViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStartPostResponses];
 
-export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostData =
+export type StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostData =
   {
     body?: never;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
     query?: never;
-    url: '/api/canvas-extensions/installed/{extension_name}/backend/stop';
+    url: '/api/viczin-extensions/installed/{extension_name}/backend/stop';
   };
 
-export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostErrors =
+export type StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostErrors =
   {
     /**
      * Validation Error
@@ -21044,10 +21044,10 @@ export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtens
     422: HttpValidationError;
   };
 
-export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostError =
-  StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostErrors[keyof StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostErrors];
+export type StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostError =
+  StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostErrors[keyof StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostErrors];
 
-export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostResponses =
+export type StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostResponses =
   {
     /**
      * Successful Response
@@ -21055,28 +21055,28 @@ export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtens
     200: BackendStatus;
   };
 
-export type StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostResponse =
-  StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostResponses[keyof StopCanvasExtensionBackendEndpointApiCanvasExtensionsInstalledExtensionNameBackendStopPostResponses];
+export type StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostResponse =
+  StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostResponses[keyof StopViczinExtensionBackendEndpointApiViczinExtensionsInstalledExtensionNameBackendStopPostResponses];
 
-export type GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensionNameBundleGetData =
+export type GetViczinExtensionBundleEndpointApiViczinExtensionsInstalledExtensionNameBundleGetData =
   {
     body?: never;
     path: {
       /**
        * Extension Name
        *
-       * Canvas extension name (lowercase alphanumeric, hyphens)
+       * Viczin extension name (lowercase alphanumeric, hyphens)
        */
       extension_name: string;
     };
     query?: never;
-    url: '/api/canvas-extensions/installed/{extension_name}/bundle';
+    url: '/api/viczin-extensions/installed/{extension_name}/bundle';
   };
 
-export type GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensionNameBundleGetErrors =
+export type GetViczinExtensionBundleEndpointApiViczinExtensionsInstalledExtensionNameBundleGetErrors =
   {
     /**
-     * Canvas extension or bundle not found
+     * Viczin extension or bundle not found
      */
     404: unknown;
     /**
@@ -21085,10 +21085,10 @@ export type GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensio
     422: HttpValidationError;
   };
 
-export type GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensionNameBundleGetError =
-  GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensionNameBundleGetErrors[keyof GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensionNameBundleGetErrors];
+export type GetViczinExtensionBundleEndpointApiViczinExtensionsInstalledExtensionNameBundleGetError =
+  GetViczinExtensionBundleEndpointApiViczinExtensionsInstalledExtensionNameBundleGetErrors[keyof GetViczinExtensionBundleEndpointApiViczinExtensionsInstalledExtensionNameBundleGetErrors];
 
-export type GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensionNameBundleGetResponses =
+export type GetViczinExtensionBundleEndpointApiViczinExtensionsInstalledExtensionNameBundleGetResponses =
   {
     /**
      * Successful Response
@@ -21096,23 +21096,23 @@ export type GetCanvasExtensionBundleEndpointApiCanvasExtensionsInstalledExtensio
     200: unknown;
   };
 
-export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetData = {
+export type GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetData = {
   body?: never;
   path: {
     /**
      * Extension Name
      *
-     * Canvas extension name (lowercase alphanumeric, hyphens)
+     * Viczin extension name (lowercase alphanumeric, hyphens)
      */
     extension_name: string;
   };
   query?: never;
-  url: '/api/canvas-extensions/installed/{extension_name}/icon';
+  url: '/api/viczin-extensions/installed/{extension_name}/icon';
 };
 
-export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetErrors = {
+export type GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetErrors = {
   /**
-   * Canvas extension or icon not found
+   * Viczin extension or icon not found
    */
   404: unknown;
   /**
@@ -21121,10 +21121,10 @@ export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionN
   422: HttpValidationError;
 };
 
-export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetError =
-  GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetErrors[keyof GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetErrors];
+export type GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetError =
+  GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetErrors[keyof GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetErrors];
 
-export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetResponses =
+export type GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetResponses =
   {
     /**
      * Successful Response
@@ -21132,8 +21132,8 @@ export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionN
     200: Blob | File;
   };
 
-export type GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetResponse =
-  GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetResponses[keyof GetCanvasExtensionIconEndpointApiCanvasExtensionsInstalledExtensionNameIconGetResponses];
+export type GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetResponse =
+  GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetResponses[keyof GetViczinExtensionIconEndpointApiViczinExtensionsInstalledExtensionNameIconGetResponses];
 
 export type BatchGetConversationsApiConversationsGetData = {
   body?: never;
@@ -21144,9 +21144,9 @@ export type BatchGetConversationsApiConversationsGetData = {
      */
     ids: Array<string>;
     /**
-     * Whether to include ``agent.agent_context.skills`` in the response. Default ``false`` (breaking change as of this release): skills are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of skill content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.skills`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
+     * Whether to include ``agent.agent_context.tracks`` in the response. Default ``false`` (breaking change as of this release): tracks are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of track content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.tracks`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
      */
-    include_skills?: boolean;
+    include_tracks?: boolean;
   };
   url: '/api/conversations';
 };
@@ -21177,28 +21177,28 @@ export type StartConversationApiConversationsPostData = {
   body: StartConversationRequestWritable;
   headers?: {
     /**
-     * X-Openhands-Observability-Span-Name
+     * X-Handprint-Observability-Span-Name
      */
-    'X-OpenHands-Observability-Span-Name'?: string | null;
+    'X-Handprint-Observability-Span-Name'?: string | null;
     /**
-     * X-Openhands-Observability-Tags
+     * X-Handprint-Observability-Tags
      */
-    'X-OpenHands-Observability-Tags'?: string | null;
+    'X-Handprint-Observability-Tags'?: string | null;
     /**
-     * X-Openhands-Observability-Metadata
+     * X-Handprint-Observability-Metadata
      */
-    'X-OpenHands-Observability-Metadata'?: string | null;
+    'X-Handprint-Observability-Metadata'?: string | null;
     /**
-     * X-Openhands-Observability-Parent-Span-Context
+     * X-Handprint-Observability-Parent-Span-Context
      */
-    'X-OpenHands-Observability-Parent-Span-Context'?: string | null;
+    'X-Handprint-Observability-Parent-Span-Context'?: string | null;
   };
   path?: never;
   query?: {
     /**
-     * Whether to include ``agent.agent_context.skills`` in the response. Default ``false`` (breaking change as of this release): skills are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of skill content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.skills`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
+     * Whether to include ``agent.agent_context.tracks`` in the response. Default ``false`` (breaking change as of this release): tracks are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of track content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.tracks`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
      */
-    include_skills?: boolean;
+    include_tracks?: boolean;
   };
   url: '/api/conversations';
 };
@@ -21282,9 +21282,9 @@ export type SearchConversationsApiConversationsSearchGetData = {
      */
     sort_order?: ConversationSortOrder;
     /**
-     * Whether to include ``agent.agent_context.skills`` in the response. Default ``false`` (breaking change as of this release): skills are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of skill content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.skills`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
+     * Whether to include ``agent.agent_context.tracks`` in the response. Default ``false`` (breaking change as of this release): tracks are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of track content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.tracks`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
      */
-    include_skills?: boolean;
+    include_tracks?: boolean;
   };
   url: '/api/conversations/search';
 };
@@ -21355,9 +21355,9 @@ export type GetConversationApiConversationsConversationIdGetData = {
   };
   query?: {
     /**
-     * Whether to include ``agent.agent_context.skills`` in the response. Default ``false`` (breaking change as of this release): skills are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of skill content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.skills`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
+     * Whether to include ``agent.agent_context.tracks`` in the response. Default ``false`` (breaking change as of this release): tracks are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of track content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.tracks`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
      */
-    include_skills?: boolean;
+    include_tracks?: boolean;
   };
   url: '/api/conversations/{conversation_id}';
 };
@@ -21863,9 +21863,9 @@ export type ForkConversationApiConversationsConversationIdForkPostData = {
   };
   query?: {
     /**
-     * Whether to include ``agent.agent_context.skills`` in the response. Default ``false`` (breaking change as of this release): skills are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of skill content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.skills`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
+     * Whether to include ``agent.agent_context.tracks`` in the response. Default ``false`` (breaking change as of this release): tracks are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of track content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.tracks`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
      */
-    include_skills?: boolean;
+    include_tracks?: boolean;
   };
   url: '/api/conversations/{conversation_id}/fork';
 };
@@ -22108,9 +22108,9 @@ export type NavigateConversationApiConversationsConversationIdNavigatePostData =
   };
   query?: {
     /**
-     * Whether to include ``agent.agent_context.skills`` in the response. Default ``false`` (breaking change as of this release): skills are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of skill content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.skills`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
+     * Whether to include ``agent.agent_context.tracks`` in the response. Default ``false`` (breaking change as of this release): tracks are trimmed to ``[]`` on the wire because no known consumer reads them from HTTP responses, and a stock agent inlines ~260 KB of track content per fetch. Pass ``true`` to opt back into the legacy full-payload shape — useful only for callers that still rely on ``RemoteConversation.agent.agent_context.tracks`` round-tripping over the wire. The persisted conversation state on disk and the in-memory runtime copy are untouched either way.
      */
-    include_skills?: boolean;
+    include_tracks?: boolean;
   };
   url: '/api/conversations/{conversation_id}/navigate';
 };
@@ -23891,7 +23891,7 @@ export type ListModelsApiLlmModelsGetData = {
     /**
      * Provider
      *
-     * Filter models by provider (e.g., 'openai', 'anthropic')
+     * Filter models by provider (e.g., 'openai', 'juglow')
      */
     provider?: string | null;
   };
@@ -24667,7 +24667,7 @@ export type GetMarketplaceCatalogApiPluginsMarketplaceGetResponses = {
   /**
    * Successful Response
    */
-  200: OpenhandsAgentServerPluginsRouterMarketplaceCatalogResponse;
+  200: HandprintAgentServerPluginsRouterMarketplaceCatalogResponse;
 };
 
 export type GetMarketplaceCatalogApiPluginsMarketplaceGetResponse =
@@ -25180,99 +25180,99 @@ export type GetSecretValueApiSettingsSecretsNameGetResponses = {
   200: unknown;
 };
 
-export type GetSkillsApiSkillsPostData = {
-  body: SkillsRequest;
+export type GetTracksApiTracksPostData = {
+  body: TracksRequest;
   path?: never;
   query?: never;
-  url: '/api/skills';
+  url: '/api/tracks';
 };
 
-export type GetSkillsApiSkillsPostErrors = {
+export type GetTracksApiTracksPostErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type GetSkillsApiSkillsPostError =
-  GetSkillsApiSkillsPostErrors[keyof GetSkillsApiSkillsPostErrors];
+export type GetTracksApiTracksPostError =
+  GetTracksApiTracksPostErrors[keyof GetTracksApiTracksPostErrors];
 
-export type GetSkillsApiSkillsPostResponses = {
+export type GetTracksApiTracksPostResponses = {
   /**
    * Successful Response
    */
-  200: SkillsResponse;
+  200: TracksResponse;
 };
 
-export type GetSkillsApiSkillsPostResponse =
-  GetSkillsApiSkillsPostResponses[keyof GetSkillsApiSkillsPostResponses];
+export type GetTracksApiTracksPostResponse =
+  GetTracksApiTracksPostResponses[keyof GetTracksApiTracksPostResponses];
 
-export type InstallSkillEndpointApiSkillsInstallPostData = {
-  body: InstallSkillRequest;
+export type InstallTrackEndpointApiTracksInstallPostData = {
+  body: InstallTrackRequest;
   path?: never;
   query?: never;
-  url: '/api/skills/install';
+  url: '/api/tracks/install';
 };
 
-export type InstallSkillEndpointApiSkillsInstallPostErrors = {
+export type InstallTrackEndpointApiTracksInstallPostErrors = {
   /**
-   * Failed to fetch skill source
+   * Failed to fetch track source
    */
   400: unknown;
   /**
-   * Skill already installed (use force=true)
+   * Track already installed (use force=true)
    */
   409: unknown;
   /**
-   * Invalid skill (missing SKILL.md, etc.)
+   * Invalid track (missing TRACK.md, etc.)
    */
   422: unknown;
 };
 
-export type InstallSkillEndpointApiSkillsInstallPostResponses = {
+export type InstallTrackEndpointApiTracksInstallPostResponses = {
   /**
    * Successful Response
    */
-  200: InstalledSkillResponse;
+  200: InstalledTrackResponse;
 };
 
-export type InstallSkillEndpointApiSkillsInstallPostResponse =
-  InstallSkillEndpointApiSkillsInstallPostResponses[keyof InstallSkillEndpointApiSkillsInstallPostResponses];
+export type InstallTrackEndpointApiTracksInstallPostResponse =
+  InstallTrackEndpointApiTracksInstallPostResponses[keyof InstallTrackEndpointApiTracksInstallPostResponses];
 
-export type ListInstalledSkillsEndpointApiSkillsInstalledGetData = {
+export type ListInstalledTracksEndpointApiTracksInstalledGetData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/skills/installed';
+  url: '/api/tracks/installed';
 };
 
-export type ListInstalledSkillsEndpointApiSkillsInstalledGetResponses = {
+export type ListInstalledTracksEndpointApiTracksInstalledGetResponses = {
   /**
    * Successful Response
    */
-  200: InstalledSkillsListResponse;
+  200: InstalledTracksListResponse;
 };
 
-export type ListInstalledSkillsEndpointApiSkillsInstalledGetResponse =
-  ListInstalledSkillsEndpointApiSkillsInstalledGetResponses[keyof ListInstalledSkillsEndpointApiSkillsInstalledGetResponses];
+export type ListInstalledTracksEndpointApiTracksInstalledGetResponse =
+  ListInstalledTracksEndpointApiTracksInstalledGetResponses[keyof ListInstalledTracksEndpointApiTracksInstalledGetResponses];
 
-export type UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteData = {
+export type UninstallTrackEndpointApiTracksInstalledTrackNameDeleteData = {
   body?: never;
   path: {
     /**
-     * Skill Name
+     * Track Name
      *
-     * Skill name (lowercase alphanumeric, hyphens)
+     * Track name (lowercase alphanumeric, hyphens)
      */
-    skill_name: string;
+    track_name: string;
   };
   query?: never;
-  url: '/api/skills/installed/{skill_name}';
+  url: '/api/tracks/installed/{track_name}';
 };
 
-export type UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteErrors = {
+export type UninstallTrackEndpointApiTracksInstalledTrackNameDeleteErrors = {
   /**
-   * Skill not installed
+   * Track not installed
    */
   404: unknown;
   /**
@@ -25281,36 +25281,36 @@ export type UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteErrors = {
   422: HttpValidationError;
 };
 
-export type UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteError =
-  UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteErrors[keyof UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteErrors];
+export type UninstallTrackEndpointApiTracksInstalledTrackNameDeleteError =
+  UninstallTrackEndpointApiTracksInstalledTrackNameDeleteErrors[keyof UninstallTrackEndpointApiTracksInstalledTrackNameDeleteErrors];
 
-export type UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteResponses = {
+export type UninstallTrackEndpointApiTracksInstalledTrackNameDeleteResponses = {
   /**
    * Successful Response
    */
-  200: UninstallSkillResponse;
+  200: UninstallTrackResponse;
 };
 
-export type UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteResponse =
-  UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteResponses[keyof UninstallSkillEndpointApiSkillsInstalledSkillNameDeleteResponses];
+export type UninstallTrackEndpointApiTracksInstalledTrackNameDeleteResponse =
+  UninstallTrackEndpointApiTracksInstalledTrackNameDeleteResponses[keyof UninstallTrackEndpointApiTracksInstalledTrackNameDeleteResponses];
 
-export type GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetData = {
+export type GetInstalledTrackEndpointApiTracksInstalledTrackNameGetData = {
   body?: never;
   path: {
     /**
-     * Skill Name
+     * Track Name
      *
-     * Skill name (lowercase alphanumeric, hyphens)
+     * Track name (lowercase alphanumeric, hyphens)
      */
-    skill_name: string;
+    track_name: string;
   };
   query?: never;
-  url: '/api/skills/installed/{skill_name}';
+  url: '/api/tracks/installed/{track_name}';
 };
 
-export type GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetErrors = {
+export type GetInstalledTrackEndpointApiTracksInstalledTrackNameGetErrors = {
   /**
-   * Skill not installed
+   * Track not installed
    */
   404: unknown;
   /**
@@ -25319,36 +25319,36 @@ export type GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetErrors = {
   422: HttpValidationError;
 };
 
-export type GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetError =
-  GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetErrors[keyof GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetErrors];
+export type GetInstalledTrackEndpointApiTracksInstalledTrackNameGetError =
+  GetInstalledTrackEndpointApiTracksInstalledTrackNameGetErrors[keyof GetInstalledTrackEndpointApiTracksInstalledTrackNameGetErrors];
 
-export type GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetResponses = {
+export type GetInstalledTrackEndpointApiTracksInstalledTrackNameGetResponses = {
   /**
    * Successful Response
    */
-  200: InstalledSkillResponse;
+  200: InstalledTrackResponse;
 };
 
-export type GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetResponse =
-  GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetResponses[keyof GetInstalledSkillEndpointApiSkillsInstalledSkillNameGetResponses];
+export type GetInstalledTrackEndpointApiTracksInstalledTrackNameGetResponse =
+  GetInstalledTrackEndpointApiTracksInstalledTrackNameGetResponses[keyof GetInstalledTrackEndpointApiTracksInstalledTrackNameGetResponses];
 
-export type SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchData = {
-  body: UpdateSkillStateRequest;
+export type SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchData = {
+  body: UpdateTrackStateRequest;
   path: {
     /**
-     * Skill Name
+     * Track Name
      *
-     * Skill name (lowercase alphanumeric, hyphens)
+     * Track name (lowercase alphanumeric, hyphens)
      */
-    skill_name: string;
+    track_name: string;
   };
   query?: never;
-  url: '/api/skills/installed/{skill_name}';
+  url: '/api/tracks/installed/{track_name}';
 };
 
-export type SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchErrors = {
+export type SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchErrors = {
   /**
-   * Skill not installed
+   * Track not installed
    */
   404: unknown;
   /**
@@ -25357,36 +25357,36 @@ export type SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchErrors = {
   422: HttpValidationError;
 };
 
-export type SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchError =
-  SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchErrors[keyof SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchErrors];
+export type SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchError =
+  SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchErrors[keyof SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchErrors];
 
-export type SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchResponses = {
+export type SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchResponses = {
   /**
    * Successful Response
    */
-  200: UpdateSkillStateResponse;
+  200: UpdateTrackStateResponse;
 };
 
-export type SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchResponse =
-  SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchResponses[keyof SetSkillEnabledEndpointApiSkillsInstalledSkillNamePatchResponses];
+export type SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchResponse =
+  SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchResponses[keyof SetTrackEnabledEndpointApiTracksInstalledTrackNamePatchResponses];
 
-export type RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostData = {
+export type RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostData = {
   body?: never;
   path: {
     /**
-     * Skill Name
+     * Track Name
      *
-     * Skill name (lowercase alphanumeric, hyphens)
+     * Track name (lowercase alphanumeric, hyphens)
      */
-    skill_name: string;
+    track_name: string;
   };
   query?: never;
-  url: '/api/skills/installed/{skill_name}/refresh';
+  url: '/api/tracks/installed/{track_name}/refresh';
 };
 
-export type RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostErrors = {
+export type RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostErrors = {
   /**
-   * Skill not installed
+   * Track not installed
    */
   404: unknown;
   /**
@@ -25395,52 +25395,52 @@ export type RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostErrors = {
   422: HttpValidationError;
 };
 
-export type RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostError =
-  RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostErrors[keyof RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostErrors];
+export type RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostError =
+  RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostErrors[keyof RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostErrors];
 
-export type RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostResponses = {
+export type RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostResponses = {
   /**
    * Successful Response
    */
-  200: UpdateSkillResponse;
+  200: UpdateTrackResponse;
 };
 
-export type RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostResponse =
-  RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostResponses[keyof RefreshSkillEndpointApiSkillsInstalledSkillNameRefreshPostResponses];
+export type RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostResponse =
+  RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostResponses[keyof RefreshTrackEndpointApiTracksInstalledTrackNameRefreshPostResponses];
 
-export type GetMarketplaceCatalogApiSkillsMarketplaceGetData = {
+export type GetMarketplaceCatalogApiTracksMarketplaceGetData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/skills/marketplace';
+  url: '/api/tracks/marketplace';
 };
 
-export type GetMarketplaceCatalogApiSkillsMarketplaceGetResponses = {
+export type GetMarketplaceCatalogApiTracksMarketplaceGetResponses = {
   /**
    * Successful Response
    */
-  200: OpenhandsAgentServerSkillsRouterMarketplaceCatalogResponse;
+  200: HandprintAgentServerTracksRouterMarketplaceCatalogResponse;
 };
 
-export type GetMarketplaceCatalogApiSkillsMarketplaceGetResponse =
-  GetMarketplaceCatalogApiSkillsMarketplaceGetResponses[keyof GetMarketplaceCatalogApiSkillsMarketplaceGetResponses];
+export type GetMarketplaceCatalogApiTracksMarketplaceGetResponse =
+  GetMarketplaceCatalogApiTracksMarketplaceGetResponses[keyof GetMarketplaceCatalogApiTracksMarketplaceGetResponses];
 
-export type SyncSkillsApiSkillsSyncPostData = {
+export type SyncTracksApiTracksSyncPostData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/skills/sync';
+  url: '/api/tracks/sync';
 };
 
-export type SyncSkillsApiSkillsSyncPostResponses = {
+export type SyncTracksApiTracksSyncPostResponses = {
   /**
    * Successful Response
    */
   200: SyncResponse;
 };
 
-export type SyncSkillsApiSkillsSyncPostResponse =
-  SyncSkillsApiSkillsSyncPostResponses[keyof SyncSkillsApiSkillsSyncPostResponses];
+export type SyncTracksApiTracksSyncPostResponse =
+  SyncTracksApiTracksSyncPostResponses[keyof SyncTracksApiTracksSyncPostResponses];
 
 export type GetSubAgentsApiSubAgentsPostData = {
   body: SubAgentsRequest;

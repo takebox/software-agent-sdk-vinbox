@@ -3,7 +3,7 @@ import json
 import httpx
 import pytest
 
-from openhands.sdk.credential import (
+from handprint.sdk.credential import (
     CredentialBindingUnsupported,
     CredentialConflict,
     CredentialInvalidResponse,

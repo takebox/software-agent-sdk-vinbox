@@ -1,5 +1,5 @@
 {
-  "name": "openhands-local-agent",
+  "name": "handprint-local-agent",
   "version": "1.0.0",
   "description": "Browser-based agent UI with tool calling using OpenRouter",
   "type": "module",

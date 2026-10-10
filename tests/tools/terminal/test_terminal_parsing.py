@@ -1,6 +1,6 @@
 import pytest
 
-from openhands.tools.terminal.utils.command import (
+from handprint.tools.terminal.utils.command import (
     escape_bash_special_chars,
     split_bash_commands,
 )

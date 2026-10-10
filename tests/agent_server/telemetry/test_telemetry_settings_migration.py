@@ -9,11 +9,11 @@ never because of consent.)
 
 import pytest
 
-from openhands.agent_server.persistence.models import (
+from handprint.agent_server.persistence.models import (
     PERSISTED_SETTINGS_SCHEMA_VERSION,
     PersistedSettings,
 )
-from openhands.agent_server.telemetry.policy import resolve
+from handprint.agent_server.telemetry.policy import resolve
 
 
 def test_there_is_no_typed_consent_field():

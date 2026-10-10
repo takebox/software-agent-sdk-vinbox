@@ -5,14 +5,14 @@ import uuid
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.conversation.state import (
+from handprint.sdk import LLM, Agent
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
-from openhands.sdk.io import InMemoryFileStore
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.sdk.io import InMemoryFileStore
+from handprint.sdk.workspace import LocalWorkspace
 
 
 @pytest.fixture

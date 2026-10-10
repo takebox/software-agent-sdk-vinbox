@@ -3,16 +3,16 @@
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent.base import AgentBase
-from openhands.sdk.conversation import Conversation, LocalConversation
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.conversation.types import (
+from handprint.sdk.agent.base import AgentBase
+from handprint.sdk.conversation import Conversation, LocalConversation
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.conversation.types import (
     ConversationCallbackType,
     ConversationTokenCallbackType,
 )
-from openhands.sdk.event.llm_convertible import MessageEvent, SystemPromptEvent
-from openhands.sdk.llm import LLM, Message, TextContent
-from openhands.sdk.tool import (
+from handprint.sdk.event.llm_convertible import MessageEvent, SystemPromptEvent
+from handprint.sdk.llm import LLM, Message, TextContent
+from handprint.sdk.tool import (
     Action,
     Observation,
     Tool,

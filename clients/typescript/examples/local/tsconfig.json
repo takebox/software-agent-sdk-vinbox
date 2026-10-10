@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@openhands/typescript-client": ["../../dist"]
+      "@takebox-ai/typescript-client": ["../../dist"]
     }
   },
   "include": ["src"]

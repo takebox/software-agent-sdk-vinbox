@@ -7,7 +7,7 @@ from litellm.exceptions import (
     PermissionDeniedError,
 )
 
-from openhands.sdk.llm.exceptions import (
+from handprint.sdk.llm.exceptions import (
     LLMAuthenticationError,
     LLMBadRequestError,
     LLMContentPolicyViolationError,
@@ -56,7 +56,7 @@ def test_map_typed_permission_denied_error():
 def test_map_malformed_tool_history_bad_request():
     e = BadRequestError(
         (
-            'AnthropicException - {"type":"error","error":{"type":'
+            'JuglowException - {"type":"error","error":{"type":'
             '"invalid_request_error","message":"messages.134: `tool_use` '
             "ids were found without `tool_result` blocks immediately after: "
             "toolu_01Aye4s5HrR2uXwXFYgtQi4H. Each `tool_use` block must have "
@@ -95,7 +95,7 @@ def test_map_typed_content_policy_violation():
 def test_map_content_policy_violation_text_fallback():
     # Proxied/aliased providers may flatten the typed class to a plain 400.
     e = BadRequestError(
-        "AnthropicException - Output blocked by content filtering policy",
+        "JuglowException - Output blocked by content filtering policy",
         MODEL,
         PROVIDER,
     )

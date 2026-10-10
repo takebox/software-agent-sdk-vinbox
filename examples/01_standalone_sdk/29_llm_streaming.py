@@ -4,13 +4,13 @@ from typing import Literal
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     Conversation,
     get_logger,
 )
-from openhands.sdk.llm import LLM
-from openhands.sdk.llm.streaming import ModelResponseStream
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk.llm import LLM
+from handprint.sdk.llm.streaming import ModelResponseStream
+from handprint.tools.preset.default import get_default_agent
 
 
 logger = get_logger(__name__)

@@ -1,6 +1,6 @@
 """Tests for installed plugins management.
 
-These tests verify the public API in ``openhands.sdk.plugin.installed``
+These tests verify the public API in ``handprint.sdk.plugin.installed``
 delegates correctly to ``InstallationManager``.  Internal metadata and
 sync logic is already covered by ``tests/sdk/extensions/installation/``.
 
@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.extensions.fetch import get_cache_path, parse_extension_source
-from openhands.sdk.plugin import (
+from handprint.sdk.extensions.fetch import get_cache_path, parse_extension_source
+from handprint.sdk.plugin import (
     Plugin,
     PluginFetchError,
     disable_plugin,
@@ -27,7 +27,7 @@ from openhands.sdk.plugin import (
     uninstall_plugin,
     update_plugin,
 )
-from openhands.sdk.plugin.fetch import DEFAULT_CACHE_DIR as DEFAULT_PLUGIN_CACHE_DIR
+from handprint.sdk.plugin.fetch import DEFAULT_CACHE_DIR as DEFAULT_PLUGIN_CACHE_DIR
 
 
 # ============================================================================
@@ -56,11 +56,11 @@ def sample_plugin_dir(tmp_path: Path) -> Path:
     }
     (manifest_dir / "plugin.json").write_text(json.dumps(manifest))
 
-    skills_dir = plugin_dir / "skills" / "test-skill"
-    skills_dir.mkdir(parents=True)
-    (skills_dir / "SKILL.md").write_text(
-        "---\nname: test-skill\ndescription: A test skill\n"
-        "triggers:\n  - test\n---\n# Test Skill\n"
+    tracks_dir = plugin_dir / "tracks" / "test-track"
+    tracks_dir.mkdir(parents=True)
+    (tracks_dir / "TRACK.md").write_text(
+        "---\nname: test-track\ndescription: A test track\n"
+        "triggers:\n  - test\n---\n# Test Track\n"
     )
 
     return plugin_dir
@@ -73,7 +73,7 @@ def sample_plugin_dir(tmp_path: Path) -> Path:
 
 def test_get_installed_plugins_dir_returns_default_path():
     path = get_installed_plugins_dir()
-    assert ".openhands" in str(path)
+    assert ".handprint" in str(path)
     assert "plugins" in str(path)
     assert "installed" in str(path)
 
@@ -131,7 +131,7 @@ def test_load_installed_plugins(sample_plugin_dir: Path, installed_dir: Path) ->
     assert len(plugins) == 1
     assert isinstance(plugins[0], Plugin)
     assert plugins[0].name == "sample-plugin"
-    assert len(plugins[0].skills) == 1
+    assert len(plugins[0].tracks) == 1
 
 
 def test_disable_plugin_filters_load(
@@ -204,23 +204,23 @@ def test_update_nonexistent_plugin(installed_dir: Path) -> None:
 def test_install_from_github_with_repo_path(installed_dir: Path) -> None:
     try:
         info = install_plugin(
-            source="github:OpenHands/agent-sdk",
+            source="github:Handprint/agent-sdk",
             repo_path=(
-                "examples/05_skills_and_plugins/"
+                "examples/05_tracks_and_plugins/"
                 "02_loading_plugins/example_plugins/code-quality"
             ),
             installed_dir=installed_dir,
         )
 
         assert info.name == "code-quality"
-        assert info.source == "github:OpenHands/agent-sdk"
+        assert info.source == "github:Handprint/agent-sdk"
         assert info.resolved_ref is not None
         assert info.repo_path is not None
 
         plugins = load_installed_plugins(installed_dir=installed_dir)
         code_quality = next((p for p in plugins if p.name == "code-quality"), None)
         assert code_quality is not None
-        assert len(code_quality.get_all_skills()) >= 1
+        assert len(code_quality.get_all_tracks()) >= 1
 
     except PluginFetchError:
         pytest.skip("GitHub not accessible (network issue)")
@@ -230,10 +230,10 @@ def test_install_from_github_with_repo_path(installed_dir: Path) -> None:
 def test_install_from_github_with_ref(installed_dir: Path) -> None:
     try:
         info = install_plugin(
-            source="github:OpenHands/agent-sdk",
+            source="github:Handprint/agent-sdk",
             ref="main",
             repo_path=(
-                "examples/05_skills_and_plugins/"
+                "examples/05_tracks_and_plugins/"
                 "02_loading_plugins/example_plugins/code-quality"
             ),
             installed_dir=installed_dir,
@@ -248,9 +248,9 @@ def test_install_from_github_with_ref(installed_dir: Path) -> None:
 
 
 @pytest.mark.network
-def test_install_document_skills_plugin(installed_dir: Path) -> None:
+def test_install_document_tracks_plugin(installed_dir: Path) -> None:
     try:
-        source = "github:anthropics/skills"
+        source = "github:juglows/tracks"
         info = install_plugin(
             source=source,
             ref="main",
@@ -263,20 +263,20 @@ def test_install_document_skills_plugin(installed_dir: Path) -> None:
         assert info.source == source
 
         install_path = info.install_path
-        skills_dir = install_path / "skills"
-        assert skills_dir.is_dir()
+        tracks_dir = install_path / "tracks"
+        assert tracks_dir.is_dir()
 
-        for skill_name in ["pptx", "xlsx", "docx", "pdf"]:
-            assert (skills_dir / skill_name).is_dir()
-            assert (skills_dir / skill_name / "SKILL.md").exists()
+        for track_name in ["pptx", "xlsx", "docx", "pdf"]:
+            assert (tracks_dir / track_name).is_dir()
+            assert (tracks_dir / track_name / "TRACK.md").exists()
 
         plugins = load_installed_plugins(installed_dir=installed_dir)
         doc_plugin = next((p for p in plugins if p.name == expected_name), None)
         assert doc_plugin is not None
-        skills = doc_plugin.get_all_skills()
-        assert len(skills) >= 4
-        skill_names = {s.name for s in skills}
-        assert {"pptx", "xlsx", "docx", "pdf"} <= skill_names
+        tracks = doc_plugin.get_all_tracks()
+        assert len(tracks) >= 4
+        track_names = {s.name for s in tracks}
+        assert {"pptx", "xlsx", "docx", "pdf"} <= track_names
 
     except PluginFetchError:
         pytest.skip("GitHub not accessible (network issue)")

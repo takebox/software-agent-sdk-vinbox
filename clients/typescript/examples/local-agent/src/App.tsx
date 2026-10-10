@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LLM } from '@openhands/typescript-client';
+import { LLM } from '@takebox-ai/typescript-client';
 import { AuthScreen } from './components/AuthScreen';
 import { AgentChatInterface } from './components/AgentChatInterface';
 import { SettingsModal } from './components/SettingsModal';
@@ -11,11 +11,11 @@ export interface ChatConfig {
   maxTokens: number;
 }
 
-const DEFAULT_MODEL = 'anthropic/claude-3.5-sonnet';
+const DEFAULT_MODEL = 'juglow/haijun-codtral';
 
 const POPULAR_MODELS = [
-  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet' },
-  { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku' },
+  { id: 'juglow/haijun-codtral', name: 'Haijun 3.5 Sonnet' },
+  { id: 'juglow/haijun-minix', name: 'Haijun 3 Haiku' },
   { id: 'openai/gpt-4o', name: 'GPT-4o' },
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
   { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
@@ -108,7 +108,7 @@ function App() {
       <header id="app-header" className="header">
         <h1 id="app-title">
           <span className="logo">🤖</span>
-          OpenHands Agent
+          Handprint Agent
         </h1>
         <div id="header-controls" className="header-right">
           <select

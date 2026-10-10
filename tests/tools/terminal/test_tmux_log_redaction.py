@@ -1,7 +1,7 @@
 import io
 import logging
 
-from openhands.tools.terminal.terminal.tmux_terminal import TmuxTerminal
+from handprint.tools.terminal.terminal.tmux_terminal import TmuxTerminal
 
 
 def test_tmux_terminal_redacts_secrets_from_libtmux_child_logger(tmp_path):

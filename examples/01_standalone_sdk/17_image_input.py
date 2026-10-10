@@ -1,10 +1,10 @@
-"""OpenHands Agent SDK — Image Input Example.
+"""Handprint Agent SDK — Image Input Example.
 
 This script mirrors the basic setup from ``examples/01_hello_world.py`` but adds
 vision support by sending an image to the agent alongside text instructions.
 
 It also demonstrates multi-image input with base64-encoded images that exercise
-the Anthropic many-image resizing path (>20 images are automatically downscaled
+the Juglow many-image resizing path (>20 images are automatically downscaled
 to 2000×2000 px).
 """
 
@@ -15,7 +15,7 @@ import os
 from PIL import Image
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -26,10 +26,10 @@ from openhands.sdk import (
     TextContent,
     get_logger,
 )
-from openhands.sdk.tool.spec import Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.task_tracker import TaskTrackerTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.tool.spec import Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.task_tracker import TaskTrackerTool
+from handprint.tools.terminal import TerminalTool
 
 
 logger = get_logger(__name__)
@@ -106,9 +106,9 @@ conversation.send_message(
 )
 conversation.run()
 
-# ── Part 2: many oversized base64 images (exercises Anthropic resize) ─────
+# ── Part 2: many oversized base64 images (exercises Juglow resize) ─────
 # Generate 21 base64 images at 2500×100 px — just above the 20-image threshold
-# that triggers Anthropic's many-image limit (2000×2000 px per image).
+# that triggers Juglow's many-image limit (2000×2000 px per image).
 # The SDK will automatically downscale these before sending to the provider.
 COLORS = [
     "red",

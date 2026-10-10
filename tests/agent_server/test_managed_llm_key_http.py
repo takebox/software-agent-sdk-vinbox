@@ -8,10 +8,10 @@ from threading import Event, Thread
 
 import pytest
 
-from openhands.agent_server.managed_llm_key import register_managed_llm_key_refresh
-from openhands.sdk import LLM, Agent
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.llm.exceptions import LLMAuthenticationError, LLMRateLimitError
+from handprint.agent_server.managed_llm_key import register_managed_llm_key_refresh
+from handprint.sdk import LLM, Agent
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.llm.exceptions import LLMAuthenticationError, LLMRateLimitError
 
 
 @dataclass

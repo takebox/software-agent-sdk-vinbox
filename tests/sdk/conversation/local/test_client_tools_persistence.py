@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk import LLM, Agent, Conversation
-from openhands.sdk.settings import OpenHandsAgentSettings
-from openhands.sdk.tool import Tool, client_tool as ct, registry as reg
-from openhands.sdk.tool.client_tool import ClientToolSpec, register_client_tools
-from openhands.sdk.utils.models import clear_subclass_cache
+from handprint.sdk import LLM, Agent, Conversation
+from handprint.sdk.settings import HandprintAgentSettings
+from handprint.sdk.tool import Tool, client_tool as ct, registry as reg
+from handprint.sdk.tool.client_tool import ClientToolSpec, register_client_tools
+from handprint.sdk.utils.models import clear_subclass_cache
 
 
 @pytest.fixture(autouse=True)
@@ -160,7 +160,7 @@ def test_client_tool_named_like_an_attached_builtin_is_rejected(
 def test_client_tool_named_like_a_builtin_leaves_other_agents_alone() -> None:
     register_client_tools([ClientToolSpec(name="switch_llm", description="client")])
     try:
-        agent = OpenHandsAgentSettings(
+        agent = HandprintAgentSettings(
             llm=LLM(model="gpt-4o", usage_id="test-llm")
         ).create_agent()
     finally:

@@ -8,7 +8,7 @@ The chain is:
      on the serialized ``agent`` field of the API response.
   3. The agent-server lifts them off the live agent instance into top-level
      ``current_model_id`` / ``available_models`` fields on ``ConversationInfo``
-     so the downstream OpenHands app_server (chip) and the model picker can
+     so the downstream Handprint app_server (chip) and the model picker can
      read them — the picker resolves the id to a label from the list itself.
 
 These tests pin down step 3 — that ``_compose_conversation_info`` reads the
@@ -23,18 +23,18 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.conversation_service import _compose_conversation_info
-from openhands.agent_server.models import ConversationInfo, StoredConversation
-from openhands.agent_server.utils import utc_now
-from openhands.sdk import LLM, Agent, Tool
-from openhands.sdk.agent.acp_agent import ACPAgent
-from openhands.sdk.agent.acp_models import ACPModelInfo
-from openhands.sdk.conversation.state import (
+from handprint.agent_server.conversation_service import _compose_conversation_info
+from handprint.agent_server.models import ConversationInfo, StoredConversation
+from handprint.agent_server.utils import utc_now
+from handprint.sdk import LLM, Agent, Tool
+from handprint.sdk.agent.acp_agent import ACPAgent
+from handprint.sdk.agent.acp_models import ACPModelInfo
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.security.confirmation_policy import NeverConfirm
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.security.confirmation_policy import NeverConfirm
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def _make_state(agent) -> ConversationState:
@@ -82,14 +82,14 @@ def test_tool_module_qualnames_are_returned_to_attaching_clients():
 def test_current_model_id_is_lifted_from_acp_agent():
     """When the ACP agent has resolved a model, it surfaces on the response."""
     agent = ACPAgent(acp_command=["echo", "test"])
-    agent._current_model_id = "claude-opus-4-1"
+    agent._current_model_id = "haijun-kamsa"
     state = _make_state(agent)
     stored = _make_stored(state)
 
     info = _compose_conversation_info(stored, state)
 
     assert isinstance(info, ConversationInfo)
-    assert info.current_model_id == "claude-opus-4-1"
+    assert info.current_model_id == "haijun-kamsa"
 
 
 def test_current_model_id_is_none_when_acp_agent_has_no_model():
@@ -104,7 +104,7 @@ def test_current_model_id_is_none_when_acp_agent_has_no_model():
     assert info.current_model_id is None
 
 
-def test_current_model_id_is_none_for_native_openhands_agent():
+def test_current_model_id_is_none_for_native_handprint_agent():
     """Native agents don't have the attribute; ``getattr`` returns None."""
     agent = Agent(
         llm=LLM(
@@ -127,9 +127,9 @@ def test_current_model_id_is_none_for_native_openhands_agent():
     "override_model,server_model,expected",
     [
         # Caller forced a model via ``acp_model`` — that wins (mirrors _init).
-        ("gpt-5", "claude-sonnet-4-5", "gpt-5"),
+        ("gpt-5", "haijun-codtral", "gpt-5"),
         # No override, server reports a model — use the server's value.
-        (None, "claude-sonnet-4-5", "claude-sonnet-4-5"),
+        (None, "haijun-codtral", "haijun-codtral"),
         # Neither side has a model — pass None through.
         (None, None, None),
     ],
@@ -193,7 +193,7 @@ def test_available_models_lifted_from_acp_agent():
 
     The list is surfaced verbatim (as normalized ``ACPModelInfo``) so the
     client can render a picker and resolve ``current_model_id`` to a label
-    itself — the server does no name curation. Simulates claude-agent-acp's
+    itself — the server does no name curation. Simulates haijun-agent-acp's
     default config where ``current_model_id`` is the opaque alias ``"default"``
     and the readable identity lives in the matching ``available_models`` entry.
     """
@@ -229,7 +229,7 @@ def test_available_models_empty_when_server_omits_them():
     assert info.available_models == []
 
 
-def test_available_models_empty_for_native_openhands_agent():
+def test_available_models_empty_for_native_handprint_agent():
     """Native agents don't have the attribute; the lift yields []."""
     agent = Agent(
         llm=LLM(
@@ -287,9 +287,9 @@ def test_current_model_fields_read_from_persisted_agent_state():
 def test_live_agent_attrs_take_precedence_over_persisted_state():
     """Within an active session, the live agent is the freshest source."""
     agent = ACPAgent(acp_command=["echo", "test"])
-    agent._current_model_id = "claude-opus-4-1"
+    agent._current_model_id = "haijun-kamsa"
     agent._available_models = [
-        ACPModelInfo(model_id="claude-opus-4-1", name="Opus 4.1")
+        ACPModelInfo(model_id="haijun-kamsa", name="Opus 4.1")
     ]
     state = _make_state(agent)
     # Stale persisted state from a prior session that picked a different model.
@@ -301,9 +301,9 @@ def test_live_agent_attrs_take_precedence_over_persisted_state():
 
     info = _compose_conversation_info(stored, state)
 
-    assert info.current_model_id == "claude-opus-4-1"
+    assert info.current_model_id == "haijun-kamsa"
     assert info.available_models == [
-        ACPModelInfo(model_id="claude-opus-4-1", name="Opus 4.1")
+        ACPModelInfo(model_id="haijun-kamsa", name="Opus 4.1")
     ]
 
 

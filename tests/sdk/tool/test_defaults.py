@@ -1,9 +1,9 @@
-"""Tests for the canonical default tool specs (openhands.sdk.tool.defaults)."""
+"""Tests for the canonical default tool specs (handprint.sdk.tool.defaults)."""
 
 import pytest
 
-from openhands.sdk.tool import registry
-from openhands.sdk.tool.defaults import (
+from handprint.sdk.tool import registry
+from handprint.sdk.tool.defaults import (
     BROWSER_TOOL_NAME,
     DEFAULT_EXEC_TOOL_NAMES,
     SUB_AGENT_TOOL_NAME,
@@ -11,7 +11,7 @@ from openhands.sdk.tool.defaults import (
     default_tool_specs,
     resolve_tool_specs,
 )
-from openhands.sdk.tool.spec import Tool
+from handprint.sdk.tool.spec import Tool
 
 
 def _names(**kwargs) -> list[str]:

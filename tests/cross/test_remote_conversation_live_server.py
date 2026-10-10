@@ -24,10 +24,10 @@ from litellm.types.utils import Choices, Message as LiteLLMMessage, ModelRespons
 from openai.types.responses import ResponseInputItemParam
 from pydantic import SecretStr
 
-from openhands.agent_server.__main__ import preload_modules
-from openhands.sdk import LLM, Agent, AgentContext, Conversation, Message, TextContent
-from openhands.sdk.conversation import RemoteConversation
-from openhands.sdk.event import (
+from handprint.agent_server.__main__ import preload_modules
+from handprint.sdk import LLM, Agent, AgentContext, Conversation, Message, TextContent
+from handprint.sdk.conversation import RemoteConversation
+from handprint.sdk.event import (
     ActionEvent,
     AgentErrorEvent,
     CondensationSummaryEvent,
@@ -40,18 +40,18 @@ from openhands.sdk.event import (
     PauseEvent,
     SystemPromptEvent,
 )
-from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher
-from openhands.sdk.skills import Skill
-from openhands.sdk.subagent import AgentDefinition
-from openhands.sdk.subagent.registry import (
+from handprint.sdk.hooks import HookConfig, HookDefinition, HookMatcher
+from handprint.sdk.tracks import Track
+from handprint.sdk.subagent import AgentDefinition
+from handprint.sdk.subagent.registry import (
     _reset_registry_for_tests,
     get_factory_info,
     get_registered_agent_definitions,
     register_agent,
     register_agent_if_absent,
 )
-from openhands.sdk.workspace import RemoteWorkspace
-from openhands.workspace.docker.workspace import find_available_tcp_port
+from handprint.sdk.workspace import RemoteWorkspace
+from handprint.workspace.docker.workspace import find_available_tcp_port
 
 
 @contextmanager
@@ -63,7 +63,7 @@ def live_server_env(
 ) -> Generator[dict]:
     """Launch a real FastAPI server backed by temp workspace and conversations.
 
-    We set OPENHANDS_AGENT_SERVER_CONFIG_PATH before creating the app so that
+    We set HANDPRINT_AGENT_SERVER_CONFIG_PATH before creating the app so that
     routers pick up the correct default config and in-memory services.
     """
 
@@ -108,17 +108,17 @@ def live_server_env(
     cfg_file.write_text(json.dumps(cfg))
 
     # Ensure default config uses our file and disable any env key override
-    monkeypatch.setenv("OPENHANDS_AGENT_SERVER_CONFIG_PATH", str(cfg_file))
-    monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path / ".openhands"))
+    monkeypatch.setenv("HANDPRINT_AGENT_SERVER_CONFIG_PATH", str(cfg_file))
+    monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path / ".handprint"))
     monkeypatch.delenv("SESSION_API_KEY", raising=False)
 
     if import_modules is not None:
         preload_modules(import_modules)
 
     # Build app after env is set
-    from openhands.agent_server.api import create_app
-    from openhands.agent_server.config import Config
-    from openhands.agent_server.persistence import reset_stores
+    from handprint.agent_server.api import create_app
+    from handprint.agent_server.config import Config
+    from handprint.agent_server.persistence import reset_stores
 
     reset_stores()
     cfg_obj = Config.model_validate_json(cfg_file.read_text())
@@ -244,7 +244,7 @@ def patched_llm(monkeypatch: pytest.MonkeyPatch) -> list[list[Message]]:
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.llm_response import LLMResponse
 
         calls.append(messages)
 
@@ -262,7 +262,7 @@ def patched_llm(monkeypatch: pytest.MonkeyPatch) -> list[list[Message]]:
             choices=[Choices(index=0, finish_reason="stop", message=litellm_msg)],
         )
 
-        # Convert to OpenHands Message
+        # Convert to Handprint Message
         message = Message.from_llm_chat_message(litellm_msg)
 
         self.metrics.add_token_usage(
@@ -295,7 +295,7 @@ def test_remote_conversation_websocket_first_message_auth(
     authenticated_server_env,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    monkeypatch.setenv("OPENHANDS_REMOTE_WS_READY_TIMEOUT", "2")
+    monkeypatch.setenv("HANDPRINT_REMOTE_WS_READY_TIMEOUT", "2")
     agent = Agent(
         llm=LLM(model="gpt-4o-mini", api_key=SecretStr("test")),
         tools=[],
@@ -317,7 +317,7 @@ def test_preloaded_custom_tool_resolves_in_live_server(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     """A startup-preloaded tool is available during live conversation creation."""
-    from openhands.sdk.tool import Tool, registry as tool_registry
+    from handprint.sdk.tool import Tool, registry as tool_registry
 
     package_name = "preload_live_server_tools_2771"
     module_qualname = f"{package_name}.tools"
@@ -332,7 +332,7 @@ def test_preloaded_custom_tool_resolves_in_live_server(
             from collections.abc import Sequence
             from typing import ClassVar
 
-            from openhands.sdk.tool import (
+            from handprint.sdk.tool import (
                 Action,
                 Observation,
                 ToolDefinition,
@@ -466,7 +466,7 @@ def test_websocket_attach_wait_does_not_block_ready_endpoint(server_env):
     conversation_info_started = threading.Event()
     original_snapshot = event_service._create_state_update_event_sync
 
-    from openhands.agent_server import (
+    from handprint.agent_server import (
         conversation_service as conversation_service_module,
     )
 
@@ -703,15 +703,15 @@ def test_remote_conversation_over_real_server(server_env, patched_llm):
 
 
 def test_remote_conversation_created_from_agent_settings(server_env):
-    from openhands.sdk.conversation.request import StartConversationRequest
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.sdk.conversation.request import StartConversationRequest
+    from handprint.sdk.workspace import LocalWorkspace
 
     working_dir = str(server_env["workspace_path"])
     conversation = RemoteConversation.create(
         RemoteWorkspace(host=server_env["host"], working_dir=working_dir),
         StartConversationRequest(
             agent_settings={
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "llm": {"model": "settings-model", "api_key": "sk-settings"},
                 "tools": [],
             },
@@ -727,11 +727,11 @@ def test_remote_conversation_created_from_agent_settings(server_env):
 def test_openai_chat_completions_gateway_over_real_server(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, patched_llm
 ):
-    from openhands.agent_server import (
+    from handprint.agent_server import (
         config as config_module,
         conversation_service as service_module,
     )
-    from openhands.sdk.llm.llm_profile_store import LLMProfileStore
+    from handprint.sdk.llm.llm_profile_store import LLMProfileStore
 
     monkeypatch.setattr(config_module, "_default_config", None)
     monkeypatch.setattr(service_module, "_conversation_service", None)
@@ -746,7 +746,7 @@ def test_openai_chat_completions_gateway_over_real_server(
     )
 
     with patch(
-        "openhands.agent_server.openai.service.get_llm_profile_store",
+        "handprint.agent_server.openai.service.get_llm_profile_store",
         lambda: LLMProfileStore(base_dir=profiles_dir),
     ):
         with live_server_env(tmp_path, monkeypatch) as env:
@@ -755,17 +755,17 @@ def test_openai_chat_completions_gateway_over_real_server(
                 assert models_response.status_code == 200
                 assert models_response.json()["data"] == [
                     {
-                        "id": "openhands_smoke",
+                        "id": "handprint_smoke",
                         "object": "model",
                         "created": 0,
-                        "owned_by": "openhands",
+                        "owned_by": "handprint",
                     }
                 ]
 
                 response = client.post(
                     f"{env['host']}/v1/chat/completions",
                     json={
-                        "model": "openhands_smoke",
+                        "model": "handprint_smoke",
                         "messages": [
                             {"role": "system", "content": "Answer briefly."},
                             {"role": "user", "content": "Say hello."},
@@ -776,7 +776,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 assert response.status_code == 200
                 body = response.json()
                 assert body["object"] == "chat.completion"
-                assert body["model"] == "openhands_smoke"
+                assert body["model"] == "handprint_smoke"
                 assert body["choices"][0]["message"] == {
                     "role": "assistant",
                     "content": "Hello from patched LLM",
@@ -786,7 +786,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                     "completion_tokens": 5,
                     "total_tokens": 12,
                 }
-                conversation_id = response.headers["X-OpenHands-ServerConversation-ID"]
+                conversation_id = response.headers["X-Handprint-ServerConversation-ID"]
                 UUID(conversation_id)
                 persisted_response = client.get(
                     f"{env['host']}/api/conversations/{conversation_id}", timeout=2.0
@@ -798,9 +798,9 @@ def test_openai_chat_completions_gateway_over_real_server(
 
                 reused_response = client.post(
                     f"{env['host']}/v1/chat/completions",
-                    headers={"X-OpenHands-ServerConversation-ID": conversation_id},
+                    headers={"X-Handprint-ServerConversation-ID": conversation_id},
                     json={
-                        "model": "openhands_smoke",
+                        "model": "handprint_smoke",
                         "messages": [
                             {"role": "user", "content": "Say hello again."},
                         ],
@@ -809,7 +809,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 )
                 assert reused_response.status_code == 200
                 assert (
-                    reused_response.headers["X-OpenHands-ServerConversation-ID"]
+                    reused_response.headers["X-Handprint-ServerConversation-ID"]
                     == conversation_id
                 )
                 assert reused_response.json()["choices"][0]["message"] == {
@@ -825,7 +825,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                     timeout=10,
                 )
                 stream = openai_client.chat.completions.create(
-                    model="openhands_smoke",
+                    model="handprint_smoke",
                     messages=[
                         {"role": "developer", "content": "Answer tersely."},
                         {"role": "user", "content": "Say hello as a stream."},
@@ -847,7 +847,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 assert usage_chunks[-1].total_tokens == 12
 
                 stream = openai_client.chat.completions.create(
-                    model="openhands_smoke",
+                    model="handprint_smoke",
                     messages=[
                         {
                             "role": "user",
@@ -867,7 +867,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 assert usage_chunks == []
 
                 raw_response = openai_client.responses.with_raw_response.create(
-                    model="openhands_smoke",
+                    model="handprint_smoke",
                     instructions="Answer briefly.",
                     input="Say hello through Responses.",
                     store=False,
@@ -875,7 +875,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 responses_result = raw_response.parse()
                 assert responses_result.object == "response"
                 assert responses_result.status == "completed"
-                assert responses_result.model == "openhands_smoke"
+                assert responses_result.model == "handprint_smoke"
                 assert responses_result.output_text == "Hello from patched LLM"
                 assert responses_result.previous_response_id is None
                 assert responses_result.usage is not None
@@ -903,14 +903,14 @@ def test_openai_chat_completions_gateway_over_real_server(
                 assert "Say hello through Responses." in response_user_text
 
                 responses_conversation_id = raw_response.headers[
-                    "X-OpenHands-ServerConversation-ID"
+                    "X-Handprint-ServerConversation-ID"
                 ]
                 UUID(responses_conversation_id)
 
                 llm_calls_before_rejected_continuation = len(patched_llm)
                 with pytest.raises(BadRequestError) as exc_info:
                     openai_client.responses.create(
-                        model="openhands_smoke",
+                        model="handprint_smoke",
                         input="This must not continue server-side.",
                         previous_response_id=responses_result.id,
                         store=False,
@@ -923,7 +923,7 @@ def test_openai_chat_completions_gateway_over_real_server(
 
                 second_stateless_response = (
                     openai_client.responses.with_raw_response.create(
-                        model="openhands_smoke",
+                        model="handprint_smoke",
                         input=[
                             {
                                 "role": "developer",
@@ -952,7 +952,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 assert second_stateless_result.output_text == "Hello from patched LLM"
                 assert (
                     second_stateless_response.headers[
-                        "X-OpenHands-ServerConversation-ID"
+                        "X-Handprint-ServerConversation-ID"
                     ]
                     != responses_conversation_id
                 )
@@ -981,7 +981,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 streaming_response = client.post(
                     f"{env['host']}/v1/responses",
                     json={
-                        "model": "openhands_smoke",
+                        "model": "handprint_smoke",
                         "input": "This must not run as a buffered stream.",
                         "stream": True,
                     },
@@ -995,7 +995,7 @@ def test_openai_chat_completions_gateway_over_real_server(
                 store_response = client.post(
                     f"{env['host']}/v1/responses",
                     json={
-                        "model": "openhands_smoke",
+                        "model": "handprint_smoke",
                         "input": "This must not run as a stored response.",
                         "store": True,
                     },
@@ -1014,15 +1014,15 @@ def test_openai_gateway_replays_frozen_llm_fixtures(
 
     from openai import OpenAI
 
-    from openhands.agent_server import (
+    from handprint.agent_server import (
         config as config_module,
         conversation_service as service_module,
     )
-    from openhands.agent_server.models import StartConversationRequest
-    from openhands.sdk import Message, TextContent
-    from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-    from openhands.sdk.testing import TestLLM
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.agent_server.models import StartConversationRequest
+    from handprint.sdk import Message, TextContent
+    from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+    from handprint.sdk.testing import TestLLM
+    from handprint.sdk.workspace import LocalWorkspace
 
     monkeypatch.setattr(config_module, "_default_config", None)
     monkeypatch.setattr(service_module, "_conversation_service", None)
@@ -1059,7 +1059,7 @@ def test_openai_gateway_replays_frozen_llm_fixtures(
         return info.id
 
     with patch(
-        "openhands.agent_server.openai.service.get_llm_profile_store",
+        "handprint.agent_server.openai.service.get_llm_profile_store",
         lambda: LLMProfileStore(base_dir=profiles_dir),
     ):
         with live_server_env(tmp_path, monkeypatch) as env:
@@ -1084,7 +1084,7 @@ def test_openai_gateway_replays_frozen_llm_fixtures(
                     api_key="unused",
                     base_url=f"{env['host']}/v1",
                     default_headers={
-                        "X-OpenHands-ServerConversation-ID": str(conversation_id)
+                        "X-Handprint-ServerConversation-ID": str(conversation_id)
                     },
                     timeout=10,
                 )
@@ -1241,9 +1241,9 @@ def test_conversation_stats_with_live_server(
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import TokenUsage
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import TokenUsage
 
         # Create a minimal ModelResponse with a single assistant message
         litellm_msg = LiteLLMMessage.model_validate(
@@ -1256,12 +1256,12 @@ def test_conversation_stats_with_live_server(
             choices=[Choices(index=0, finish_reason="stop", message=litellm_msg)],
         )
 
-        # Convert to OpenHands Message
+        # Convert to Handprint Message
         message = Message.from_llm_chat_message(litellm_msg)
 
         # Simulate cost accumulation in the LLM's metrics
         # The LLM should have metrics that track cost
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         if self.metrics:
             self.metrics.add_cost(0.0025)
@@ -1396,9 +1396,9 @@ def test_events_not_lost_during_client_disconnection(
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         # Return a finish tool call to end the conversation
         litellm_msg = LiteLLMMessage.model_validate(
@@ -1562,9 +1562,9 @@ def test_post_run_reconcile_needed_under_ws_callback_lag(
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         litellm_msg = LiteLLMMessage.model_validate(
             {
@@ -1712,9 +1712,9 @@ def test_security_risk_field_with_live_server(
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         call_count["count"] += 1
 
@@ -1896,9 +1896,9 @@ def test_hook_config_sent_to_server(
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         is_title_call = not tools
         if not is_title_call:
@@ -2120,9 +2120,9 @@ def test_agent_final_response_endpoint(server_env, monkeypatch: pytest.MonkeyPat
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         is_title_call = not tools
         if not is_title_call:
@@ -2232,29 +2232,29 @@ def test_server_info_exposes_usable_tools(server_env):
     assert "terminal" in payload["usable_tools"]
 
 
-def test_remote_state_exposes_invoked_skills(
+def test_remote_state_exposes_invoked_tracks(
     server_env,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ):
-    """End-to-end coverage for the `invoke_skill` tool on the remote agent-server.
+    """End-to-end coverage for the `invoke_track` tool on the remote agent-server.
 
-    Patches the LLM to emit an `invoke_skill(name=...)` tool call on the first
+    Patches the LLM to emit an `invoke_track(name=...)` tool call on the first
     turn and a stop message on the second, then asserts:
 
-    1. The server records the invocation and `RemoteState.invoked_skills`
+    1. The server records the invocation and `RemoteState.invoked_tracks`
        surfaces it through the REST response model.
     2. The tool's ObservationEvent includes the location footer with the real
-       skill directory, proving the footer logic works through the remote
-       execution path (skill source resolves on disk server-side).
+       track directory, proving the footer logic works through the remote
+       execution path (track source resolves on disk server-side).
     """
     call_count = {"count": 0}
 
-    # Real on-disk SKILL.md so the footer resolves to a real directory.
-    skill_dir = tmp_path / "frobnitz-converter"
-    skill_dir.mkdir()
-    skill_md = skill_dir / "SKILL.md"
-    skill_md.write_text("placeholder")
+    # Real on-disk TRACK.md so the footer resolves to a real directory.
+    track_dir = tmp_path / "frobnitz-converter"
+    track_dir.mkdir()
+    track_md = track_dir / "TRACK.md"
+    track_md.write_text("placeholder")
 
     def fake_completion(
         self,
@@ -2263,9 +2263,9 @@ def test_remote_state_exposes_invoked_skills(
         add_security_risk_prediction=False,
         **kwargs,
     ):  # type: ignore[no-untyped-def]
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         is_title_call = not tools
         if not is_title_call:
@@ -2285,7 +2285,7 @@ def test_remote_state_exposes_invoked_skills(
                             "id": "call_invoke",
                             "type": "function",
                             "function": {
-                                "name": "invoke_skill",
+                                "name": "invoke_track",
                                 "arguments": '{"name": "frobnitz-converter"}',
                             },
                         }
@@ -2321,47 +2321,47 @@ def test_remote_state_exposes_invoked_skills(
 
     monkeypatch.setattr(LLM, "acompletion", fake_acompletion, raising=True)
 
-    skill = Skill(
+    track = Track(
         name="frobnitz-converter",
         content="Convert frobs to meters.",
-        description="Fake skill for remote-server test.",
-        source=str(skill_md),
-        is_agentskills_format=True,
+        description="Fake track for remote-server test.",
+        source=str(track_md),
+        is_agenttracks_format=True,
     )
     llm = LLM(model="gpt-4o-mini", api_key=SecretStr("test"))
-    agent = Agent(llm=llm, tools=[], agent_context=AgentContext(skills=[skill]))
+    agent = Agent(llm=llm, tools=[], agent_context=AgentContext(tracks=[track]))
 
     workspace = RemoteWorkspace(
         host=server_env["host"], working_dir="/tmp/workspace/project"
     )
     conv: RemoteConversation = Conversation(agent=agent, workspace=workspace)
 
-    assert conv.state.invoked_skills == []
+    assert conv.state.invoked_tracks == []
 
-    conv.send_message("Please run the frobnitz-converter skill.")
+    conv.send_message("Please run the frobnitz-converter track.")
     conv.run()
 
     # Bust the WS-populated cache so the assertion exercises the REST
     # `ConversationInfo` response model end-to-end.
     conv.state.refresh_from_server()
-    assert conv.state.invoked_skills == ["frobnitz-converter"]
+    assert conv.state.invoked_tracks == ["frobnitz-converter"]
     assert call_count["count"] >= 2, (
         "Expected the agent to make a follow-up LLM call after the tool "
-        "observation, proving the invoke_skill tool actually executed."
+        "observation, proving the invoke_track tool actually executed."
     )
 
-    # Find the invoke_skill ObservationEvent and confirm the footer points at
-    # the skill's real on-disk directory.
-    skill_observations = [
+    # Find the invoke_track ObservationEvent and confirm the footer points at
+    # the track's real on-disk directory.
+    track_observations = [
         e
         for e in conv.state.events
-        if isinstance(e, ObservationEvent) and e.tool_name == "invoke_skill"
+        if isinstance(e, ObservationEvent) and e.tool_name == "invoke_track"
     ]
-    assert skill_observations, "No ObservationEvent emitted for invoke_skill"
-    obs_text = skill_observations[-1].observation.text
-    skill_dir_display = skill_dir.resolve().as_posix()
-    assert skill_dir_display in obs_text, (
-        f"Footer missing skill directory {skill_dir_display}: {obs_text!r}"
+    assert track_observations, "No ObservationEvent emitted for invoke_track"
+    obs_text = track_observations[-1].observation.text
+    track_dir_display = track_dir.resolve().as_posix()
+    assert track_dir_display in obs_text, (
+        f"Footer missing track directory {track_dir_display}: {obs_text!r}"
     )
     assert obs_text.rstrip().endswith("relative to that directory.")
 
@@ -2384,7 +2384,7 @@ def test_workspace_default_llm_resolves_active_profile_despite_settings_drift(
                 "/api/profiles/glm-default",
                 json={
                     "llm": {
-                        "model": "openhands/glm-5.2",
+                        "model": "handprint/glm-5.2",
                         "api_key": "sk-glm-key",
                     },
                     "include_secrets": True,
@@ -2426,7 +2426,7 @@ def test_workspace_default_llm_resolves_active_profile_despite_settings_drift(
             working_dir=str(env["workspace_path"]),
         )
         default_llm = workspace.get_llm()
-        assert default_llm.model == "openhands/glm-5.2"
+        assert default_llm.model == "handprint/glm-5.2"
         assert default_llm.api_key is not None
         _assert_secret(default_llm.api_key, "sk-glm-key")
         assert default_llm.usage_id == "profile:glm-default"
@@ -2609,9 +2609,9 @@ def test_interrupt_endpoint_cancels_running_conversation(
         # Block in a way that arun() can cancel the awaiting coroutine.
         time.sleep(slow_delay)
         # Should never reach here if interrupt arrives in time.
-        from openhands.sdk.llm.llm_response import LLMResponse
-        from openhands.sdk.llm.message import Message
-        from openhands.sdk.llm.utils.metrics import MetricsSnapshot
+        from handprint.sdk.llm.llm_response import LLMResponse
+        from handprint.sdk.llm.message import Message
+        from handprint.sdk.llm.utils.metrics import MetricsSnapshot
 
         litellm_msg = LiteLLMMessage.model_validate(
             {"role": "assistant", "content": "Hello"}
@@ -2701,7 +2701,7 @@ def test_interrupt_endpoint_cancels_running_conversation(
         events_resp = client.get(
             f"/api/conversations/{conv_id}/events/search",
             params={
-                "kind": ("openhands.sdk.event.user_action.InterruptEvent"),
+                "kind": ("handprint.sdk.event.user_action.InterruptEvent"),
             },
         )
         assert events_resp.status_code == 200

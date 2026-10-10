@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from openhands.tools.grep.definition import GrepAction
-from openhands.tools.grep.impl import GrepExecutor
-from openhands.tools.utils import _check_ripgrep_available
+from handprint.tools.grep.definition import GrepAction
+from handprint.tools.grep.impl import GrepExecutor
+from handprint.tools.utils import _check_ripgrep_available
 
 
 # ruff: noqa

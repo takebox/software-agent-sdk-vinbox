@@ -14,14 +14,14 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-from openhands.agent_server.api import api_lifespan, create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.init_router import (
+from handprint.agent_server.api import api_lifespan, create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.init_router import (
     InitRequest,
     InitService,
     _build_initialized_config,
 )
-from openhands.agent_server.vscode_service import VSCodeService
+from handprint.agent_server.vscode_service import VSCodeService
 
 
 @pytest.fixture(autouse=True)
@@ -47,21 +47,21 @@ def _fresh_vscode_service(monkeypatch):
     The service takes its token from the default config, which is loaded at
     import time, before ``_clean_env`` runs, so reset that too.
     """
-    monkeypatch.setattr("openhands.agent_server.vscode_service._vscode_service", None)
-    monkeypatch.setattr("openhands.agent_server.config._default_config", None)
+    monkeypatch.setattr("handprint.agent_server.vscode_service._vscode_service", None)
+    monkeypatch.setattr("handprint.agent_server.config._default_config", None)
 
 
 def _reset_conversation_singleton():
     """Some tests build their own ConversationService; reset the module-level
     cache so unrelated tests don't see leftover state."""
-    from openhands.agent_server import conversation_service as cs_mod
+    from handprint.agent_server import conversation_service as cs_mod
 
     cs_mod._conversation_service = None
 
 
 def _reset_bash_singleton():
     """Reset the module-level BashEventService cache so each test starts fresh."""
-    from openhands.agent_server import bash_service as bash_mod
+    from handprint.agent_server import bash_service as bash_mod
 
     bash_mod._bash_event_service = None
 
@@ -167,7 +167,7 @@ class TestInitServiceTransitions:
     async def test_init_transitions_dormant_to_ready(self, tmp_path):
         _reset_conversation_singleton()
         _reset_bash_singleton()
-        from openhands.agent_server.bash_service import BashEventService
+        from handprint.agent_server.bash_service import BashEventService
 
         base = Config(
             deferred_init=True,
@@ -247,7 +247,7 @@ class TestInitServiceTransitions:
             observed_env = os.environ.get("DEFERRED_INIT_TEST_VAR")
 
         monkeypatch.setattr(
-            "openhands.agent_server.init_router.maybe_init_laminar",
+            "handprint.agent_server.init_router.maybe_init_laminar",
             capture_observability_env,
         )
         base = Config(
@@ -279,7 +279,7 @@ class TestInitServiceTransitions:
         bash_events_dir supplied in the InitRequest."""
         _reset_conversation_singleton()
         _reset_bash_singleton()
-        from openhands.agent_server.bash_service import BashEventService
+        from handprint.agent_server.bash_service import BashEventService
 
         base = Config(
             deferred_init=True,
@@ -340,7 +340,7 @@ class TestInitServiceTransitions:
         _reset_conversation_singleton()
         vscode = SimpleNamespace(set_connection_token=AsyncMock())
         monkeypatch.setattr(
-            "openhands.agent_server.init_router.get_vscode_service", lambda: vscode
+            "handprint.agent_server.init_router.get_vscode_service", lambda: vscode
         )
         base = Config(
             deferred_init=True,
@@ -371,7 +371,7 @@ class TestInitServiceTransitions:
         _reset_conversation_singleton()
         vscode = SimpleNamespace(set_connection_token=AsyncMock())
         monkeypatch.setattr(
-            "openhands.agent_server.init_router.get_vscode_service", lambda: vscode
+            "handprint.agent_server.init_router.get_vscode_service", lambda: vscode
         )
         base = Config(
             deferred_init=True,

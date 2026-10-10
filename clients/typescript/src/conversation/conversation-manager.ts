@@ -13,7 +13,7 @@ import { MetaProfilesClient } from '../client/meta-profiles-client';
 import { ServerClient } from '../client/server-client';
 import { SettingsClient } from '../client/settings-client';
 import { SharedClient } from '../client/shared-client';
-import { SkillsClient } from '../client/skills-client';
+import { TracksClient } from '../client/tracks-client';
 import { SubAgentsClient } from '../client/sub-agents-client';
 import { ToolClient } from '../client/tool-client';
 import { VSCodeClient } from '../client/vscode-client';
@@ -85,7 +85,7 @@ export class ConversationManager {
   public readonly agentProfiles: AgentProfilesClient;
   public readonly metaProfiles: MetaProfilesClient;
   public readonly settings: SettingsClient;
-  public readonly skills: SkillsClient;
+  public readonly tracks: TracksClient;
   public readonly subAgents: SubAgentsClient;
   public readonly tools: ToolClient;
   public readonly vscode: VSCodeClient;
@@ -117,7 +117,7 @@ export class ConversationManager {
     this.agentProfiles = new AgentProfilesClient(clientOptions);
     this.metaProfiles = new MetaProfilesClient(clientOptions);
     this.settings = new SettingsClient(clientOptions);
-    this.skills = new SkillsClient(clientOptions);
+    this.tracks = new TracksClient(clientOptions);
     this.subAgents = new SubAgentsClient(clientOptions);
     this.tools = new ToolClient(clientOptions);
     this.vscode = new VSCodeClient(clientOptions);
@@ -401,7 +401,7 @@ export class ConversationManager {
     this.profiles.close();
     this.metaProfiles.close();
     this.settings.close();
-    this.skills.close();
+    this.tracks.close();
     this.subAgents.close();
     this.tools.close();
     this.vscode.close();

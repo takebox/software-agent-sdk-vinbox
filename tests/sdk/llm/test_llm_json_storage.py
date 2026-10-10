@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM
+from handprint.sdk.llm import LLM
 
 
 def test_llm_store_and_load_json():

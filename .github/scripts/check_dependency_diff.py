@@ -138,21 +138,21 @@ def main() -> int:
         if before[n]["version"] != after[n]["version"]
     }
 
-    # First-party openhands-* packages are version-bumped on every release;
+    # First-party handprint-* packages are version-bumped on every release;
     # exclude them from the external-dep count but still surface them below.
-    def _is_openhands(name: str) -> bool:
-        return name.lower().startswith("openhands-")
+    def _is_handprint(name: str) -> bool:
+        return name.lower().startswith("handprint-")
 
-    bumped_external = {n: v for n, v in bumped.items() if not _is_openhands(n)}
-    bumped_openhands = {n: v for n, v in bumped.items() if _is_openhands(n)}
+    bumped_external = {n: v for n, v in bumped.items() if not _is_handprint(n)}
+    bumped_handprint = {n: v for n, v in bumped.items() if _is_handprint(n)}
 
     report.add(f"Baseline: `{baseline}`")
     report.add(
         f"Added: **{len(added)}**, bumped: **{len(bumped_external)}**, "
         f"removed: **{len(removed)}**."
     )
-    if bumped_openhands:
-        report.add(f"_(plus {len(bumped_openhands)} internal `openhands-*` bump(s))_")
+    if bumped_handprint:
+        report.add(f"_(plus {len(bumped_handprint)} internal `handprint-*` bump(s))_")
     report.add("")
 
     # --- non-registry sources on new/changed packages (supply-chain surface) --
@@ -215,10 +215,10 @@ def main() -> int:
             old_v, new_v = bumped_external[name]
             report.add(f"- `{name}`: {old_v} → {new_v}")
         report.add("\n</details>")
-    if bumped_openhands:
-        report.add("<details><summary>Internal `openhands-*` bumps</summary>\n")
-        for name in sorted(bumped_openhands):
-            old_v, new_v = bumped_openhands[name]
+    if bumped_handprint:
+        report.add("<details><summary>Internal `handprint-*` bumps</summary>\n")
+        for name in sorted(bumped_handprint):
+            old_v, new_v = bumped_handprint[name]
             report.add(f"- `{name}`: {old_v} → {new_v}")
         report.add("\n</details>")
 

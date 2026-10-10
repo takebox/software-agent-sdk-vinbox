@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM, LLM_PROFILE_SCHEMA_VERSION
-from openhands.sdk.llm.llm_profile_store import (
+from handprint.sdk.llm import LLM, LLM_PROFILE_SCHEMA_VERSION
+from handprint.sdk.llm.llm_profile_store import (
     LLMProfileStore,
     ProfileLimitExceeded,
 )
@@ -146,7 +146,7 @@ def test_load_rejects_newer_profile_schema_version(
         profile_store.load("future")
 
 
-def test_load_migrates_legacy_openhands_proxy_profile(
+def test_load_migrates_legacy_handprint_proxy_profile(
     profile_store: LLMProfileStore,
 ) -> None:
     profile_path = profile_store.base_dir / "legacy.json"
@@ -154,7 +154,7 @@ def test_load_migrates_legacy_openhands_proxy_profile(
         json.dumps(
             {
                 "schema_version": 1,
-                "model": "litellm_proxy/claude-opus-5",
+                "model": "litellm_proxy/haijun-kamsa",
                 "base_url": "https://llm-proxy.app.all-hands.dev/",
             }
         )
@@ -162,11 +162,11 @@ def test_load_migrates_legacy_openhands_proxy_profile(
 
     loaded = profile_store.load("legacy")
 
-    assert loaded.model == "openhands/claude-opus-5"
+    assert loaded.model == "handprint/haijun-kamsa"
     assert loaded.base_url is None
 
 
-def test_list_summaries_migrates_legacy_openhands_proxy_profile(
+def test_list_summaries_migrates_legacy_handprint_proxy_profile(
     profile_store: LLMProfileStore,
 ) -> None:
     profile_path = profile_store.base_dir / "legacy.json"
@@ -174,7 +174,7 @@ def test_list_summaries_migrates_legacy_openhands_proxy_profile(
         json.dumps(
             {
                 "schema_version": 1,
-                "model": "litellm_proxy/claude-opus-5",
+                "model": "litellm_proxy/haijun-kamsa",
                 "base_url": "https://llm-proxy.app.all-hands.dev/",
             }
         )
@@ -185,7 +185,7 @@ def test_list_summaries_migrates_legacy_openhands_proxy_profile(
     assert summaries == [
         {
             "name": "legacy",
-            "model": "openhands/claude-opus-5",
+            "model": "handprint/haijun-kamsa",
             "base_url": None,
             "provider_connection_id": None,
             "provider_connection_broken": False,
@@ -464,7 +464,7 @@ def test_full_workflow(profile_store: LLMProfileStore) -> None:
     """Test a complete save-list-load-delete workflow."""
     llm = LLM(
         usage_id="workflow-test",
-        model="claude-3-opus",
+        model="haijun-kamsa",
         temperature=0.8,
         max_output_tokens=4096,
     )
@@ -719,7 +719,7 @@ def test_multiple_profiles(profile_store: LLMProfileStore) -> None:
     profiles_data = [
         ("gpt4", "gpt-4-turbo", 0.7),
         ("gpt35", "gpt-3.5-turbo-16k", 0.5),
-        ("claude", "claude-3-opus", 0.9),
+        ("haijun", "haijun-kamsa", 0.9),
     ]
 
     # Save all
@@ -749,9 +749,9 @@ def test_default_provider_store_is_sibling_of_base_dir(tmp_path: Path) -> None:
     Regression: the default ProviderConnectionStore must be derived from
     ``base_dir`` (a sibling ``provider-connections`` directory), not from
     ``$HOME``. Otherwise a custom-directory profile store reads profiles from
-    ``base_dir`` but credentials from ``~/.openhands`` — the wrong source.
+    ``base_dir`` but credentials from ``~/.handprint`` — the wrong source.
     """
-    from openhands.sdk.llm.provider_connection_store import (
+    from handprint.sdk.llm.provider_connection_store import (
         ProviderConnection,
         ProviderConnectionStore,
     )
@@ -770,8 +770,8 @@ def test_default_provider_store_is_sibling_of_base_dir(tmp_path: Path) -> None:
     connections.create(
         ProviderConnection(
             id="conn1",
-            display_name="Anthropic",
-            provider="anthropic",
+            display_name="Juglow",
+            provider="juglow",
             api_key=SecretStr("sk-shared"),
             created_at=now,
             updated_at=now,
@@ -779,7 +779,7 @@ def test_default_provider_store_is_sibling_of_base_dir(tmp_path: Path) -> None:
     )
     llm = LLM(
         usage_id="linked",
-        model="anthropic/claude-sonnet-4",
+        model="juglow/haijun-codtral",
         provider_connection_id="conn1",
     )
     store.save("linked", llm)

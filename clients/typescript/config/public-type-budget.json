@@ -117,12 +117,12 @@
           "Record<string, unknown> | null"
         ],
         [
-          "models/agent-profile.d.ts::interface:OpenHandsAgentProfile/property:condenser::unknown",
+          "models/agent-profile.d.ts::interface:HandprintAgentProfile/property:condenser::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "models/agent-profile.d.ts::interface:OpenHandsAgentProfile/property:skills::unknown",
+          "models/agent-profile.d.ts::interface:HandprintAgentProfile/property:tracks::unknown",
           "unknown",
           "unknown[]"
         ],
@@ -257,7 +257,7 @@
           "unknown"
         ],
         [
-          "types/base.d.ts::interface:AgentContext/property:skills::unknown",
+          "types/base.d.ts::interface:AgentContext/property:tracks::unknown",
           "unknown",
           "unknown[]"
         ],
@@ -471,62 +471,62 @@
           "Record<string, unknown>"
         ],
         [
-          "client/openhands-client.d.ts::class:AgentServerClient/method:request/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:AgentServerClient/method:request/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:delete/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:delete/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:get/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:get/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:patch/parameter:body::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:patch/parameter:body::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:patch/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:patch/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:post/parameter:body::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:post/parameter:body::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:post/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:post/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:put/parameter:body::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:put/parameter:body::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:put/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:put/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::class:OpenHandsClient/method:request/type-parameter:TResponse::unknown",
+          "client/handprint-client.d.ts::class:HandprintClient/method:request/type-parameter:TResponse::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::interface:OpenHandsRequestOptions/property:body::unknown",
+          "client/handprint-client.d.ts::interface:HandprintRequestOptions/property:body::unknown",
           "unknown",
           "unknown"
         ],
         [
-          "client/openhands-client.d.ts::interface:OpenHandsRequestOptions/property:params::unknown",
+          "client/handprint-client.d.ts::interface:HandprintRequestOptions/property:params::unknown",
           "unknown",
           "Record<string, unknown>"
         ],

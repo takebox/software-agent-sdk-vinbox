@@ -21,7 +21,7 @@ import time
 
 from benchmark_utils import extract_conversation, read_event_files
 
-from openhands.sdk.io import LocalFileStore
+from handprint.sdk.io import LocalFileStore
 
 
 EVENTS_DIR_NAME = "events"
@@ -65,7 +65,7 @@ def measure_persist_latencies(event_files: list[dict]) -> list[dict]:
 def main():
     import logging
 
-    logging.getLogger("openhands").setLevel(logging.ERROR)
+    logging.getLogger("handprint").setLevel(logging.ERROR)
 
     parser = argparse.ArgumentParser(
         description="Benchmark persist latency per event/action cycle"

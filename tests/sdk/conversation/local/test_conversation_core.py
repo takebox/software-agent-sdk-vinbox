@@ -9,12 +9,12 @@ from unittest.mock import patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.credential import CredentialSyncError
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.llm import LLM, Message, TextContent
-from openhands.sdk.llm.utils.metrics import Metrics
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.credential import CredentialSyncError
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.llm import LLM, Message, TextContent
+from handprint.sdk.llm.utils.metrics import Metrics
 from tests.platform_utils import maybe_mark_forked
 
 

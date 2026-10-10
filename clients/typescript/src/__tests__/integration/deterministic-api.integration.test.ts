@@ -38,7 +38,7 @@ describe('Deterministic API Integration Tests', () => {
   });
 
   it(
-    'reads server, metadata, settings, tools, and skills endpoints',
+    'reads server, metadata, settings, tools, and tracks endpoints',
     async () => {
       const root = await manager.server.getRoot<Record<string, unknown>>();
       const alive = await manager.server.getAlive();
@@ -52,7 +52,7 @@ describe('Deterministic API Integration Tests', () => {
       const agentSchema = await manager.settings.getAgentSchema();
       const conversationSchema = await manager.settings.getConversationSchema();
       const tools = await manager.tools.listTools();
-      const skills = await manager.skills.getSkills({
+      const tracks = await manager.tracks.getTracks({
         load_public: false,
         load_user: false,
         load_project: false,
@@ -76,7 +76,7 @@ describe('Deterministic API Integration Tests', () => {
       expect(agentSchema.model_name).toBeTruthy();
       expect(conversationSchema.model_name).toBeTruthy();
       expect(Array.isArray(tools)).toBe(true);
-      expect(Array.isArray(skills.skills)).toBe(true);
+      expect(Array.isArray(tracks.tracks)).toBe(true);
       // `load_builtin` discovery is best-effort and can be empty (e.g. the
       // frozen agent-server image ships no built-in agent files), so assert the
       // contract shape rather than a specific count. Any agent that does come
@@ -95,7 +95,7 @@ describe('Deterministic API Integration Tests', () => {
       // Drop a file-based agent into the workspace and confirm the read-only
       // POST /api/sub-agents endpoint discovers it losslessly.
       const agentName = uniqueDirName('it-sub-agent');
-      const agentPath = `.openhands/agents/${agentName}.md`;
+      const agentPath = `.handprint/agents/${agentName}.md`;
       writeWorkspaceFile(
         agentPath,
         [
@@ -128,13 +128,13 @@ describe('Deterministic API Integration Tests', () => {
         expect(discovered?.system_prompt).toContain('integration-test project sub-agent');
         expect(discovered?.source).toContain(agentPath);
       } finally {
-        // Remove the entire `.openhands` tree this test created, not just the
+        // Remove the entire `.handprint` tree this test created, not just the
         // agent file. Writing it from the host leaves the directory owned by
         // the test-runner user; if left behind, the agent-server container
         // (which runs as a different user) later fails to chmod
-        // `workspace/.openhands` during profile activation ("Operation not
+        // `workspace/.handprint` during profile activation ("Operation not
         // permitted" -> 500 Failed to activate profile).
-        removeWorkspacePath('.openhands');
+        removeWorkspacePath('.handprint');
       }
     },
     config.testTimeout
@@ -360,7 +360,7 @@ describe('Deterministic API Integration Tests', () => {
       try {
         let status: number | undefined;
         try {
-          await conversation.switchAcpModel('claude-haiku-4-5');
+          await conversation.switchAcpModel('haijun-minix');
         } catch (error) {
           expect(error).toBeInstanceOf(HttpError);
           status = (error as HttpError).status;
@@ -450,15 +450,15 @@ describe('Deterministic API Integration Tests', () => {
   );
 
   it(
-    'reaches the skills refresh route and 404s for an uninstalled skill',
+    'reaches the tracks refresh route and 404s for an uninstalled track',
     async () => {
-      // Contract guard for POST /api/skills/installed/{name}/refresh (the route
-      // is /refresh, not /update). A valid-but-uninstalled skill name reaches
+      // Contract guard for POST /api/tracks/installed/{name}/refresh (the route
+      // is /refresh, not /update). A valid-but-uninstalled track name reaches
       // the handler, which must answer 404 — proving the route exists on the
       // image and the client targets the corrected path.
       let status: number | undefined;
       try {
-        await manager.skills.refreshSkill('nonexistent-skill');
+        await manager.tracks.refreshTrack('nonexistent-track');
       } catch (error) {
         expect(error).toBeInstanceOf(HttpError);
         status = (error as HttpError).status;

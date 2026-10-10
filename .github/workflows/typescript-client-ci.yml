@@ -50,7 +50,7 @@ jobs:
               working-directory: .
               run: |
                   uv sync --frozen --package openhands-agent-server
-                  OPENHANDS_SUPPRESS_BANNER=1 uv run python .github/scripts/export_agent_server_openapi.py \
+                  HANDPRINT_SUPPRESS_BANNER=1 uv run python .github/scripts/export_agent_server_openapi.py \
                     --output "$RUNNER_TEMP/openapi.json"
                   echo "AGENT_SERVER_OPENAPI_PATH=$RUNNER_TEMP/openapi.json" >> "$GITHUB_ENV"
 
@@ -188,5 +188,5 @@ jobs:
             - name: Check ACP_PROVIDERS matches openhands-sdk
               working-directory: .
               env:
-                  OPENHANDS_SUPPRESS_BANNER: '1'
+                  HANDPRINT_SUPPRESS_BANNER: '1'
               run: uv run python clients/typescript/scripts/check-acp-drift.py

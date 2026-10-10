@@ -1,6 +1,6 @@
 import { deriveSwitchPlan } from '../profiles/derive-switch-plan';
 import { ACP_PROVIDERS } from '../models/acp';
-import type { ACPAgentProfile, OpenHandsAgentProfile } from '../models/agent-profile';
+import type { ACPAgentProfile, HandprintAgentProfile } from '../models/agent-profile';
 import type { ACPProviderInfo } from '../models/acp';
 
 const baseVerification = {
@@ -13,15 +13,15 @@ const baseVerification = {
   critic_model_name: null,
 };
 
-const ohBase: OpenHandsAgentProfile = {
+const ohBase: HandprintAgentProfile = {
   id: 'profile-1',
   name: 'default',
   revision: 0,
-  agent_kind: 'openhands',
+  agent_kind: 'handprint',
   llm_profile_ref: 'gpt-4o',
   mcp_server_refs: null,
   agent: 'CodeActAgent',
-  skills: [],
+  tracks: [],
   system_message_suffix: null,
   condenser: {},
   verification: baseVerification,
@@ -31,11 +31,11 @@ const ohBase: OpenHandsAgentProfile = {
 
 const acpBase: ACPAgentProfile = {
   id: 'profile-2',
-  name: 'claude-default',
+  name: 'haijun-default',
   revision: 0,
   agent_kind: 'acp',
-  acp_server: 'claude-code',
-  acp_model: 'claude-sonnet-4-6',
+  acp_server: 'haijun-code',
+  acp_model: 'haijun-codtral',
   acp_session_mode: null,
   acp_prompt_timeout: 1800,
   acp_command: null,
@@ -43,7 +43,7 @@ const acpBase: ACPAgentProfile = {
   mcp_server_refs: null,
 };
 
-const claudeProvider: ACPProviderInfo = ACP_PROVIDERS['claude-code'];
+const haijunProvider: ACPProviderInfo = ACP_PROVIDERS['haijun-code'];
 const codexProvider: ACPProviderInfo = ACP_PROVIDERS['codex'];
 
 describe('deriveSwitchPlan', () => {
@@ -66,11 +66,11 @@ describe('deriveSwitchPlan', () => {
     });
 
     it('returns current when ACP same id and revision', () => {
-      const plan = deriveSwitchPlan(acpBase, acpBase, claudeProvider);
+      const plan = deriveSwitchPlan(acpBase, acpBase, haijunProvider);
       expect(plan.action).toBe('current');
     });
 
-    it('returns current when OpenHands content identical but different object', () => {
+    it('returns current when Handprint content identical but different object', () => {
       const target = { ...ohBase };
       const plan = deriveSwitchPlan(ohBase, target, null);
       expect(plan.action).toBe('current');
@@ -78,16 +78,16 @@ describe('deriveSwitchPlan', () => {
   });
 
   describe('kind change', () => {
-    it('returns start-new when switching from OpenHands to ACP', () => {
-      const plan = deriveSwitchPlan(ohBase, acpBase, claudeProvider);
+    it('returns start-new when switching from Handprint to ACP', () => {
+      const plan = deriveSwitchPlan(ohBase, acpBase, haijunProvider);
       expect(plan.action).toBe('start-new');
       if (plan.action === 'start-new') {
         expect(plan.reason).toMatch(/agent kind/i);
       }
     });
 
-    it('returns start-new when switching from ACP to OpenHands', () => {
-      const plan = deriveSwitchPlan(acpBase, ohBase, claudeProvider);
+    it('returns start-new when switching from ACP to Handprint', () => {
+      const plan = deriveSwitchPlan(acpBase, ohBase, haijunProvider);
       expect(plan.action).toBe('start-new');
       if (plan.action === 'start-new') {
         expect(plan.reason).toMatch(/agent kind/i);
@@ -95,12 +95,12 @@ describe('deriveSwitchPlan', () => {
     });
   });
 
-  describe('OpenHands → OpenHands', () => {
+  describe('Handprint → Handprint', () => {
     it('switch-live when only llm_profile_ref differs', () => {
-      const target: OpenHandsAgentProfile = {
+      const target: HandprintAgentProfile = {
         ...ohBase,
         revision: 1,
-        llm_profile_ref: 'claude-sonnet-4-6',
+        llm_profile_ref: 'haijun-codtral',
       };
       const plan = deriveSwitchPlan(ohBase, target, null);
       expect(plan.action).toBe('switch-live');
@@ -110,10 +110,10 @@ describe('deriveSwitchPlan', () => {
     });
 
     it('start-new when agent class also changes', () => {
-      const target: OpenHandsAgentProfile = {
+      const target: HandprintAgentProfile = {
         ...ohBase,
         revision: 1,
-        llm_profile_ref: 'claude-sonnet-4-6',
+        llm_profile_ref: 'haijun-codtral',
         agent: 'BrowsingAgent',
       };
       const plan = deriveSwitchPlan(ohBase, target, null);
@@ -124,13 +124,13 @@ describe('deriveSwitchPlan', () => {
     });
 
     it('start-new when tool_concurrency_limit changes', () => {
-      const target: OpenHandsAgentProfile = { ...ohBase, revision: 1, tool_concurrency_limit: 4 };
+      const target: HandprintAgentProfile = { ...ohBase, revision: 1, tool_concurrency_limit: 4 };
       const plan = deriveSwitchPlan(ohBase, target, null);
       expect(plan.action).toBe('start-new');
     });
 
     it('start-new when tools change', () => {
-      const target: OpenHandsAgentProfile = { ...ohBase, revision: 1, tools: [{ name: 'glob' }] };
+      const target: HandprintAgentProfile = { ...ohBase, revision: 1, tools: [{ name: 'glob' }] };
       const plan = deriveSwitchPlan(ohBase, target, null);
       expect(plan.action).toBe('start-new');
     });
@@ -138,8 +138,8 @@ describe('deriveSwitchPlan', () => {
 
   describe('ACP → ACP (same provider)', () => {
     it('switch-live when only acp_model differs and provider supports it', () => {
-      const target: ACPAgentProfile = { ...acpBase, revision: 1, acp_model: 'claude-opus-4-8' };
-      const plan = deriveSwitchPlan(acpBase, target, claudeProvider);
+      const target: ACPAgentProfile = { ...acpBase, revision: 1, acp_model: 'haijun-kamsa' };
+      const plan = deriveSwitchPlan(acpBase, target, haijunProvider);
       expect(plan.action).toBe('switch-live');
       if (plan.action === 'switch-live') {
         expect(plan.mutableFields).toEqual(['acp_model']);
@@ -160,7 +160,7 @@ describe('deriveSwitchPlan', () => {
     });
 
     it('start-new when providerInfo is null and acp_model differs', () => {
-      const target: ACPAgentProfile = { ...acpBase, revision: 1, acp_model: 'claude-opus-4-8' };
+      const target: ACPAgentProfile = { ...acpBase, revision: 1, acp_model: 'haijun-kamsa' };
       const plan = deriveSwitchPlan(acpBase, target, null);
       expect(plan.action).toBe('start-new');
       if (plan.action === 'start-new') {
@@ -172,10 +172,10 @@ describe('deriveSwitchPlan', () => {
       const target: ACPAgentProfile = {
         ...acpBase,
         revision: 1,
-        acp_model: 'claude-opus-4-8',
+        acp_model: 'haijun-kamsa',
         acp_session_mode: 'bypassPermissions',
       };
-      const plan = deriveSwitchPlan(acpBase, target, claudeProvider);
+      const plan = deriveSwitchPlan(acpBase, target, haijunProvider);
       expect(plan.action).toBe('start-new');
       if (plan.action === 'start-new') {
         expect(plan.reason).toContain('acp_session_mode');
@@ -184,7 +184,7 @@ describe('deriveSwitchPlan', () => {
 
     it('current when ACP content identical but id+revision differ (fast-path skipped)', () => {
       const target: ACPAgentProfile = { ...acpBase, id: 'profile-9', revision: 5 };
-      const plan = deriveSwitchPlan(acpBase, target, claudeProvider);
+      const plan = deriveSwitchPlan(acpBase, target, haijunProvider);
       expect(plan.action).toBe('current');
     });
 
@@ -201,7 +201,7 @@ describe('deriveSwitchPlan', () => {
   describe('ACP → ACP (provider change)', () => {
     it('start-new when acp_server changes', () => {
       const target: ACPAgentProfile = { ...acpBase, revision: 1, acp_server: 'codex' };
-      const plan = deriveSwitchPlan(acpBase, target, claudeProvider);
+      const plan = deriveSwitchPlan(acpBase, target, haijunProvider);
       expect(plan.action).toBe('start-new');
       if (plan.action === 'start-new') {
         expect(plan.reason).toMatch(/provider/i);

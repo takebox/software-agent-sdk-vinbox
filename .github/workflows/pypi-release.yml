@@ -1,5 +1,5 @@
 ---
-name: Publish all OpenHands packages (uv)
+name: Publish all Handprint packages (uv)
 
 on:
     workflow_dispatch:
@@ -50,13 +50,13 @@ jobs:
 
             - name: Build and publish all packages
               env:
-                  UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN_OPENHANDS }}
+                  UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN_HANDPRINT }}
                   VERSION: ${{ steps.extract_version.outputs.version }}
               run: |
                   set -euo pipefail
 
                   if [ -z "${UV_PUBLISH_TOKEN:-}" ]; then
-                    echo "❌ Missing secret PYPI_TOKEN_OPENHANDS"
+                    echo "❌ Missing secret PYPI_TOKEN_HANDPRINT"
                     exit 1
                   fi
 

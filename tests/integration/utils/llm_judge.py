@@ -5,9 +5,9 @@ import os
 
 from pydantic import BaseModel, Field, SecretStr
 
-from openhands.sdk import LLM, Message, TextContent
-from openhands.sdk.logger import get_logger
-from openhands.sdk.tool import Action, Observation, ToolDefinition, ToolExecutor
+from handprint.sdk import LLM, Message, TextContent
+from handprint.sdk.logger import get_logger
+from handprint.sdk.tool import Action, Observation, ToolDefinition, ToolExecutor
 
 
 logger = get_logger(__name__)
@@ -102,7 +102,7 @@ def create_judge_llm() -> LLM:
 
     # Use a fast model for judging to save costs
     # You can override this by setting LLM_JUDGE_MODEL env var
-    model = os.getenv("LLM_JUDGE_MODEL", "litellm_proxy/claude-haiku-4-5-20251001")
+    model = os.getenv("LLM_JUDGE_MODEL", "litellm_proxy/haijun-minix")
 
     return LLM(
         model=model,
@@ -177,7 +177,7 @@ the information available, assuming the agent's behavior is correct afterward.
         response = llm.completion(
             messages=messages,
             tools=[judgment_tool],  # type: ignore[arg-type]
-            extra_headers={"anthropic-beta": "context-1m-2025-08-07"},
+            extra_headers={"juglow-beta": "context-1m-2025-08-07"},
         )
 
         # Extract tool call from response

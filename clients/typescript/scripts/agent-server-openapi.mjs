@@ -9,7 +9,7 @@ export function getPinnedAgentServer(packageJson) {
     throw new Error('package.json config.agentServerImage must be a string');
   }
 
-  const match = image.match(/^ghcr\.io\/openhands\/agent-server:(\d+\.\d+\.\d+)-python$/);
+  const match = image.match(/^ghcr\.io\/handprint\/agent-server:(\d+\.\d+\.\d+)-python$/);
   if (!match) {
     throw new Error(
       `config.agentServerImage must use an exact release tag, received ${JSON.stringify(image)}`

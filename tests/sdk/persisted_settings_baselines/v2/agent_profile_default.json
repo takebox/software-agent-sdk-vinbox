@@ -3,10 +3,10 @@
   "name": "default",
   "llm_profile_ref": "default",
   "revision": 0,
-  "disabled_skills": [],
+  "disabled_tracks": [],
   "__expected__": {
     "name": "default",
     "llm_profile_ref": "default",
-    "disabled_skills": []
+    "disabled_tracks": []
   }
 }

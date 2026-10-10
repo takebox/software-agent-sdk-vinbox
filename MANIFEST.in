@@ -38,11 +38,11 @@ recursive-include openhands-agent-server *.py
 recursive-include openhands-agent-server py.typed
 
 # Docker build files
-include openhands-agent-server/openhands/agent_server/docker/Dockerfile
-include openhands-agent-server/openhands/agent_server/docker/wallpaper.svg
+include openhands-agent-server/handprint/agent_server/docker/Dockerfile
+include openhands-agent-server/handprint/agent_server/docker/wallpaper.svg
 
 # PyInstaller spec
-include openhands-agent-server/openhands/agent_server/agent-server.spec
+include openhands-agent-server/handprint/agent_server/agent-server.spec
 
 # VSCode extensions
-recursive-include openhands-agent-server/openhands/agent_server/vscode_extensions *
+recursive-include openhands-agent-server/handprint/agent_server/vscode_extensions *

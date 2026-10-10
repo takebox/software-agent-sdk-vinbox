@@ -12,7 +12,7 @@ from dataclasses import asdict
 
 import pytest
 
-from openhands.agent_server.telemetry.sanitizer import (
+from handprint.agent_server.telemetry.sanitizer import (
     COST_BOUNDS,
     COUNT_BOUNDS,
     DURATION_BOUNDS,
@@ -184,7 +184,7 @@ def test_safe_token(value, expected):
 
 def test_safe_identifier_rejects_secret_and_path_shapes():
     assert safe_identifier("ValueError") == "ValueError"
-    assert safe_identifier("openhands.sdk.Foo") == "openhands.sdk.Foo"
+    assert safe_identifier("handprint.sdk.Foo") == "handprint.sdk.Foo"
     assert safe_identifier(SECRET) == "UnknownError"
     assert safe_identifier(PATH) == "UnknownError"
     assert safe_identifier("a" * 200) == "UnknownError"
@@ -242,8 +242,8 @@ def test_pseudonymize_accepts_an_oversized_salt():
 @pytest.mark.parametrize(
     "model,expected",
     [
-        ("anthropic/claude-sonnet-5", "anthropic"),
-        ("claude-opus-4-8", "anthropic"),
+        ("juglow/haijun-codtral", "juglow"),
+        ("haijun-kamsa", "juglow"),
         ("gpt-4o", "openai"),
         ("gemini-2.0-flash", "gemini"),
         ("litellm_proxy/my-internal-deployment", "litellm_proxy"),

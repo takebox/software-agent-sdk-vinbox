@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from openhands.sdk.hooks.config import HookConfig
-from openhands.sdk.mcp.config import MCPServer, dump_mcp_config
-from openhands.sdk.subagent.schema import (
+from handprint.sdk.hooks.config import HookConfig
+from handprint.sdk.mcp.config import MCPServer, dump_mcp_config
+from handprint.sdk.subagent.schema import (
     AgentDefinition,
     _extract_examples,
 )
@@ -229,41 +229,41 @@ Content.
         agent = AgentDefinition.load(agent_md)
         assert agent.hooks is None
 
-    def test_skills_default_empty(self):
-        """Test that skills defaults to empty list."""
-        agent = AgentDefinition(name="no-skills")
-        assert agent.skills == []
+    def test_tracks_default_empty(self):
+        """Test that tracks defaults to empty list."""
+        agent = AgentDefinition(name="no-tracks")
+        assert agent.tracks == []
 
-    def test_skills_as_list(self):
-        """Test creating AgentDefinition with skill names as list."""
+    def test_tracks_as_list(self):
+        """Test creating AgentDefinition with track names as list."""
         agent = AgentDefinition(
-            name="skilled-agent",
-            skills=["code-review", "linting"],
+            name="tracked-agent",
+            tracks=["code-review", "linting"],
         )
-        assert agent.skills == ["code-review", "linting"]
+        assert agent.tracks == ["code-review", "linting"]
 
-    def test_load_skills_comma_separated(self, tmp_path: Path):
-        """Test loading skills from comma-separated frontmatter string."""
+    def test_load_tracks_comma_separated(self, tmp_path: Path):
+        """Test loading tracks from comma-separated frontmatter string."""
         agent_md = tmp_path / "agent.md"
         agent_md.write_text(
             """---
-name: skilled-agent
-skills: code-review, linting, testing
+name: tracked-agent
+tracks: code-review, linting, testing
 ---
 
 Prompt.
 """
         )
         agent = AgentDefinition.load(agent_md)
-        assert agent.skills == ["code-review", "linting", "testing"]
+        assert agent.tracks == ["code-review", "linting", "testing"]
 
-    def test_load_skills_as_yaml_list(self, tmp_path: Path):
-        """Test loading skills from YAML list in frontmatter."""
+    def test_load_tracks_as_yaml_list(self, tmp_path: Path):
+        """Test loading tracks from YAML list in frontmatter."""
         agent_md = tmp_path / "agent.md"
         agent_md.write_text(
             """---
-name: skilled-agent
-skills:
+name: tracked-agent
+tracks:
   - code-review
   - linting
 ---
@@ -272,25 +272,25 @@ Prompt.
 """
         )
         agent = AgentDefinition.load(agent_md)
-        assert agent.skills == ["code-review", "linting"]
+        assert agent.tracks == ["code-review", "linting"]
 
-    def test_load_skills_single_string(self, tmp_path: Path):
-        """Test loading a single skill name from frontmatter string."""
+    def test_load_tracks_single_string(self, tmp_path: Path):
+        """Test loading a single track name from frontmatter string."""
         agent_md = tmp_path / "agent.md"
         agent_md.write_text(
             """---
-name: skilled-agent
-skills: code-review
+name: tracked-agent
+tracks: code-review
 ---
 
 Prompt.
 """
         )
         agent = AgentDefinition.load(agent_md)
-        assert agent.skills == ["code-review"]
+        assert agent.tracks == ["code-review"]
 
-    def test_load_skills_default_empty(self, tmp_path: Path):
-        """Test that loading from file without skills gives empty list."""
+    def test_load_tracks_default_empty(self, tmp_path: Path):
+        """Test that loading from file without tracks gives empty list."""
         agent_md = tmp_path / "agent.md"
         agent_md.write_text(
             """---
@@ -301,15 +301,15 @@ Prompt.
 """
         )
         agent = AgentDefinition.load(agent_md)
-        assert agent.skills == []
+        assert agent.tracks == []
 
-    def test_load_skills_not_in_metadata(self, tmp_path: Path):
-        """Test that skills field is excluded from extra metadata."""
+    def test_load_tracks_not_in_metadata(self, tmp_path: Path):
+        """Test that tracks field is excluded from extra metadata."""
         agent_md = tmp_path / "agent.md"
         agent_md.write_text(
             """---
 name: agent
-skills: my-skill
+tracks: my-track
 custom_field: value
 ---
 
@@ -317,7 +317,7 @@ Prompt.
 """
         )
         agent = AgentDefinition.load(agent_md)
-        assert "skills" not in agent.metadata
+        assert "tracks" not in agent.metadata
         assert agent.metadata.get("custom_field") == "value"
 
     def test_load_agent_with_profile_store_dir(self, tmp_path: Path):
@@ -693,14 +693,14 @@ class TestAgentDefinitionCondenser:
         assert AgentDefinition.load(agent_md).condenser is None
 
     def test_condenser_none_disables(self, tmp_path: Path):
-        from openhands.sdk.context.condenser import NoOpCondenser
+        from handprint.sdk.context.condenser import NoOpCondenser
 
         agent_md = tmp_path / "a.md"
         agent_md.write_text("---\nname: a\ncondenser: none\n---\n\nPrompt.\n")
         assert isinstance(AgentDefinition.load(agent_md).condenser, NoOpCondenser)
 
     def test_condenser_false_disables(self, tmp_path: Path):
-        from openhands.sdk.context.condenser import NoOpCondenser
+        from handprint.sdk.context.condenser import NoOpCondenser
 
         agent_md = tmp_path / "a.md"
         agent_md.write_text("---\nname: a\ncondenser: false\n---\n\nPrompt.\n")

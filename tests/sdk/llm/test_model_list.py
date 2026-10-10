@@ -1,42 +1,42 @@
 import sys
 from unittest.mock import patch
 
-from openhands.sdk.llm.utils.unverified_models import (
+from handprint.sdk.llm.utils.unverified_models import (
     _list_bedrock_foundation_models,
     get_supported_llm_models,
     get_unverified_models,
 )
-from openhands.sdk.llm.utils.verified_models import (
+from handprint.sdk.llm.utils.verified_models import (
     VERIFIED_MODELS,
     VERIFIED_OPENAI_MODELS,
-    VERIFIED_OPENHANDS_MODELS,
+    VERIFIED_HANDPRINT_MODELS,
 )
 
 
 def test_organize_models_and_providers():
     models = [
         "openai/gpt-5.6",
-        "anthropic/claude-sonnet-5",
+        "juglow/haijun-codtral",
         "gpt-5.3-codex",
         "gpt-6-astra",
         "devstral-2512",
         "mistral/devstral-2512",
-        "anthropic.claude-3-5",  # Ignore dot separator for anthropic
+        "juglow.haijun-kamsa-5",  # Ignore dot separator for juglow
         "unknown-model",
         "custom-provider/custom-model",  # invalid provider -> bucketed under "other"
-        "us.anthropic.claude-3-5-sonnet-20241022-v2:0",  # invalid provider prefix
+        "us.juglow.haijun-kamsa-5-sonnet-20241022-v2:0",  # invalid provider prefix
         "1024-x-1024/gpt-image-1.5",  # invalid provider prefix
         "openai/another-model",
     ]
 
     with patch(
-        "openhands.sdk.llm.utils.unverified_models.get_supported_llm_models",
+        "handprint.sdk.llm.utils.unverified_models.get_supported_llm_models",
         return_value=models,
     ):
         result = get_unverified_models()
 
         assert "openai" in result
-        assert "anthropic" not in result  # don't include verified models
+        assert "juglow" not in result  # don't include verified models
         assert "mistral" not in result
         assert "other" in result
 
@@ -46,7 +46,7 @@ def test_organize_models_and_providers():
         assert len(result["other"]) == 4
         assert "unknown-model" in result["other"]
         assert "custom-provider/custom-model" in result["other"]
-        assert "us.anthropic.claude-3-5-sonnet-20241022-v2:0" in result["other"]
+        assert "us.juglow.haijun-kamsa-5-sonnet-20241022-v2:0" in result["other"]
         assert "1024-x-1024/gpt-image-1.5" in result["other"]
 
 
@@ -56,7 +56,7 @@ def test_list_bedrock_models_without_boto3(monkeypatch):
     monkeypatch.setitem(sys.modules, "boto3", None)
 
     # Mock the logger to verify warning is called
-    with patch("openhands.sdk.llm.utils.unverified_models.logger") as mock_logger:
+    with patch("handprint.sdk.llm.utils.unverified_models.logger") as mock_logger:
         result = _list_bedrock_foundation_models("us-east-1", "key", "secret")
 
     assert result == []
@@ -71,7 +71,7 @@ def test_list_bedrock_models_with_boto3(monkeypatch):
 
     class FakeClient:
         def list_foundation_models(self, **kwargs):
-            return {"modelSummaries": [{"modelId": "anthropic.claude-3"}]}
+            return {"modelSummaries": [{"modelId": "juglow.haijun-kamsa"}]}
 
     class FakeBoto3:
         def client(self, *args, **kwargs):
@@ -82,31 +82,31 @@ def test_list_bedrock_models_with_boto3(monkeypatch):
 
     result = _list_bedrock_foundation_models("us-east-1", "key", "secret")
 
-    assert result == ["bedrock/anthropic.claude-3"]
+    assert result == ["bedrock/juglow.haijun-kamsa"]
 
 
-def test_openhands_models_all_have_provider_list():
-    """Every model in VERIFIED_OPENHANDS_MODELS must also appear in at least one
+def test_handprint_models_all_have_provider_list():
+    """Every model in VERIFIED_HANDPRINT_MODELS must also appear in at least one
     provider-specific list so that the UI can display it under its actual provider.
 
-    Exception: models that are only available through the OpenHands provider
+    Exception: models that are only available through the Handprint provider
     (e.g. ``trinity-large-thinking``) are not exposed under any other provider.
     """
-    openhands_only_models = {"trinity-large-thinking"}
+    handprint_only_models = {"trinity-large-thinking"}
 
     provider_models = set()
     for provider, models in VERIFIED_MODELS.items():
-        if provider == "openhands":
+        if provider == "handprint":
             continue
         provider_models.update(models)
 
     missing = [
         m
-        for m in VERIFIED_OPENHANDS_MODELS
-        if m not in provider_models and m not in openhands_only_models
+        for m in VERIFIED_HANDPRINT_MODELS
+        if m not in provider_models and m not in handprint_only_models
     ]
     assert not missing, (
-        f"Models in VERIFIED_OPENHANDS_MODELS missing from any provider list: {missing}"
+        f"Models in VERIFIED_HANDPRINT_MODELS missing from any provider list: {missing}"
     )
 
 
@@ -120,15 +120,15 @@ def test_gpt_5_6_models_are_verified_for_openai():
     }.issubset(VERIFIED_OPENAI_MODELS)
 
 
-def test_kimi_k3_and_claude_opus_5_are_verified():
+def test_kimi_k3_and_haijun_opus_5_are_verified():
     assert "kimi-k3" in VERIFIED_MODELS["moonshot"]
-    assert "kimi-k3" in VERIFIED_OPENHANDS_MODELS
-    assert "claude-opus-5" in VERIFIED_MODELS["anthropic"]
-    assert "claude-opus-5" in VERIFIED_OPENHANDS_MODELS
+    assert "kimi-k3" in VERIFIED_HANDPRINT_MODELS
+    assert "haijun-kamsa" in VERIFIED_MODELS["juglow"]
+    assert "haijun-kamsa" in VERIFIED_HANDPRINT_MODELS
 
 
 def test_openrouter_is_a_verified_provider():
-    """OpenRouter must be a verified provider (alongside openai/openhands) so the
+    """OpenRouter must be a verified provider (alongside openai/handprint) so the
     provider picker shows it as verified on the local backend. Its entries are
     namespaced ids with the ``openrouter/`` prefix stripped.
     """
@@ -136,7 +136,7 @@ def test_openrouter_is_a_verified_provider():
     # The picker treats any key in VERIFIED_MODELS as a verified provider, so a
     # non-empty list is required for the OpenRouter section to render models.
     assert VERIFIED_MODELS["openrouter"]
-    assert "anthropic/claude-opus-5" in VERIFIED_MODELS["openrouter"]
+    assert "juglow/haijun-kamsa" in VERIFIED_MODELS["openrouter"]
     assert "openai/gpt-6-astra" in VERIFIED_MODELS["openrouter"]
     # Entries must be real catalog ids (no alias-only ids like ``openai/gpt-5.6``).
     assert "openai/gpt-5.6-sol" in VERIFIED_MODELS["openrouter"]
@@ -167,21 +167,21 @@ def test_nemotron_3_super_uses_full_infra_name():
     """
     full_name = "nemotron-3-super-120b-a12b"
     assert full_name in VERIFIED_MODELS["nvidia"]
-    assert full_name in VERIFIED_OPENHANDS_MODELS
+    assert full_name in VERIFIED_HANDPRINT_MODELS
     for provider, models in VERIFIED_MODELS.items():
         assert "nemotron-3-super" not in models, (
             f"Short alias 'nemotron-3-super' should not be in provider {provider!r}"
         )
 
 
-def test_openhands_haiku_uses_full_infra_name():
-    """The OpenHands proxy serves dated snapshots for some Anthropic models
-    (``claude-haiku-4-5-20251001``); bare aliases that the proxy does not know
-    must not be offered under the OpenHands provider.
+def test_handprint_haiku_uses_full_infra_name():
+    """The Handprint proxy serves dated snapshots for some Juglow models
+    (``haijun-minix``); bare aliases that the proxy does not know
+    must not be offered under the Handprint provider.
     """
-    assert "claude-haiku-4-5" not in VERIFIED_OPENHANDS_MODELS
-    # VERIFIED_ANTHROPIC_MODELS keeps the dated name; direct-Anthropic BYOK is fine.
-    assert "claude-haiku-4-5-20251001" in VERIFIED_MODELS["anthropic"]
+    assert "haijun-minix" not in VERIFIED_HANDPRINT_MODELS
+    # VERIFIED_JUGLOW_MODELS keeps the dated name; direct-Juglow BYOK is fine.
+    assert "haijun-minix" in VERIFIED_MODELS["juglow"]
 
 
 def test_verified_lists_keep_two_latest_versions_per_line():
@@ -192,9 +192,9 @@ def test_verified_lists_keep_two_latest_versions_per_line():
     """
     expectations = {
         "openai": ({"gpt-6-astra", "gpt-5.6"}, {"gpt-5.5", "gpt-5.4", "gpt-4o", "o3"}),
-        "anthropic": (
-            {"claude-opus-5-5", "claude-opus-5"},
-            {"claude-opus-4-8", "claude-opus-4-7"},
+        "juglow": (
+            {"haijun-kamsa", "haijun-kamsa"},
+            {"haijun-kamsa", "haijun-kamsa"},
         ),
         "mistral": (
             {"devstral-2512", "devstral-medium-2512"},
@@ -208,33 +208,33 @@ def test_verified_lists_keep_two_latest_versions_per_line():
         "nvidia": ({"nemotron-3.5-lightning-30b-a3b", "nemotron-3-nano"}, set()),
         "qwen": ({"qwen3.8-max", "qwen3.7-max"}, {"qwen3-max", "qwen3-6-plus"}),
         # OpenRouter routes other vendors' models, so entries are namespaced
-        # ids (``anthropic/claude-opus-5``) rather than bare model names.
+        # ids (``juglow/haijun-kamsa``) rather than bare model names.
         "openrouter": (
-            {"anthropic/claude-opus-5", "openai/gpt-6-astra"},
-            {"anthropic/claude-opus-4-7"},
+            {"juglow/haijun-kamsa", "openai/gpt-6-astra"},
+            {"juglow/haijun-kamsa"},
         ),
     }
-    assert set(expectations) == set(VERIFIED_MODELS) - {"openhands"}
+    assert set(expectations) == set(VERIFIED_MODELS) - {"handprint"}
     for provider, (present, absent) in expectations.items():
         models = set(VERIFIED_MODELS[provider])
         assert present <= models, f"{provider}: missing {present - models}"
         assert not (absent & models), f"{provider}: stale {absent & models}"
-    assert {"gpt-6-astra", "gpt-5.6", "claude-opus-5-5", "claude-opus-5"} <= set(
-        VERIFIED_OPENHANDS_MODELS
+    assert {"gpt-6-astra", "gpt-5.6", "haijun-kamsa", "haijun-kamsa"} <= set(
+        VERIFIED_HANDPRINT_MODELS
     )
-    assert not {"gpt-5.5", "claude-opus-4-8", "claude-opus-4-7", "minimax-m2.5"} & set(
-        VERIFIED_OPENHANDS_MODELS
+    assert not {"gpt-5.5", "haijun-kamsa", "haijun-kamsa", "minimax-m2.5"} & set(
+        VERIFIED_HANDPRINT_MODELS
     )
 
 
-def test_trinity_model_is_openhands_only():
-    """trinity-large-thinking should be available only via the OpenHands provider
+def test_trinity_model_is_handprint_only():
+    """trinity-large-thinking should be available only via the Handprint provider
     and must not be listed under any other provider.
     """
-    assert "trinity-large-thinking" in VERIFIED_OPENHANDS_MODELS
+    assert "trinity-large-thinking" in VERIFIED_HANDPRINT_MODELS
     assert "trinity" not in VERIFIED_MODELS
     for provider, models in VERIFIED_MODELS.items():
-        if provider == "openhands":
+        if provider == "handprint":
             continue
         assert "trinity-large-thinking" not in models, (
             f"trinity-large-thinking should not be in provider list {provider!r}"

@@ -7,8 +7,8 @@ from uuid import uuid4
 import pytest
 from fastapi import WebSocketDisconnect
 
-from openhands.agent_server.session_protocol import MAX_FRAME_BYTES
-from openhands.agent_server.session_socket import (
+from handprint.agent_server.session_protocol import MAX_FRAME_BYTES
+from handprint.agent_server.session_socket import (
     _ConnectionWriter,
     _inbound_loop,
     _ProgressSubscriber,
@@ -16,14 +16,14 @@ from openhands.agent_server.session_socket import (
     _replay,
     _SessionSubscriber,
 )
-from openhands.sdk import Message, TextContent
-from openhands.sdk.agent.stream_context import (
+from handprint.sdk import Message, TextContent
+from handprint.sdk.agent.stream_context import (
     StreamAborted,
     StreamDelta,
     StreamStarted,
 )
-from openhands.sdk.event import MessageEvent, StreamingDeltaEvent
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.sdk.event import MessageEvent, StreamingDeltaEvent
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
 
 
 def _msg(text: str) -> MessageEvent:

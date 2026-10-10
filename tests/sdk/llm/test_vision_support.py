@@ -3,25 +3,25 @@ from unittest.mock import patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM, ImageContent, Message, TextContent
+from handprint.sdk.llm import LLM, ImageContent, Message, TextContent
 
 
 @pytest.mark.parametrize(
     "model",
     [
         # Plain model names
-        "claude-sonnet-4-5-20250929",
+        "haijun-codtral",
         "gemini-2.5-flash",
         "gemini-3.1-pro-preview",
         # With provider/proxy prefixes
-        "anthropic/claude-sonnet-4-5-20250929",
-        "litellm_proxy/anthropic/claude-sonnet-4-5-20250929",
+        "juglow/haijun-codtral",
+        "litellm_proxy/juglow/haijun-codtral",
         "litellm_proxy/gemini-2.5-flash",
         "litellm_proxy/gemini-3.1-pro-preview",
         "kimi-k3",
         "moonshot/kimi-k3",
         "litellm_proxy/moonshot/kimi-k3",
-        "openhands/kimi-k3",
+        "handprint/kimi-k3",
     ],
 )
 def test_vision_is_active_supported_models(model):
@@ -33,11 +33,11 @@ def test_vision_is_active_supported_models(model):
 
 
 @patch(
-    "openhands.sdk.llm.llm.get_litellm_model_info",
+    "handprint.sdk.llm.llm.get_litellm_model_info",
     return_value={"supports_vision": True},
 )
 @patch(
-    "openhands.sdk.llm.utils.model_features.litellm_supports_vision",
+    "handprint.sdk.llm.utils.model_features.litellm_supports_vision",
     return_value=False,
 )
 def test_proxy_model_info_can_enable_vision(_mock_sv, _mock_model_info):
@@ -75,7 +75,7 @@ def _has_input_image(item: dict) -> bool:
 @pytest.mark.parametrize(
     "model",
     [
-        "claude-sonnet-4-5-20250929",
+        "haijun-codtral",
         "gemini-2.5-flash",
         "gemini-3.1-pro-preview",
     ],
@@ -99,17 +99,17 @@ def test_chat_serializes_images_when_vision_supported(model):
 
 
 @patch(
-    "openhands.sdk.llm.llm.get_litellm_model_info",
+    "handprint.sdk.llm.llm.get_litellm_model_info",
     return_value={"supports_vision": True},
 )
 @patch(
-    "openhands.sdk.llm.utils.model_features.litellm_supports_vision",
+    "handprint.sdk.llm.utils.model_features.litellm_supports_vision",
     return_value=False,
 )
 def test_deepseek_v4_vision_payload_keeps_image(_mock_sv, _mock_model_info):
     """A vision-capable DeepSeek v4 model keeps its image parts in the payload."""
     llm = LLM(
-        model="openhands/deepseek-v4.1-flash",
+        model="handprint/deepseek-v4.1-flash",
         api_key=SecretStr("k"),
         usage_id="t",
     )
@@ -129,11 +129,11 @@ def test_deepseek_v4_vision_payload_keeps_image(_mock_sv, _mock_model_info):
 
 
 @patch(
-    "openhands.sdk.llm.llm.get_litellm_model_info",
+    "handprint.sdk.llm.llm.get_litellm_model_info",
     return_value={"supports_vision": False},
 )
 @patch(
-    "openhands.sdk.llm.utils.model_features.litellm_supports_vision",
+    "handprint.sdk.llm.utils.model_features.litellm_supports_vision",
     return_value=False,
 )
 def test_message_with_image_does_not_enable_vision_for_text_only_model(
@@ -201,11 +201,11 @@ def test_disable_vision_overrides_litellm_detection():
 
 
 @patch(
-    "openhands.sdk.llm.llm.get_litellm_model_info",
+    "handprint.sdk.llm.llm.get_litellm_model_info",
     return_value={"supports_vision": False},
 )
 @patch(
-    "openhands.sdk.llm.utils.model_features.litellm_supports_vision",
+    "handprint.sdk.llm.utils.model_features.litellm_supports_vision",
     return_value=False,
 )
 def test_message_with_image_in_responses_does_not_include_input_image(
@@ -229,7 +229,7 @@ def test_message_with_image_in_responses_does_not_include_input_image(
 @pytest.mark.parametrize(
     "model",
     [
-        "claude-sonnet-4-5-20250929",
+        "haijun-codtral",
         "gemini-2.5-flash",
         "gemini-3.1-pro-preview",
     ],

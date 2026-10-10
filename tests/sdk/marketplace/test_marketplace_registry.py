@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from pydantic import ValidationError
 
-from openhands.sdk.marketplace import (
+from handprint.sdk.marketplace import (
     AmbiguousPluginError,
     MarketplaceNotFoundError,
     MarketplaceRegistration,
@@ -59,20 +59,20 @@ def test_marketplace_registration_accepts_selective_auto_load() -> None:
     assert registration.auto_load == ["formatter", "linter"]
     assert registration.auto_loads_plugin("formatter") is True
     assert registration.auto_loads_plugin("other") is False
-    # A name list selects standalone skills the same way it selects plugins.
-    assert registration.auto_loads_skill("formatter") is True
-    assert registration.auto_loads_skill("other") is False
+    # A name list selects standalone tracks the same way it selects plugins.
+    assert registration.auto_loads_track("formatter") is True
+    assert registration.auto_loads_track("other") is False
 
 
-def test_marketplace_registration_auto_loads_skill_bool() -> None:
+def test_marketplace_registration_auto_loads_track_bool() -> None:
     assert (
-        MarketplaceRegistration(name="a", source="x", auto_load=True).auto_loads_skill(
+        MarketplaceRegistration(name="a", source="x", auto_load=True).auto_loads_track(
             "any"
         )
         is True
     )
     assert (
-        MarketplaceRegistration(name="a", source="x").auto_loads_skill("any") is False
+        MarketplaceRegistration(name="a", source="x").auto_loads_track("any") is False
     )
 
 
@@ -179,7 +179,7 @@ def test_get_marketplace_with_resolution_preserves_resolved_ref(tmp_path: Path) 
     )
 
     with patch(
-        "openhands.sdk.marketplace.registry.fetch_plugin_with_resolution",
+        "handprint.sdk.marketplace.registry.fetch_plugin_with_resolution",
         return_value=(marketplace_dir, "abc123"),
     ) as mock_fetch:
         fetched = registry.get_marketplace_with_resolution("team")

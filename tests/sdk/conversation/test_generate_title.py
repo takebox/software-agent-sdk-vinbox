@@ -12,14 +12,14 @@ import pytest
 from litellm.types.utils import Choices, Message as LiteLLMMessage, ModelResponse, Usage
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.conversation.title_utils import generate_title_with_llm
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.llm import LLM, LLMResponse, Message, MetricsSnapshot, TextContent
-from openhands.sdk.llm.auth.credentials import CredentialStore, OAuthCredentials
-from openhands.sdk.llm.auth.openai import OpenAISubscriptionAuth
-from openhands.sdk.settings import ACPAgentSettings
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.conversation.title_utils import generate_title_with_llm
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.llm import LLM, LLMResponse, Message, MetricsSnapshot, TextContent
+from handprint.sdk.llm.auth.credentials import CredentialStore, OAuthCredentials
+from handprint.sdk.llm.auth.openai import OpenAISubscriptionAuth
+from handprint.sdk.settings import ACPAgentSettings
 
 
 def create_test_agent() -> Agent:
@@ -74,7 +74,7 @@ def create_mock_llm_response(content: str) -> LLMResponse:
     )
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_without_llm_uses_agent_llm(mock_completion):
     """Without an explicit LLM, generate_title falls back to the agent's LLM.
 
@@ -97,13 +97,13 @@ def test_generate_title_without_llm_uses_agent_llm(mock_completion):
 
 def test_generate_title_skips_llm_for_settings_built_acp_agent(tmp_path):
     agent = ACPAgentSettings(
-        acp_server="custom", acp_command=["true"], acp_model="claude-opus-4-7"
+        acp_server="custom", acp_command=["true"], acp_model="haijun-kamsa"
     ).create_agent()
     conv = Conversation(agent=agent, workspace=str(tmp_path), visualizer=None)
     conv.state.events.append(create_user_message_event("Fix the login bug"))
 
     with patch(
-        "openhands.sdk.conversation.title_utils.generate_title_with_llm"
+        "handprint.sdk.conversation.title_utils.generate_title_with_llm"
     ) as mock_llm_title:
         title = conv.generate_title()
 
@@ -125,7 +125,7 @@ def test_generate_title_no_user_messages():
         conv.generate_title()
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_llm_error_fallback(mock_completion):
     """Test generate_title falls back to simple truncation when LLM fails."""
     agent = create_test_agent()
@@ -148,7 +148,7 @@ def test_generate_title_llm_error_fallback(mock_completion):
     assert title == "Fix the bug in my application"
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_with_llm_invokes_on_error(mock_completion):
     """generate_title_with_llm reports the swallowed LLM error via on_error
     (the opt-in seam used to surface it to clients — issue #16686) while still
@@ -164,7 +164,7 @@ def test_generate_title_with_llm_invokes_on_error(mock_completion):
     assert str(seen[0]) == "model does not exist"
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_truncation_respects_max_length(mock_completion):
     """When LLM fails, truncation fallback respects max_length."""
     agent = create_test_agent()
@@ -184,7 +184,7 @@ def test_generate_title_truncation_respects_max_length(mock_completion):
     assert title.endswith("...")
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_with_llm_truncates_long_response(mock_completion):
     """Test generate_title truncates long LLM responses to max_length."""
     agent = create_test_agent()
@@ -211,7 +211,7 @@ def test_generate_title_with_llm_truncates_long_response(mock_completion):
     assert title.endswith("...")
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_with_custom_llm(mock_completion):
     """Test generate_title with a custom LLM provided."""
     agent = create_test_agent()
@@ -237,7 +237,7 @@ def test_generate_title_with_custom_llm(mock_completion):
     assert title == "Debug Code Issue"
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_empty_llm_response_fallback(mock_completion):
     """Test generate_title falls back when LLM returns empty response."""
     agent = create_test_agent()
@@ -280,7 +280,7 @@ def create_mock_model_response(content: str) -> ModelResponse:
     )
 
 
-@patch("openhands.sdk.llm.llm.LLM._transport_call", autospec=True)
+@patch("handprint.sdk.llm.llm.LLM._transport_call", autospec=True)
 def test_generate_title_disables_streaming_when_llm_streams(mock_transport):
     """Regression test (sibling of PR #3901): a ``stream=True`` agent LLM must
     still generate a title even though title generation passes no ``on_token``
@@ -447,7 +447,7 @@ def test_title_uses_real_http_transport(title_http_server, tmp_path, mode):
         assert body["store"] is False
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_strips_inline_reasoning(mock_completion):
     """Guards #4530.
 
@@ -466,7 +466,7 @@ def test_generate_title_strips_inline_reasoning(mock_completion):
     assert title == "✨ Summarise a CSV in Python"
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_strips_unterminated_reasoning(mock_completion):
     """An unterminated block means the response was cut mid-thought, so there is no
     title to salvage and the caller falls back to a truncated message title."""
@@ -478,7 +478,7 @@ def test_generate_title_strips_unterminated_reasoning(mock_completion):
     assert generate_title_with_llm("Help me summarise a CSV", llm) is None
 
 
-@patch("openhands.sdk.llm.llm.LLM.completion")
+@patch("handprint.sdk.llm.llm.LLM.completion")
 def test_generate_title_keeps_text_without_reasoning(mock_completion):
     """A normal response is unaffected."""
     llm = LLM(model="gpt-4o-mini", api_key=SecretStr("test-key"), usage_id="t")

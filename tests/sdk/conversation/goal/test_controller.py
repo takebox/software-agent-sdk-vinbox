@@ -2,13 +2,13 @@
 
 import pytest
 
-from openhands.sdk.conversation.goal import (
+from handprint.sdk.conversation.goal import (
     GoalContinue,
     GoalController,
     GoalDone,
 )
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.testing import TestLLM
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.testing import TestLLM
 
 
 def _judge(*texts: str) -> TestLLM:

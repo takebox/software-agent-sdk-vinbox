@@ -15,14 +15,14 @@ import pytest
 from deprecation import DeprecatedWarning
 from pydantic import SecretStr
 
-import openhands.sdk.llm.llm as legacy_llm_module
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.llm import LLM, LLMCallContext, Message, TextContent
-from openhands.sdk.llm.call_context import llm_call_context_scope
-from openhands.sdk.llm.options.chat_options import select_chat_options
-from openhands.sdk.llm.options.responses_options import select_responses_options
+import handprint.sdk.llm.llm as legacy_llm_module
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.llm import LLM, LLMCallContext, Message, TextContent
+from handprint.sdk.llm.call_context import llm_call_context_scope
+from handprint.sdk.llm.options.chat_options import select_chat_options
+from handprint.sdk.llm.options.responses_options import select_responses_options
 
 
 def _llm(**kwargs) -> LLM:
@@ -42,7 +42,7 @@ def _agent(llm: LLM | None = None) -> Agent:
 
 
 def test_legacy_call_context_import_path_is_deprecated():
-    with pytest.warns(DeprecatedWarning, match="openhands.sdk.llm.llm.LLMCallContext"):
+    with pytest.warns(DeprecatedWarning, match="handprint.sdk.llm.llm.LLMCallContext"):
         legacy_call_context = legacy_llm_module.LLMCallContext
 
     assert legacy_call_context is LLMCallContext

@@ -6,9 +6,9 @@ from typing import Any
 
 import pytest
 
-from openhands.sdk.agent import ACPAgent, Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.llm import LLM
+from handprint.sdk.agent import ACPAgent, Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.llm import LLM
 
 
 PERSONA = "You are a ramen chef. Answer only cooking questions."
@@ -37,7 +37,7 @@ KEPT_TAGS = {
 
 def _agent(**kwargs: Any) -> Agent:
     return Agent(
-        llm=LLM(model="claude-sonnet-4-5", api_key="k", usage_id="agent"),
+        llm=LLM(model="haijun-codtral", api_key="k", usage_id="agent"),
         agent_context=AgentContext(
             load_memory=True, system_message_suffix="Cite file paths."
         ),
@@ -100,6 +100,6 @@ def test_whitespace_only_persona_keeps_the_builtin_persona(blank: str) -> None:
     )
 
 
-def test_persona_is_an_openhands_agent_field_only() -> None:
+def test_persona_is_an_handprint_agent_field_only() -> None:
     assert "persona" in Agent.model_fields
     assert "persona" not in ACPAgent.model_fields

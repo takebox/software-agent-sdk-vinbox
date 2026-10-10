@@ -4,11 +4,11 @@ from unittest.mock import patch
 
 from pydantic import SecretStr
 
-from openhands.sdk import RemoteWorkspace
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.impl.remote_conversation import RemoteConversation
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
-from openhands.sdk.llm import LLM
+from handprint.sdk import RemoteWorkspace
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.impl.remote_conversation import RemoteConversation
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.sdk.llm import LLM
 
 from .conftest import create_mock_http_client
 
@@ -29,14 +29,14 @@ def test_update_state_from_event_with_full_state():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Create a full state event
@@ -67,14 +67,14 @@ def test_update_state_from_event_with_individual_field():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Set initial cached state
@@ -105,14 +105,14 @@ def test_update_state_initializes_cache_if_none():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Ensure cache starts as None
@@ -137,14 +137,14 @@ def test_update_state_from_multiple_events():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # First, full state
@@ -180,14 +180,14 @@ def test_update_state_full_state_overwrites_fields():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Set initial cached state
@@ -225,14 +225,14 @@ def test_update_state_thread_safe():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Set initial cached state
@@ -267,14 +267,14 @@ def test_update_state_preserves_data_types():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Update with various data types
@@ -307,14 +307,14 @@ def test_state_update_callback_integration():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create real RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Verify that the state update callback was added to the callbacks
@@ -359,14 +359,14 @@ def test_conversation_stats_reads_from_stats_field():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Manually set cached state to simulate REST API response
@@ -391,14 +391,14 @@ def test_stats_update_via_state_event():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create RemoteConversation
         conv = RemoteConversation(
             agent=agent,
-            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:3000"),
+            workspace=RemoteWorkspace(working_dir="/tmp", host="http://localhost:4000"),
         )
 
         # Set initial state with empty stats

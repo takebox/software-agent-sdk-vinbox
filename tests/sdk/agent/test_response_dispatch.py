@@ -6,13 +6,13 @@ from unittest.mock import MagicMock
 import pytest
 from litellm.types.utils import ModelResponse
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.agent.response_dispatch import LLMResponseType, classify_response
-from openhands.sdk.conversation import Conversation, LocalConversation
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.conversation.stuck_detector import StuckDetector
-from openhands.sdk.event import ActionEvent, Event, MessageEvent, ObservationEvent
-from openhands.sdk.llm import (
+from handprint.sdk.agent import Agent
+from handprint.sdk.agent.response_dispatch import LLMResponseType, classify_response
+from handprint.sdk.conversation import Conversation, LocalConversation
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.conversation.stuck_detector import StuckDetector
+from handprint.sdk.event import ActionEvent, Event, MessageEvent, ObservationEvent
+from handprint.sdk.llm import (
     LLM,
     LLMResponse,
     Message,
@@ -22,8 +22,8 @@ from openhands.sdk.llm import (
     TextContent,
     ThinkingBlock,
 )
-from openhands.sdk.llm.utils.metrics import MetricsSnapshot, TokenUsage
-from openhands.sdk.tool import Action, Observation
+from handprint.sdk.llm.utils.metrics import MetricsSnapshot, TokenUsage
+from handprint.sdk.tool import Action, Observation
 
 
 class _LoopAction(Action):

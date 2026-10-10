@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.marketplace import (
+from handprint.sdk.marketplace import (
     Marketplace,
     MarketplaceMetadata,
     MarketplaceOwner,
     MarketplacePluginEntry,
     MarketplacePluginSource,
 )
-from openhands.sdk.plugin import PluginAuthor
+from handprint.sdk.plugin import PluginAuthor
 
 
 class TestMarketplaceOwner:
@@ -201,25 +201,25 @@ class TestMarketplace:
         assert marketplace.plugins[0].name == "test-plugin"
         assert marketplace.path == str(marketplace_dir)
 
-    def test_load_marketplace_with_claude_plugin_dir(self, tmp_path: Path):
-        """Test loading marketplace from .claude-plugin directory."""
-        marketplace_dir = tmp_path / "claude-marketplace"
+    def test_load_marketplace_with_haijun_plugin_dir(self, tmp_path: Path):
+        """Test loading marketplace from .haijun-plugin directory."""
+        marketplace_dir = tmp_path / "haijun-marketplace"
         marketplace_dir.mkdir()
-        manifest_dir = marketplace_dir / ".claude-plugin"
+        manifest_dir = marketplace_dir / ".haijun-plugin"
         manifest_dir.mkdir()
 
         manifest_file = manifest_dir / "marketplace.json"
         manifest_file.write_text(
             """{
-            "name": "claude-marketplace",
-            "owner": {"name": "Claude Team"}
+            "name": "haijun-marketplace",
+            "owner": {"name": "Haijun Team"}
         }"""
         )
 
         marketplace = Marketplace.load(marketplace_dir)
 
-        assert marketplace.name == "claude-marketplace"
-        assert marketplace.owner.name == "Claude Team"
+        assert marketplace.name == "haijun-marketplace"
+        assert marketplace.owner.name == "Haijun Team"
 
     def test_load_marketplace_with_metadata(self, tmp_path: Path):
         """Test loading marketplace with metadata."""
@@ -574,7 +574,7 @@ class TestMarketplaceIntegration:
     def test_marketplace_plugin_entry_consistency(self):
         """Test that MarketplacePluginEntry fields align with PluginManifest."""
         # Both should support name, version, description, author
-        from openhands.sdk.plugin import PluginManifest
+        from handprint.sdk.plugin import PluginManifest
 
         author = PluginAuthor(name="Test Author")
         entry = MarketplacePluginEntry(
@@ -712,19 +712,19 @@ class TestMarketplaceIntegration:
         with pytest.raises(ValidationError, match="URL source requires 'url' field"):
             Marketplace.load(marketplace_dir)
 
-    def test_skill_compatible_fields(self):
-        """Test that MarketplacePluginEntry has fields compatible with Skill."""
-        # The Skill class has `license` and `description` fields per AgentSkills
+    def test_track_compatible_fields(self):
+        """Test that MarketplacePluginEntry has fields compatible with Track."""
+        # The Track class has `license` and `description` fields per AgentTracks
         # standard. MarketplacePluginEntry should have matching fields.
         entry = MarketplacePluginEntry(
-            name="skill-compatible-plugin",
+            name="track-compatible-plugin",
             source="./plugins/test",
-            description="Plugin with skill-compatible fields",
+            description="Plugin with track-compatible fields",
             license="Apache-2.0",
-            keywords=["skill", "compatible"],
+            keywords=["track", "compatible"],
         )
 
-        # These fields align with Skill definitions
+        # These fields align with Track definitions
         assert entry.license == "Apache-2.0"
-        assert entry.description == "Plugin with skill-compatible fields"
-        assert entry.keywords == ["skill", "compatible"]
+        assert entry.description == "Plugin with track-compatible fields"
+        assert entry.keywords == ["track", "compatible"]

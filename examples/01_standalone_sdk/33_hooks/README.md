@@ -1,6 +1,6 @@
 # Hooks Examples
 
-This folder demonstrates the OpenHands hooks system.
+This folder demonstrates the Handprint hooks system.
 
 ## Example
 
@@ -40,7 +40,7 @@ python main.py
 
 ## Exit Codes
 
-Hook scripts signal their result via the exit code (matching the Claude Code
+Hook scripts signal their result via the exit code (matching the Haijun Code
 hook contract):
 
 - **`0` — success.** The operation proceeds. `stdout` is parsed as JSON for

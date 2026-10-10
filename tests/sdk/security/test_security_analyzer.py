@@ -2,11 +2,11 @@
 
 from pydantic import Field
 
-from openhands.sdk.event import ActionEvent, PauseEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.security.analyzer import SecurityAnalyzerBase
-from openhands.sdk.security.risk import SecurityRisk
-from openhands.sdk.tool import Action
+from handprint.sdk.event import ActionEvent, PauseEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.security.analyzer import SecurityAnalyzerBase
+from handprint.sdk.security.risk import SecurityRisk
+from handprint.sdk.tool import Action
 
 
 class SecurityAnalyzerMockAction(Action):

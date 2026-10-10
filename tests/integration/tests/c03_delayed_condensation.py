@@ -7,12 +7,12 @@ This test verifies that:
 4. Once sufficient events exist, condensation succeeds
 """
 
-from openhands.sdk import Message, TextContent, Tool
-from openhands.sdk.context.condenser import LLMSummarizingCondenser
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event.condenser import Condensation
-from openhands.sdk.tool import register_tool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import Message, TextContent, Tool
+from handprint.sdk.context.condenser import LLMSummarizingCondenser
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event.condenser import Condensation
+from handprint.sdk.tool import register_tool
+from handprint.tools.terminal import TerminalTool
 from tests.integration.base import BaseIntegrationTest, TestResult
 
 

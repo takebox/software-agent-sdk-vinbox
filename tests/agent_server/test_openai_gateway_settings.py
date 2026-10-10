@@ -1,8 +1,8 @@
 from pydantic import SecretStr
 
-from openhands.agent_server.openai.service import _with_profile_llm_and_system_text
-from openhands.sdk.llm import LLM
-from openhands.sdk.settings import ACPAgentSettings, OpenHandsAgentSettings
+from handprint.agent_server.openai.service import _with_profile_llm_and_system_text
+from handprint.sdk.llm import LLM
+from handprint.sdk.settings import ACPAgentSettings, HandprintAgentSettings
 
 
 def test_profile_llm_is_not_applied_to_acp_settings():
@@ -18,10 +18,10 @@ def test_profile_llm_is_not_applied_to_acp_settings():
     assert updated.agent_context.system_message_suffix == "Be terse."
 
 
-def test_profile_llm_is_applied_to_openhands_settings():
+def test_profile_llm_is_applied_to_handprint_settings():
     updated = _with_profile_llm_and_system_text(
-        OpenHandsAgentSettings(), LLM(model="gpt-4o"), ""
+        HandprintAgentSettings(), LLM(model="gpt-4o"), ""
     )
 
-    assert isinstance(updated, OpenHandsAgentSettings)
+    assert isinstance(updated, HandprintAgentSettings)
     assert updated.llm.model == "gpt-4o"

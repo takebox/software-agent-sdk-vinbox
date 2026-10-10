@@ -4,14 +4,14 @@ import time
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Conversation,
     RemoteConversation,
     get_logger,
 )
-from openhands.tools.preset.default import get_default_agent
-from openhands.workspace import ApptainerWorkspace
+from handprint.tools.preset.default import get_default_agent
+from handprint.workspace import ApptainerWorkspace
 
 
 logger = get_logger(__name__)

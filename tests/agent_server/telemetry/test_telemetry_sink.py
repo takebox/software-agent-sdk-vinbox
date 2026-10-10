@@ -7,12 +7,12 @@ from typing import Any
 
 import pytest
 
-from openhands.agent_server.telemetry import models as m
-from openhands.agent_server.telemetry.policy import (
+from handprint.agent_server.telemetry import models as m
+from handprint.agent_server.telemetry.policy import (
     TelemetryConsent,
     TelemetryDecision,
 )
-from openhands.agent_server.telemetry.sink import (
+from handprint.agent_server.telemetry.sink import (
     BufferedTelemetrySink,
     NoOpTelemetrySink,
 )
@@ -35,7 +35,7 @@ def make_event(index: int = 0) -> m.DiagnosticEvent:
         ),
         properties=m.ConversationStartedProperties(
             conversation_ref="a" * 32,
-            llm_model_family="anthropic",
+            llm_model_family="juglow",
             agent_kind="agent",
             tool_count=index,
             is_fork=False,

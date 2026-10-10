@@ -18,9 +18,9 @@ from openai.types.responses.response_output_message import ResponseOutputMessage
 from openai.types.responses.response_output_text import ResponseOutputText
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM, LLMResponse, Message, TextContent
-from openhands.sdk.llm.exceptions import LLMAuthenticationError
-from openhands.sdk.llm.llm import LLMCallContext
+from handprint.sdk.llm import LLM, LLMResponse, Message, TextContent
+from handprint.sdk.llm.exceptions import LLMAuthenticationError
+from handprint.sdk.llm.llm import LLMCallContext
 
 
 def create_mock_response(content: str = "Test response", response_id: str = "test-id"):
@@ -71,7 +71,7 @@ def _auth_error() -> AuthenticationError:
             "Invalid proxy server token passed. Unable to find token in cache or "
             "LiteLLM_VerificationTokenTable (token_not_found_in_db)"
         ),
-        llm_provider="openhands",
+        llm_provider="handprint",
         model="gpt-4o",
     )
 
@@ -92,7 +92,7 @@ def _message() -> list[Message]:
     return [Message(role="user", content=[TextContent(text="Hello!")])]
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_refreshes_key_and_retries_once(mock_litellm_completion):
     """A 401 with a refresh hook re-resolves the key and retries once."""
     mock_litellm_completion.side_effect = [
@@ -117,7 +117,7 @@ def test_completion_refreshes_key_and_retries_once(mock_litellm_completion):
     assert mock_litellm_completion.call_args_list[1].kwargs["api_key"] == "fresh_key"
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_no_refresh_without_hook(mock_litellm_completion):
     """Without a hook a 401 surfaces immediately with no retry."""
     mock_litellm_completion.side_effect = _auth_error()
@@ -129,7 +129,7 @@ def test_completion_no_refresh_without_hook(mock_litellm_completion):
     assert mock_litellm_completion.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_refresh_retries_only_once(mock_litellm_completion):
     """If the refreshed key still 401s, the error surfaces (no infinite loop)."""
     mock_litellm_completion.side_effect = [_auth_error(), _auth_error()]
@@ -148,7 +148,7 @@ def test_completion_refresh_retries_only_once(mock_litellm_completion):
     assert calls["count"] == 1  # only refreshed once
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_no_retry_when_hook_returns_none(mock_litellm_completion):
     """A hook that yields no key does not trigger a retry."""
     mock_litellm_completion.side_effect = _auth_error()
@@ -161,7 +161,7 @@ def test_completion_no_retry_when_hook_returns_none(mock_litellm_completion):
     assert mock_litellm_completion.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_no_retry_when_hook_returns_same_key(mock_litellm_completion):
     """A hook that returns the already-rejected key does not retry."""
     mock_litellm_completion.side_effect = _auth_error()
@@ -174,7 +174,7 @@ def test_completion_no_retry_when_hook_returns_same_key(mock_litellm_completion)
     assert mock_litellm_completion.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_raising_hook_surfaces_original_error(mock_litellm_completion):
     """A hook that raises must not mask the original 401."""
     mock_litellm_completion.side_effect = _auth_error()
@@ -190,7 +190,7 @@ def test_completion_raising_hook_surfaces_original_error(mock_litellm_completion
     assert mock_litellm_completion.call_count == 1
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_hook_not_called_for_non_auth_error(mock_litellm_completion):
     """Non-auth errors never invoke the refresh hook."""
     from litellm.exceptions import APIConnectionError
@@ -214,7 +214,7 @@ def test_hook_not_called_for_non_auth_error(mock_litellm_completion):
     assert calls["count"] == 0  # hook untouched for connection errors
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_refresh_hook_not_serialized(mock_litellm_completion):
     """The hook is a private attr and must not leak into serialized state."""
     llm = _make_llm()
@@ -225,7 +225,7 @@ def test_refresh_hook_not_serialized(mock_litellm_completion):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_acompletion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion")
 async def test_acompletion_refreshes_key_and_retries_once(mock_litellm_acompletion):
     """Async path also refreshes the key and retries once on a 401."""
     mock_litellm_acompletion.side_effect = [
@@ -256,7 +256,7 @@ async def test_acompletion_refreshes_key_and_retries_once(mock_litellm_acompleti
 # ---------------------------------------------------------------------------
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_refreshes_key_and_retries_once(mock_litellm_responses):
     """A 401 on the Responses path re-resolves the key and retries once."""
     mock_litellm_responses.side_effect = [
@@ -281,7 +281,7 @@ def test_responses_refreshes_key_and_retries_once(mock_litellm_responses):
     assert mock_litellm_responses.call_args_list[1].kwargs["api_key"] == "fresh_key"
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_refresh_retries_only_once(mock_litellm_responses):
     """If the refreshed key still 401s, the Responses path stops after one retry."""
     mock_litellm_responses.side_effect = [_auth_error(), _auth_error()]
@@ -301,7 +301,7 @@ def test_responses_refresh_retries_only_once(mock_litellm_responses):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_refreshes_key_and_retries_once(mock_litellm_aresponses):
     """Async Responses path also refreshes the key and retries once on a 401."""
     mock_litellm_aresponses.side_effect = [
@@ -326,7 +326,7 @@ async def test_aresponses_refreshes_key_and_retries_once(mock_litellm_aresponses
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_refresh_retries_only_once(mock_litellm_aresponses):
     """Async Responses path stops after a single refreshed retry on repeat 401s."""
     mock_litellm_aresponses.side_effect = [_auth_error(), _auth_error()]
@@ -357,7 +357,7 @@ def test_non_api_key_auth_skips_refresh():
     assert llm._resolve_refreshed_api_key(_auth_error()) is None
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_completion_no_retry_when_hook_returns_empty_key(mock_litellm_completion):
     """A hook returning an empty string does not trigger a (credential-less) retry."""
     mock_litellm_completion.side_effect = _auth_error()
@@ -380,7 +380,7 @@ def test_completion_no_retry_when_hook_returns_empty_key(mock_litellm_completion
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_acompletion")
+@patch("handprint.sdk.llm.llm.litellm_acompletion")
 async def test_acompletion_retry_preserves_threaded_call_context(
     mock_litellm_acompletion,
 ):
@@ -411,7 +411,7 @@ async def test_acompletion_retry_preserves_threaded_call_context(
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_retry_preserves_threaded_call_context(
     mock_litellm_aresponses,
 ):

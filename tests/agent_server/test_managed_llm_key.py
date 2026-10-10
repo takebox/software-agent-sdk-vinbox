@@ -2,7 +2,7 @@
 
 ``register_managed_llm_key_refresh`` is the agent-server half of
 OpenHands/software-agent-sdk#5189: it registers
-:meth:`openhands.sdk.llm.LLM.set_api_key_refresh_hook` on the managed LLMs so a
+:meth:`handprint.sdk.llm.LLM.set_api_key_refresh_hook` on the managed LLMs so a
 stale managed key recovers in place. These tests assert the wiring is inert
 unless the control plane opts in, that it targets only the managed-proxy LLMs,
 and that the registered hook actually feeds the SDK's re-resolution path.
@@ -17,16 +17,16 @@ from litellm import ModelResponse
 from litellm.exceptions import AuthenticationError
 from pydantic import SecretStr
 
-from openhands.agent_server.managed_llm_key import (
+from handprint.agent_server.managed_llm_key import (
     REFRESH_BASE_URLS_ENV,
     REFRESH_HEADERS_ENV,
     REFRESH_URL_ENV,
     _load_headers,
     register_managed_llm_key_refresh,
 )
-from openhands.sdk import LLM, Agent
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.secret import (
+from handprint.sdk import LLM, Agent
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.secret import (
     register_local_secret_resolver,
     unregister_local_secret_resolver,
 )
@@ -43,7 +43,7 @@ def _auth_error() -> AuthenticationError:
             "Invalid proxy server token passed. Unable to find token in cache or "
             "LiteLLM_VerificationTokenTable (token_not_found_in_db)"
         ),
-        llm_provider="openhands",
+        llm_provider="handprint",
         model="gpt-4o",
     )
 
@@ -121,7 +121,7 @@ def test_canonical_managed_provider_refreshes(monkeypatch, persisted):
     monkeypatch.setenv(REFRESH_URL_ENV, REFRESH_URL)
     monkeypatch.setenv(REFRESH_BASE_URLS_ENV, "https://llm-proxy.app.all-hands.dev")
     llm = LLM(
-        model="openhands/deepseek-v4.1-flash",
+        model="handprint/deepseek-v4.1-flash",
         api_key=SecretStr("stale_key"),
         usage_id="managed",
     )
@@ -141,7 +141,7 @@ def test_canonical_managed_provider_refreshes(monkeypatch, persisted):
             choices=[{"message": {"role": "assistant", "content": "resumed"}}]
         )
 
-    monkeypatch.setattr("openhands.sdk.llm.llm.litellm_completion", complete)
+    monkeypatch.setattr("handprint.sdk.llm.llm.litellm_completion", complete)
     with _served_key(REFRESH_URL, "fresh_key"):
         response = llm.completion(
             [Message(role="user", content=[TextContent(text="continue")])]

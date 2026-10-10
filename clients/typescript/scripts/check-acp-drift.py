@@ -54,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        from openhands.sdk.settings.acp_providers import (
+        from handprint.sdk.settings.acp_providers import (
             ACP_PROVIDERS,  # type: ignore[import-not-found]
         )
     except ImportError as exc:
@@ -90,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
     print(
         "ERROR: src/models/acp-providers.json has drifted from openhands-sdk.\n"
         "Update src/models/acp-providers.json to match the Python source at\n"
-        "openhands-sdk/openhands/sdk/settings/acp_providers.py.\n",
+        "openhands-sdk/handprint/sdk/settings/acp_providers.py.\n",
         file=sys.stderr,
     )
     diff = difflib.unified_diff(

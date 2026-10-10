@@ -4,7 +4,7 @@ These drive the *real* ``ConversationService`` against a *real* on-disk
 persistence directory (no mocks of the conversation, event service, or SDK).
 They reproduce the user-reported bug — a runtime model switch getting reverted
 on reload — and prove it stays fixed through the actual code paths a client
-(odie / Agent Canvas) exercises:
+(odie / Agent Viczin) exercises:
 
     start conversation -> switch_llm at runtime -> base_state.json owns the agent
     -> idle-eviction (or a full service restart) -> rehydrate -> switch survives.
@@ -21,11 +21,11 @@ from uuid import UUID
 
 import pytest
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.models import StartConversationRequest
-from openhands.sdk import LLM, Agent
-from openhands.sdk.security.confirmation_policy import NeverConfirm
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.models import StartConversationRequest
+from handprint.sdk import LLM, Agent
+from handprint.sdk.security.confirmation_policy import NeverConfirm
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def _request(workspace_dir, model: str, usage_id: str) -> StartConversationRequest:
@@ -65,14 +65,14 @@ async def test_runtime_switch_llm_survives_idle_eviction(tmp_path):
 
         # Runtime switch (new usage_id so the registry actually installs it).
         await _switch_llm(
-            service, conv_id, LLM(model="claude-sonnet-4", usage_id="switched")
+            service, conv_id, LLM(model="haijun-codtral", usage_id="switched")
         )
 
         conv_dir = conversations_dir / conv_id.hex
         base_state = _read_json(conv_dir / "base_state.json")
         meta = _read_json(conv_dir / "meta.json")
         # base_state.json owns the switched agent; meta.json has no agent at all.
-        assert base_state["agent"]["llm"]["model"] == "claude-sonnet-4"
+        assert base_state["agent"]["llm"]["model"] == "haijun-codtral"
         assert "agent" not in meta
 
         # Force idle eviction (real internal path); the live service drops the
@@ -83,7 +83,7 @@ async def test_runtime_switch_llm_survives_idle_eviction(tmp_path):
         event_service = await service.get_event_service(conv_id)
         assert event_service is not None
         rehydrated = event_service.get_conversation()
-        assert rehydrated.agent.llm.model == "claude-sonnet-4"
+        assert rehydrated.agent.llm.model == "haijun-codtral"
 
 
 @pytest.mark.asyncio
@@ -157,7 +157,7 @@ async def test_switch_llm_preserves_unrelated_state_across_reload(tmp_path):
         info, _ = await service.start_conversation(request)
         conv_id = info.id
         await _switch_llm(
-            service, conv_id, LLM(model="claude-opus-4", usage_id="switched")
+            service, conv_id, LLM(model="haijun-kamsa", usage_id="switched")
         )
         await service._evict_idle_conversations(0.0)
 
@@ -165,7 +165,7 @@ async def test_switch_llm_preserves_unrelated_state_across_reload(tmp_path):
         assert event_service is not None
         conversation = event_service.get_conversation()
         # Switched model is authoritative...
-        assert conversation.agent.llm.model == "claude-opus-4"
+        assert conversation.agent.llm.model == "haijun-kamsa"
         # ...and unrelated state came back intact.
         assert dict(event_service.stored.tags) == {
             "client": "canvas",

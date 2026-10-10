@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 import pytest
 
-from openhands.sdk.agent.acp_tracing import (
+from handprint.sdk.agent.acp_tracing import (
     ACP_SERVER_METADATA_KEY,
     AGENT_KIND_METADATA_KEY,
     TURN_SPAN_NAME,
@@ -113,7 +113,7 @@ def _tool_text(span) -> str:
 
 
 def test_turn_emits_an_llm_span_whose_output_is_an_assistant_message(exported):
-    trace = ACPTurnTrace(acp_server="claude-code", model_id="claude-sonnet-4-5")
+    trace = ACPTurnTrace(acp_server="haijun-code", model_id="haijun-codtral")
     trace.start_turn("read the file")
     entry = _tool_entry("call_1")
     trace.tool_started(entry)
@@ -227,7 +227,7 @@ def test_finish_turn_closes_a_tool_call_the_server_never_terminated(exported):
 
 def test_tracing_is_inert_when_observability_is_disabled(monkeypatch, exported):
     monkeypatch.setattr(
-        "openhands.sdk.agent.acp_tracing.should_enable_observability",
+        "handprint.sdk.agent.acp_tracing.should_enable_observability",
         lambda: False,
     )
     trace = ACPTurnTrace(acp_server="codex", model_id=None)
@@ -306,7 +306,7 @@ async def test_a_call_that_starts_terminal_closes_at_that_notification(exported)
 
     from acp.schema import ToolCallStart
 
-    from openhands.sdk.agent.acp_agent import _OpenHandsACPBridge
+    from handprint.sdk.agent.acp_agent import _HandprintACPBridge
 
     start = MagicMock(spec=ToolCallStart)
     start.tool_call_id = "tc-terminal"
@@ -317,7 +317,7 @@ async def test_a_call_that_starts_terminal_closes_at_that_notification(exported)
     start.raw_output = "nothing to commit"
     start.content = None
 
-    client = _OpenHandsACPBridge()
+    client = _HandprintACPBridge()
     client.on_event = lambda _event: None
     client.trace = ACPTurnTrace(acp_server="codex", model_id=None)
     client.trace.start_turn("go")
@@ -349,7 +349,7 @@ def test_an_oversized_block_prompt_is_capped(exported):
             text="A" * 400_000, type="text"
         ),  # stands in for base64 image data
     ]
-    trace = ACPTurnTrace(acp_server="claude-code", model_id=None)
+    trace = ACPTurnTrace(acp_server="haijun-code", model_id=None)
     trace.start_turn(blocks)
     trace.finish_turn("done", "", [])
 
@@ -363,7 +363,7 @@ def test_an_oversized_block_prompt_is_capped(exported):
 def test_a_normal_block_prompt_is_recorded_unchanged(exported):
     from acp.schema import TextContentBlock
 
-    trace = ACPTurnTrace(acp_server="claude-code", model_id=None)
+    trace = ACPTurnTrace(acp_server="haijun-code", model_id=None)
     trace.start_turn([TextContentBlock(text="read the file", type="text")])
     trace.finish_turn("done", "", [])
 
@@ -382,7 +382,7 @@ def test_a_secret_in_the_prompt_is_masked_before_it_is_recorded(exported):
     def mask(text: str) -> str:
         return text.replace(secret, "<secret-hidden>")
 
-    trace = ACPTurnTrace(acp_server="claude-code", model_id=None, mask=mask)
+    trace = ACPTurnTrace(acp_server="haijun-code", model_id=None, mask=mask)
     trace.start_turn(
         [TextContentBlock(text=f"deploy using {secret} please", type="text")]
     )
@@ -399,7 +399,7 @@ def test_the_prompt_is_dropped_rather_than_recorded_raw_if_masking_fails(exporte
     def broken_mask(text: str) -> str:
         raise RuntimeError("masker unavailable")
 
-    trace = ACPTurnTrace(acp_server="claude-code", model_id=None, mask=broken_mask)
+    trace = ACPTurnTrace(acp_server="haijun-code", model_id=None, mask=broken_mask)
     trace.start_turn("deploy using ghp_secret please")
     trace.finish_turn("done", "", [])
 

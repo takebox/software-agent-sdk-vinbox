@@ -8,8 +8,8 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from openhands.sdk.workspace import RemoteWorkspace
-from openhands.sdk.workspace.remote.async_remote_workspace import AsyncRemoteWorkspace
+from handprint.sdk.workspace import RemoteWorkspace
+from handprint.sdk.workspace.remote.async_remote_workspace import AsyncRemoteWorkspace
 
 
 @pytest.mark.parametrize("async_mode", [False, True])

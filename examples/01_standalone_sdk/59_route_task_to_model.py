@@ -24,10 +24,10 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation, OpenHandsAgentSettings
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.llm.meta_profile_store import MetaProfile, MetaProfileClass
-from openhands.tools.preset.default import register_default_tools
+from handprint.sdk import LLM, Conversation, HandprintAgentSettings
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.llm.meta_profile_store import MetaProfile, MetaProfileClass
+from handprint.tools.preset.default import register_default_tools
 
 
 DEFAULT_BASE_URL = "https://llm-proxy.app.all-hands.dev"
@@ -40,7 +40,7 @@ STRONG_PROFILE = "example-router-strong"
 CLASSIFIER_PROFILE = "example-router-classifier"
 
 CHEAP_MODEL = "openai/gpt-5.5"
-STRONG_MODEL = "openai/prod/claude-sonnet-4-5-20250929"
+STRONG_MODEL = "openai/prod/haijun-codtral"
 
 api_key = os.getenv("LLM_API_KEY")
 assert api_key is not None, "LLM_API_KEY environment variable is not set."
@@ -85,7 +85,7 @@ try:
         ],
     )
 
-    # ── 3. Build the agent via OpenHandsAgentSettings ─────────────────────
+    # ── 3. Build the agent via HandprintAgentSettings ─────────────────────
     # ``create_agent()`` defaults to the standard exec tools (terminal,
     # file_editor, task_tracker) by name; their implementations live in
     # ``openhands-tools`` and must be registered before the agent initializes.
@@ -94,7 +94,7 @@ try:
     # Enabling the tool + setting the active meta-profile name is all it takes
     # to wire route_task_to_model into the agent. The agent starts on the
     # default profile and switches only when it calls the tool.
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=profile_store.load(DEFAULT_PROFILE),
         enable_classify_and_switch_llm_tool=True,
         active_meta_profile="structured",

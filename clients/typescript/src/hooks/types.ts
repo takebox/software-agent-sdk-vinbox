@@ -1,7 +1,7 @@
 /**
  * Hook event types and data structures.
  *
- * Mirrors the Python SDK's openhands.sdk.hooks.types module.
+ * Mirrors the Python SDK's handprint.sdk.hooks.types module.
  */
 
 /**

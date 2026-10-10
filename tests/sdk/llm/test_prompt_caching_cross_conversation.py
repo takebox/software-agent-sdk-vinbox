@@ -10,9 +10,9 @@ identical for all conversations regardless of per-conversation context.
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, AgentContext
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.skills import Skill
+from handprint.sdk import LLM, Agent, AgentContext
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.tracks import Track
 
 
 def test_static_system_message_is_constant_across_different_contexts():
@@ -25,7 +25,7 @@ def test_static_system_message_is_constant_across_different_contexts():
     agents, regardless of what AgentContext they are configured with.
     """
     llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("fake-key"),
         usage_id="test",
     )
@@ -37,8 +37,8 @@ def test_static_system_message_is_constant_across_different_contexts():
         AgentContext(system_message_suffix="User: bob\nRepo: project-x"),
         AgentContext(
             system_message_suffix="Complex context with lots of info",
-            skills=[
-                Skill(name="test-skill", content="Test skill content", trigger=None)
+            tracks=[
+                Track(name="test-track", content="Test track content", trigger=None)
             ],
         ),
         AgentContext(
@@ -77,13 +77,13 @@ def test_end_to_end_caching_flow(tmp_path, dynamic_context, expect_dynamic):
     """
     import uuid
 
-    from openhands.sdk.conversation import ConversationState
-    from openhands.sdk.event import MessageEvent, SystemPromptEvent
-    from openhands.sdk.event.base import LLMConvertibleEvent
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.sdk.conversation import ConversationState
+    from handprint.sdk.event import MessageEvent, SystemPromptEvent
+    from handprint.sdk.event.base import LLMConvertibleEvent
+    from handprint.sdk.workspace import LocalWorkspace
 
     llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("fake-key"),
         usage_id="test",
         caching_prompt=True,
@@ -198,13 +198,13 @@ def test_cross_conversation_cache_sharing(tmp_path, first_suffix, second_suffix)
     """Two conversations should share identical static prompts and cache marks."""
     import uuid
 
-    from openhands.sdk.conversation import ConversationState
-    from openhands.sdk.event import MessageEvent, SystemPromptEvent
-    from openhands.sdk.event.base import LLMConvertibleEvent
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.sdk.conversation import ConversationState
+    from handprint.sdk.event import MessageEvent, SystemPromptEvent
+    from handprint.sdk.event.base import LLMConvertibleEvent
+    from handprint.sdk.workspace import LocalWorkspace
 
     llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("fake-key"),
         usage_id="test",
         caching_prompt=True,

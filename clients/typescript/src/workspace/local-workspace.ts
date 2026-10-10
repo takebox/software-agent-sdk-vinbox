@@ -39,7 +39,7 @@ class LocalWorkspaceNotSupportedError extends Error {
  *
  * ```typescript
  * const workspace = new RemoteWorkspace({
- *   host: 'http://localhost:8000',
+ *   host: 'http://localhost:9000',
  *   workingDir: '/workspace'
  * });
  * const result = await workspace.executeCommand('ls -la');

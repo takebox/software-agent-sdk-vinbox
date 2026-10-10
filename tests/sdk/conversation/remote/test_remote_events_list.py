@@ -6,10 +6,10 @@ from unittest.mock import Mock
 import httpx
 import pytest
 
-from openhands.sdk.conversation.impl.remote_conversation import RemoteEventsList
-from openhands.sdk.event.base import Event
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.llm import Message, TextContent
+from handprint.sdk.conversation.impl.remote_conversation import RemoteEventsList
+from handprint.sdk.event.base import Event
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.llm import Message, TextContent
 
 
 @pytest.fixture

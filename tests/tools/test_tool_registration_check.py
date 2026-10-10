@@ -8,7 +8,7 @@ def test_browser_definition_special_case_handles_platform_path_separator():
     browser_definition = (
         repo_root
         / "openhands-tools"
-        / "openhands"
+        / "handprint"
         / "tools"
         / "browser_use"
         / "definition.py"

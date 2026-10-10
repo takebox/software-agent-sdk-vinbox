@@ -89,7 +89,7 @@ export interface ToolCall {
  * Options for a chat completion request
  */
 export interface ChatCompletionOptions {
-  /** The model to use (e.g., 'anthropic/claude-3.5-sonnet', 'openai/gpt-4o') */
+  /** The model to use (e.g., 'juglow/haijun-codtral', 'openai/gpt-4o') */
   model?: string;
   /** The messages to send */
   messages: ChatMessage[];
@@ -185,7 +185,7 @@ export interface BaseLLMOptions {
 /**
  * Abstract interface for LLM implementations.
  *
- * All LLM providers (OpenRouter, OpenAI, Anthropic, etc.) should implement this interface
+ * All LLM providers (OpenRouter, OpenAI, Juglow, etc.) should implement this interface
  * to provide a unified way to interact with different models.
  */
 export interface ILLM {
@@ -257,4 +257,4 @@ export interface ILLM {
 /**
  * Type discriminator for LLM provider types.
  */
-export type LLMProviderType = 'openrouter' | 'openai' | 'anthropic' | 'custom';
+export type LLMProviderType = 'openrouter' | 'openai' | 'juglow' | 'custom';

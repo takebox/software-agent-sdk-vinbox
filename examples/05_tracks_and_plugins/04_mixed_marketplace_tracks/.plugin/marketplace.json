@@ -1,0 +1,21 @@
+{
+    "name": "mixed-tracks-marketplace",
+    "owner": {
+        "name": "Handprint Team",
+        "email": "contact@all-hands.dev"
+    },
+    "description": "Example marketplace with both local and remote tracks",
+    "plugins": [],
+    "tracks": [
+        {
+            "name": "greeting-helper",
+            "source": "./tracks/greeting-helper",
+            "description": "A local track that helps generate creative greetings"
+        },
+        {
+            "name": "github",
+            "source": "https://github.com/Handprint/extensions/blob/main/tracks/github",
+            "description": "GitHub best practices from the Handprint extensions repository"
+        }
+    ]
+}

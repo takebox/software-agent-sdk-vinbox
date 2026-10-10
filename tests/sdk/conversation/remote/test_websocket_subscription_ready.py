@@ -11,17 +11,17 @@ High-value behavior:
 import threading
 from unittest.mock import MagicMock, patch
 
-from openhands.sdk.conversation.impl.remote_conversation import (
+from handprint.sdk.conversation.impl.remote_conversation import (
     RemoteEventsList,
     WebSocketCallbackClient,
 )
-from openhands.sdk.event.conversation_state import FULL_STATE_KEY
+from handprint.sdk.event.conversation_state import FULL_STATE_KEY
 
 
 class TestWebSocketReadySignaling:
     def test_wait_until_ready_returns_false_on_timeout(self):
         client = WebSocketCallbackClient(
-            host="http://localhost:8000",
+            host="http://localhost:9000",
             conversation_id="test-conv-id",
             callback=MagicMock(),
         )
@@ -30,7 +30,7 @@ class TestWebSocketReadySignaling:
 
     def test_wait_until_ready_unblocks_when_ready_signaled(self):
         client = WebSocketCallbackClient(
-            host="http://localhost:8000",
+            host="http://localhost:9000",
             conversation_id="test-conv-id",
             callback=MagicMock(),
         )
@@ -57,7 +57,7 @@ class TestWebSocketReadySignaling:
 
     def test_wait_until_ready_unblocks_when_stopped(self):
         client = WebSocketCallbackClient(
-            host="http://localhost:8000",
+            host="http://localhost:9000",
             conversation_id="test-conv-id",
             callback=MagicMock(),
         )
@@ -83,7 +83,7 @@ class TestWebSocketReadySignaling:
 
     def test_wait_until_ready_is_idempotent_after_ready(self):
         client = WebSocketCallbackClient(
-            host="http://localhost:8000",
+            host="http://localhost:9000",
             conversation_id="test-conv-id",
             callback=MagicMock(),
         )
@@ -109,7 +109,7 @@ class TestRemoteEventsListReconciliation:
             }
 
         with patch(
-            "openhands.sdk.conversation.impl.remote_conversation._send_request"
+            "handprint.sdk.conversation.impl.remote_conversation._send_request"
         ) as mock_send:
             mock_response = MagicMock()
             mock_response.json.side_effect = [
@@ -140,7 +140,7 @@ class TestRemoteEventsListReconciliation:
         mock_client = MagicMock()
 
         with patch(
-            "openhands.sdk.conversation.impl.remote_conversation._send_request"
+            "handprint.sdk.conversation.impl.remote_conversation._send_request"
         ) as mock_send:
             mock_response = MagicMock()
             mock_response.json.side_effect = [
@@ -178,7 +178,7 @@ class TestRemoteEventsListReconciliation:
             }
 
         with patch(
-            "openhands.sdk.conversation.impl.remote_conversation._send_request"
+            "handprint.sdk.conversation.impl.remote_conversation._send_request"
         ) as mock_send:
             mock_response = MagicMock()
             mock_response.json.side_effect = lambda: make_response()

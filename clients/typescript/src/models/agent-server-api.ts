@@ -40,16 +40,16 @@ export type AgentServerMCPOAuthCallbackResponse =
   SubmitMcpOauthCallbackApiMcpOauthCallbackJobIdPostResponse;
 export type AgentServerMCPToolCallResult = McpToolCallResult;
 
-export interface AgentServerCanvasBackendRevisionRequest {
+export interface AgentServerViczinBackendRevisionRequest {
   revision: string;
 }
 
-export type AgentServerCanvasBackendState =
+export type AgentServerViczinBackendState =
   'missing' | 'stopped' | 'starting' | 'ready' | 'unhealthy' | 'unsupported';
 
-export interface AgentServerCanvasBackendStatus {
+export interface AgentServerViczinBackendStatus {
   name: string;
-  state: AgentServerCanvasBackendState;
+  state: AgentServerViczinBackendState;
   revision?: string | null;
   prepared_revision?: string | null;
   pid?: number | null;
@@ -57,18 +57,18 @@ export interface AgentServerCanvasBackendStatus {
   detail?: string | null;
 }
 
-export interface AgentServerCanvasBackendLogs {
+export interface AgentServerViczinBackendLogs {
   name: string;
   logs: string;
   truncated: boolean;
 }
 
-export type AgentServerCanvasBackendStatusResponse = AgentServerCanvasBackendStatus;
-export type AgentServerCanvasBackendPrepareResponse = AgentServerCanvasBackendStatus;
-export type AgentServerCanvasBackendStartResponse = AgentServerCanvasBackendStatus;
-export type AgentServerCanvasBackendStopResponse = AgentServerCanvasBackendStatus;
-export type AgentServerCanvasBackendDataDeleteResponse = AgentServerCanvasBackendStatus;
-export type AgentServerCanvasBackendLogsResponse = AgentServerCanvasBackendLogs;
+export type AgentServerViczinBackendStatusResponse = AgentServerViczinBackendStatus;
+export type AgentServerViczinBackendPrepareResponse = AgentServerViczinBackendStatus;
+export type AgentServerViczinBackendStartResponse = AgentServerViczinBackendStatus;
+export type AgentServerViczinBackendStopResponse = AgentServerViczinBackendStatus;
+export type AgentServerViczinBackendDataDeleteResponse = AgentServerViczinBackendStatus;
+export type AgentServerViczinBackendLogsResponse = AgentServerViczinBackendLogs;
 
 export interface AgentServerAppBackendSession {
   ingress_url: string;

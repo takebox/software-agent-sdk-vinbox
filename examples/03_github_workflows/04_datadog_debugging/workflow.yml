@@ -21,7 +21,7 @@ on:
             repo_list:
                 description: Comma-separated list of repositories to clone (owner/repo)
                 required: true
-                default: OpenHands/OpenHands,All-Hands-AI/infra
+                default: Handprint/Handprint,All-Hands-AI/infra
             issue_repo:
                 description: Repository to create/update issues in (owner/repo)
                 required: true
@@ -63,9 +63,9 @@ jobs:
               with:
                   enable-cache: true
 
-            - name: Install OpenHands dependencies
+            - name: Install Handprint dependencies
               run: |
-                  # Install OpenHands SDK and tools from git repository
+                  # Install Handprint SDK and tools from git repository
                   uv pip install --system "openhands-sdk @ git+https://github.com/OpenHands/software-agent-sdk.git@main#subdirectory=openhands-sdk"
                   uv pip install --system "openhands-tools @ git+https://github.com/OpenHands/software-agent-sdk.git@main#subdirectory=openhands-tools"
                   # Install additional dependencies for the datadog script

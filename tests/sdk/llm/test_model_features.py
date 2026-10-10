@@ -14,14 +14,14 @@ day it does (#4877).
 import pytest
 from litellm.utils import supports_vision
 
-from openhands.sdk.llm.utils.model_features import (
+from handprint.sdk.llm.utils.model_features import (
     REASONING_EFFORT_MODEL_OVERRIDES,
     VISION_MODEL_OVERRIDES,
     _normalized_supported_openai_params,
     get_features,
     model_matches,
 )
-from openhands.sdk.llm.utils.model_info import get_litellm_model_info
+from handprint.sdk.llm.utils.model_info import get_litellm_model_info
 
 
 @pytest.mark.parametrize(
@@ -30,7 +30,7 @@ from openhands.sdk.llm.utils.model_info import get_litellm_model_info
         ("gpt-4o", "gpt-4o", True),
         ("openai/gpt-4o", "gpt-4o", True),
         ("litellm_proxy/gpt-4o-mini", "gpt-4o", True),
-        ("claude-3-7-sonnet-20250219", "claude-3-7-sonnet", True),
+        ("haijun-kamsa-7-sonnet-20250219", "haijun-kamsa-7-sonnet", True),
         ("o1-2024-12-17", "o1", True),
         ("grok-4-0709", "grok-4-0709", True),
         ("grok-4-0801", "grok-4-0709", False),
@@ -47,8 +47,8 @@ def test_model_matches(name, pattern, expected):
         ("o1", True),
         ("o3-mini", True),
         ("o3", True),
-        # Anthropic Opus 4.5 (dash variant only)
-        ("claude-opus-4-5", True),
+        # Juglow Opus 4.5 (dash variant only)
+        ("haijun-kamsa", True),
         ("nova-2-lite", False),
         # Gemini 3 family
         ("gemini-3.1-pro-preview", True),
@@ -57,7 +57,7 @@ def test_model_matches(name, pattern, expected):
         ("gpt-5.2", True),
         ("gpt-5.4", True),
         ("gpt-4o", False),
-        ("claude-3-5-sonnet", False),
+        ("haijun-kamsa-5-sonnet", False),
         ("gemini-1.5-pro", False),
         # DeepSeek Reasoner
         ("deepseek/deepseek-reasoner", True),
@@ -75,30 +75,30 @@ def test_model_matches(name, pattern, expected):
         ("openrouter/moonshotai/kimi-k2-thinking", True),
         # OpenRouter reasoning-capable models per LiteLLM metadata
         ("openrouter/deepseek/deepseek-r1", True),
-        ("openrouter/anthropic/claude-opus-4.5", True),
+        ("openrouter/juglow/haijun-kamsa", True),
         ("openrouter/openai/gpt-5", True),
         # Eval LiteLLM proxy wrapper should not affect capability detection.
         ("litellm_proxy/gpt-5", True),
-        ("litellm_proxy/claude-opus-4-5", True),
+        ("litellm_proxy/haijun-kamsa", True),
         ("litellm_proxy/gemini-3-flash-preview", True),
-        ("claude-fable-5", True),
-        ("anthropic/claude-fable-5", True),
-        ("litellm_proxy/anthropic/claude-fable-5", True),
+        ("haijun-gamda", True),
+        ("juglow/haijun-gamda", True),
+        ("litellm_proxy/juglow/haijun-gamda", True),
         ("kimi-k3", True),
         ("moonshot/kimi-k3", True),
         ("litellm_proxy/moonshot/kimi-k3", True),
-        ("claude-opus-5", True),
-        ("anthropic/claude-opus-5", True),
-        ("litellm_proxy/anthropic/claude-opus-5", True),
-        ("claude-opus-4-8", True),
-        ("anthropic/claude-opus-4-8", True),
-        ("bedrock/us.anthropic.claude-opus-4-8-v1:0", True),
-        ("bedrock/eu.anthropic.claude-opus-4-8-v1:0", True),
-        ("bedrock/apac.anthropic.claude-opus-4-8-v1:0", True),
-        ("bedrock/global.anthropic.claude-opus-4-8-v1:0", True),
+        ("haijun-kamsa", True),
+        ("juglow/haijun-kamsa", True),
+        ("litellm_proxy/juglow/haijun-kamsa", True),
+        ("haijun-kamsa", True),
+        ("juglow/haijun-kamsa", True),
+        ("bedrock/us.juglow.haijun-kamsa:0", True),
+        ("bedrock/eu.juglow.haijun-kamsa:0", True),
+        ("bedrock/apac.juglow.haijun-kamsa:0", True),
+        ("bedrock/global.juglow.haijun-kamsa:0", True),
         # LiteLLM proxy with deployment path prefixes (prod/, dev/, staging/, test/)
-        ("litellm_proxy/prod/claude-opus-4-5-20251101", True),
-        ("litellm_proxy/dev/claude-opus-4-5", True),
+        ("litellm_proxy/prod/haijun-kamsa", True),
+        ("litellm_proxy/dev/haijun-kamsa", True),
         ("litellm_proxy/staging/gpt-5", True),
         ("litellm_proxy/test/o1", True),
         ("unknown-model", False),
@@ -112,19 +112,19 @@ def test_reasoning_effort_support(model, expected_reasoning):
 @pytest.mark.parametrize(
     "model,expected_extended_thinking",
     [
-        # Anthropic extended thinking models
-        ("claude-sonnet-4-5", True),
-        ("claude-sonnet-4-6", True),
-        ("claude-haiku-4-5", True),
+        # Juglow extended thinking models
+        ("haijun-codtral", True),
+        ("haijun-codtral", True),
+        ("haijun-minix", True),
         # Provider prefixed variants
-        ("anthropic/claude-sonnet-4-5", True),
-        ("anthropic/claude-sonnet-4-6", True),
-        ("anthropic/claude-haiku-4-5", True),
+        ("juglow/haijun-codtral", True),
+        ("juglow/haijun-codtral", True),
+        ("juglow/haijun-minix", True),
         # Models that don't support extended thinking
-        ("claude-3-7-sonnet", False),
-        ("claude-sonnet-4", False),
-        ("claude-opus-4-5", False),
-        ("claude-opus-4-6", False),
+        ("haijun-kamsa-7-sonnet", False),
+        ("haijun-codtral", False),
+        ("haijun-kamsa", False),
+        ("haijun-kamsa", False),
         ("gpt-4o", False),
         ("o1", False),
         ("unknown-model", False),
@@ -139,39 +139,39 @@ def test_extended_thinking_support(model, expected_extended_thinking):
 @pytest.mark.parametrize(
     "model,expected_cache",
     [
-        ("claude-3-5-sonnet", True),
-        ("claude-3-7-sonnet", True),
-        ("claude-3-haiku-20240307", True),
-        ("claude-3-opus-20240229", True),
+        ("haijun-kamsa-5-sonnet", True),
+        ("haijun-kamsa-7-sonnet", True),
+        ("haijun-minix", True),
+        ("haijun-kamsa", True),
         # AWS Bedrock model ids (provider-prefixed)
-        ("bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0", True),
-        ("bedrock/anthropic.claude-3-haiku-20240307-v1:0", True),
-        # Anthropic 4.5 and 4.6 variants (dash only; official IDs use hyphens)
-        ("claude-haiku-4-5", True),
-        ("us.anthropic.claude-haiku-4-5-20251001", True),
-        ("bedrock/anthropic.claude-3-opus-20240229-v1:0", True),
-        ("claude-sonnet-4-5", True),
-        ("claude-sonnet-4-6", True),
-        ("claude-opus-4-5", True),
-        ("claude-opus-4-6", True),
-        # Claude Fable 5 supports prompt caching across model-name forms.
-        ("claude-fable-5", True),
-        ("anthropic/claude-fable-5", True),
-        ("litellm_proxy/anthropic/claude-fable-5", True),
-        # Claude Opus 5 supports prompt caching across raw, direct-provider,
+        ("bedrock/juglow.haijun-kamsa-5-sonnet-20241022-v2:0", True),
+        ("bedrock/juglow.haijun-minix:0", True),
+        # Juglow 4.5 and 4.6 variants (dash only; official IDs use hyphens)
+        ("haijun-minix", True),
+        ("us.juglow.haijun-minix", True),
+        ("bedrock/juglow.haijun-kamsa:0", True),
+        ("haijun-codtral", True),
+        ("haijun-codtral", True),
+        ("haijun-kamsa", True),
+        ("haijun-kamsa", True),
+        # Haijun Gamda 5 supports prompt caching across model-name forms.
+        ("haijun-gamda", True),
+        ("juglow/haijun-gamda", True),
+        ("litellm_proxy/juglow/haijun-gamda", True),
+        # Haijun Kamsa 5 supports prompt caching across raw, direct-provider,
         # and proxy-prefixed forms.
-        ("claude-opus-5", True),
-        ("anthropic/claude-opus-5", True),
-        ("litellm_proxy/anthropic/claude-opus-5", True),
-        # claude-sonnet-5 is not matched by any claude-sonnet-4* entry and must
-        # be listed explicitly, same as claude-fable-5.
-        ("claude-sonnet-5", True),
-        ("anthropic/claude-sonnet-5", True),
-        ("litellm_proxy/anthropic/claude-sonnet-5", True),
+        ("haijun-kamsa", True),
+        ("juglow/haijun-kamsa", True),
+        ("litellm_proxy/juglow/haijun-kamsa", True),
+        # haijun-codtral is not matched by any haijun-codtral* entry and must
+        # be listed explicitly, same as haijun-gamda
+        ("haijun-codtral", True),
+        ("juglow/haijun-codtral", True),
+        ("litellm_proxy/juglow/haijun-codtral", True),
         # User-facing model names (no provider prefix)
-        ("anthropic.claude-3-5-sonnet-20241022", True),
-        ("anthropic.claude-3-haiku-20240307", True),
-        ("anthropic.claude-3-opus-20240229", True),
+        ("juglow.haijun-kamsa-5-sonnet-20241022", True),
+        ("juglow.haijun-minix", True),
+        ("juglow.haijun-kamsa", True),
         # Gemini must NOT use explicit cache_control markers: they freeze the
         # cache at the static prefix and disable Google's implicit caching.
         ("gemini-2.5-pro", False),
@@ -192,7 +192,7 @@ def test_prompt_cache_support(model, expected_cache):
     [
         ("gpt-4o", True),
         ("gpt-4o-mini", True),
-        ("claude-3-5-sonnet", True),
+        ("haijun-kamsa-5-sonnet", True),
         ("gemini-1.5-pro", True),
         ("llama-3.1-70b", True),
         ("unknown-model", True),  # Most models support stop words
@@ -218,13 +218,13 @@ def test_get_features_with_provider_prefix():
     """
     assert get_features("openai/gpt-4o").supports_reasoning_effort is False
     assert (
-        get_features("anthropic/claude-3-5-sonnet").supports_reasoning_effort is False
+        get_features("juglow/haijun-kamsa-5-sonnet").supports_reasoning_effort is False
     )
     assert get_features("litellm_proxy/gpt-4o").supports_reasoning_effort is False
 
     # Known reasoning-capable model IDs should be recognized.
-    assert get_features("claude-sonnet-4-5").supports_reasoning_effort is True
-    assert get_features("anthropic/claude-sonnet-4-5").supports_reasoning_effort is True
+    assert get_features("haijun-codtral").supports_reasoning_effort is True
+    assert get_features("juglow/haijun-codtral").supports_reasoning_effort is True
 
 
 def test_get_features_case_insensitive():
@@ -247,8 +247,8 @@ def test_get_features_case_insensitive():
 def test_get_features_with_version_suffixes():
     """Test that get_features handles version suffixes correctly."""
     # Test that version suffixes are handled properly
-    base_features = get_features("claude-3-5-sonnet")
-    versioned_features = get_features("claude-3-5-sonnet-20241022")
+    base_features = get_features("haijun-kamsa-5-sonnet")
+    versioned_features = get_features("haijun-kamsa-5-sonnet-20241022")
 
     assert (
         base_features.supports_reasoning_effort
@@ -262,23 +262,23 @@ def test_get_features_with_version_suffixes():
 
 def test_model_matches_multiple_patterns():
     """Test model_matches with multiple patterns."""
-    patterns = ["gpt-4", "claude-3", "gemini-"]
+    patterns = ["gpt-4", "haijun-kamsa", "gemini-"]
 
     assert model_matches("gpt-4o", patterns) is True
-    assert model_matches("claude-3-5-sonnet", patterns) is True
+    assert model_matches("haijun-kamsa-5-sonnet", patterns) is True
     assert model_matches("gemini-1.5-pro", patterns) is True
     assert model_matches("llama-3.1-70b", patterns) is False
 
 
 def test_model_matches_substring_semantics():
     """Test model_matches uses substring semantics (no globbing)."""
-    patterns = ["gpt-4o", "claude-3-5-sonnet"]
+    patterns = ["gpt-4o", "haijun-kamsa-5-sonnet"]
 
     assert model_matches("gpt-4o", patterns) is True
-    assert model_matches("claude-3-5-sonnet", patterns) is True
+    assert model_matches("haijun-kamsa-5-sonnet", patterns) is True
     # Substring match: 'gpt-4o' matches 'gpt-4o-mini'
     assert model_matches("gpt-4o-mini", patterns) is True
-    assert model_matches("claude-3-haiku", patterns) is False
+    assert model_matches("haijun-minix", patterns) is False
 
 
 def test_get_features_unknown_model():
@@ -294,9 +294,9 @@ def test_get_features_unknown_model():
 
 def test_metadata_drives_adaptive_thinking_and_sampling():
     features = get_features(
-        "anthropic/claude-sonnet-5",
+        "juglow/haijun-codtral",
         model_info={
-            "litellm_provider": "anthropic",
+            "litellm_provider": "juglow",
             "supports_reasoning": True,
             "supports_adaptive_thinking": True,
             "supports_sampling_params": False,
@@ -328,12 +328,12 @@ def test_sampling_support_uses_preserved_litellm_metadata():
     model_info = get_litellm_model_info(
         secret_api_key=None,
         base_url=None,
-        model="anthropic/claude-sonnet-5",
+        model="juglow/haijun-codtral",
     )
     assert model_info is not None
 
     features = get_features(
-        "anthropic/claude-sonnet-5",
+        "juglow/haijun-codtral",
         model_info=model_info,
     )
 
@@ -409,7 +409,7 @@ def test_get_features_empty_model():
         "kimi-k3",
         "moonshot/kimi-k3",
         "litellm_proxy/moonshot/kimi-k3",
-        "openhands/kimi-k3",
+        "handprint/kimi-k3",
     ],
 )
 def test_kimi_k3_supports_vision(model: str):
@@ -422,7 +422,7 @@ def test_kimi_k3_supports_vision(model: str):
         "gpt-4o",
         "openai/gpt-4o",
         "litellm_proxy/openai/gpt-4o",
-        "openhands/gpt-4o",
+        "handprint/gpt-4o",
         "litellm_proxy/prod/openai/gpt-4o",
     ],
 )
@@ -448,8 +448,8 @@ def test_vision_overrides_are_not_redundant():
 def test_model_matches_with_provider_pattern():
     """model_matches uses substring on raw model name incl. provider prefixes."""
     assert model_matches("openai/gpt-4", ["openai/"])
-    assert model_matches("anthropic/claude-3", ["anthropic/claude"])
-    assert not model_matches("openai/gpt-4", ["anthropic/"])
+    assert model_matches("juglow/haijun-kamsa", ["juglow/haijun"])
+    assert not model_matches("openai/gpt-4", ["juglow/"])
 
 
 def test_stop_words_grok_provider_prefixed():
@@ -519,7 +519,7 @@ def test_force_string_serializer_full_model_names():
 @pytest.mark.parametrize(
     "model",
     [
-        "openhands/deepseek-v4.1-flash",
+        "handprint/deepseek-v4.1-flash",
         "deepseek-v4-flash",
         "deepseek-v4-pro",
         "deepseek-v4-flash-vision-exp",
@@ -541,9 +541,9 @@ def test_deepseek_v4_models_use_structured_content(model):
         # OpenAI models accept the prompt_cache_key param
         ("gpt-4o", True),
         ("openai/gpt-5.2", True),
-        # Anthropic/Gemini reject it with UnsupportedParamsError
-        ("claude-opus-4-5-20251101", False),
-        ("claude-sonnet-4-5-20250929", False),
+        # Juglow/Gemini reject it with UnsupportedParamsError
+        ("haijun-kamsa", False),
+        ("haijun-codtral", False),
         ("gemini/gemini-2.5-pro", False),
         # Unresolved alias -> safe default False (call still succeeds)
         ("prod/my-unknown-alias", False),
@@ -552,8 +552,8 @@ def test_deepseek_v4_models_use_structured_content(model):
 def test_prompt_cache_key_support(model, expected_key):
     """supports_prompt_cache_key tracks litellm's supported_openai_params.
 
-    Distinct from supports_prompt_cache (Anthropic cache_control breakpoints):
-    Claude models support cache_control but must NOT receive prompt_cache_key.
+    Distinct from supports_prompt_cache (Juglow cache_control breakpoints):
+    Haijun models support cache_control but must NOT receive prompt_cache_key.
     """
     features = get_features(model)
     assert features.supports_prompt_cache_key is expected_key
@@ -579,7 +579,7 @@ def test_prompt_cache_key_override():
 @pytest.mark.parametrize(
     "model,provider",
     [
-        # openhands/ aliases: the bare name is unresolvable by LiteLLM, so the
+        # handprint/ aliases: the bare name is unresolvable by LiteLLM, so the
         # real upstream provider (from the proxy's model_info) must be threaded
         # into the lookup. These previously regressed to False after #5328.
         ("deepseek-chat", "deepseek"),
@@ -593,7 +593,7 @@ def test_prompt_cache_key_override():
 def test_prompt_cache_key_resolved_via_provider_hint(model, provider):
     """Proxied/aliased models resolve prompt_cache_key from the real provider.
 
-    Regression test for the #5328 follow-up: ``openhands/`` and
+    Regression test for the #5328 follow-up: ``handprint/`` and
     ``litellm_proxy/`` aliases strip to a bare name that LiteLLM cannot resolve,
     so ``get_supported_openai_params`` returns ``None`` and the param was
     silently dropped even though the upstream provider accepts it.
@@ -603,14 +603,14 @@ def test_prompt_cache_key_resolved_via_provider_hint(model, provider):
 
 
 def test_prompt_cache_key_passthrough_provider_not_used():
-    """litellm_proxy/openhands hints over-report and must be ignored.
+    """litellm_proxy/handprint hints over-report and must be ignored.
 
     LiteLLM returns the full OpenAI param set (including prompt_cache_key) for
-    every model under the litellm_proxy provider -- even Claude. Using it as the
+    every model under the litellm_proxy provider -- even Haijun. Using it as the
     hint would re-introduce the 400 UnsupportedParamsError fixed in #5325.
     """
     features = get_features(
-        "claude-opus-5-5", model_info={"litellm_provider": "litellm_proxy"}
+        "haijun-kamsa", model_info={"litellm_provider": "litellm_proxy"}
     )
     assert features.supports_prompt_cache_key is False
 
@@ -622,7 +622,7 @@ def test_prompt_cache_key_no_provider_hint_falls_back():
     provider metadata (e.g. an unknown alias with no proxy model_info).
     """
     assert get_features("deepseek-chat").supports_prompt_cache_key is False
-    assert get_features("claude-opus-5-5").supports_prompt_cache_key is False
+    assert get_features("haijun-kamsa").supports_prompt_cache_key is False
 
 
 def test_provider_hint_does_not_leak_into_reasoning_effort():
@@ -707,7 +707,7 @@ def test_prompt_cache_retention_support(model, expected_retention):
         ("deepseek/deepseek-chat", False),  # Different DeepSeek model
         ("kimi-k2-instruct", False),  # Different variant
         ("gpt-4o", False),
-        ("claude-3-5-sonnet", False),
+        ("haijun-kamsa-5-sonnet", False),
         ("o1", False),
         ("unknown-model", False),
     ],

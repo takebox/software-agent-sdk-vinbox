@@ -169,9 +169,9 @@ export class RemoteState {
     return policyData;
   }
 
-  async getActivatedKnowledgeSkills(): Promise<string[]> {
+  async getActivatedKnowledgeTracks(): Promise<string[]> {
     const info = await this.getConversationInfo();
-    return info.activated_knowledge_skills || [];
+    return info.activated_knowledge_tracks || [];
   }
 
   async getAgent(): Promise<AgentBase> {

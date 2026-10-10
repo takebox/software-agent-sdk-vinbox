@@ -14,19 +14,19 @@ import pytest
 from litellm.types.utils import ChatCompletionMessageToolCall, Function
 from pydantic import SecretStr
 
-from openhands.agent_server.conversation_lease import (
+from handprint.agent_server.conversation_lease import (
     LEASE_FILE_NAME,
     ConversationOwnershipLostError,
 )
-from openhands.agent_server.conversation_service import (
+from handprint.agent_server.conversation_service import (
     AutoTitleSubscriber,
     ConversationService,
     _compose_conversation_info,
     _ConversationRecord,
     _get_worktree_start_point,
 )
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.models import (
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.models import (
     ConversationInfo,
     ConversationPage,
     ConversationSortOrder,
@@ -34,29 +34,29 @@ from openhands.agent_server.models import (
     StoredConversation,
     UpdateConversationRequest,
 )
-from openhands.agent_server.utils import safe_rmtree as _safe_rmtree
-from openhands.sdk import LLM, Agent, AgentBase, Message, Tool
-from openhands.sdk.agent.acp_agent import ACPAgent
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.conversation.state import (
+from handprint.agent_server.utils import safe_rmtree as _safe_rmtree
+from handprint.sdk import LLM, Agent, AgentBase, Message, Tool
+from handprint.sdk.agent.acp_agent import ACPAgent
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.credential import CredentialSyncError
-from openhands.sdk.critic.impl.api import APIBasedCritic
-from openhands.sdk.event import ActionEvent, AgentErrorEvent, ObservationEvent
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.git.utils import run_git_command
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.mcp.config import dump_mcp_config
-from openhands.sdk.secret import SecretSource, StaticSecret
-from openhands.sdk.security.confirmation_policy import NeverConfirm
-from openhands.sdk.security.risk import SecurityRisk
-from openhands.sdk.settings import ACPAgentSettings
-from openhands.sdk.utils.cipher import Cipher
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.terminal.definition import TerminalAction, TerminalObservation
+from handprint.sdk.credential import CredentialSyncError
+from handprint.sdk.critic.impl.api import APIBasedCritic
+from handprint.sdk.event import ActionEvent, AgentErrorEvent, ObservationEvent
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.git.utils import run_git_command
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.mcp.config import dump_mcp_config
+from handprint.sdk.secret import SecretSource, StaticSecret
+from handprint.sdk.security.confirmation_policy import NeverConfirm
+from handprint.sdk.security.risk import SecurityRisk
+from handprint.sdk.settings import ACPAgentSettings
+from handprint.sdk.utils.cipher import Cipher
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.terminal.definition import TerminalAction, TerminalObservation
 
 
 @pytest.fixture
@@ -141,7 +141,7 @@ async def test_server_resolved_tool_modules_are_persisted(tmp_path):
 
     meta = json.loads((conversations_dir / info.id.hex / "meta.json").read_text())
     assert meta["tool_module_qualnames"]["terminal"] == (
-        "openhands.tools.terminal.definition"
+        "handprint.tools.terminal.definition"
     )
 
 
@@ -184,9 +184,9 @@ def _init_git_repo(repo_dir: Path) -> None:
         [
             "git",
             "-c",
-            "user.name=OpenHands Test",
+            "user.name=Handprint Test",
             "-c",
-            "user.email=openhands@example.com",
+            "user.email=handprint@example.com",
             "commit",
             "-m",
             "init",
@@ -232,7 +232,7 @@ async def test_start_conversation_registers_and_injects_client_tools(
     Persistence on ``StoredConversation`` is what allows forks and server
     restarts to re-register the dynamic client tools.
     """
-    from openhands.sdk.tool.client_tool import ClientToolSpec
+    from handprint.sdk.tool.client_tool import ClientToolSpec
 
     workspace_dir = tmp_path / "workspace"
     workspace_dir.mkdir()
@@ -285,7 +285,7 @@ async def test_start_conversation_registers_and_injects_client_tools(
     # Persisted so forks / restarts can re-register the dynamic action type
     assert [s.name for s in stored.client_tools] == ["srv_show_dialog"]
     # The class is registered in the global tool registry
-    from openhands.sdk.tool.registry import list_registered_tools
+    from handprint.sdk.tool.registry import list_registered_tools
 
     assert "srv_show_dialog" in list_registered_tools()
 
@@ -513,7 +513,7 @@ async def test_centralized_lease_renewal_invokes_renew(tmp_path):
     )
 
     with patch(
-        "openhands.agent_server.conversation_service.LEASE_RENEW_INTERVAL_SECONDS",
+        "handprint.agent_server.conversation_service.LEASE_RENEW_INTERVAL_SECONDS",
         0.05,
     ):
         async with ConversationService(conversations_dir=conversations_dir) as svc:
@@ -1087,7 +1087,7 @@ async def test_waiting_hydration_cannot_restore_deleted_conversation(
                 "_start_event_service",
                 side_effect=publish_replacement,
             ) as start_event_service,
-            patch("openhands.agent_server.conversation_service.safe_rmtree"),
+            patch("handprint.agent_server.conversation_service.safe_rmtree"),
         ):
             conversation_lock = service._get_conversation_lock(conversation_id)
             await conversation_lock.acquire()
@@ -1148,7 +1148,7 @@ async def test_shutdown_closes_runtime_from_in_flight_hydration(
 
     try:
         with patch(
-            "openhands.agent_server.conversation_service.EventService",
+            "handprint.agent_server.conversation_service.EventService",
             return_value=runtime,
         ):
             hydration_task = asyncio.create_task(
@@ -1724,7 +1724,7 @@ class TestConversationServiceStartConversation:
 
             # Mock the EventService constructor and start method
             with patch(
-                "openhands.agent_server.conversation_service.EventService"
+                "handprint.agent_server.conversation_service.EventService"
             ) as mock_event_service_class:
                 mock_event_service = AsyncMock(spec=EventService)
                 mock_event_service_class.return_value = mock_event_service
@@ -1786,7 +1786,7 @@ class TestConversationServiceStartConversation:
 
             # Mock the EventService constructor and start method
             with patch(
-                "openhands.agent_server.conversation_service.EventService"
+                "handprint.agent_server.conversation_service.EventService"
             ) as mock_event_service_class:
                 mock_event_service = AsyncMock(spec=EventService)
                 mock_event_service_class.return_value = mock_event_service
@@ -1861,14 +1861,14 @@ class TestConversationServiceStartConversation:
 
         worktree_root = conversation_service.conversation_worktree_root
         with patch(
-            "openhands.agent_server.conversation_service.EventService",
+            "handprint.agent_server.conversation_service.EventService",
             side_effect=_event_service_factory,
         ):
             result, _ = await conversation_service.start_conversation(request)
 
         stored = captured["stored"]
         expected_worktree = worktree_root / str(conversation_id) / repo_dir.name
-        expected_branch = f"openhands/{conversation_id}"
+        expected_branch = f"handprint/{conversation_id}"
 
         assert stored.worktree is True
         assert stored.workspace.working_dir == str(expected_worktree)
@@ -1928,7 +1928,7 @@ class TestConversationServiceStartConversation:
 
         worktree_root = conversation_service.conversation_worktree_root
         with patch(
-            "openhands.agent_server.conversation_service.EventService",
+            "handprint.agent_server.conversation_service.EventService",
             side_effect=_event_service_factory,
         ):
             result, _ = await conversation_service.start_conversation(request)
@@ -1978,7 +1978,7 @@ class TestConversationServiceStartConversation:
             return mock_event_service
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService",
+            "handprint.agent_server.conversation_service.EventService",
             side_effect=_event_service_factory,
         ):
             result, _ = await conversation_service.start_conversation(request)
@@ -2031,9 +2031,9 @@ class TestConversationServiceStartConversation:
             [
                 "git",
                 "-c",
-                "user.name=OpenHands Test",
+                "user.name=Handprint Test",
                 "-c",
-                "user.email=openhands@example.com",
+                "user.email=handprint@example.com",
                 "commit",
                 "-m",
                 "remote update",
@@ -2421,7 +2421,7 @@ class TestConversationServiceStartConversation:
 
             # Mock EventService to simulate startup failure
             with patch(
-                "openhands.agent_server.conversation_service.EventService"
+                "handprint.agent_server.conversation_service.EventService"
             ) as mock_event_service_class:
                 mock_event_service = AsyncMock()
                 mock_event_service.start.side_effect = Exception("Startup failed")
@@ -2456,7 +2456,7 @@ class TestConversationServiceStartConversation:
 
             # Mock EventService to simulate successful startup
             with patch(
-                "openhands.agent_server.conversation_service.EventService"
+                "handprint.agent_server.conversation_service.EventService"
             ) as mock_event_service_class:
                 mock_event_service = AsyncMock()
                 mock_event_service.start = AsyncMock()  # Successful startup
@@ -2920,7 +2920,7 @@ class TestConversationServiceDeleteConversation:
 
         # Mock the directory removal to avoid actual filesystem operations
         with patch(
-            "openhands.agent_server.conversation_service.safe_rmtree"
+            "handprint.agent_server.conversation_service.safe_rmtree"
         ) as mock_rmtree:
             mock_rmtree.return_value = True
 
@@ -2970,7 +2970,7 @@ class TestConversationServiceDeleteConversation:
         ) as mock_notify:
             # Mock the directory removal
             with patch(
-                "openhands.agent_server.conversation_service.safe_rmtree"
+                "handprint.agent_server.conversation_service.safe_rmtree"
             ) as mock_rmtree:
                 mock_rmtree.return_value = True
 
@@ -3024,7 +3024,7 @@ class TestConversationServiceDeleteConversation:
 
         # Mock the directory removal
         with patch(
-            "openhands.agent_server.conversation_service.safe_rmtree"
+            "handprint.agent_server.conversation_service.safe_rmtree"
         ) as mock_rmtree:
             mock_rmtree.return_value = True
 
@@ -3074,7 +3074,7 @@ class TestConversationServiceDeleteConversation:
 
         # Mock the directory removal
         with patch(
-            "openhands.agent_server.conversation_service.safe_rmtree"
+            "handprint.agent_server.conversation_service.safe_rmtree"
         ) as mock_rmtree:
             mock_rmtree.return_value = True
 
@@ -3118,7 +3118,7 @@ class TestConversationServiceDeleteConversation:
 
         with (
             patch(
-                "openhands.agent_server.conversation_service.safe_rmtree"
+                "handprint.agent_server.conversation_service.safe_rmtree"
             ) as mock_rmtree,
             pytest.raises(CredentialSyncError, match="broker unavailable"),
         ):
@@ -3165,7 +3165,7 @@ class TestConversationServiceDeleteConversation:
 
         # Mock directory removal to fail (simulating permission errors)
         with patch(
-            "openhands.agent_server.conversation_service.safe_rmtree"
+            "handprint.agent_server.conversation_service.safe_rmtree"
         ) as mock_rmtree:
             mock_rmtree.return_value = False  # Simulate removal failure
 
@@ -3259,10 +3259,10 @@ class TestAutoTitle:
     """Tests for AutoTitleSubscriber."""
 
     _GENERATE_TITLE_PATH = (
-        "openhands.agent_server.conversation_service.generate_title_from_message"
+        "handprint.agent_server.conversation_service.generate_title_from_message"
     )
     _TITLE_WITH_LLM_PATH = (
-        "openhands.sdk.conversation.title_utils.generate_title_with_llm"
+        "handprint.sdk.conversation.title_utils.generate_title_with_llm"
     )
 
     def _make_service(
@@ -3291,7 +3291,7 @@ class TestAutoTitle:
         return service
 
     def _user_message_event(self, text: str = "Fix the login bug") -> MessageEvent:
-        from openhands.sdk.llm.message import TextContent
+        from handprint.sdk.llm.message import TextContent
 
         return MessageEvent(
             id="evt-1",
@@ -3389,7 +3389,7 @@ class TestAutoTitle:
         # Let the real title utils run; only the LLM call fails, so the error
         # is swallowed into a fallback title and reported through on_error.
         with patch(
-            "openhands.sdk.llm.llm.LLM.completion",
+            "handprint.sdk.llm.llm.LLM.completion",
             side_effect=Exception("model does not exist"),
         ):
             subscriber = AutoTitleSubscriber(service=service)
@@ -3426,7 +3426,7 @@ class TestAutoTitle:
 
         with (
             patch(
-                "openhands.agent_server.persistence.store.get_llm_profile_store"
+                "handprint.agent_server.persistence.store.get_llm_profile_store"
             ) as MockStore,
             patch(
                 self._GENERATE_TITLE_PATH, return_value="✨ Profile LLM Title"
@@ -3458,7 +3458,7 @@ class TestAutoTitle:
 
         with (
             patch(
-                "openhands.agent_server.persistence.store.get_llm_profile_store"
+                "handprint.agent_server.persistence.store.get_llm_profile_store"
             ) as MockStore,
             patch(
                 self._GENERATE_TITLE_PATH, return_value="✨ Agent LLM Title"
@@ -3508,7 +3508,7 @@ class TestAutoTitle:
 
         with (
             patch(
-                "openhands.agent_server.persistence.store.get_llm_profile_store"
+                "handprint.agent_server.persistence.store.get_llm_profile_store"
             ) as MockStore,
             patch(
                 self._GENERATE_TITLE_PATH, return_value="✨ Agent LLM Title"
@@ -3542,7 +3542,7 @@ class TestAutoTitle:
     @pytest.mark.asyncio
     async def test_autotitle_skips_llm_for_settings_built_acp_agent(self):
         service = self._make_service()
-        acp_agent = ACPAgentSettings(acp_model="claude-opus-4-7").create_agent()
+        acp_agent = ACPAgentSettings(acp_model="haijun-kamsa").create_agent()
         service._conversation.agent.llm = acp_agent.llm
 
         with patch(self._TITLE_WITH_LLM_PATH) as mock_llm_title:
@@ -3561,7 +3561,7 @@ class TestAutoTitle:
 
         with (
             patch(
-                "openhands.agent_server.persistence.store.get_llm_profile_store"
+                "handprint.agent_server.persistence.store.get_llm_profile_store"
             ) as MockStore,
             patch(
                 self._TITLE_WITH_LLM_PATH, return_value="Profile Title"
@@ -3594,15 +3594,15 @@ class TestAutoTitle:
             Usage,
         )
 
-        from openhands.sdk.llm import LLMResponse, MetricsSnapshot
-        from openhands.sdk.llm.llm_profile_store import LLMProfileStore
+        from handprint.sdk.llm import LLMResponse, MetricsSnapshot
+        from handprint.sdk.llm.llm_profile_store import LLMProfileStore
 
         # Persist a real LLM profile to disk with a distinctive usage_id so we
         # can tell the title LLM apart from the agent's LLM in the assertion.
         profile_dir = tmp_path / "profiles"
         title_llm_on_disk = LLM(
             usage_id="title-llm",
-            model="claude-haiku-4-5",
+            model="haijun-minix",
             api_key=SecretStr("title-key"),
         )
         LLMProfileStore(base_dir=profile_dir).save(
@@ -3639,7 +3639,7 @@ class TestAutoTitle:
         # Point the agent-server profile store singleton at our tmp dir via
         # OH_PERSISTENCE_DIR so the real _load_title_llm code path finds our
         # on-disk profile under `{tmp_path}/profiles`.
-        from openhands.agent_server.persistence import reset_stores
+        from handprint.agent_server.persistence import reset_stores
 
         monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path))
         reset_stores()
@@ -3648,7 +3648,7 @@ class TestAutoTitle:
         request.addfinalizer(reset_stores)
 
         with patch(
-            "openhands.sdk.llm.llm.LLM.generate",
+            "handprint.sdk.llm.llm.LLM.generate",
             autospec=True,
             side_effect=fake_generate,
         ):
@@ -3684,9 +3684,9 @@ class TestAutoTitle:
             Usage,
         )
 
-        from openhands.sdk.llm import LLMResponse, MetricsSnapshot
-        from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-        from openhands.sdk.utils.cipher import Cipher
+        from handprint.sdk.llm import LLMResponse, MetricsSnapshot
+        from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+        from handprint.sdk.utils.cipher import Cipher
 
         cipher = Cipher("title-cipher-test-key")
 
@@ -3695,7 +3695,7 @@ class TestAutoTitle:
             "title-encrypted",
             LLM(
                 usage_id="title-llm",
-                model="claude-haiku-4-5",
+                model="haijun-minix",
                 api_key=SecretStr("plaintext-title-key"),
             ),
             include_secrets=True,
@@ -3733,7 +3733,7 @@ class TestAutoTitle:
                 raw_response=raw,
             )
 
-        from openhands.agent_server.persistence import reset_stores
+        from handprint.agent_server.persistence import reset_stores
 
         monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path))
         reset_stores()
@@ -3742,7 +3742,7 @@ class TestAutoTitle:
         request.addfinalizer(reset_stores)
 
         with patch(
-            "openhands.sdk.llm.llm.LLM.generate",
+            "handprint.sdk.llm.llm.LLM.generate",
             autospec=True,
             side_effect=fake_generate,
         ):
@@ -3763,8 +3763,8 @@ class TestACPActivityHeartbeatWiring:
 
     def test_acp_agent_gets_on_activity_wired(self):
         """_setup_acp_activity_heartbeat should set _on_activity on ACPAgent."""
-        from openhands.agent_server.event_service import EventService
-        from openhands.agent_server.server_details_router import (
+        from handprint.agent_server.event_service import EventService
+        from handprint.agent_server.server_details_router import (
             update_last_execution_time,
         )
 
@@ -3779,7 +3779,7 @@ class TestACPActivityHeartbeatWiring:
 
     def test_non_acp_agent_unchanged(self):
         """_setup_acp_activity_heartbeat is a no-op for non-ACP agents."""
-        from openhands.agent_server.event_service import EventService
+        from handprint.agent_server.event_service import EventService
 
         service = AsyncMock(spec=EventService)
         agent = Agent(llm=LLM(model="test-model"))
@@ -3844,7 +3844,7 @@ class TestConversationTreeForkAndNavigate:
 
     async def _start_with_events(self, svc, workspace_dir, texts):
         """Start a conversation and append ``texts`` as user messages (no run)."""
-        from openhands.sdk.testing import TestLLM
+        from handprint.sdk.testing import TestLLM
         from tests.agent_server.stress.scripts import (
             start_conversation_with_test_llm,
         )
@@ -4264,7 +4264,7 @@ async def test_search_composes_conversation_info_off_event_loop(persisted_conver
     async with ConversationService(conversations_dir=conversations_dir) as restarted:
         assert restarted._event_services == {}
         with _patch(
-            "openhands.agent_server.conversation_service._compose_conversation_info",
+            "handprint.agent_server.conversation_service._compose_conversation_info",
             side_effect=spy,
         ) as comp:
             page = await restarted.search_conversations()
@@ -4334,7 +4334,7 @@ async def test_search_live_conversation_does_not_wait_for_state_lock(tmp_path):
         live_state = await event_services[conversation_info.id].get_state()
 
         # Hold the same FIFOLock that LocalConversation.arun() holds across a
-        # native OpenHands agent step. The old listing path composed from the
+        # native Handprint agent step. The old listing path composed from the
         # live state and blocked until this lock was released.
         acquired = threading.Event()
         release = threading.Event()
@@ -4473,7 +4473,7 @@ async def test_settings_launch_resolves_tools_for_this_server(
     workspace_dir.mkdir()
     request = StartConversationRequest(
         agent_settings={
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "gpt-4o", "usage_id": "test-llm"},
             "tools": tools,
         },
@@ -4497,7 +4497,7 @@ async def test_settings_launch_resolves_tools_for_this_server(
 
     with (
         patch(
-            "openhands.agent_server.launch.is_tool_usable",
+            "handprint.agent_server.launch.is_tool_usable",
             return_value=usable,
         ),
         patch.object(
@@ -4520,7 +4520,7 @@ async def test_explicit_agent_wins_over_agent_settings(conversation_service, tmp
             tools=[Tool(name="terminal")],
         ),
         agent_settings={
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "gpt-4o", "usage_id": "test-llm"},
             "tools": [{"name": "file_editor"}],
         },
@@ -4554,14 +4554,14 @@ async def test_explicit_agent_wins_over_agent_settings(conversation_service, tmp
 
 @pytest.mark.asyncio
 async def test_settings_launch_builds_the_agent_once(conversation_service, tmp_path):
-    from openhands.sdk.settings import OpenHandsAgentSettings
+    from handprint.sdk.settings import HandprintAgentSettings
 
     conversation_service.enable_browser = True
     workspace_dir = tmp_path / "workspace"
     workspace_dir.mkdir()
     request = StartConversationRequest(
         agent_settings={
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "gpt-4o", "usage_id": "test-llm"},
         },
         workspace=LocalWorkspace(working_dir=str(workspace_dir)),
@@ -4583,12 +4583,12 @@ async def test_settings_launch_builds_the_agent_once(conversation_service, tmp_p
         return service
 
     with (
-        patch("openhands.agent_server.launch.is_tool_usable", return_value=True),
+        patch("handprint.agent_server.launch.is_tool_usable", return_value=True),
         patch.object(
-            OpenHandsAgentSettings,
+            HandprintAgentSettings,
             "create_agent",
             autospec=True,
-            side_effect=OpenHandsAgentSettings.create_agent,
+            side_effect=HandprintAgentSettings.create_agent,
         ) as create_agent,
         patch.object(
             conversation_service,

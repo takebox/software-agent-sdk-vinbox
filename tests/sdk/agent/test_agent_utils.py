@@ -4,11 +4,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from openhands.sdk.agent.utils import prepare_llm_messages
-from openhands.sdk.context.condenser.base import CondenserBase
-from openhands.sdk.context.view import View
-from openhands.sdk.event import Condensation, MessageEvent
-from openhands.sdk.llm import Message, TextContent
+from handprint.sdk.agent.utils import prepare_llm_messages
+from handprint.sdk.context.condenser.base import CondenserBase
+from handprint.sdk.context.view import View
+from handprint.sdk.event import Condensation, MessageEvent
+from handprint.sdk.llm import Message, TextContent
 
 
 # ---------------------------------------------------------------------------
@@ -74,7 +74,7 @@ def mock_condenser():
 # ---------------------------------------------------------------------------
 
 
-@patch("openhands.sdk.event.base.LLMConvertibleEvent.events_to_messages")
+@patch("handprint.sdk.event.base.LLMConvertibleEvent.events_to_messages")
 def test_prepare_llm_messages_without_condenser(
     mock_events_to_messages, sample_events, sample_messages
 ):
@@ -88,7 +88,7 @@ def test_prepare_llm_messages_without_condenser(
     mock_events_to_messages.assert_called_once_with(view.events)
 
 
-@patch("openhands.sdk.event.base.LLMConvertibleEvent.events_to_messages")
+@patch("handprint.sdk.event.base.LLMConvertibleEvent.events_to_messages")
 def test_prepare_llm_messages_with_additional_messages(
     mock_events_to_messages, sample_events, sample_messages
 ):
@@ -110,7 +110,7 @@ def test_prepare_llm_messages_with_additional_messages(
     mock_events_to_messages.assert_called_once_with(view.events)
 
 
-@patch("openhands.sdk.event.base.LLMConvertibleEvent.events_to_messages")
+@patch("handprint.sdk.event.base.LLMConvertibleEvent.events_to_messages")
 def test_prepare_llm_messages_with_condenser_returns_view(
     mock_events_to_messages,
     sample_events,
@@ -151,7 +151,7 @@ def test_prepare_llm_messages_with_condenser_returns_condensation(
     mock_condenser.condense.assert_called_once_with(view, agent_llm=None)
 
 
-@patch("openhands.sdk.event.base.LLMConvertibleEvent.events_to_messages")
+@patch("handprint.sdk.event.base.LLMConvertibleEvent.events_to_messages")
 def test_prepare_llm_messages_empty_view(mock_events_to_messages):
     """Test prepare_llm_messages with an empty view."""
     mock_events_to_messages.return_value = []

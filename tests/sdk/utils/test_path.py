@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.utils.path import (
+from handprint.sdk.utils.path import (
     get_user_persistence_dir,
     is_absolute_path_source,
     is_host_absolute_path,
@@ -13,13 +13,13 @@ from openhands.sdk.utils.path import (
 )
 
 
-def test_get_user_persistence_dir_defaults_to_home_openhands(
+def test_get_user_persistence_dir_defaults_to_home_handprint(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("OH_PERSISTENCE_DIR", raising=False)
     fake_home = Path("/fake/home")
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: fake_home))
-    assert get_user_persistence_dir() == fake_home / ".openhands"
+    assert get_user_persistence_dir() == fake_home / ".handprint"
 
 
 def test_get_user_persistence_dir_honors_env(
@@ -35,7 +35,7 @@ def test_get_user_persistence_dir_resolved_at_call_time(
     monkeypatch.delenv("OH_PERSISTENCE_DIR", raising=False)
     fake_home = tmp_path / "home"
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: fake_home))
-    assert get_user_persistence_dir() == fake_home / ".openhands"
+    assert get_user_persistence_dir() == fake_home / ".handprint"
 
     override = tmp_path / "persist"
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(override))
@@ -57,7 +57,7 @@ def test_get_user_persistence_dir_anchors_relative_env(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     """A relative value is pinned to the import-time CWD, not the current one."""
-    import openhands.sdk.utils.path as path_module
+    import handprint.sdk.utils.path as path_module
 
     anchor = tmp_path / "anchor"
     anchor.mkdir()
@@ -111,7 +111,7 @@ def test_is_local_path_source_detects_backslash_path_syntax():
 def test_is_local_path_source_detects_dot_paths():
     assert is_local_path_source(".")
     assert is_local_path_source("..")
-    assert is_local_path_source(".openhands")
+    assert is_local_path_source(".handprint")
 
 
 def test_is_absolute_path_source_detects_posix_and_windows_paths():

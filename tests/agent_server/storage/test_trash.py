@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from openhands.agent_server.storage import Trash, trash as trash_module
+from handprint.agent_server.storage import Trash, trash as trash_module
 
 
 def entries(trash: Trash) -> list[Path]:

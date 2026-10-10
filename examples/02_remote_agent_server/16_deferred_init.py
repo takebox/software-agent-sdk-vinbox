@@ -27,7 +27,7 @@ from uuid import UUID
 import httpx
 from scripts.utils import ManagedAPIServer
 
-from openhands.sdk import get_logger
+from handprint.sdk import get_logger
 
 
 logger = get_logger(__name__)

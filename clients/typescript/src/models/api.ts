@@ -77,7 +77,7 @@ export interface SandboxConfig {
   exposed_urls: ExposedUrl[];
 }
 
-export interface SkillsRequest {
+export interface TracksRequest {
   load_public?: boolean;
   load_user?: boolean;
   load_project?: boolean;
@@ -87,18 +87,18 @@ export interface SkillsRequest {
   sandbox_config?: SandboxConfig | null;
 }
 
-export interface SkillInfo {
+export interface TrackInfo {
   name: string;
-  type: 'repo' | 'knowledge' | 'agentskills';
+  type: 'repo' | 'knowledge' | 'agenttracks';
   content: string;
   triggers: string[];
   source?: string | null;
   description?: string | null;
-  is_agentskills_format?: boolean;
+  is_agenttracks_format?: boolean;
 }
 
-export interface SkillsResponse {
-  skills: SkillInfo[];
+export interface TracksResponse {
+  tracks: TrackInfo[];
   sources: Record<string, number>;
 }
 
@@ -107,14 +107,14 @@ export interface SyncResponse {
   message: string;
 }
 
-export interface InstallSkillRequest {
+export interface InstallTrackRequest {
   source: string;
   force?: boolean;
   ref?: string | null;
   repo_path?: string | null;
 }
 
-export interface InstalledSkillInfo {
+export interface InstalledTrackInfo {
   name: string;
   version?: string | null;
   description?: string | null;
@@ -124,31 +124,31 @@ export interface InstalledSkillInfo {
   install_path?: string | null;
 }
 
-export interface InstalledSkillSummary {
+export interface InstalledTrackSummary {
   name: string;
   version?: string | null;
   enabled: boolean;
 }
 
-export interface InstalledSkillsResponse {
-  skills: InstalledSkillSummary[];
+export interface InstalledTracksResponse {
+  tracks: InstalledTrackSummary[];
 }
 
-export interface ToggleSkillResponse {
+export interface ToggleTrackResponse {
   name: string;
   enabled: boolean;
 }
 
-export interface SkillActionResponse {
+export interface TrackActionResponse {
   message: string;
 }
 
-export interface RefreshSkillResponse {
+export interface RefreshTrackResponse {
   message: string;
-  skill: InstalledSkillSummary;
+  track: InstalledTrackSummary;
 }
 
-export interface MarketplaceSkill {
+export interface MarketplaceTrack {
   name: string;
   description: string;
   source: string;
@@ -156,13 +156,13 @@ export interface MarketplaceSkill {
 }
 
 export interface MarketplaceResponse {
-  skills: MarketplaceSkill[];
+  tracks: MarketplaceTrack[];
 }
 
 /**
  * Sub-agents: the catalog of file-based and built-in delegate agents available
  * to a workspace, served by the agent-server's read-only `POST /api/sub-agents`
- * (mirrors `POST /api/skills`). "Sub-agents" are the delegate agents distinct
+ * (mirrors `POST /api/tracks`). "Sub-agents" are the delegate agents distinct
  * from the top-level agent and from `agent-profiles`.
  */
 
@@ -170,7 +170,7 @@ export interface MarketplaceResponse {
 export type SubAgentLevel = 'project' | 'user' | 'builtin' | 'plugin' | 'programmatic';
 
 export interface SubAgentsRequest {
-  /** Load user agents from `~/.agents/agents` and `~/.openhands/agents`. */
+  /** Load user agents from `~/.agents/agents` and `~/.handprint/agents`. */
   load_user?: boolean;
   /** Load project agents from the workspace. */
   load_project?: boolean;
@@ -191,7 +191,7 @@ export interface SubAgentInfo {
   model: string;
   color: string | null;
   tools: string[];
-  skills: string[];
+  tracks: string[];
   system_prompt: string;
   when_to_use_examples: string[];
   permission_mode: string | null;

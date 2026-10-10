@@ -18,14 +18,14 @@ import time
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Conversation,
     RemoteConversation,
     get_logger,
 )
-from openhands.tools.preset.default import get_default_agent
-from openhands.workspace import AgentSandboxWorkspace
+from handprint.tools.preset.default import get_default_agent
+from handprint.workspace import AgentSandboxWorkspace
 
 
 logger = get_logger(__name__)
@@ -44,7 +44,7 @@ llm = LLM(
 # 2) Claim a pod from the warm pool. With a pre-warmed pool this returns in well
 #    under a second; the workspace connects to the pod's agent server via
 #    kubectl port-forward (the default 'port_forward' connection mode).
-warmpool = os.getenv("AGENT_SANDBOX_WARMPOOL", "openhands-pool")
+warmpool = os.getenv("AGENT_SANDBOX_WARMPOOL", "handprint-pool")
 namespace = os.getenv("AGENT_SANDBOX_NAMESPACE", "default")
 logger.info(f"Claiming a sandbox from warm pool {warmpool!r} in {namespace!r}...")
 with AgentSandboxWorkspace(

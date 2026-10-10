@@ -1,7 +1,7 @@
 /**
  * Remote workspace implementation for executing commands and file operations
  *
- * This implements the IWorkspace interface by connecting to a remote OpenHands
+ * This implements the IWorkspace interface by connecting to a remote Handprint
  * agent server. It mirrors the Python SDK's RemoteWorkspace class.
  */
 
@@ -22,7 +22,7 @@ import { IWorkspace, BaseWorkspaceOptions, GitQueryOptions } from './base';
  * Options for creating a RemoteWorkspace instance.
  */
 export interface RemoteWorkspaceOptions extends BaseWorkspaceOptions {
-  /** The remote host URL for the workspace (e.g., 'http://localhost:8000') */
+  /** The remote host URL for the workspace (e.g., 'http://localhost:9000') */
   host: string;
   /** Owning conversation. Omit for standalone use before a conversation exists. */
   conversationId?: string;
@@ -31,10 +31,10 @@ export interface RemoteWorkspaceOptions extends BaseWorkspaceOptions {
 }
 
 /**
- * Remote workspace implementation that connects to an OpenHands agent server.
+ * Remote workspace implementation that connects to an Handprint agent server.
  *
  * RemoteWorkspace provides access to a sandboxed environment running on a remote
- * OpenHands agent server. This is the recommended approach for production deployments
+ * Handprint agent server. This is the recommended approach for production deployments
  * as it provides better isolation and security.
  */
 export class RemoteWorkspace implements IWorkspace {
@@ -77,11 +77,11 @@ export class RemoteWorkspace implements IWorkspace {
    *
    * The fetch is made with `credentials: 'include'` so the browser persists
    * the `Set-Cookie` response even when the agent server lives on a different
-   * origin from the embedding page (e.g. canvas + `agent-{id}.example.com`).
+   * origin from the embedding page (e.g. viczin + `agent-{id}.example.com`).
    *
    * This is intentionally a workspace-level method rather than a
    * conversation-level one: the static asset server lives on the agent host
-   * and consumers (e.g. agent-canvas) often want to embed workspace files
+   * and consumers (e.g. agent-viczin) often want to embed workspace files
    * before they have a full `RemoteConversation` constructed — they just need
    * a conversation ID.
    *

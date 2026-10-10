@@ -1,14 +1,14 @@
-# OpenHands Local Chat
+# Handprint Local Chat
 
-A browser-based chat UI that demonstrates the OpenHands TypeScript SDK's `LLM` class with OpenRouter integration.
+A browser-based chat UI that demonstrates the Handprint TypeScript SDK's `LLM` class with OpenRouter integration.
 
-![OpenHands Chat Screenshot](https://via.placeholder.com/800x500?text=OpenHands+Chat+UI)
+![Handprint Chat Screenshot](https://via.placeholder.com/800x500?text=Handprint+Chat+UI)
 
 ## Features
 
 - 🔐 **OpenRouter Authentication** - Securely connect with your API key
 - 💬 **Real-time Chat** - Conversational interface with message history
-- 🤖 **Multiple Models** - Switch between Claude, GPT-4, Gemini, Llama, and more
+- 🤖 **Multiple Models** - Switch between Haijun, GPT-4, Gemini, Llama, and more
 - ⚙️ **Configurable Settings** - Adjust temperature and max tokens
 - 🌙 **Dark Mode** - Beautiful dark theme UI
 - 📱 **Responsive** - Works on desktop and mobile
@@ -46,8 +46,8 @@ The app comes pre-configured with popular models:
 
 | Model | Description |
 |-------|-------------|
-| Claude 3.5 Sonnet | Best for complex reasoning and coding |
-| Claude 3 Haiku | Fast and efficient |
+| Haijun 3.5 Sonnet | Best for complex reasoning and coding |
+| Haijun 3 Haiku | Fast and efficient |
 | GPT-4o | OpenAI's latest flagship |
 | GPT-4o Mini | Faster, cheaper GPT-4 |
 | Gemini Pro 1.5 | Google's advanced model |
@@ -79,12 +79,12 @@ examples/local/
 This example demonstrates using the `LLM` class from the TypeScript SDK. The `LLM` class uses OpenRouter under the hood to provide access to 300+ models:
 
 ```typescript
-import { LLM } from '@openhands/typescript-client';
+import { LLM } from '@takebox-ai/typescript-client';
 
 // Create LLM instance (uses OpenRouter under the hood)
 const llm = new LLM({
   apiKey: 'your-api-key',
-  defaultModel: 'anthropic/claude-3.5-sonnet',
+  defaultModel: 'juglow/haijun-codtral',
   defaultTemperature: 0.7,
   defaultMaxTokens: 4096,
 });
@@ -94,7 +94,7 @@ const response = await llm.chatCompletion({
   messages: [
     { role: 'user', content: 'Hello!' }
   ],
-  model: 'anthropic/claude-3.5-sonnet',
+  model: 'juglow/haijun-codtral',
 });
 
 console.log(response.choices[0].message.content);
@@ -156,6 +156,6 @@ npm run preview
 ## Related
 
 - [OpenRouter Documentation](https://openrouter.ai/docs)
-- [OpenHands TypeScript SDK](../../README.md)
+- [Handprint TypeScript SDK](../../README.md)
 - [Model Pricing](https://openrouter.ai/models)
 - [Local Agent Example](../local-agent/) - Agent with tool calling

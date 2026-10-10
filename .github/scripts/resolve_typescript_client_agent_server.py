@@ -19,7 +19,7 @@ from pathlib import Path
 
 
 IMAGE_RE = re.compile(
-    r"^ghcr\.io/openhands/agent-server:(?P<version>\d+\.\d+\.\d+)-python$"
+    r"^ghcr\.io/handprint/agent-server:(?P<version>\d+\.\d+\.\d+)-python$"
 )
 OPENAPI_URL = (
     "https://github.com/OpenHands/software-agent-sdk/releases/download/"

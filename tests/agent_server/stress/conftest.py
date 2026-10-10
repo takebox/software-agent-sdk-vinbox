@@ -20,14 +20,14 @@ import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 
-from openhands.agent_server import bash_router as bash_router_module
-from openhands.agent_server.bash_service import BashEventService
-from openhands.agent_server.config import Config
-from openhands.agent_server.conversation_router import conversation_router
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.dependencies import get_conversation_service
-from openhands.agent_server.event_router import event_router
-from openhands.agent_server.server_details_router import (
+from handprint.agent_server import bash_router as bash_router_module
+from handprint.agent_server.bash_service import BashEventService
+from handprint.agent_server.config import Config
+from handprint.agent_server.conversation_router import conversation_router
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.dependencies import get_conversation_service
+from handprint.agent_server.event_router import event_router
+from handprint.agent_server.server_details_router import (
     mark_initialization_complete,
     server_details_router,
 )

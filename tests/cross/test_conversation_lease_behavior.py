@@ -6,15 +6,15 @@ from pathlib import Path
 import pytest
 from litellm.types.utils import ChatCompletionMessageToolCall, Function
 
-from openhands.agent_server.conversation_lease import (
+from handprint.agent_server.conversation_lease import (
     LEASE_FILE_NAME,
     ConversationOwnershipLostError,
 )
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.models import StartConversationRequest
-from openhands.sdk import LLM, Agent
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.event import (
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.models import StartConversationRequest
+from handprint.sdk import LLM, Agent
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.event import (
     ActionEvent,
     AgentErrorEvent,
     Event,
@@ -22,11 +22,11 @@ from openhands.sdk.event import (
     ObservationEvent,
     SystemPromptEvent,
 )
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.security.confirmation_policy import NeverConfirm
-from openhands.sdk.security.risk import SecurityRisk
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.terminal.definition import TerminalAction, TerminalObservation
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.security.confirmation_policy import NeverConfirm
+from handprint.sdk.security.risk import SecurityRisk
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.terminal.definition import TerminalAction, TerminalObservation
 
 
 def _request(workspace_dir: Path) -> StartConversationRequest:

@@ -1,6 +1,6 @@
 ---
 name: Bug
-description: Report a problem with OpenHands SDK
+description: Report a problem with Handprint SDK
 title: '[Bug]: '
 labels: [bug]
 body:
@@ -17,7 +17,7 @@ body:
       attributes:
           label: Is there an existing issue for the same bug?
           description: Please search existing issues before creating a new one. If found, react or comment to the duplicate issue instead of making a 
-              new one. <!-- TODO-openhands -->
+              new one. <!-- TODO-handprint -->
           options:
               - label: I have searched existing issues and this is not a duplicate.
                 required: true
@@ -77,7 +77,7 @@ body:
       id: installation
       attributes:
           label: Installation Method
-          description: How did you install the OpenHands SDK?
+          description: How did you install the Handprint SDK?
           placeholder: ex. pip install openhands-sdk, uv pip install openhands-sdk, pip install -e ., etc.
 
     - type: input
@@ -102,7 +102,7 @@ body:
           label: Version Confirmation
           description: Bugs on older versions may already be fixed. Please upgrade before submitting.
           options:
-              - label: I have confirmed this bug exists on the LATEST version of OpenHands SDK
+              - label: I have confirmed this bug exists on the LATEST version of Handprint SDK
                 required: false
 
     - type: input
@@ -119,7 +119,7 @@ body:
       attributes:
           label: Model Name (if applicable)
           description: Which model(s) are you using?
-          placeholder: ex. gpt-4o, claude-3-5-sonnet-20241022, openrouter/deepseek-r1, etc.
+          placeholder: ex. gpt-4o, haijun-kamsa-5-sonnet-20241022, openrouter/deepseek-r1, etc.
       validations:
           required: false
 
@@ -157,7 +157,7 @@ body:
               If possible, provide a minimal code sample that reproduces the issue.
           placeholder: |
               ```python
-              from openhands.sdk import Agent
+              from handprint.sdk import Agent
 
               # Your minimal reproducible code here
               ```

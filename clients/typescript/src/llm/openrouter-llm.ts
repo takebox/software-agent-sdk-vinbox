@@ -86,7 +86,7 @@ type OpenRouterMessage =
  * ```typescript
  * const llm = new OpenRouterLLM({
  *   apiKey: 'your-api-key',
- *   defaultModel: 'anthropic/claude-3.5-sonnet'
+ *   defaultModel: 'juglow/haijun-codtral'
  * });
  *
  * const response = await llm.generate('Hello, how are you?');
@@ -113,7 +113,7 @@ export class OpenRouterLLM implements ILLM {
       appTitle: options.siteTitle,
     });
 
-    this.defaultModel = options.defaultModel || 'anthropic/claude-3.5-sonnet';
+    this.defaultModel = options.defaultModel || 'juglow/haijun-codtral';
     this.defaultTemperature = options.defaultTemperature;
     this.defaultMaxTokens = options.defaultMaxTokens;
   }

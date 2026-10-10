@@ -15,8 +15,8 @@ from litellm.types.llms.openai import (
 from litellm.types.utils import ModelResponse, Usage
 from pydantic import BaseModel, Field, ValidationError
 
-from openhands.sdk.llm.utils.metrics import Metrics
-from openhands.sdk.llm.utils.telemetry import (
+from handprint.sdk.llm.utils.metrics import Metrics
+from handprint.sdk.llm.utils.telemetry import (
     Telemetry,
     UsageSnapshot,
     _safe_json,
@@ -356,7 +356,7 @@ class TestTelemetryCostCalculation:
         )
 
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
         ) as mock_cost:
             mock_cost.return_value = 0.25
             telemetry._compute_cost(mock_response)
@@ -391,7 +391,7 @@ class TestTelemetryCostCalculation:
         )
 
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
         ) as mock_cost:
             mock_cost.return_value = 0.30
             cost = basic_telemetry._compute_cost(mock_response)
@@ -410,7 +410,7 @@ class TestTelemetryCostCalculation:
         )
 
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
         ) as mock_cost:
             mock_cost.side_effect = Exception("Cost calculation failed")
 
@@ -435,7 +435,7 @@ class TestTelemetryCostCalculation:
         )
 
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
         ) as mock_cost:
             mock_cost.return_value = 0.10
             telemetry._compute_cost(mock_response)
@@ -449,7 +449,7 @@ class TestTelemetryCostCalculation:
         self, mock_metrics
     ):
         telemetry = Telemetry(
-            model_name="vertex_ai/claude-sonnet-4-5@20250929",
+            model_name="vertex_ai/haijun-codtral@20250929",
             metrics=mock_metrics,
         )
 
@@ -457,19 +457,19 @@ class TestTelemetryCostCalculation:
             id="test-id",
             choices=[],
             created=1234567890,
-            model="claude-sonnet-4-5@20250929",
+            model="haijun-codtral@20250929",
             object="chat.completion",
         )
 
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
         ) as mock_cost:
             mock_cost.return_value = 0.10
             telemetry._compute_cost(resp)
 
             mock_cost.assert_called_once()
             kwargs = mock_cost.call_args.kwargs
-            assert kwargs["model"] == "claude-sonnet-4-5@20250929"
+            assert kwargs["model"] == "haijun-codtral@20250929"
             assert kwargs["custom_llm_provider"] == "vertex_ai"
 
     def test_compute_cost_passes_provider_to_litellm_cost_calculator_azure(
@@ -489,7 +489,7 @@ class TestTelemetryCostCalculation:
         )
 
         with patch(
-            "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+            "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
         ) as mock_cost:
             mock_cost.return_value = 0.05
             telemetry._compute_cost(resp)
@@ -754,7 +754,7 @@ class TestTelemetryIntegration:
             )
 
             with patch(
-                "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+                "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
             ) as mock_cost:
                 mock_cost.return_value = 0.25
                 metrics = telemetry.on_response(response)  # type: ignore
@@ -786,7 +786,7 @@ class TestTelemetryIntegration:
             )
 
             with patch(
-                "openhands.sdk.llm.utils.telemetry.litellm_completion_cost"
+                "handprint.sdk.llm.utils.telemetry.litellm_completion_cost"
             ) as mock_cost:
                 mock_cost.return_value = 0.1 + i * 0.05
                 cost = basic_telemetry.on_response(response)

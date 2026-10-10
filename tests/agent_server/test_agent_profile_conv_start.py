@@ -19,41 +19,41 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import SecretStr, ValidationError
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.conversation_router import conversation_router
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.dependencies import get_conversation_service
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.models import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.conversation_router import conversation_router
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.dependencies import get_conversation_service
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.models import (
     ConversationInfo,
     LaunchedAgentProfile,
     StartConversationRequest,
     StoredConversation,
 )
-from openhands.agent_server.persistence import PersistedSettings
-from openhands.sdk import LLM, Agent, AgentBase, AgentContext
-from openhands.sdk.agent.acp_agent import ACPAgent
-from openhands.sdk.conversation.state import (
+from handprint.agent_server.persistence import PersistedSettings
+from handprint.sdk import LLM, Agent, AgentBase, AgentContext
+from handprint.sdk.agent.acp_agent import ACPAgent
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.launch import (
+from handprint.sdk.launch import (
     LaunchedAgent,
     LaunchStoreError,
     LaunchStores,
     UnresolvedProfileReferences,
 )
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles.agent_profile import (
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles.agent_profile import (
     ACPAgentProfile,
-    OpenHandsAgentProfile,
+    HandprintAgentProfile,
 )
-from openhands.sdk.profiles.resolver import ProfileNotFound
-from openhands.sdk.secret import StaticSecret
-from openhands.sdk.settings.model import ACPAgentSettings, OpenHandsAgentSettings
-from openhands.sdk.skills import Skill
-from openhands.sdk.tool import Tool
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.profiles.resolver import ProfileNotFound
+from handprint.sdk.secret import StaticSecret
+from handprint.sdk.settings.model import ACPAgentSettings, HandprintAgentSettings
+from handprint.sdk.tracks import Track
+from handprint.sdk.tool import Tool
+from handprint.sdk.workspace import LocalWorkspace
 from tests.sdk.launch import fakes
 
 
@@ -78,15 +78,15 @@ def mock_conversation_service():
     return AsyncMock(spec=ConversationService)
 
 
-def _make_openhands_profile(**kwargs) -> OpenHandsAgentProfile:
-    return OpenHandsAgentProfile(
+def _make_handprint_profile(**kwargs) -> HandprintAgentProfile:
+    return HandprintAgentProfile(
         name="my-profile", revision=3, llm_profile_ref="default", **kwargs
     )
 
 
 def _make_acp_profile(**kwargs) -> ACPAgentProfile:
     return ACPAgentProfile(
-        name="acp-profile", revision=1, acp_server="claude-code", **kwargs
+        name="acp-profile", revision=1, acp_server="haijun-code", **kwargs
     )
 
 
@@ -94,9 +94,9 @@ def _make_agent() -> Agent:
     return Agent(llm=LLM(model="gpt-4o", usage_id="llm"), tools=[])
 
 
-_STORES_PATH = "openhands.agent_server.conversation_service.server_launch_stores"
-_SETTINGS_STORE_PATH = "openhands.agent_server.persistence.get_settings_store"
-_BROWSER_PATH = "openhands.agent_server.launch.is_tool_usable"
+_STORES_PATH = "handprint.agent_server.conversation_service.server_launch_stores"
+_SETTINGS_STORE_PATH = "handprint.agent_server.persistence.get_settings_store"
+_BROWSER_PATH = "handprint.agent_server.launch.is_tool_usable"
 
 
 def _event_service_for(stored: StoredConversation, agent: AgentBase) -> AsyncMock:
@@ -165,7 +165,7 @@ def _profile_request(tmp_path, profile, **kwargs) -> StartConversationRequest:
 
 def _memory_on() -> PersistedSettings:
     return PersistedSettings(
-        agent_settings=OpenHandsAgentSettings(
+        agent_settings=HandprintAgentSettings(
             agent_context=AgentContext(load_memory=True)
         )
     )
@@ -174,7 +174,7 @@ def _memory_on() -> PersistedSettings:
 _MEMORY_OFF = [
     pytest.param(
         PersistedSettings(
-            agent_settings=OpenHandsAgentSettings(agent_context=AgentContext())
+            agent_settings=HandprintAgentSettings(agent_context=AgentContext())
         ),
         id="preference-off",
     ),
@@ -211,7 +211,7 @@ class TestStartConversationRequestValidation:
 
     def test_agent_settings_are_carried_to_the_server_unbuilt(self):
         req = StartConversationRequest(
-            agent_settings={"agent_kind": "openhands", "llm": {"model": "gpt-4o"}},
+            agent_settings={"agent_kind": "handprint", "llm": {"model": "gpt-4o"}},
             workspace=LocalWorkspace(working_dir="/tmp"),
         )
         assert req.agent is None
@@ -230,7 +230,7 @@ class TestStartConversationRequestValidation:
             {"agent_profile_id": str(uuid4()), "agent": _make_agent()},
             {
                 "agent_profile_id": str(uuid4()),
-                "agent_settings": {"agent_kind": "openhands"},
+                "agent_settings": {"agent_kind": "handprint"},
             },
         ],
     )
@@ -275,7 +275,7 @@ class TestStartConversationRequestValidation:
 class TestProfileLaunch:
     @pytest.mark.asyncio
     async def test_a_profile_launch_records_its_provenance(self, tmp_path):
-        profile = _make_openhands_profile(secret_refs=["GITHUB_TOKEN"])
+        profile = _make_handprint_profile(secret_refs=["GITHUB_TOKEN"])
 
         stored, launched = await _start(
             tmp_path, _profile_request(tmp_path, profile), stores=fakes.stores(profile)
@@ -289,14 +289,14 @@ class TestProfileLaunch:
 
     @pytest.mark.asyncio
     async def test_an_unknown_profile_is_not_found(self, tmp_path):
-        request = _profile_request(tmp_path, _make_openhands_profile())
+        request = _profile_request(tmp_path, _make_handprint_profile())
 
         with pytest.raises(ProfileNotFound):
             await _start(tmp_path, request, stores=fakes.stores())
 
     @pytest.mark.asyncio
     async def test_dangling_references_fail_the_launch_together(self, tmp_path):
-        profile = OpenHandsAgentProfile(
+        profile = HandprintAgentProfile(
             name="p", llm_profile_ref="missing", mcp_server_refs=["mcp-server-x"]
         )
 
@@ -313,7 +313,7 @@ class TestProfileLaunch:
     @pytest.mark.asyncio
     async def test_the_profile_llm_streams(self, tmp_path):
         """A client cannot set llm.stream on a profile's referenced LLM (#4014)."""
-        profile = _make_openhands_profile()
+        profile = _make_handprint_profile()
         stored_llm = fakes.llm(stream=False)
 
         _, launched = await _start(
@@ -329,7 +329,7 @@ class TestProfileLaunch:
     @pytest.mark.asyncio
     async def test_the_profile_persona_reaches_the_launched_agent(self, tmp_path):
         persona = "You only answer questions about this repository."
-        profile = _make_openhands_profile(persona=persona)
+        profile = _make_handprint_profile(persona=persona)
 
         _, launched = await _start(
             tmp_path, _profile_request(tmp_path, profile), stores=fakes.stores(profile)
@@ -351,7 +351,7 @@ class TestProfileLaunch:
     async def test_default_tools_get_browser_when_this_runtime_can_run_it(
         self, tmp_path, browser, expected
     ):
-        profile = _make_openhands_profile()
+        profile = _make_handprint_profile()
 
         _, launched = await _start(
             tmp_path,
@@ -364,7 +364,7 @@ class TestProfileLaunch:
 
     @pytest.mark.asyncio
     async def test_an_explicit_tool_list_is_never_amended(self, tmp_path):
-        profile = _make_openhands_profile(tools=[Tool(name="terminal")])
+        profile = _make_handprint_profile(tools=[Tool(name="terminal")])
 
         _, launched = await _start(
             tmp_path,
@@ -391,15 +391,15 @@ class TestProfileLaunch:
 
     @pytest.mark.parametrize(
         ("sourcing", "expected"),
-        [("native", []), ("openhands_managed", ["managed"])],
+        [("native", []), ("handprint_managed", ["managed"])],
     )
     @pytest.mark.asyncio
-    async def test_this_runtime_decides_the_acp_skill_catalog(
+    async def test_this_runtime_decides_the_acp_track_catalog(
         self, tmp_path, sourcing, expected
     ):
         """The catalog is always resolved; the runtime's sourcing keeps or drops it."""
         profile = _make_acp_profile()
-        stores = fakes.stores(profile, skills=[Skill(name="managed", content="x")])
+        stores = fakes.stores(profile, tracks=[Track(name="managed", content="x")])
         request = _profile_request(tmp_path, profile)
         captured: dict[str, Any] = {}
 
@@ -408,7 +408,7 @@ class TestProfileLaunch:
             return _event_service_for(stored, kwargs["launched"].agent)
 
         service = ConversationService(
-            conversations_dir=tmp_path / "conversations", acp_skill_sourcing=sourcing
+            conversations_dir=tmp_path / "conversations", acp_track_sourcing=sourcing
         )
         service._event_services = {}
         with (
@@ -421,11 +421,11 @@ class TestProfileLaunch:
 
         context = captured["agent"].agent_context
         assert context is not None
-        assert [skill.name for skill in context.skills] == expected
+        assert [track.name for track in context.tracks] == expected
 
     @pytest.mark.asyncio
     async def test_a_profile_launch_has_a_fresh_timestamp(self, tmp_path):
-        profile = _make_openhands_profile()
+        profile = _make_handprint_profile()
         before = datetime.now(UTC)
 
         _, launched = await _start(
@@ -437,14 +437,14 @@ class TestProfileLaunch:
         assert isinstance(context.current_datetime, datetime)
         assert context.current_datetime >= before
 
-    @pytest.mark.parametrize("agent_kind", ["openhands", "acp"])
+    @pytest.mark.parametrize("agent_kind", ["handprint", "acp"])
     @pytest.mark.asyncio
     async def test_a_profile_launch_inherits_the_memory_preference(
         self, tmp_path, agent_kind
     ):
         """Persistent memory is a global preference the profile cannot carry."""
         profile = (
-            _make_acp_profile() if agent_kind == "acp" else _make_openhands_profile()
+            _make_acp_profile() if agent_kind == "acp" else _make_handprint_profile()
         )
 
         _, launched = await _start(
@@ -462,7 +462,7 @@ class TestProfileLaunch:
     async def test_a_profile_launch_leaves_memory_off_without_the_preference(
         self, tmp_path, persisted
     ):
-        profile = _make_openhands_profile()
+        profile = _make_handprint_profile()
 
         _, launched = await _start(
             tmp_path,
@@ -505,7 +505,7 @@ async def _start_with_agent(
 
 
 _SETTINGS_PAYLOAD = {
-    "agent_kind": "openhands",
+    "agent_kind": "handprint",
     "llm": {"model": "gpt-4o", "usage_id": "llm"},
 }
 
@@ -557,7 +557,7 @@ class TestDirectAgentLaunch:
             llm=LLM(model="gpt-4o", usage_id="llm"),
             tools=[],
             agent_context=AgentContext(
-                load_memory=True, skills=[], system_message_suffix="client-set suffix"
+                load_memory=True, tracks=[], system_message_suffix="client-set suffix"
             ),
         )
 
@@ -669,7 +669,7 @@ class TestConversationRouterProfileErrors:
         )
         assert resp.status_code == status
 
-    # No dangling-skill 422: skills use a deny-list (disabled_skills) that can't
+    # No dangling-track 422: tracks use a deny-list (disabled_tracks) that can't
     # dangle — a disabled name absent from the catalog is a no-op (#4017).
 
 
@@ -795,7 +795,7 @@ class TestProfileSecretScope:
         self, tmp_path, secret_refs, expected
     ):
         """The filter runs on the request, so a client cannot widen the scope."""
-        profile = _make_openhands_profile(secret_refs=secret_refs)
+        profile = _make_handprint_profile(secret_refs=secret_refs)
         request = _profile_request(
             tmp_path,
             profile,
@@ -818,7 +818,7 @@ class TestProfileSecretScope:
         request = _profile_request(
             tmp_path,
             profile,
-            secrets={"ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk"))},
+            secrets={"JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk"))},
         )
 
         stored, _ = await _start(tmp_path, request, stores=fakes.stores(profile))
@@ -829,7 +829,7 @@ class TestProfileSecretScope:
     async def test_mcp_servers_outside_the_profile_scope_are_not_attached(
         self, tmp_path
     ):
-        profile = _make_openhands_profile(mcp_server_refs=["kept"])
+        profile = _make_handprint_profile(mcp_server_refs=["kept"])
         stores = fakes.stores(
             profile,
             mcp={

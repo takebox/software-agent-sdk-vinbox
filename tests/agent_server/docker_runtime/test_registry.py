@@ -13,18 +13,18 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.docker_runtime.registry import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.docker_runtime.registry import (
     ConversationContainer,
     DockerConversationRegistry,
 )
-from openhands.agent_server.models import StartConversationRequest
-from openhands.agent_server.storage import trash as trash_module
-from openhands.sdk import LLM, Agent, Message, TextContent
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.security.confirmation_policy import NeverConfirm
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.agent_server.models import StartConversationRequest
+from handprint.agent_server.storage import trash as trash_module
+from handprint.sdk import LLM, Agent, Message, TextContent
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.security.confirmation_policy import NeverConfirm
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def registry(
@@ -62,7 +62,7 @@ def set_execution_status(
 def test_missing_container_is_already_stopped(monkeypatch):
     missing = container(uuid4())
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.execute_command",
+        "handprint.agent_server.docker_runtime.registry.execute_command",
         lambda *_args, **_kwargs: subprocess.CompletedProcess(
             [], 1, stdout="", stderr="No such container"
         ),
@@ -222,7 +222,7 @@ async def test_terminal_idle_runtime_is_stopped(tmp_path, monkeypatch):
         lambda self: stopped.append(self.container_id),
     )
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
     )
 
     await runtime._evict_idle_runtimes(10)
@@ -241,7 +241,7 @@ async def test_running_idle_runtime_is_retained(tmp_path, monkeypatch):
     runtime._last_access[conversation_id] = 0
     set_execution_status(runtime, ConversationExecutionStatus.RUNNING)
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
     )
 
     await runtime._evict_idle_runtimes(10)
@@ -264,7 +264,7 @@ async def test_attached_session_prevents_idle_eviction(tmp_path, monkeypatch):
         lambda self: stopped.append(self.container_id),
     )
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: 100
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: 100
     )
     runtime.attach_session(conversation_id)
 
@@ -290,7 +290,7 @@ async def test_idle_runtime_is_evicted_after_session_detaches(tmp_path, monkeypa
     )
     now = 100.0
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: now
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: now
     )
     runtime.attach_session(conversation_id)
 
@@ -322,7 +322,7 @@ async def test_runtime_access_refreshes_idle_deadline(tmp_path, monkeypatch):
     )
     now = 20.0
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: now
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: now
     )
 
     assert await runtime.get_or_create(conversation_id) is active
@@ -390,7 +390,7 @@ def _build_container(runtime, monkeypatch, conversation_id):
 
     monkeypatch.setattr("subprocess.run", run)
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.execute_command", execute
+        "handprint.agent_server.docker_runtime.registry.execute_command", execute
     )
     monkeypatch.setattr(runtime, "_wait_until_ready", lambda container: None)
 
@@ -417,7 +417,7 @@ def test_container_command_is_hardened_and_mounts_only_its_state(tmp_path, monke
         conversation_id.hex in mount or mount.endswith(":/workspace")
         for mount in mounts
     )
-    assert env["HOME"] == "/var/openhands/.openhands"
+    assert env["HOME"] == "/var/handprint/.handprint"
     assert ["-e", "HOME"] == command[
         command.index("HOME") - 1 : command.index("HOME") + 1
     ]
@@ -517,7 +517,7 @@ async def test_idle_eviction_prunes_cache_and_keeps_conversation_state(
     runtime._last_access[conversation_id] = 0
     set_execution_status(runtime, ConversationExecutionStatus.FINISHED)
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
     )
 
     await runtime._evict_idle_runtimes(10)
@@ -539,7 +539,7 @@ async def test_running_idle_runtime_keeps_its_cache(
     runtime._last_access[conversation_id] = 0
     set_execution_status(runtime, ConversationExecutionStatus.RUNNING)
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
+        "handprint.agent_server.docker_runtime.registry.time.monotonic", lambda: 20
     )
 
     await runtime._evict_idle_runtimes(10)
@@ -827,7 +827,7 @@ async def test_resume_after_prune_mounts_a_fresh_cache_location(tmp_path, monkey
     runtime._build_container(conversation_id)
 
     persistence = runtime.provisioning.runtime_dir(conversation_id) / "persistence"
-    assert f"{persistence}:/var/openhands/.openhands" in mounts(commands[0][0])
+    assert f"{persistence}:/var/handprint/.handprint" in mounts(commands[0][0])
     assert not (persistence / ".cache").exists()
     assert_kept(kept)
 
@@ -852,7 +852,7 @@ def capture_docker_run(
 
     monkeypatch.setattr("subprocess.run", run)
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.registry.execute_command", execute
+        "handprint.agent_server.docker_runtime.registry.execute_command", execute
     )
     monkeypatch.setattr(runtime, "_wait_until_ready", lambda container: None)
     return commands

@@ -12,10 +12,10 @@ import uuid
 
 import pytest
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.io import LocalFileStore
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk import LLM, Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.io import LocalFileStore
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def _agent(model: str, usage_id: str = "default") -> Agent:

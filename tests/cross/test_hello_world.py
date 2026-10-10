@@ -11,7 +11,7 @@ import pytest
 from litellm.types.utils import Choices, Message as LiteLLMMessage, ModelResponse, Usage
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -19,16 +19,16 @@ from openhands.sdk import (
     TextContent,
     get_logger,
 )
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event.base import Event
-from openhands.sdk.event.llm_convertible import (
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event.base import Event
+from handprint.sdk.event.llm_convertible import (
     ActionEvent,
     MessageEvent,
     ObservationEvent,
 )
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 pytestmark = pytest.mark.skipif(
@@ -153,7 +153,7 @@ class TestHelloWorld:
 
         return [first_response, second_response]
 
-    @patch("openhands.sdk.llm.llm.litellm_completion")
+    @patch("handprint.sdk.llm.llm.litellm_completion")
     def test_hello_world_with_real_llm_data(self, mock_completion, fncall_raw_logs):
         """Test the complete hello world flow with real LLM completion data."""
         # Setup real LLM responses from fixtures
@@ -168,7 +168,7 @@ class TestHelloWorld:
         # Configure LLM (no real API key needed)
         llm = LLM(
             usage_id="test-llm",
-            model="claude-sonnet-4",
+            model="haijun-codtral",
             api_key=SecretStr("mock-api-key"),
         )
 
@@ -277,7 +277,7 @@ class TestHelloWorld:
                         "Real responses should have content"
                     )
 
-    @patch("openhands.sdk.llm.llm.litellm_completion")
+    @patch("handprint.sdk.llm.llm.litellm_completion")
     def test_llm_completion_logging_fidelity(self, mock_completion, fncall_raw_logs):
         """Test mocked LLM completion logging produces same output."""
         # Use mock responses for consistent behavior instead of real fixture data
@@ -288,7 +288,7 @@ class TestHelloWorld:
         # Configure LLM with logging enabled
         llm = LLM(
             usage_id="test-llm",
-            model="claude-sonnet-4",
+            model="haijun-codtral",
             api_key=SecretStr("mock-api-key"),
         )
 
@@ -415,7 +415,7 @@ class TestHelloWorld:
                 )
             ],
             created=1234567890,
-            model="claude-sonnet-4",
+            model="haijun-codtral",
             object="chat.completion",
             system_fingerprint=None,
             usage=None,
@@ -437,12 +437,12 @@ class TestHelloWorld:
             return mock_response
 
         # Create agent with mocked LLM
-        llm = LLM(model="claude-sonnet-4", usage_id="test-llm")
+        llm = LLM(model="haijun-codtral", usage_id="test-llm")
         agent = Agent(llm=llm, tools=[])
 
         # Mock the completion method
         with patch(
-            "openhands.sdk.llm.llm.litellm_completion",
+            "handprint.sdk.llm.llm.litellm_completion",
             side_effect=capture_completion_fidelity,
         ):
             # Create conversation and send a message
@@ -509,7 +509,7 @@ class TestHelloWorld:
                 )
             ],
             created=1234567890,
-            model="claude-sonnet-4",
+            model="haijun-codtral",
             object="chat.completion",
             system_fingerprint=None,
             usage=None,
@@ -531,11 +531,11 @@ class TestHelloWorld:
             return mock_response
 
         # Create agent with mocked LLM
-        agent = Agent(llm=LLM(model="claude-sonnet-4", usage_id="test-llm"), tools=[])
+        agent = Agent(llm=LLM(model="haijun-codtral", usage_id="test-llm"), tools=[])
 
         # Mock the completion method
         with patch(
-            "openhands.sdk.llm.llm.litellm_completion",
+            "handprint.sdk.llm.llm.litellm_completion",
             side_effect=capture_completion_non_func,
         ):
             # Create conversation and send a message

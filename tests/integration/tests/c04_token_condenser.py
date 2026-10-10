@@ -6,11 +6,11 @@ This integration test verifies that:
 3. Condensation is triggered when token limit is exceeded
 """
 
-from openhands.sdk import get_logger
-from openhands.sdk.context.condenser import LLMSummarizingCondenser
-from openhands.sdk.event.condenser import Condensation
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import get_logger
+from handprint.sdk.context.condenser import LLMSummarizingCondenser
+from handprint.sdk.event.condenser import Condensation
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.terminal import TerminalTool
 from tests.integration.base import BaseIntegrationTest, TestResult
 
 

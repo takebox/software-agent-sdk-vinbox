@@ -73,7 +73,7 @@ describe('RemoteWorkspace.startWorkspaceSession', () => {
   });
 
   it('does not require constructing an Agent or RemoteConversation', async () => {
-    // Regression guard for the agent-canvas use case: consumers that only want
+    // Regression guard for the agent-viczin use case: consumers that only want
     // to embed workspace assets must be able to do so directly from the
     // workspace, without inventing a placeholder Agent + LLM just to satisfy
     // the RemoteConversation constructor. The mere fact this test compiles

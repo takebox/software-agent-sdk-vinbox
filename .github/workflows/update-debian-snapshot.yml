@@ -19,15 +19,15 @@ jobs:
         runs-on: ubuntu-24.04
         timeout-minutes: 45
         env:
-            GH_TOKEN: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_PUBLIC }}
+            GH_TOKEN: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_PUBLIC }}
             BRANCH: chore/update-agent-server-debian-snapshot
-            DOCKERFILE: openhands-agent-server/openhands/agent_server/docker/Dockerfile
-            IMAGE: openhands/agent-server-binary-minimal:snapshot-update
+            DOCKERFILE: openhands-agent-server/handprint/agent_server/docker/Dockerfile
+            IMAGE: handprint/agent-server-binary-minimal:snapshot-update
         steps:
             - name: Checkout
               uses: actions/checkout@v7.0.1
               with:
-                  token: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_PUBLIC }}
+                  token: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_PUBLIC }}
 
             - name: Select the newest snapshot older than three days
               run: python .github/scripts/update_debian_snapshot.py --dockerfile "$DOCKERFILE"
@@ -72,7 +72,7 @@ jobs:
                   git add "$DOCKERFILE"
                   git commit -m "chore(agent-server): update Debian snapshot to $SNAPSHOT" \
                     -m "Use the newest UTC snapshot that has completed the three-day observation period." \
-                    -m "Co-authored-by: openhands <openhands@all-hands.dev>"
+                    -m "Co-authored-by: handprint <handprint@all-hands.dev>"
                   git push --force-with-lease -u origin "$BRANCH"
 
                   BODY=$(cat <<EOF

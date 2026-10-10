@@ -3,5 +3,5 @@
   "name": "partial-failures",
   "version": "1.0.0",
   "description": "One broken entry per component type, each isolated from its siblings.",
-  "extensions": { "dev.openhands": {} }
+  "extensions": { "dev.handprint": {} }
 }

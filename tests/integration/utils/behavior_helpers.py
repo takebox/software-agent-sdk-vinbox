@@ -7,8 +7,8 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
-from openhands.sdk import get_logger
-from openhands.sdk.tool import Tool
+from handprint.sdk import get_logger
+from handprint.sdk.tool import Tool
 from tests.integration.base import (
     BaseIntegrationTest,
     SkipTest,

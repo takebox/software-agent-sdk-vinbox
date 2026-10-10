@@ -13,16 +13,16 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.conversation.goal import judge_goal
-from openhands.sdk.conversation.goal.judge import _render_transcript
-from openhands.sdk.event import Event, LLMConvertibleEvent, SystemPromptEvent
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.testing import TestLLM
+from handprint.sdk.conversation.goal import judge_goal
+from handprint.sdk.conversation.goal.judge import _render_transcript
+from handprint.sdk.event import Event, LLMConvertibleEvent, SystemPromptEvent
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.testing import TestLLM
 
 
 # The trace's `terminal` tool actions need openhands-tools to deserialize their
 # kinds; skip in isolated openhands-sdk runs where it is not installed.
-pytest.importorskip("openhands.tools.terminal")
+pytest.importorskip("handprint.tools.terminal")
 
 
 _FIXTURES = Path(__file__).parent / "fixtures"

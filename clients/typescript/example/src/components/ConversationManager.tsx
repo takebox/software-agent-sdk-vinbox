@@ -7,7 +7,7 @@ import {
   Agent,
   Workspace,
   Event
-} from '@openhands/agent-server-typescript-client';
+} from '@takebox-ai/agent-server-typescript-client';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface ConversationData extends ConversationInfo {

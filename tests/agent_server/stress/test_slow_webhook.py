@@ -31,18 +31,18 @@ import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 
-from openhands.agent_server import bash_router as bash_router_module
-from openhands.agent_server.bash_service import BashEventService
-from openhands.agent_server.config import Config, WebhookSpec
-from openhands.agent_server.conversation_router import conversation_router
-from openhands.agent_server.conversation_service import (
+from handprint.agent_server import bash_router as bash_router_module
+from handprint.agent_server.bash_service import BashEventService
+from handprint.agent_server.config import Config, WebhookSpec
+from handprint.agent_server.conversation_router import conversation_router
+from handprint.agent_server.conversation_service import (
     ConversationService,
     WebhookSubscriber,
 )
-from openhands.agent_server.dependencies import get_conversation_service
-from openhands.agent_server.event_router import event_router
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.agent_server.dependencies import get_conversation_service
+from handprint.agent_server.event_router import event_router
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
 from tests.agent_server.stress.budgets import SLOW_WEBHOOK
 from tests.agent_server.stress.probe import ResourceProbe
 from tests.agent_server.stress.scripts import (

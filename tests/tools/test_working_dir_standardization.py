@@ -1,7 +1,7 @@
 """Test that tools use standardized working directory.
 
 This test verifies that issue #211 has been resolved:
-"Standardize input argument for openhands tools"
+"Standardize input argument for handprint tools"
 
 Both TerminalTool (BashTool) and FileEditorTool (StrReplaceEditorTool) should use
 the same source for working directory: conv_state.workspace.working_dir
@@ -14,12 +14,12 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm import LLM
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.file_editor import FileEditorAction, FileEditorTool
-from openhands.tools.terminal import TerminalAction, TerminalTool
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm import LLM
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.file_editor import FileEditorAction, FileEditorTool
+from handprint.tools.terminal import TerminalAction, TerminalTool
 
 
 pytestmark = pytest.mark.skipif(

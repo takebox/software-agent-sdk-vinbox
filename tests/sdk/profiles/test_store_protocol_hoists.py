@@ -13,11 +13,11 @@ from typing import Any
 
 import pytest
 
-from openhands.sdk.profiles import (
+from handprint.sdk.profiles import (
     SEED_PROFILE_NAME,
     ACPAgentProfile,
     AgentProfileStoreProtocol,
-    OpenHandsAgentProfile,
+    HandprintAgentProfile,
     ProfileLimitExceeded,
     ProfileReferenced,
     ProfileVerificationSettings,
@@ -31,7 +31,7 @@ from openhands.sdk.profiles import (
     save_profile_preserving_identity,
     validate_agent_profile,
 )
-from openhands.sdk.settings.model import VerificationSettings, validate_agent_settings
+from handprint.sdk.settings.model import VerificationSettings, validate_agent_settings
 
 
 class InMemoryAgentProfileStore:
@@ -43,7 +43,7 @@ class InMemoryAgentProfileStore:
     """
 
     def __init__(self) -> None:
-        self._profiles: dict[str, OpenHandsAgentProfile | ACPAgentProfile] = {}
+        self._profiles: dict[str, HandprintAgentProfile | ACPAgentProfile] = {}
 
     @contextmanager
     def lock(self, timeout: float = 30.0):
@@ -56,7 +56,7 @@ class InMemoryAgentProfileStore:
         out: list[dict[str, Any]] = []
         for name, p in self._profiles.items():
             d = p.model_dump(mode="json")
-            kind = d.get("agent_kind", "openhands")
+            kind = d.get("agent_kind", "handprint")
             out.append(
                 {
                     "id": d.get("id"),
@@ -64,7 +64,7 @@ class InMemoryAgentProfileStore:
                     "agent_kind": kind,
                     "revision": d.get("revision"),
                     "llm_profile_ref": (
-                        d.get("llm_profile_ref") if kind == "openhands" else None
+                        d.get("llm_profile_ref") if kind == "handprint" else None
                     ),
                     "mcp_server_refs": d.get("mcp_server_refs"),
                 }
@@ -98,7 +98,7 @@ class InMemoryAgentProfileStore:
 
     def set_llm_profile_ref(self, name, new_ref) -> None:
         p = self._profiles.get(name)
-        if isinstance(p, OpenHandsAgentProfile):
+        if isinstance(p, HandprintAgentProfile):
             self._profiles[name] = p.model_copy(update={"llm_profile_ref": new_ref})
 
     def name_for_id(self, profile_id) -> str | None:
@@ -127,16 +127,16 @@ class FakeLLMStore:
 
 def _seed(store: InMemoryAgentProfileStore) -> None:
     save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="reviewer", llm_profile_ref="gpt")
+        store, HandprintAgentProfile(name="reviewer", llm_profile_ref="gpt")
     )
     save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="coder", llm_profile_ref="gpt")
+        store, HandprintAgentProfile(name="coder", llm_profile_ref="gpt")
     )
     save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="cheap", llm_profile_ref="haiku")
+        store, HandprintAgentProfile(name="cheap", llm_profile_ref="haiku")
     )
     save_profile_preserving_identity(
-        store, ACPAgentProfile(name="claude", acp_server="claude-code")
+        store, ACPAgentProfile(name="haijun", acp_server="haijun-code")
     )
 
 
@@ -151,7 +151,7 @@ def test_find_referrers_over_protocol_store():
     assert sorted(find_referrers(store, "gpt")) == ["coder", "reviewer"]
     assert find_referrers(store, "haiku") == ["cheap"]
     # ACP profiles carry no llm_profile_ref and never match.
-    assert find_referrers(store, "claude-code") == []
+    assert find_referrers(store, "haijun-code") == []
     assert find_referrers(store, "missing") == []
 
 
@@ -196,24 +196,24 @@ def test_rename_llm_profile_cascades_over_protocol_store():
 def test_save_preserving_identity_mints_then_keeps_id_and_bumps_revision():
     store = InMemoryAgentProfileStore()
     created = save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="p", llm_profile_ref="gpt")
+        store, HandprintAgentProfile(name="p", llm_profile_ref="gpt")
     )
     assert created.revision == 0
     first_id = created.id
 
     # Overwrite keeps the id and bumps revision; a client-supplied id is ignored.
     again = save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="p", llm_profile_ref="haiku")
+        store, HandprintAgentProfile(name="p", llm_profile_ref="haiku")
     )
     assert again.id == first_id
     assert again.revision == 1
     reloaded = store.load("p")
-    assert isinstance(reloaded, OpenHandsAgentProfile)
+    assert isinstance(reloaded, HandprintAgentProfile)
     assert reloaded.llm_profile_ref == "haiku"
 
     # A different name mints a fresh id.
     other = save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="q", llm_profile_ref="gpt")
+        store, HandprintAgentProfile(name="q", llm_profile_ref="gpt")
     )
     assert other.id != first_id
     assert other.revision == 0
@@ -222,62 +222,62 @@ def test_save_preserving_identity_mints_then_keeps_id_and_bumps_revision():
 def test_save_preserving_identity_enforces_limit():
     store = InMemoryAgentProfileStore()
     save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="a", llm_profile_ref="gpt"), max_profiles=1
+        store, HandprintAgentProfile(name="a", llm_profile_ref="gpt"), max_profiles=1
     )
     with pytest.raises(ProfileLimitExceeded):
         save_profile_preserving_identity(
             store,
-            OpenHandsAgentProfile(name="b", llm_profile_ref="gpt"),
+            HandprintAgentProfile(name="b", llm_profile_ref="gpt"),
             max_profiles=1,
         )
     # Overwriting the existing one is allowed at the cap.
     save_profile_preserving_identity(
-        store, OpenHandsAgentProfile(name="a", llm_profile_ref="haiku"), max_profiles=1
+        store, HandprintAgentProfile(name="a", llm_profile_ref="haiku"), max_profiles=1
     )
 
 
-def test_build_seed_profile_openhands_branch():
-    settings = validate_agent_settings({"agent_kind": "openhands"})
+def test_build_seed_profile_handprint_branch():
+    settings = validate_agent_settings({"agent_kind": "handprint"})
     profile = build_seed_profile(settings, active_llm_profile="my-llm")
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.name == SEED_PROFILE_NAME
     assert profile.llm_profile_ref == "my-llm"
     assert profile.mcp_server_refs is None
     # Default settings carry tools=None -> the seed inherits the server default.
     assert profile.tools is None
     # The seed disables nothing -> the default profile launches with all
-    # discovered skills (deny-list model; nothing frozen, nothing can dangle).
-    assert profile.disabled_skills == []
+    # discovered tracks (deny-list model; nothing frozen, nothing can dangle).
+    assert profile.disabled_tracks == []
     # Secret-free verification projection (no critic_api_key on the profile type).
     assert "critic_api_key" not in type(profile.verification).model_fields
 
     # No active LLM profile -> soft fallback to SEED_PROFILE_NAME.
     fallback = build_seed_profile(settings, active_llm_profile=None)
-    assert isinstance(fallback, OpenHandsAgentProfile)
+    assert isinstance(fallback, HandprintAgentProfile)
     assert fallback.llm_profile_ref == SEED_PROFILE_NAME
     assert fallback.persona is None
 
 
 def test_build_seed_profile_copies_persona():
     settings = validate_agent_settings(
-        {"agent_kind": "openhands", "persona": "You triage issues."}
+        {"agent_kind": "handprint", "persona": "You triage issues."}
     )
     profile = build_seed_profile(settings, active_llm_profile="my-llm")
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.persona == "You triage issues."
 
 
-def test_build_seed_profile_disables_nothing_even_with_inline_global_skills():
-    """The seed never freezes the global's skills by name — it sets an empty
+def test_build_seed_profile_disables_nothing_even_with_inline_global_tracks():
+    """The seed never freezes the global's tracks by name — it sets an empty
     deny-list, so the migrated default profile launches with all discovered
-    skills. Freezing by name was the #4017 launch-break: an inline global skill
+    tracks. Freezing by name was the #4017 launch-break: an inline global track
     absent from the launch catalog would have dangled. See the seed->resolve
     regression in test_resolver.py."""
     settings = validate_agent_settings(
         {
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "agent_context": {
-                "skills": [
+                "tracks": [
                     {"name": "alpha", "content": "x"},
                     {"name": "beta", "content": "y"},
                 ]
@@ -285,8 +285,8 @@ def test_build_seed_profile_disables_nothing_even_with_inline_global_skills():
         }
     )
     profile = build_seed_profile(settings, active_llm_profile="my-llm")
-    assert isinstance(profile, OpenHandsAgentProfile)
-    assert profile.disabled_skills == []
+    assert isinstance(profile, HandprintAgentProfile)
+    assert profile.disabled_tracks == []
 
 
 def test_build_seed_profile_copies_explicit_tools():
@@ -295,28 +295,28 @@ def test_build_seed_profile_copies_explicit_tools():
     the server default (#3978)."""
     settings = validate_agent_settings(
         {
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "tools": [{"name": "terminal"}, {"name": "browser_use"}],
         }
     )
     profile = build_seed_profile(settings, active_llm_profile="my-llm")
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.tools is not None
     assert [t.name for t in profile.tools] == ["terminal", "browser_use"]
 
 
 def test_build_seed_profile_acp_branch():
     settings = validate_agent_settings(
-        {"agent_kind": "acp", "acp_server": "claude-code"}
+        {"agent_kind": "acp", "acp_server": "haijun-code"}
     )
     profile = build_seed_profile(settings, active_llm_profile="ignored")
     assert isinstance(profile, ACPAgentProfile)
     assert profile.name == SEED_PROFILE_NAME
-    assert profile.acp_server == "claude-code"
+    assert profile.acp_server == "haijun-code"
     assert profile.mcp_server_refs is None
-    # ACP profiles have no skill-selection field — they own their tooling.
-    assert not hasattr(profile, "skill_refs")
-    assert not hasattr(profile, "disabled_skills")
+    # ACP profiles have no track-selection field — they own their tooling.
+    assert not hasattr(profile, "track_refs")
+    assert not hasattr(profile, "disabled_tracks")
     assert not hasattr(profile, "llm_profile_ref")
 
 

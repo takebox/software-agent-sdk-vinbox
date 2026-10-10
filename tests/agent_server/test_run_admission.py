@@ -9,13 +9,13 @@ from unittest.mock import AsyncMock
 import pytest
 import pytest_asyncio
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.event_service import ConversationRunLimitExceeded
-from openhands.sdk import LLM, Agent, Message, TextContent
-from openhands.sdk.conversation.request import StartConversationRequest
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.event_service import ConversationRunLimitExceeded
+from handprint.sdk import LLM, Agent, Message, TextContent
+from handprint.sdk.conversation.request import StartConversationRequest
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.workspace import LocalWorkspace
 from tests.agent_server.stress.scripts import start_conversation_with_test_llm
 
 

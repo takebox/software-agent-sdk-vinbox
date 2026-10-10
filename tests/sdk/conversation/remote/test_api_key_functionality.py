@@ -5,14 +5,14 @@ from unittest.mock import Mock, patch
 
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.conversation.impl.remote_conversation import (
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.conversation.impl.remote_conversation import (
     RemoteConversation,
     WebSocketCallbackClient,
 )
-from openhands.sdk.llm import LLM
-from openhands.sdk.workspace import RemoteWorkspace
+from handprint.sdk.llm import LLM
+from handprint.sdk.workspace import RemoteWorkspace
 
 from ..conftest import create_mock_http_client
 
@@ -29,7 +29,7 @@ def test_conversation_factory_passes_api_key_to_remote():
     test_api_key = "test-api-key-123"
 
     with patch(
-        "openhands.sdk.conversation.impl.remote_conversation.RemoteConversation"
+        "handprint.sdk.conversation.impl.remote_conversation.RemoteConversation"
     ) as mock_remote:
         # Mock the RemoteConversation constructor
         mock_instance = Mock()
@@ -38,7 +38,7 @@ def test_conversation_factory_passes_api_key_to_remote():
         # Create conversation with RemoteWorkspace
         workspace = RemoteWorkspace(
             working_dir="/tmp",
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key=test_api_key,
         )
         Conversation(
@@ -62,14 +62,14 @@ def test_remote_conversation_no_api_key_no_headers():
     with (
         patch("httpx.Client", return_value=mock_client_instance) as mock_httpx_client,
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create RemoteWorkspace without API key
         workspace = RemoteWorkspace(
             working_dir="/tmp",
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key=None,
         )
         # Create RemoteConversation without API key
@@ -90,7 +90,7 @@ def test_remote_conversation_no_api_key_no_headers():
 def test_websocket_client_includes_api_key_in_url():
     """Test that WebSocketCallbackClient includes API key in WebSocket URL."""
     test_api_key = "test-api-key-123"
-    host = "http://localhost:3000"
+    host = "http://localhost:4000"
     conversation_id = str(uuid.uuid4())
     callback = Mock()
 
@@ -109,7 +109,7 @@ def test_websocket_client_includes_api_key_in_url():
 
 def test_websocket_client_no_api_key():
     """Test that WebSocketCallbackClient works without API key."""
-    host = "http://localhost:3000"
+    host = "http://localhost:4000"
     conversation_id = str(uuid.uuid4())
     callback = Mock()
 
@@ -137,7 +137,7 @@ def test_remote_conversation_passes_api_key_to_websocket_client():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ) as mock_ws_client,
     ):
@@ -147,7 +147,7 @@ def test_remote_conversation_passes_api_key_to_websocket_client():
         # Create RemoteWorkspace with API key
         workspace = RemoteWorkspace(
             working_dir="/tmp",
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key=test_api_key,
         )
         # Create RemoteConversation with API key

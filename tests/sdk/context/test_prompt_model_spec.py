@@ -1,5 +1,5 @@
-from openhands.sdk.agent import Agent
-from openhands.sdk.llm import LLM
+from handprint.sdk.agent import Agent
+from handprint.sdk.llm import LLM
 
 
 def _make_agent(model: str, **llm_kwargs) -> Agent:

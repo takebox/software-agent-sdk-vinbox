@@ -2,11 +2,11 @@
 
 import pytest
 
-from openhands.sdk.hooks.config import HookConfig
-from openhands.sdk.hooks.manager import HookManager
-from openhands.sdk.hooks.types import HookDecision
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.testing import TestLLM
+from handprint.sdk.hooks.config import HookConfig
+from handprint.sdk.hooks.manager import HookManager
+from handprint.sdk.hooks.types import HookDecision
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.testing import TestLLM
 from tests.command_utils import python_command, sleep_command, touch_command
 
 
@@ -145,7 +145,7 @@ class TestHookManager:
 
     def test_get_blocking_reason(self, tmp_working_dir):
         """Test get_blocking_reason extracts reason from results."""
-        from openhands.sdk.hooks.executor import HookResult
+        from handprint.sdk.hooks.executor import HookResult
 
         manager = HookManager(config=HookConfig(), working_dir=tmp_working_dir)
 

@@ -1,12 +1,12 @@
 import pytest
 
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.event.error_classification import (
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.event.error_classification import (
     ErrorClassification,
     FailureKind,
     classify_error,
 )
-from openhands.sdk.event.llm_convertible import AgentErrorEvent
+from handprint.sdk.event.llm_convertible import AgentErrorEvent
 
 
 @pytest.mark.parametrize(

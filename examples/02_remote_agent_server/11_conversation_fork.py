@@ -17,8 +17,8 @@ import tempfile
 from pydantic import SecretStr
 from scripts.utils import ManagedAPIServer
 
-from openhands.sdk import LLM, Agent, Conversation, RemoteConversation, Tool, Workspace
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation, RemoteConversation, Tool, Workspace
+from handprint.tools.terminal import TerminalTool
 
 
 # -----------------------------------------------------------------
@@ -37,7 +37,7 @@ agent = Agent(llm=llm, tools=[Tool(name=TerminalTool.name)])
 # -----------------------------------------------------------------
 # Run
 # -----------------------------------------------------------------
-with ManagedAPIServer(port=8002) as server:
+with ManagedAPIServer(port=9002) as server:
     workspace_dir = tempfile.mkdtemp(prefix="fork_demo_")
     workspace = Workspace(host=server.base_url, working_dir=workspace_dir)
 

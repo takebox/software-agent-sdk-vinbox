@@ -6,11 +6,11 @@ import uuid
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm import LLM
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.terminal import (
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm import LLM
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.terminal import (
     TerminalAction,
     TerminalObservation,
     TerminalTool,

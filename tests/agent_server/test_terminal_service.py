@@ -8,9 +8,9 @@ from typing import Any
 
 import pytest
 
-from openhands.agent_server.bash_service import BashEventService
-from openhands.agent_server.models import BashCommand, BashOutput, ExecuteBashRequest
-from openhands.agent_server.pub_sub import Subscriber
+from handprint.agent_server.bash_service import BashEventService
+from handprint.agent_server.models import BashCommand, BashOutput, ExecuteBashRequest
+from handprint.agent_server.pub_sub import Subscriber
 
 
 pytestmark = pytest.mark.skipif(

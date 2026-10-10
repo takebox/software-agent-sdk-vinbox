@@ -2,15 +2,15 @@
 Observability & Laminar example
 
 This example demonstrates enabling OpenTelemetry tracing with Laminar in the
-OpenHands SDK. Set LMNR_PROJECT_API_KEY and run the script to see traces.
+Handprint SDK. Set LMNR_PROJECT_API_KEY and run the script to see traces.
 """
 
 import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, Conversation, Tool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation, Tool
+from handprint.tools.terminal import TerminalTool
 
 
 # Tip: Set LMNR_PROJECT_API_KEY in your environment before running, e.g.:

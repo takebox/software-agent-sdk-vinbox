@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk import LLM, LocalConversation, OpenHandsAgentSettings, Tool
-from openhands.sdk.agent import Agent
-from openhands.sdk.llm import llm_profile_store
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.tool.builtins import (
+from handprint.sdk import LLM, LocalConversation, HandprintAgentSettings, Tool
+from handprint.sdk.agent import Agent
+from handprint.sdk.llm import llm_profile_store
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.tool.builtins import (
     SwitchLLMAction,
     SwitchLLMObservation,
     SwitchLLMTool,
@@ -57,7 +57,7 @@ def test_switch_llm_tool_description_lists_available_profiles(profile_store):
 def test_agent_settings_includes_switch_llm_tool_when_profiles_exist(profile_store):
     # An explicit list (not the None default): these tests resolve tools for
     # real via _ensure_agent_ready and tests/sdk registers no exec tools.
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"), tools=[Tool(name="switch_llm")]
     ).create_agent()
 
@@ -69,7 +69,7 @@ def test_agent_settings_includes_switch_llm_tool_when_profiles_exist(profile_sto
 
 
 def test_agent_settings_omits_switch_llm_tool_when_disabled(profile_store):
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
         tools=[],
     ).create_agent()
@@ -82,7 +82,7 @@ def test_agent_settings_omits_switch_llm_tool_when_disabled(profile_store):
 
 
 def test_agent_settings_includes_switch_llm_tool_without_profiles(empty_profile_store):
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"), tools=[Tool(name="switch_llm")]
     ).create_agent()
 
@@ -97,7 +97,7 @@ def test_agent_settings_includes_switch_llm_tool_without_profiles(empty_profile_
 def test_agent_settings_explicit_switch_llm_is_not_duplicated(
     name, empty_profile_store
 ):
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"), tools=[Tool(name=name)]
     ).create_agent()
 
@@ -156,13 +156,13 @@ def test_switch_llm_tool_reports_unexpected_profile_load_error(
 
     observation = conversation.execute_tool(
         "switch_llm",
-        SwitchLLMAction(profile_name="fast", reason="Need access to Claude."),
+        SwitchLLMAction(profile_name="fast", reason="Need access to Haijun."),
     )
 
     assert isinstance(observation, SwitchLLMObservation)
     assert observation.is_error
     assert observation.profile_name == "fast"
-    assert observation.reason == "Need access to Claude."
+    assert observation.reason == "Need access to Haijun."
     assert observation.active_model is None
     assert "PermissionError" in observation.text
     assert "Cannot read fast" in observation.text
@@ -171,7 +171,7 @@ def test_switch_llm_tool_reports_unexpected_profile_load_error(
 
 
 def test_switch_llm_is_exempt_from_filter_tools_regex(profile_store):
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"), tools=[Tool(name="switch_llm")]
     ).create_agent()
     agent = agent.model_copy(update={"filter_tools_regex": "^mcp_"})

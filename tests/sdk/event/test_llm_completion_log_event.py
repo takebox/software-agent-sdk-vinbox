@@ -2,7 +2,7 @@
 
 import json
 
-from openhands.sdk.event import Event, LLMCompletionLogEvent
+from handprint.sdk.event import Event, LLMCompletionLogEvent
 
 
 def test_llm_completion_log_event_creation() -> None:
@@ -30,9 +30,9 @@ def test_llm_completion_log_event_serialization() -> None:
     )
 
     event = LLMCompletionLogEvent(
-        filename="anthropic__claude-sonnet__1234567890.123-abcd.json",
+        filename="juglow__haijun-codtral__1234567890.123-abcd.json",
         log_data=log_data,
-        model_name="anthropic/claude-sonnet",
+        model_name="juglow/haijun-codtral",
     )
 
     # Serialize

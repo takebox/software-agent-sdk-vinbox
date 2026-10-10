@@ -16,12 +16,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, Conversation
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.mcp.client import MCPClient
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.plugin import PluginSource
-from openhands.sdk.plugin.format.agent_plugins_mcp import get_plugin_data_dir
+from handprint.sdk import LLM, Agent, Conversation
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.mcp.client import MCPClient
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.plugin import PluginSource
+from handprint.sdk.plugin.format.agent_plugins_mcp import get_plugin_data_dir
 
 
 FIXTURES = Path(__file__).parents[2] / "fixtures" / "plugins" / "agent_plugins"
@@ -62,7 +62,7 @@ def plugin_data_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Keep ``PLUGIN_DATA`` out of the real user directory."""
     root = tmp_path / "plugin-data"
     monkeypatch.setattr(
-        "openhands.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR", root
+        "handprint.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR", root
     )
     return root
 
@@ -71,7 +71,7 @@ def plugin_data_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def no_ambient_plugins(monkeypatch: pytest.MonkeyPatch) -> None:
     """Load only the attached package, whatever the developer has installed."""
     monkeypatch.setattr(
-        "openhands.sdk.conversation.impl.local_conversation.load_available_plugins",
+        "handprint.sdk.conversation.impl.local_conversation.load_available_plugins",
         lambda **kwargs: {},
     )
 
@@ -104,29 +104,29 @@ def env_of(server: MCPServer) -> dict[str, str]:
     return {key: value.get_secret_value() for key, value in (server.env or {}).items()}
 
 
-class TestSkills:
-    """Skills from the portable layout reach the agent context."""
+class TestTracks:
+    """Tracks from the portable layout reach the agent context."""
 
-    def test_skills_reach_the_agent_context(self, agent: Agent, workspace: Path):
+    def test_tracks_reach_the_agent_context(self, agent: Agent, workspace: Path):
         conversation = conversation_with("full-package", agent, workspace)
 
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        names = {s.name for s in conversation.agent.agent_context.skills}
+        names = {s.name for s in conversation.agent.agent_context.tracks}
         assert {"greet", "summarize"} <= names
         conversation.close()
 
-    def test_the_entry_command_arrives_as_a_skill(self, agent: Agent, workspace: Path):
-        """Our extension's commands become keyword-triggered skills."""
+    def test_the_entry_command_arrives_as_a_track(self, agent: Agent, workspace: Path):
+        """Our extension's commands become keyword-triggered tracks."""
         conversation = conversation_with("full-package", agent, workspace)
 
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skills = {s.name: s for s in conversation.agent.agent_context.skills}
-        assert "full-package:report" in skills
-        assert skills["full-package:report"].trigger is not None
+        tracks = {s.name: s for s in conversation.agent.agent_context.tracks}
+        assert "full-package:report" in tracks
+        assert tracks["full-package:report"].trigger is not None
         conversation.close()
 
     def test_the_vendored_example_package_works(self, agent: Agent, workspace: Path):
@@ -136,7 +136,7 @@ class TestSkills:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        names = {s.name for s in conversation.agent.agent_context.skills}
+        names = {s.name for s in conversation.agent.agent_context.tracks}
         assert "migrate-agent-plugin" in names
         assert conversation.resolved_plugins is not None
         assert len(conversation.resolved_plugins) == 1
@@ -156,7 +156,7 @@ class TestSkills:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        names = {s.name for s in conversation.agent.agent_context.skills}
+        names = {s.name for s in conversation.agent.agent_context.tracks}
         assert {"greet", "summarize"} <= names
         conversation.close()
 
@@ -169,7 +169,7 @@ class TestSkills:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        assert conversation.agent.agent_context.skills == []
+        assert conversation.agent.agent_context.tracks == []
         assert conversation.agent.mcp_config == {}
         conversation.close()
 
@@ -271,7 +271,7 @@ class TestMCPServers:
 
 
 class TestClientExtension:
-    """``dev.openhands`` components are applied to the conversation."""
+    """``dev.handprint`` components are applied to the conversation."""
 
     def test_hooks_reach_the_hook_processor(self, agent: Agent, workspace: Path):
         conversation = conversation_with("full-package", agent, workspace)
@@ -279,7 +279,7 @@ class TestClientExtension:
         processor.on_event = MagicMock()
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation.create_hook_callback",
+            "handprint.sdk.conversation.impl.local_conversation.create_hook_callback",
             return_value=(processor, processor.on_event),
         ) as create_hook_callback:
             conversation._ensure_plugins_loaded()
@@ -295,7 +295,7 @@ class TestClientExtension:
         conversation = conversation_with("full-package", agent, workspace)
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation.register_plugin_agents"
+            "handprint.sdk.conversation.impl.local_conversation.register_plugin_agents"
         ) as register:
             conversation._ensure_plugins_loaded()
 
@@ -321,7 +321,7 @@ class TestFailureBoundaries:
         conversation._ensure_agent_ready()
 
         assert conversation.agent.agent_context is not None
-        assert [s.name for s in conversation.agent.agent_context.skills] == ["good"]
+        assert [s.name for s in conversation.agent.agent_context.tracks] == ["good"]
         assert set(conversation.agent.mcp_config) == {"good-server"}
         assert set(created[-1]) == {"good-server"}
         conversation.close()
@@ -345,7 +345,7 @@ class TestFailureBoundaries:
         assert conversation.agent.mcp_config == {}
         conversation.close()
 
-    def test_a_disabled_mcp_component_still_yields_skills(
+    def test_a_disabled_mcp_component_still_yields_tracks(
         self, agent: Agent, workspace: Path
     ):
         """An ``mcp.json`` targeting another version disables MCP, not the plugin."""
@@ -360,7 +360,7 @@ class TestFailureBoundaries:
         conversation._ensure_agent_ready()
 
         assert conversation.agent.agent_context is not None
-        assert [s.name for s in conversation.agent.agent_context.skills] == [
+        assert [s.name for s in conversation.agent.agent_context.tracks] == [
             "still-here"
         ]
         assert conversation.agent.mcp_config == {}
@@ -369,16 +369,16 @@ class TestFailureBoundaries:
     def test_components_outside_the_fixed_locations_never_reach_the_agent(
         self, agent: Agent, workspace: Path
     ):
-        """The Claude Code layout at the root contributes nothing here."""
+        """The Haijun Code layout at the root contributes nothing here."""
         conversation = conversation_with("wrong-locations", agent, workspace)
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation.register_plugin_agents"
+            "handprint.sdk.conversation.impl.local_conversation.register_plugin_agents"
         ) as register:
             conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        assert [s.name for s in conversation.agent.agent_context.skills] == ["only"]
+        assert [s.name for s in conversation.agent.agent_context.tracks] == ["only"]
         assert conversation.agent.mcp_config == {}
         register.assert_not_called()
         conversation.close()
@@ -391,5 +391,5 @@ class TestFailureBoundaries:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        assert [s.name for s in conversation.agent.agent_context.skills] == ["ok"]
+        assert [s.name for s in conversation.agent.agent_context.tracks] == ["ok"]
         conversation.close()

@@ -3,12 +3,12 @@
  * happen live (in-conversation), requires a new conversation, or is already
  * current.
  *
- * Lives in its own module so the canvas can import it without pulling in HTTP
+ * Lives in its own module so the viczin can import it without pulling in HTTP
  * client code, and so it can be unit-tested without any I/O.
  */
 
 import type { ACPProviderInfo } from '../models/acp';
-import type { ACPAgentProfile, OpenHandsAgentProfile } from '../models/agent-profile';
+import type { ACPAgentProfile, HandprintAgentProfile } from '../models/agent-profile';
 
 export type SwitchPlan =
   | { action: 'current' }
@@ -65,22 +65,22 @@ function changedNonMutableFields(
  *                      used at conversation start.
  * @param targetProfile The profile the user wants to apply.
  * @param providerInfo  ACP provider info for the *current* agent (from
- *                      {@link getAcpProvider}), or `null` for OpenHands or
+ *                      {@link getAcpProvider}), or `null` for Handprint or
  *                      custom ACP servers. Used to check
  *                      `supports_runtime_model_switch`.
  *
  * Decision rules (mirrors epic #3713):
  * - **current**: `snapshot` content is identical to `targetProfile` content.
  * - **switch-live**: can transition without restarting the conversation:
- *   - OpenHands → OpenHands: only `llm_profile_ref` differs.
+ *   - Handprint → Handprint: only `llm_profile_ref` differs.
  *   - ACP → ACP: same `acp_server`, only `acp_model` differs, and the
  *     provider declares `supports_runtime_model_switch`.
  * - **start-new**: possible but requires a fresh conversation.
  * - **disabled**: no path forward (e.g. unknown agent kind).
  */
 export function deriveSwitchPlan(
-  snapshot: OpenHandsAgentProfile | ACPAgentProfile | null | undefined,
-  targetProfile: OpenHandsAgentProfile | ACPAgentProfile,
+  snapshot: HandprintAgentProfile | ACPAgentProfile | null | undefined,
+  targetProfile: HandprintAgentProfile | ACPAgentProfile,
   providerInfo: ACPProviderInfo | null
 ): SwitchPlan {
   if (!snapshot) {
@@ -100,8 +100,8 @@ export function deriveSwitchPlan(
   const snapshotRaw = snapshot as unknown as Record<string, unknown>;
   const targetRaw = targetProfile as unknown as Record<string, unknown>;
 
-  if (snapshot.agent_kind === 'openhands') {
-    // OpenHands → OpenHands: live only if just llm_profile_ref differs.
+  if (snapshot.agent_kind === 'handprint') {
+    // Handprint → Handprint: live only if just llm_profile_ref differs.
     const nonMutable = changedNonMutableFields(
       snapshotRaw,
       targetRaw,
@@ -109,7 +109,7 @@ export function deriveSwitchPlan(
     );
     if (nonMutable.length === 0) {
       const llmDiffers =
-        snapshot.llm_profile_ref !== (targetProfile as OpenHandsAgentProfile).llm_profile_ref;
+        snapshot.llm_profile_ref !== (targetProfile as HandprintAgentProfile).llm_profile_ref;
       if (!llmDiffers) {
         return { action: 'current' };
       }

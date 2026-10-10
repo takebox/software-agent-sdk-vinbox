@@ -8,9 +8,9 @@ import sys
 
 import pytest
 
-from openhands.sdk.settings.acp_install_catalog import (
+from handprint.sdk.settings.acp_install_catalog import (
     ACP_INSTALL_CATALOG,
-    CLAUDE_AGENT_ACP_VERSION,
+    HAIJUN_AGENT_ACP_VERSION,
     CODEX_ACP_VERSION,
     DEFAULT_PREINSTALLED_ACP_PROVIDERS,
     GEMINI_CLI_VERSION,
@@ -21,11 +21,11 @@ from openhands.sdk.settings.acp_install_catalog import (
     _main,
     render_docker_install_plan,
 )
-from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
+from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
 
 
 CATALOG_PY = __import__(
-    "openhands.sdk.settings.acp_install_catalog", fromlist=["__file__"]
+    "handprint.sdk.settings.acp_install_catalog", fromlist=["__file__"]
 ).__file__
 
 
@@ -111,7 +111,7 @@ class TestPiInstallSpec:
         assert spec.packages[0].name == spec.binary_name == "pi-acp"
 
     def test_install_plan_installs_both_but_wraps_only_the_adapter(self):
-        """`pi` is never launched by OpenHands directly — pi-acp spawns it, and
+        """`pi` is never launched by Handprint directly — pi-acp spawns it, and
         the adapter's wrapper puts $ACP_NODE_DIR/bin on PATH for it, so a
         second wrapper would be dead weight."""
         packages, wrapper_bins = render_docker_install_plan(["pi"])
@@ -138,7 +138,7 @@ class TestACPInstallCatalogMatchesACPProviders:
             assert info.binary_name == ACP_INSTALL_CATALOG[key].binary_name
 
     def test_pinned_versions_unchanged(self):
-        assert CLAUDE_AGENT_ACP_VERSION == "0.63.0"
+        assert HAIJUN_AGENT_ACP_VERSION == "0.63.0"
         assert CODEX_ACP_VERSION == "1.10.0"
         assert GEMINI_CLI_VERSION == "0.46.0"
 
@@ -146,7 +146,7 @@ class TestACPInstallCatalogMatchesACPProviders:
 class TestDefaultPreinstalledACPProviders:
     def test_preserves_todays_default_image_contents(self):
         assert DEFAULT_PREINSTALLED_ACP_PROVIDERS == (
-            "claude-code",
+            "haijun-code",
             "codex",
             "gemini-cli",
         )
@@ -162,11 +162,11 @@ class TestRenderDockerInstallPlan:
             DEFAULT_PREINSTALLED_ACP_PROVIDERS
         )
         assert packages == [
-            f"@agentclientprotocol/claude-agent-acp@{CLAUDE_AGENT_ACP_VERSION}",
+            f"@agentclientprotocol/haijun-agent-acp@{HAIJUN_AGENT_ACP_VERSION}",
             f"@agentclientprotocol/codex-acp@{CODEX_ACP_VERSION}",
             f"@google/gemini-cli@{GEMINI_CLI_VERSION}",
         ]
-        assert wrapper_bins == ["claude-agent-acp", "codex-acp", "gemini"]
+        assert wrapper_bins == ["haijun-agent-acp", "codex-acp", "gemini"]
 
     def test_empty_selection_installs_nothing(self):
         assert render_docker_install_plan([]) == ([], [])
@@ -180,7 +180,7 @@ class TestRenderDockerInstallPlan:
         with pytest.raises(ValueError, match="bogus") as exc_info:
             render_docker_install_plan(["codex", "bogus"])
         message = str(exc_info.value)
-        assert "claude-code" in message
+        assert "haijun-code" in message
         assert "codex" in message
         assert "gemini-cli" in message
 
@@ -204,14 +204,14 @@ class TestACPInstallCatalogCLI:
     directly with the system python3 — exercise that exact entry point."""
 
     def test_prints_shell_eval_able_plan(self, capsys):
-        code = _main(["claude-code,codex"])
+        code = _main(["haijun-code,codex"])
         assert code == 0
         out = capsys.readouterr().out
         assert out.splitlines() == [
-            'PACKAGES="@agentclientprotocol/claude-agent-acp@'
-            f"{CLAUDE_AGENT_ACP_VERSION} @agentclientprotocol/codex-acp@"
+            'PACKAGES="@agentclientprotocol/haijun-agent-acp@'
+            f"{HAIJUN_AGENT_ACP_VERSION} @agentclientprotocol/codex-acp@"
             f'{CODEX_ACP_VERSION}"',
-            'WRAPPER_BINS="claude-agent-acp codex-acp"',
+            'WRAPPER_BINS="haijun-agent-acp codex-acp"',
         ]
 
     def test_empty_string_installs_nothing(self, capsys):
@@ -230,17 +230,17 @@ class TestACPInstallCatalogCLI:
         """Regression guard for the Dockerfile's `python3 <file> ...`
         invocation: this must work with nothing but the stdlib on
         sys.path, since the acp-providers stage is a bare python image
-        with no OpenHands package (or pydantic) installed.
+        with no Handprint package (or pydantic) installed.
         """
         result = subprocess.run(
-            [sys.executable, "-S", CATALOG_PY, "claude-code"],
+            [sys.executable, "-S", CATALOG_PY, "haijun-code"],
             capture_output=True,
             text=True,
         )
         assert result.returncode == 0, result.stderr
         assert result.stdout.splitlines() == [
-            f'PACKAGES="@agentclientprotocol/claude-agent-acp@{CLAUDE_AGENT_ACP_VERSION}"',
-            'WRAPPER_BINS="claude-agent-acp"',
+            f'PACKAGES="@agentclientprotocol/haijun-agent-acp@{HAIJUN_AGENT_ACP_VERSION}"',
+            'WRAPPER_BINS="haijun-agent-acp"',
         ]
 
     def test_output_survives_a_real_shell_eval_multi_package(self):
@@ -252,7 +252,7 @@ class TestACPInstallCatalogCLI:
         the Dockerfile's `PLAN=$(...) || exit 1; eval "$PLAN"`.
         """
         plan = subprocess.run(
-            [sys.executable, "-S", CATALOG_PY, "claude-code,codex,gemini-cli"],
+            [sys.executable, "-S", CATALOG_PY, "haijun-code,codex,gemini-cli"],
             capture_output=True,
             text=True,
         ).stdout
@@ -264,8 +264,8 @@ class TestACPInstallCatalogCLI:
         )
         assert result.returncode == 0, result.stderr
         assert result.stdout.splitlines() == [
-            f"@agentclientprotocol/claude-agent-acp@{CLAUDE_AGENT_ACP_VERSION} "
+            f"@agentclientprotocol/haijun-agent-acp@{HAIJUN_AGENT_ACP_VERSION} "
             f"@agentclientprotocol/codex-acp@{CODEX_ACP_VERSION} "
             f"@google/gemini-cli@{GEMINI_CLI_VERSION}",
-            "claude-agent-acp codex-acp gemini",
+            "haijun-agent-acp codex-acp gemini",
         ]

@@ -11,14 +11,14 @@ import httpx
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM, ImageContent, Message, TextContent
-from openhands.sdk.llm.utils import image_inline
-from openhands.sdk.llm.utils.image_inline import (
+from handprint.sdk.llm import LLM, ImageContent, Message, TextContent
+from handprint.sdk.llm.utils import image_inline
+from handprint.sdk.llm.utils.image_inline import (
     _CACHE,
     amaybe_inline_image_urls,
     maybe_inline_image_urls,
 )
-from openhands.sdk.llm.utils.model_features import get_features
+from handprint.sdk.llm.utils.model_features import get_features
 
 
 _TINY_PNG = (
@@ -273,7 +273,7 @@ def test_cache_reuses_result_across_calls():
         "litellm_proxy/moonshot/kimi-k2.6",
         "moonshot/kimi-k3",
         "litellm_proxy/moonshot/kimi-k3",
-        "openhands/kimi-k3",
+        "handprint/kimi-k3",
     ],
 )
 def test_model_features_marks_models_requiring_inline_images(model: str):
@@ -302,7 +302,7 @@ def test_llm_inline_image_urls_override_wins_over_capability():
     """The explicit LLM field must override the capability default."""
     url = "https://example.com/x.png"
     llm = LLM(
-        model="anthropic/claude-sonnet-4-6",
+        model="juglow/haijun-codtral",
         api_key=SecretStr("test-key"),
         inline_image_urls=True,
         usage_id="test",
@@ -356,7 +356,7 @@ def test_llm_kimi_k2_6_auto_inlines_without_override():
     [
         "moonshot/kimi-k3",
         "litellm_proxy/moonshot/kimi-k3",
-        "openhands/kimi-k3",
+        "handprint/kimi-k3",
     ],
 )
 def test_llm_kimi_k3_auto_inlines_http_url(model: str):

@@ -1,5 +1,5 @@
 /**
- * Basic usage example for the OpenHands Agent Server TypeScript Client
+ * Basic usage example for the Handprint Agent Server TypeScript Client
  */
 
 import { Conversation, Agent, Workspace, AgentExecutionStatus } from '../src/index.js';
@@ -17,7 +17,7 @@ async function main() {
   try {
     // Create a remote workspace
     const workspace = new Workspace({
-      host: 'http://localhost:3000',
+      host: 'http://localhost:4000',
       workingDir: '/tmp',
       apiKey: 'your-session-api-key', // Replace with your actual session API key
     });
@@ -95,7 +95,7 @@ async function loadExistingConversation() {
   try {
     // Create a remote workspace for the existing conversation
     const workspace = new Workspace({
-      host: 'http://localhost:3000',
+      host: 'http://localhost:4000',
       workingDir: '/tmp',
       apiKey: 'your-session-api-key', // Replace with your actual session API key
     });

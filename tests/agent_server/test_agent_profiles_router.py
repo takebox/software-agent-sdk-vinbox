@@ -15,17 +15,17 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-from openhands.agent_server import agent_profiles_router as router_module
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.persistence import reset_stores
-from openhands.agent_server.profiles_router import MAX_PROFILES
-from openhands.sdk.llm import LLM
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.profiles import (
+from handprint.agent_server import agent_profiles_router as router_module
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.persistence import reset_stores
+from handprint.agent_server.profiles_router import MAX_PROFILES
+from handprint.sdk.llm import LLM
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.profiles import (
     ACPAgentProfile,
     AgentProfileStore,
-    OpenHandsAgentProfile,
+    HandprintAgentProfile,
 )
 
 
@@ -53,7 +53,7 @@ def client(temp_agent_profiles_dir, temp_settings_dir, monkeypatch):
     config = Config(static_files_path=None, session_api_keys=[], secret_key=None)
     app = create_app(config)
     with patch(
-        "openhands.agent_server.agent_profiles_router.get_agent_profile_store",
+        "handprint.agent_server.agent_profiles_router.get_agent_profile_store",
         lambda: AgentProfileStore(base_dir=temp_agent_profiles_dir),
     ):
         yield TestClient(app)
@@ -85,7 +85,7 @@ def test_first_list_seeds_default_profile(client):
     assert len(body["profiles"]) == 1
     seeded = body["profiles"][0]
     assert seeded["name"] == "default"
-    assert seeded["agent_kind"] == "openhands"
+    assert seeded["agent_kind"] == "handprint"
     assert seeded["llm_profile_ref"] == "default"
     assert seeded["mcp_server_refs"] is None
     # The active pointer is set to the seeded profile's id.
@@ -224,9 +224,9 @@ def test_seed_llm_profile_limit_reached_does_not_500(client, default_llm_profile
     instead of 500ing.
 
     Regression test: the backfill must catch the LLM store's own
-    ``ProfileLimitExceeded`` (``openhands.sdk.llm.llm_profile_store``), not
+    ``ProfileLimitExceeded`` (``handprint.sdk.llm.llm_profile_store``), not
     the identically-named exception from the agent-profile store
-    (``openhands.sdk.profiles``) — catching the wrong class let the real one
+    (``handprint.sdk.profiles``) — catching the wrong class let the real one
     propagate as an unhandled 500.
     """
     for i in range(MAX_PROFILES):
@@ -263,7 +263,7 @@ def test_seed_backfills_when_active_profile_is_empty_string(
             {
                 "schema_version": 2,
                 "agent_settings": {
-                    "agent_kind": "openhands",
+                    "agent_kind": "handprint",
                     "llm": {"model": "gpt-5.5", "base_url": "https://proxy.example/v1"},
                 },
                 "conversation_settings": {},
@@ -319,7 +319,7 @@ def test_llm_has_real_config(llm, expected):
 
 def test_no_seed_when_store_nonempty(client, store):
     """A non-empty store is never seeded."""
-    store.save(OpenHandsAgentProfile(name="mine", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="mine", llm_profile_ref="x"))
 
     body = client.get("/api/agent-profiles").json()
     names = {p["name"] for p in body["profiles"]}
@@ -377,7 +377,7 @@ def test_save_creates_new(client, store):
 
 
 def test_save_overwrites_existing(client, store):
-    store.save(OpenHandsAgentProfile(name="existing", llm_profile_ref="old"))
+    store.save(HandprintAgentProfile(name="existing", llm_profile_ref="old"))
 
     response = client.post(
         "/api/agent-profiles/existing",
@@ -394,7 +394,7 @@ def test_overwrite_preserves_id_and_pointer(client, store):
     A create-style body that omits ``id``/``revision`` must not mint a fresh
     UUID — that would dangle the active pointer keyed on the old id.
     """
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base"))
     pid = client.get("/api/agent-profiles/p").json()["profile"]["id"]
     client.post(f"/api/agent-profiles/{pid}/activate")
     assert client.get("/api/settings").json()["active_agent_profile_id"] == pid
@@ -489,33 +489,33 @@ def test_save_missing_required_ref_returns_422(client):
     response = client.post("/api/agent-profiles/bad", json={})
     assert response.status_code == 422
     detail = response.json()["detail"]
-    # The discriminated union tags the location with the variant ("openhands").
+    # The discriminated union tags the location with the variant ("handprint").
     assert any("llm_profile_ref" in err["loc"] for err in detail)
 
 
-def test_save_schemaless_body_with_stray_skills_key_rejected(client):
-    """Reject a removed ``skills`` field from an unversioned request."""
+def test_save_schemaless_body_with_stray_tracks_key_rejected(client):
+    """Reject a removed ``tracks`` field from an unversioned request."""
     response = client.post(
         "/api/agent-profiles/legacy",
         json={
             "llm_profile_ref": "base",
-            "skills": [{"name": "old", "content": "x"}],
+            "tracks": [{"name": "old", "content": "x"}],
         },
     )
     assert response.status_code == 422
 
 
-def test_save_current_schema_version_rejects_stray_skills_key(client):
-    """A body that claims the current schema version with a stray ``skills`` key
+def test_save_current_schema_version_rejects_stray_tracks_key(client):
+    """A body that claims the current schema version with a stray ``tracks`` key
     is a genuine extra='forbid' violation (422)."""
-    from openhands.sdk.profiles.agent_profile import AGENT_PROFILE_SCHEMA_VERSION
+    from handprint.sdk.profiles.agent_profile import AGENT_PROFILE_SCHEMA_VERSION
 
     response = client.post(
         "/api/agent-profiles/bad",
         json={
             "schema_version": AGENT_PROFILE_SCHEMA_VERSION,
             "llm_profile_ref": "base",
-            "skills": [{"name": "old", "content": "x"}],
+            "tracks": [{"name": "old", "content": "x"}],
         },
     )
     assert response.status_code == 422
@@ -539,7 +539,7 @@ def test_save_invalid_name_returns_422(client):
 
 
 def test_get_returns_profile(client, store):
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base"))
 
     response = client.get("/api/agent-profiles/p")
 
@@ -547,7 +547,7 @@ def test_get_returns_profile(client, store):
     body = response.json()
     assert body["name"] == "p"
     assert body["profile"]["llm_profile_ref"] == "base"
-    assert body["profile"]["agent_kind"] == "openhands"
+    assert body["profile"]["agent_kind"] == "handprint"
 
 
 def test_get_not_found(client):
@@ -560,7 +560,7 @@ def test_get_ignores_expose_secrets_header(client, store):
     """A profile is secret-free at rest (#4017); GET has no ``X-Expose-Secrets``
     behavior — unlike the LLM ``/api/profiles`` router, the header is simply
     ignored rather than changing the response."""
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base"))
 
     plain = client.get("/api/agent-profiles/p").json()
     encrypted = client.get(
@@ -576,7 +576,7 @@ def test_get_corrupted_returns_400(client, temp_agent_profiles_dir):
 
 
 def test_delete_removes_existing(client, store):
-    store.save(OpenHandsAgentProfile(name="to-delete", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="to-delete", llm_profile_ref="x"))
 
     response = client.delete("/api/agent-profiles/to-delete")
 
@@ -592,7 +592,7 @@ def test_delete_idempotent(client):
 
 def test_delete_clears_active_pointer(client, store):
     """Deleting the active profile clears active_agent_profile_id."""
-    store.save(OpenHandsAgentProfile(name="active-one", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="active-one", llm_profile_ref="x"))
     profile_id = client.get("/api/agent-profiles/active-one").json()["profile"]["id"]
     client.post(f"/api/agent-profiles/{profile_id}/activate")
     assert client.get("/api/settings").json()["active_agent_profile_id"] == profile_id
@@ -642,28 +642,28 @@ def test_delete_active_acp_profile_resets_agent_settings(client, store):
 
     # Delete the ACP profile
     # BUG (before fix): agent_settings would remain unchanged with agent_kind="acp"
-    # FIX (after): agent_settings is reset to default OpenHands
+    # FIX (after): agent_settings is reset to default Handprint
     response = client.delete("/api/agent-profiles/codex-test")
     assert response.status_code == 200
 
-    # Verify the fix: agent_settings is reset to default (agent_kind="openhands")
+    # Verify the fix: agent_settings is reset to default (agent_kind="handprint")
     settings_after = client.get("/api/settings").json()
     assert settings_after["active_agent_profile_id"] is None
-    assert settings_after["agent_settings"]["agent_kind"] == "openhands"
+    assert settings_after["agent_settings"]["agent_kind"] == "handprint"
     # Verify ACP-specific fields are cleared
     assert settings_after["agent_settings"].get("acp_server") is None
     assert settings_after["agent_settings"].get("acp_model") is None
 
 
-def test_delete_active_openhands_profile_does_not_reset_agent_settings(client, store):
-    """Deleting an active OpenHands profile only clears pointer, not agent_settings."""
-    # Save and activate an OpenHands profile
-    store.save(OpenHandsAgentProfile(name="custom-oh", llm_profile_ref="x"))
+def test_delete_active_handprint_profile_does_not_reset_agent_settings(client, store):
+    """Deleting an active Handprint profile only clears pointer, not agent_settings."""
+    # Save and activate an Handprint profile
+    store.save(HandprintAgentProfile(name="custom-oh", llm_profile_ref="x"))
     profile_id = client.get("/api/agent-profiles/custom-oh").json()["profile"]["id"]
     client.post(f"/api/agent-profiles/{profile_id}/activate")
 
     # Non-default state a blanket reset would destroy. ``agent_kind`` alone
-    # cannot detect one, since a full reset also yields "openhands".
+    # cannot detect one, since a full reset also yields "handprint".
     assert (
         client.post(
             "/api/settings/mcp/github",
@@ -674,26 +674,26 @@ def test_delete_active_openhands_profile_does_not_reset_agent_settings(client, s
     agent_settings_before = client.get("/api/settings").json()["agent_settings"]
     assert agent_settings_before["mcp_config"].keys() == {"github"}
 
-    # Delete the OpenHands profile
+    # Delete the Handprint profile
     client.delete("/api/agent-profiles/custom-oh")
 
-    # Verify pointer is cleared but agent_settings unchanged (still openhands)
+    # Verify pointer is cleared but agent_settings unchanged (still handprint)
     settings_after = client.get("/api/settings").json()
     assert settings_after["active_agent_profile_id"] is None
     assert settings_after["agent_settings"] == agent_settings_before
 
 
-def test_delete_active_acp_profile_keeps_openhands_settings_intact(client, store):
+def test_delete_active_acp_profile_keeps_handprint_settings_intact(client, store):
     """An ACP profile is a pointer; it does not own ``agent_settings``.
 
     ``activate_agent_profile`` never writes ``agent_settings``, so deleting an
-    ACP profile must not touch a healthy OpenHands configuration.
+    ACP profile must not touch a healthy Handprint configuration.
     """
     client.post(
         "/api/profiles/my-profile",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "api_key": "sk-secret",
                 "usage_id": "my-profile",
             },
@@ -717,7 +717,7 @@ def test_delete_active_acp_profile_keeps_openhands_settings_intact(client, store
     after = client.get("/api/settings").json()
 
     assert after["agent_settings"] == before["agent_settings"]
-    assert after["agent_settings"]["llm"]["model"] == "anthropic/claude-sonnet-4"
+    assert after["agent_settings"]["llm"]["model"] == "juglow/haijun-codtral"
     assert after["agent_settings"]["mcp_config"].keys() == {"github"}
     assert after["active_profile"] == "my-profile"
 
@@ -748,14 +748,14 @@ def test_delete_active_acp_profile_keeps_mcp_registry(client, store):
     assert client.delete("/api/agent-profiles/codex-test").status_code == 200
 
     agent_settings = client.get("/api/settings").json()["agent_settings"]
-    assert agent_settings["agent_kind"] == "openhands"
+    assert agent_settings["agent_kind"] == "handprint"
     assert agent_settings.get("acp_server") is None
     assert agent_settings["mcp_config"].keys() == {"github"}
 
 
-def test_delete_active_openhands_profile_clears_stale_acp_settings(client, store):
+def test_delete_active_handprint_profile_clears_stale_acp_settings(client, store):
     """The reset keys off ``agent_settings``, not the deleted profile's kind."""
-    store.save(OpenHandsAgentProfile(name="custom-oh", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="custom-oh", llm_profile_ref="x"))
     profile_id = client.get("/api/agent-profiles/custom-oh").json()["profile"]["id"]
     client.post(f"/api/agent-profiles/{profile_id}/activate")
     client.patch(
@@ -774,12 +774,12 @@ def test_delete_active_openhands_profile_clears_stale_acp_settings(client, store
 
     assert (
         client.get("/api/settings").json()["agent_settings"]["agent_kind"]
-        == "openhands"
+        == "handprint"
     )
 
 
 def test_rename_success(client, store):
-    store.save(OpenHandsAgentProfile(name="old-name", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="old-name", llm_profile_ref="x"))
 
     response = client.post(
         "/api/agent-profiles/old-name/rename",
@@ -802,8 +802,8 @@ def test_rename_not_found(client):
 
 
 def test_rename_conflict(client, store):
-    store.save(OpenHandsAgentProfile(name="source", llm_profile_ref="a"))
-    store.save(OpenHandsAgentProfile(name="target", llm_profile_ref="b"))
+    store.save(HandprintAgentProfile(name="source", llm_profile_ref="a"))
+    store.save(HandprintAgentProfile(name="target", llm_profile_ref="b"))
 
     response = client.post(
         "/api/agent-profiles/source/rename",
@@ -814,7 +814,7 @@ def test_rename_conflict(client, store):
 
 
 def test_rename_invalid_new_name_returns_422(client, store):
-    store.save(OpenHandsAgentProfile(name="valid", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="valid", llm_profile_ref="x"))
     response = client.post(
         "/api/agent-profiles/valid/rename",
         json={"new_name": "../etc/passwd"},
@@ -824,7 +824,7 @@ def test_rename_invalid_new_name_returns_422(client, store):
 
 def test_rename_preserves_active_pointer(client, store):
     """The id-keyed active pointer survives a rename (id is stable)."""
-    store.save(OpenHandsAgentProfile(name="before", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="before", llm_profile_ref="x"))
     profile_id = client.get("/api/agent-profiles/before").json()["profile"]["id"]
     client.post(f"/api/agent-profiles/{profile_id}/activate")
 
@@ -839,7 +839,7 @@ def test_rename_preserves_active_pointer(client, store):
 
 
 def test_activate_sets_pointer_without_mutating_agent_settings(client, store):
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="x"))
     # Persist settings once first so the snapshot is already round-tripped
     # (the default un-persisted vs persisted form differs harmlessly).
     client.patch(
@@ -860,7 +860,7 @@ def test_activate_sets_pointer_without_mutating_agent_settings(client, store):
 
 
 def test_activate_unknown_id_returns_404(client, store):
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="x"))
     unknown = "00000000-dead-beef-0000-000000000000"
     response = client.post(f"/api/agent-profiles/{unknown}/activate")
     assert response.status_code == 404
@@ -868,9 +868,9 @@ def test_activate_unknown_id_returns_404(client, store):
 
 def test_activate_settings_corruption_returns_500(client, store, monkeypatch):
     """A corrupted/mis-keyed settings file is a server-side failure (500)."""
-    from openhands.agent_server.persistence.store import FileSettingsStore
+    from handprint.agent_server.persistence.store import FileSettingsStore
 
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="x"))
     profile_id = client.get("/api/agent-profiles/p").json()["profile"]["id"]
 
     def boom(self, *args, **kwargs):
@@ -884,8 +884,8 @@ def test_activate_settings_corruption_returns_500(client, store, monkeypatch):
 # ── Seed fidelity (migration preserves the user's launch config) ────────────
 
 
-def test_seed_preserves_openhands_fields(client):
-    """The OpenHands seed carries the overlapping launch fields, not just refs."""
+def test_seed_preserves_handprint_fields(client):
+    """The Handprint seed carries the overlapping launch fields, not just refs."""
     client.patch(
         "/api/settings",
         json={
@@ -909,25 +909,25 @@ def test_seed_preserves_openhands_fields(client):
     assert prof["tool_concurrency_limit"] == 3
     assert prof["system_message_suffix"] == "be terse"
     # The seed disables nothing — the default profile launches with all
-    # discovered skills (deny-list model).
-    assert prof["disabled_skills"] == []
+    # discovered tracks (deny-list model).
+    assert prof["disabled_tracks"] == []
     assert prof["verification"]["critic_enabled"] is True
     assert prof["verification"]["critic_model_name"] == "x-critic"
     # The profile verification is secret-free — no critic_api_key projected.
     assert "critic_api_key" not in prof["verification"]
 
 
-def test_seed_disables_nothing_even_with_inline_global_skills(client):
-    """The seed never freezes the global's skills by name — it sets an empty
+def test_seed_disables_nothing_even_with_inline_global_tracks(client):
+    """The seed never freezes the global's tracks by name — it sets an empty
     deny-list, so the migrated default profile launches with all discovered
-    skills. Freezing by name was the #4017 launch-break (an inline global skill
+    tracks. Freezing by name was the #4017 launch-break (an inline global track
     absent from the launch catalog would dangle)."""
     client.patch(
         "/api/settings",
         json={
             "agent_settings_diff": {
                 "agent_context": {
-                    "skills": [
+                    "tracks": [
                         {"name": "alpha", "content": "x"},
                         {"name": "beta", "content": "y"},
                     ]
@@ -938,7 +938,7 @@ def test_seed_disables_nothing_even_with_inline_global_skills(client):
     client.get("/api/agent-profiles")  # triggers the seed
 
     prof = client.get("/api/agent-profiles/default").json()["profile"]
-    assert prof["disabled_skills"] == []
+    assert prof["disabled_tracks"] == []
 
 
 def test_seed_preserves_acp_fields(client):
@@ -961,9 +961,9 @@ def test_seed_preserves_acp_fields(client):
     assert prof["acp_server"] == "codex"
     assert prof["acp_model"] == "gpt-5.5"
     assert prof["acp_args"] == ["--foo", "--bar"]
-    # ACP profiles carry no skill-selection field at all.
-    assert "skill_refs" not in prof
-    assert "disabled_skills" not in prof
+    # ACP profiles carry no track-selection field at all.
+    assert "track_refs" not in prof
+    assert "disabled_tracks" not in prof
 
 
 # ── Store errors → HTTP ─────────────────────────────────────────────────────
@@ -989,7 +989,7 @@ def test_save_timeout_returns_503(client, monkeypatch):
 
 def test_save_at_limit_returns_409(client, store, monkeypatch):
     monkeypatch.setattr(router_module, "MAX_AGENT_PROFILES", 1)
-    store.save(OpenHandsAgentProfile(name="first", llm_profile_ref="x"))
+    store.save(HandprintAgentProfile(name="first", llm_profile_ref="x"))
 
     response = client.post("/api/agent-profiles/second", json={"llm_profile_ref": "y"})
     assert response.status_code == 409
@@ -1025,15 +1025,15 @@ def client_with_llm_store(
 
     with (
         patch(
-            "openhands.agent_server.agent_profiles_router.get_agent_profile_store",
+            "handprint.agent_server.agent_profiles_router.get_agent_profile_store",
             agent_profiles,
         ),
         patch(
-            "openhands.agent_server.agent_profiles_router.get_llm_profile_store",
+            "handprint.agent_server.agent_profiles_router.get_llm_profile_store",
             llm_profiles,
         ),
-        patch("openhands.agent_server.launch.get_agent_profile_store", agent_profiles),
-        patch("openhands.agent_server.launch.get_llm_profile_store", llm_profiles),
+        patch("handprint.agent_server.launch.get_agent_profile_store", agent_profiles),
+        patch("handprint.agent_server.launch.get_llm_profile_store", llm_profiles),
     ):
         yield TestClient(app)
     reset_stores()
@@ -1044,17 +1044,17 @@ def llm_store(temp_llm_profiles_dir):
     return LLMProfileStore(base_dir=temp_llm_profiles_dir)
 
 
-def test_materialize_valid_openhands_profile(client_with_llm_store, store, llm_store):
-    """Valid OpenHands profile with a resolved LLM returns 200 + valid=True."""
+def test_materialize_valid_handprint_profile(client_with_llm_store, store, llm_store):
+    """Valid Handprint profile with a resolved LLM returns 200 + valid=True."""
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base-llm"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base-llm"))
 
     response = client_with_llm_store.post("/api/agent-profiles/p/materialize")
 
     assert response.status_code == 200
     body = response.json()
     assert body["valid"] is True
-    assert body["agent_kind"] == "openhands"
+    assert body["agent_kind"] == "handprint"
     assert body["llm_profile_ref"] == "base-llm"
     assert body["llm_profile_resolved"] is True
     assert body["errors"] == []
@@ -1063,7 +1063,7 @@ def test_materialize_valid_openhands_profile(client_with_llm_store, store, llm_s
 
 
 def test_materialize_rejects_an_unwrapped_draft(client_with_llm_store, store):
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base-llm"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base-llm"))
 
     response = client_with_llm_store.post(
         "/api/agent-profiles/p/materialize",
@@ -1089,7 +1089,7 @@ def test_materialize_valid_acp_profile(client_with_llm_store, store):
 
 def test_materialize_dangling_llm_ref(client_with_llm_store, store):
     """A profile referencing a missing LLM profile returns 200, valid=False."""
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="nonexistent"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="nonexistent"))
 
     response = client_with_llm_store.post("/api/agent-profiles/p/materialize")
 
@@ -1106,7 +1106,7 @@ def test_materialize_dangling_mcp_ref(client_with_llm_store, store, llm_store):
     """A profile with a missing MCP server ref returns 200, valid=False."""
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
     store.save(
-        OpenHandsAgentProfile(
+        HandprintAgentProfile(
             name="p",
             llm_profile_ref="base-llm",
             mcp_server_refs=["missing-server"],
@@ -1122,28 +1122,28 @@ def test_materialize_dangling_mcp_ref(client_with_llm_store, store, llm_store):
     assert body["resolved_settings"] is None
 
 
-def test_materialize_reports_disabled_and_resolved_skills(
+def test_materialize_reports_disabled_and_resolved_tracks(
     client_with_llm_store, store, llm_store
 ):
     """The materialize dry-run reports the deny-list and the resolved set
     (catalog minus disabled). A disabled name absent from the catalog is a no-op
     and does NOT invalidate the profile — the deny-list can't dangle (#4017)."""
-    from openhands.sdk.skills import Skill
+    from handprint.sdk.tracks import Track
 
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
     store.save(
-        OpenHandsAgentProfile(
+        HandprintAgentProfile(
             name="p",
             llm_profile_ref="base-llm",
-            disabled_skills=["beta", "not-in-catalog"],
+            disabled_tracks=["beta", "not-in-catalog"],
         )
     )
 
     with patch(
-        "openhands.agent_server.launch.discover_profile_skills",
+        "handprint.agent_server.launch.discover_profile_tracks",
         return_value=[
-            Skill(name="alpha", content="x"),
-            Skill(name="beta", content="y"),
+            Track(name="alpha", content="x"),
+            Track(name="beta", content="y"),
         ],
     ):
         response = client_with_llm_store.post("/api/agent-profiles/p/materialize")
@@ -1151,20 +1151,20 @@ def test_materialize_reports_disabled_and_resolved_skills(
     assert response.status_code == 200
     body = response.json()
     assert body["valid"] is True
-    assert body["disabled_skills"] == ["beta", "not-in-catalog"]
-    assert body["resolved_skills"] == ["alpha"]
+    assert body["disabled_tracks"] == ["beta", "not-in-catalog"]
+    assert body["resolved_tracks"] == ["alpha"]
     assert body["resolved_settings"] is not None
 
 
-_BROWSER_PROBE = "openhands.agent_server.launch.is_tool_usable"
-_DISCOVER = "openhands.agent_server.launch.discover_profile_skills"
+_BROWSER_PROBE = "handprint.agent_server.launch.is_tool_usable"
+_DISCOVER = "handprint.agent_server.launch.discover_profile_tracks"
 
 
 def test_materialize_reports_the_tools_a_launch_would_build(
     client_with_llm_store, store, llm_store
 ):
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base-llm"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base-llm"))
 
     with (
         patch(_BROWSER_PROBE, return_value=True),
@@ -1187,7 +1187,7 @@ def test_materialize_evaluates_a_draft_without_saving_it(
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
     draft = {
         "name": "ignored",
-        "agent_kind": "openhands",
+        "agent_kind": "handprint",
         "llm_profile_ref": "base-llm",
         "tools": [{"name": "glob"}],
     }
@@ -1211,7 +1211,7 @@ def test_materialize_draft_takes_precedence_over_the_stored_profile(
     client_with_llm_store, store, llm_store
 ):
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base-llm"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base-llm"))
 
     with (
         patch(_DISCOVER, return_value=[]),
@@ -1268,7 +1268,7 @@ def test_materialize_no_raw_secrets_in_resolved_settings(
         LLM(model="gpt-4o", api_key=SecretStr(raw_key)),
         include_secrets=True,
     )
-    store.save(OpenHandsAgentProfile(name="p", llm_profile_ref="base-llm"))
+    store.save(HandprintAgentProfile(name="p", llm_profile_ref="base-llm"))
 
     response = client_with_llm_store.post("/api/agent-profiles/p/materialize")
 
@@ -1284,7 +1284,7 @@ def test_materialize_migrates_an_old_draft_like_save(
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
     draft = {
         "schema_version": 2,
-        "agent_kind": "openhands",
+        "agent_kind": "handprint",
         "llm_profile_ref": "base-llm",
         "enable_sub_agents": True,
     }
@@ -1308,7 +1308,7 @@ def test_materialize_rejects_a_draft_newer_than_save_accepts(client_with_llm_sto
     draft = {
         "name": "p",
         "schema_version": 99,
-        "agent_kind": "openhands",
+        "agent_kind": "handprint",
         "llm_profile_ref": "x",
     }
 
@@ -1326,7 +1326,7 @@ def test_save_migrates_a_v2_profile_carrying_retired_switches(client):
         "/api/agent-profiles/v2-profile",
         json={
             "schema_version": 2,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm_profile_ref": "default",
             "enable_sub_agents": False,
             "enable_switch_llm_tool": True,
@@ -1412,7 +1412,7 @@ def test_materialize_is_invalid_when_a_selected_tool_cannot_run(
     client_with_llm_store, llm_store, tools, valid
 ):
     llm_store.save("base-llm", LLM(model="gpt-4o"), include_secrets=True)
-    draft = {"agent_kind": "openhands", "llm_profile_ref": "base-llm", "tools": tools}
+    draft = {"agent_kind": "handprint", "llm_profile_ref": "base-llm", "tools": tools}
 
     with patch(_DISCOVER, return_value=[]):
         response = client_with_llm_store.post(

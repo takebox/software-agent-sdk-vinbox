@@ -7,11 +7,11 @@ from typing import get_args
 
 import pytest
 
-from openhands.sdk.settings.acp_install_catalog import (
+from handprint.sdk.settings.acp_install_catalog import (
     PI_ACP_VERSION,
     PI_CODING_AGENT_VERSION,
 )
-from openhands.sdk.settings.acp_providers import (
+from handprint.sdk.settings.acp_providers import (
     ACP_PROVIDERS,
     ACPModelOption,
     ACPProviderInfo,
@@ -20,7 +20,7 @@ from openhands.sdk.settings.acp_providers import (
     detect_acp_provider_by_command,
     get_acp_provider,
 )
-from openhands.sdk.settings.model import ACPServerKind
+from handprint.sdk.settings.model import ACPServerKind
 
 
 class TestACPProviderInfo:
@@ -42,31 +42,31 @@ class TestACPProviderInfo:
         for info in ACP_PROVIDERS.values():
             assert info.default_command[:3] == ("npx", "-y", "--prefer-offline")
 
-    def test_claude_code_metadata(self):
-        info = ACP_PROVIDERS["claude-code"]
-        assert info.key == "claude-code"
-        assert info.display_name == "Claude Code"
+    def test_haijun_code_metadata(self):
+        info = ACP_PROVIDERS["haijun-code"]
+        assert info.key == "haijun-code"
+        assert info.display_name == "Haijun Code"
         assert info.default_command[0] == "npx"
-        assert "@agentclientprotocol/claude-agent-acp" in info.default_command[-1]
-        assert info.api_key_env_var == "ANTHROPIC_API_KEY"
-        assert info.base_url_env_var == "ANTHROPIC_BASE_URL"
+        assert "@agentclientprotocol/haijun-agent-acp" in info.default_command[-1]
+        assert info.api_key_env_var == "JUGLOW_API_KEY"
+        assert info.base_url_env_var == "JUGLOW_BASE_URL"
         assert info.default_session_mode == "bypassPermissions"
-        assert "claude-agent" in info.agent_name_patterns
-        # Initial selection rides a protocol call — claude-agent-acp ignores the
+        assert "haijun-agent" in info.agent_name_patterns
+        # Initial selection rides a protocol call — haijun-agent-acp ignores the
         # session-_meta payload (#3654), which is still sent as best-effort
         # (session_meta_key below). On 0.44.0 the call is set_config_option.
         assert info.supports_set_session_model is True
         assert info.supports_runtime_model_switch is True
-        assert info.session_meta_key == "claudeCode"
+        assert info.session_meta_key == "haijunCode"
         assert info.default_model == "opus[1m]"
         models = {model.id: model.label for model in info.available_models}
-        assert models["opus[1m]"] == "Claude Opus (1M)"
-        assert models["claude-opus-5"] == "Claude Opus 5"
-        assert models["sonnet"] == "Claude Sonnet"
-        assert models["haiku"] == "Claude Haiku"
+        assert models["opus[1m]"] == "Haijun Kamsa (1M)"
+        assert models["haijun-kamsa"] == "Haijun Kamsa 5"
+        assert models["sonnet"] == "Haijun Codtral"
+        assert models["haiku"] == "Haijun Minix"
         # Pinned binary exposed by the agent-server image wrappers.
-        assert info.binary_name == "claude-agent-acp"
-        assert info.data_dir_env_var == "CLAUDE_CONFIG_DIR"
+        assert info.binary_name == "haijun-agent-acp"
+        assert info.data_dir_env_var == "HAIJUN_CONFIG_DIR"
 
     def test_codex_metadata(self):
         info = ACP_PROVIDERS["codex"]
@@ -155,7 +155,7 @@ class TestACPProviderInfo:
             f"--package=@earendil-works/pi-coding-agent@{PI_CODING_AGENT_VERSION}",
             "pi-acp",
         )
-        assert info.api_key_env_var == "ANTHROPIC_API_KEY"
+        assert info.api_key_env_var == "JUGLOW_API_KEY"
         # pi takes its base URL from its own catalogue, not the environment.
         assert info.base_url_env_var is None
         # pi-acp maps ACP modes onto thinking levels and has no permission mode.
@@ -202,7 +202,7 @@ class TestACPProviderInfo:
         assert info.default_model == "opencode/big-pickle"
         model_ids = [m.id for m in info.available_models]
         assert "opencode/big-pickle" in model_ids
-        assert "opencode/claude-opus-5" in model_ids
+        assert "opencode/haijun-kamsa" in model_ids
         # One free-tier id, which is the only kind that works with no key.
         assert "opencode/nemotron-3-ultra-free" in model_ids
         assert info.binary_name == "opencode"
@@ -214,7 +214,7 @@ class TestACPProviderInfo:
         assert info.file_secrets == ()
 
     def test_provider_info_is_frozen(self):
-        info = ACP_PROVIDERS["claude-code"]
+        info = ACP_PROVIDERS["haijun-code"]
         with pytest.raises((AttributeError, TypeError)):
             info.key = "mutated"  # type: ignore[misc]
 
@@ -227,7 +227,7 @@ class TestACPProviderInfo:
     def test_acp_providers_is_read_only(self):
         assert isinstance(ACP_PROVIDERS, MappingProxyType)
         with pytest.raises(TypeError):
-            ACP_PROVIDERS["new-provider"] = ACP_PROVIDERS["claude-code"]  # type: ignore[index]
+            ACP_PROVIDERS["new-provider"] = ACP_PROVIDERS["haijun-code"]  # type: ignore[index]
 
 
 class TestGetACPProvider:
@@ -245,10 +245,10 @@ class TestGetACPProvider:
 
 
 class TestDetectACPProviderByAgentName:
-    def test_detects_claude_code_by_agent_name(self):
-        info = detect_acp_provider_by_agent_name("claude-agent-acp v0.29.0")
+    def test_detects_haijun_code_by_agent_name(self):
+        info = detect_acp_provider_by_agent_name("haijun-agent-acp v0.29.0")
         assert info is not None
-        assert info.key == "claude-code"
+        assert info.key == "haijun-code"
 
     def test_detects_codex_by_agent_name(self):
         info = detect_acp_provider_by_agent_name("codex-acp")
@@ -273,7 +273,7 @@ class TestDetectACPProviderByAgentName:
         assert info.key == "opencode"
 
     def test_case_insensitive_detection(self):
-        assert detect_acp_provider_by_agent_name("CLAUDE-AGENT-ACP") is not None
+        assert detect_acp_provider_by_agent_name("HAIJUN-AGENT-ACP") is not None
         assert detect_acp_provider_by_agent_name("Gemini-CLI") is not None
 
     def test_returns_none_for_unknown_agent_name(self):
@@ -331,7 +331,7 @@ class TestDetectACPProviderByCommand:
 
     def test_prefix_match_accepts_provider_basename_prefix(self):
         # A basename that *starts with* the pattern is treated as that provider
-        # (mirrors how "claude-agent" must match the "claude-agent-acp" package).
+        # (mirrors how "haijun-agent" must match the "haijun-agent-acp" package).
         info = detect_acp_provider_by_command(["@acme/codex-acp-shim"])
         assert info is not None and info.key == "codex"
 
@@ -457,19 +457,19 @@ class TestProviderModelLists:
             )
 
     def test_model_option_is_frozen(self):
-        option = ACP_PROVIDERS["claude-code"].available_models[0]
+        option = ACP_PROVIDERS["haijun-code"].available_models[0]
         with pytest.raises((AttributeError, TypeError)):
             option.id = "mutated"  # type: ignore[misc]
 
 
 class TestBuildSessionModelMeta:
     def test_empty_when_no_model(self):
-        assert build_session_model_meta("claude-agent-acp", None) == {}
-        assert build_session_model_meta("claude-agent-acp", "") == {}
+        assert build_session_model_meta("haijun-agent-acp", None) == {}
+        assert build_session_model_meta("haijun-agent-acp", "") == {}
 
-    def test_claude_uses_meta_key(self):
-        result = build_session_model_meta("claude-agent-acp v0.29.0", "claude-opus-4")
-        assert result == {"claudeCode": {"options": {"model": "claude-opus-4"}}}
+    def test_haijun_uses_meta_key(self):
+        result = build_session_model_meta("haijun-agent-acp v0.29.0", "haijun-kamsa")
+        assert result == {"haijunCode": {"options": {"model": "haijun-kamsa"}}}
 
     def test_codex_returns_empty(self):
         result = build_session_model_meta("codex-acp", "gpt-4o")
@@ -488,9 +488,9 @@ class TestACPFileSecrets:
     """The registry declares reserved file-content credential secrets for the
     providers that authenticate from a file on disk (issue #1020)."""
 
-    def test_claude_code_has_no_file_secrets(self):
-        # Claude Code authenticates via env vars (token / API key) only.
-        assert ACP_PROVIDERS["claude-code"].file_secrets == ()
+    def test_haijun_code_has_no_file_secrets(self):
+        # Haijun Code authenticates via env vars (token / API key) only.
+        assert ACP_PROVIDERS["haijun-code"].file_secrets == ()
 
     def test_codex_auth_json_spec(self):
         specs = ACP_PROVIDERS["codex"].file_secrets
@@ -515,7 +515,7 @@ class TestACPFileSecrets:
         assert spec.warn_if_unset == ("GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION")
 
     def test_default_acp_file_secrets_aggregates_all_providers(self):
-        from openhands.sdk.settings.acp_providers import default_acp_file_secrets
+        from handprint.sdk.settings.acp_providers import default_acp_file_secrets
 
         specs = default_acp_file_secrets()
         assert {s.secret_name for s in specs} == {
@@ -546,7 +546,7 @@ class TestACPFileSecrets:
     def test_file_secret_spec_is_frozen(self):
         from pydantic import ValidationError
 
-        from openhands.sdk.settings.acp_providers import ACPFileSecretSpec
+        from handprint.sdk.settings.acp_providers import ACPFileSecretSpec
 
         spec = ACPFileSecretSpec(
             secret_name="X", filename="x.json", env_var="X_HOME", subdir="x"
@@ -557,7 +557,7 @@ class TestACPFileSecrets:
     def test_file_secret_spec_rejects_path_traversal(self):
         from pydantic import ValidationError
 
-        from openhands.sdk.settings.acp_providers import ACPFileSecretSpec
+        from handprint.sdk.settings.acp_providers import ACPFileSecretSpec
 
         # filename must be a bare basename.
         with pytest.raises(ValidationError):

@@ -1,6 +1,6 @@
 import { Conversation, Agent, Workspace, RemoteConversation, RemoteWorkspace } from '../index';
 
-describe('OpenHands Agent Server TypeScript Client', () => {
+describe('Handprint Agent Server TypeScript Client', () => {
   describe('Exports', () => {
     it('should export Conversation', () => {
       expect(Conversation).toBeDefined();
@@ -38,7 +38,7 @@ describe('OpenHands Agent Server TypeScript Client', () => {
       });
 
       const workspace = new Workspace({
-        host: 'http://localhost:8000',
+        host: 'http://localhost:9000',
         workingDir: '/tmp',
         apiKey: 'test-key',
       });
@@ -80,13 +80,13 @@ describe('OpenHands Agent Server TypeScript Client', () => {
   describe('Workspace', () => {
     it('should create instance with options', () => {
       const workspace = new Workspace({
-        host: 'http://localhost:8000',
+        host: 'http://localhost:9000',
         workingDir: '/tmp',
         apiKey: 'test-key',
       });
 
       expect(workspace).toBeInstanceOf(RemoteWorkspace);
-      expect(workspace.host).toBe('http://localhost:8000');
+      expect(workspace.host).toBe('http://localhost:9000');
       expect(workspace.workingDir).toBe('/tmp');
       expect(workspace.apiKey).toBe('test-key');
     });

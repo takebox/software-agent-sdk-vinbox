@@ -58,7 +58,7 @@ class NoUselessBackwardCompatibilityTest(SoftwareAgentSDKBehaviorTest):
         executor_path = (
             repo_dir
             / "openhands-sdk"
-            / "openhands"
+            / "handprint"
             / "sdk"
             / "utils"
             / "async_executor.py"

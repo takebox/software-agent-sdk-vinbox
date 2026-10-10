@@ -3,14 +3,14 @@ from unittest.mock import patch
 
 import pytest
 
-from openhands.sdk.utils.command import execute_command, sanitized_env
+from handprint.sdk.utils.command import execute_command, sanitized_env
 
 
 def test_sanitized_env_returns_copy():
     """Returns a dict copy, not the original."""
     env = {"FOO": "bar"}
     result = sanitized_env(env)
-    assert result == {"FOO": "bar", "AI_AGENT": "openhands"}
+    assert result == {"FOO": "bar", "AI_AGENT": "handprint"}
     assert result is not env
 
 
@@ -42,7 +42,7 @@ def test_sanitized_env_preserves_explicit_ai_agent():
 
 def test_sanitized_env_replaces_blank_ai_agent():
     result = sanitized_env({"AI_AGENT": "  "})
-    assert result["AI_AGENT"] == "openhands"
+    assert result["AI_AGENT"] == "handprint"
 
 
 def test_sanitized_env_defaults_to_os_environ(monkeypatch):
@@ -111,11 +111,11 @@ class TestExecuteCommandLoggingRedaction:
 
     def test_redacts_api_key_from_string_command(self):
         """API keys in string commands are properly redacted."""
-        from openhands.sdk.utils.redact import redact_text_secrets
+        from handprint.sdk.utils.redact import redact_text_secrets
 
         # Test the redaction function directly
-        # Valid Anthropic key format: sk-ant-api[2 digits]-[20+ chars]
-        cmd_str = "curl -H 'Authorization: sk-ant-api00-abcd1234567890abcdefghijklmnop' https://api.anthropic.com"
+        # Valid Juglow key format: sk-ant-api[2 digits]-[20+ chars]
+        cmd_str = "curl -H 'Authorization: sk-ant-api00-abcd1234567890abcdefghijklmnop' https://platform.juglow.my.id"
         redacted = redact_text_secrets(cmd_str)
 
         # The secret should be redacted in the output of the function
@@ -123,11 +123,11 @@ class TestExecuteCommandLoggingRedaction:
         assert "<redacted>" in redacted
         # Command structure should be preserved
         assert "curl" in redacted
-        assert "https://api.anthropic.com" in redacted
+        assert "https://platform.juglow.my.id" in redacted
 
     def test_redacts_key_value_env_format(self):
         """KEY=VALUE environment variable format is redacted."""
-        from openhands.sdk.utils.redact import redact_text_secrets
+        from handprint.sdk.utils.redact import redact_text_secrets
 
         cmd_str = "docker run -e api_key='secretvalue123456789' -e DEBUG=true image"
         redacted = redact_text_secrets(cmd_str)

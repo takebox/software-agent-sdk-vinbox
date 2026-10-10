@@ -1,5 +1,5 @@
 /**
- * HTTP client for OpenHands Agent Server API
+ * HTTP client for Handprint Agent Server API
  */
 
 import type { ValidationError as AgentServerValidationError } from '../generated/agent-server-schema';
@@ -58,7 +58,7 @@ export type HttpValidationErrorItem = Pick<AgentServerValidationError, 'loc' | '
  * another bundled copy, where `instanceof HttpError` is false. Copies built
  * before this brand existed do not set it.
  */
-const HTTP_ERROR_BRAND = Symbol.for('@openhands/typescript-client/HttpError');
+const HTTP_ERROR_BRAND = Symbol.for('@takebox-ai/typescript-client/HttpError');
 
 /**
  * Thrown when the server answers with a status the request does not accept.

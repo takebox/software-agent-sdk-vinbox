@@ -24,7 +24,7 @@ import {
   GitClient,
   HooksClient,
   isAgentServerVersionError,
-  isOpenHandsCloudHost,
+  isHandprintCloudHost,
   LLMMetadataClient,
   MCPClient,
   MetaProfilesClient,
@@ -33,7 +33,7 @@ import {
   ServerClient,
   SettingsClient,
   SharedClient,
-  SkillsClient,
+  TracksClient,
   SubAgentsClient,
   ToolClient,
   WorkspacesClient,
@@ -88,11 +88,11 @@ describe('Auxiliary API clients', () => {
     vi.restoreAllMocks();
   });
 
-  it('ConversationManager exposes server and skills namespaces', () => {
+  it('ConversationManager exposes server and tracks namespaces', () => {
     const manager = new ConversationManager({ host: 'http://example.com', apiKey: 'secret' });
 
     expect(manager.server).toBeInstanceOf(ServerClient);
-    expect(manager.skills).toBeInstanceOf(SkillsClient);
+    expect(manager.tracks).toBeInstanceOf(TracksClient);
     expect(manager.subAgents).toBeInstanceOf(SubAgentsClient);
     expect(manager.profiles).toBeInstanceOf(ProfilesClient);
     expect(manager.agentProfiles).toBeInstanceOf(AgentProfilesClient);
@@ -183,7 +183,7 @@ describe('Auxiliary API clients', () => {
         host: 'https://app.all-hands.dev',
         apiKey: 'cloud-key',
         proxy: {
-          host: 'http://localhost:8001',
+          host: 'http://localhost:9001',
           apiKey: 'local-key',
         },
       });
@@ -198,7 +198,7 @@ describe('Auxiliary API clients', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8001/api/cloud-proxy',
+        'http://localhost:9001/api/cloud-proxy',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -276,8 +276,8 @@ describe('Auxiliary API clients', () => {
     });
 
     it('exports cloud device-flow helpers from the clients entrypoint', () => {
-      expect(isOpenHandsCloudHost('https://app.all-hands.dev')).toBe(true);
-      expect(isOpenHandsCloudHost('https://all-hands.dev.evil.example')).toBe(false);
+      expect(isHandprintCloudHost('https://app.all-hands.dev')).toBe(true);
+      expect(isHandprintCloudHost('https://all-hands.dev.evil.example')).toBe(false);
       expect(new DeviceFlowError('denied', 'access_denied').code).toBe('access_denied');
     });
   });
@@ -289,7 +289,7 @@ describe('Auxiliary API clients', () => {
           {
             id: 'uuid-1',
             name: 'default',
-            agent_kind: 'openhands',
+            agent_kind: 'handprint',
             revision: 0,
             llm_profile_ref: 'gpt-4o',
             mcp_server_refs: null,
@@ -317,7 +317,7 @@ describe('Auxiliary API clients', () => {
     });
 
     it('getAgentProfile sets X-Expose-Secrets header when requested', async () => {
-      const payload = { name: 'default', profile: { agent_kind: 'openhands' } };
+      const payload = { name: 'default', profile: { agent_kind: 'handprint' } };
       global.fetch = vi.fn().mockResolvedValue(
         new Response(JSON.stringify(payload), {
           status: 200,
@@ -347,7 +347,7 @@ describe('Auxiliary API clients', () => {
 
       const client = new AgentProfilesClient({ host: 'http://example.com' });
       const result = await client.saveAgentProfile('myprofile', {
-        agent_kind: 'openhands',
+        agent_kind: 'handprint',
         llm_profile_ref: 'gpt-4o',
       });
 
@@ -357,7 +357,7 @@ describe('Auxiliary API clients', () => {
         expect.objectContaining({ method: 'POST' })
       );
       const body = JSON.parse((global.fetch as Mock).mock.calls[0][1].body as string);
-      expect(body).toEqual({ agent_kind: 'openhands', llm_profile_ref: 'gpt-4o' });
+      expect(body).toEqual({ agent_kind: 'handprint', llm_profile_ref: 'gpt-4o' });
     });
 
     it('deleteAgentProfile sends DELETE to /api/agent-profiles/{name}', async () => {
@@ -420,7 +420,7 @@ describe('Auxiliary API clients', () => {
 
     it('materializeAgentProfile posts to /{name}/materialize', async () => {
       const diagnostics = {
-        agent_kind: 'openhands',
+        agent_kind: 'handprint',
         valid: true,
         errors: [],
         llm_profile_ref: 'gpt-4o',
@@ -454,7 +454,7 @@ describe('Auxiliary API clients', () => {
 
     it('materializeAgentProfile sends a draft as the profile body', async () => {
       global.fetch = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ agent_kind: 'openhands', valid: true, errors: [] }), {
+        new Response(JSON.stringify({ agent_kind: 'handprint', valid: true, errors: [] }), {
           status: 200,
           headers: { 'content-type': 'application/json' },
         })
@@ -462,7 +462,7 @@ describe('Auxiliary API clients', () => {
 
       const client = new AgentProfilesClient({ host: 'http://example.com' });
       const draft = {
-        agent_kind: 'openhands' as const,
+        agent_kind: 'handprint' as const,
         llm_profile_ref: 'gpt-4o',
         tools: [{ name: 'terminal', params: {} }],
       };
@@ -655,7 +655,7 @@ describe('Auxiliary API clients', () => {
     expect(JSON.stringify((global.fetch as Mock).mock.calls)).not.toContain('refresh-token');
   });
 
-  it('SkillsClient.syncSkills posts to the sync endpoint', async () => {
+  it('TracksClient.syncTracks posts to the sync endpoint', async () => {
     global.fetch = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ status: 'success', message: 'ok' }), {
         status: 200,
@@ -663,12 +663,12 @@ describe('Auxiliary API clients', () => {
       })
     ) as typeof fetch;
 
-    const client = new SkillsClient({ host: 'http://example.com' });
-    const response = await client.syncSkills();
+    const client = new TracksClient({ host: 'http://example.com' });
+    const response = await client.syncTracks();
 
     expect(response.status).toBe('success');
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://example.com/api/skills/sync',
+      'http://example.com/api/tracks/sync',
       expect.objectContaining({
         method: 'POST',
         body: '{}',
@@ -676,33 +676,33 @@ describe('Auxiliary API clients', () => {
     );
   });
 
-  it('SkillsClient CRUD methods map to the correct endpoints', async () => {
-    const installedSkill = {
-      name: 'my-skill',
+  it('TracksClient CRUD methods map to the correct endpoints', async () => {
+    const installedTrack = {
+      name: 'my-track',
       version: '1.0.0',
-      description: 'A test skill',
+      description: 'A test track',
       enabled: true,
-      source: '/tmp/my-skill',
+      source: '/tmp/my-track',
       installed_at: '2026-05-12T12:00:00Z',
-      install_path: '/home/.openhands/skills/installed/my-skill',
+      install_path: '/home/.handprint/tracks/installed/my-track',
     };
-    const installedList = { skills: [{ name: 'my-skill', version: '1.0.0', enabled: true }] };
-    const toggleResponse = { name: 'my-skill', enabled: false };
-    const uninstallResponse = { message: "Skill 'my-skill' uninstalled" };
+    const installedList = { tracks: [{ name: 'my-track', version: '1.0.0', enabled: true }] };
+    const toggleResponse = { name: 'my-track', enabled: false };
+    const uninstallResponse = { message: "Track 'my-track' uninstalled" };
     const refreshResponse = {
-      message: "Skill 'my-skill' updated",
-      skill: { name: 'my-skill', version: '1.0.0', enabled: true },
+      message: "Track 'my-track' updated",
+      track: { name: 'my-track', version: '1.0.0', enabled: true },
     };
     const marketplaceResponse = {
-      skills: [
-        { name: 'my-skill', description: 'desc', source: 'github:org/repo', installed: false },
+      tracks: [
+        { name: 'my-track', description: 'desc', source: 'github:org/repo', installed: false },
       ],
     };
 
     const responses = [
-      installedSkill,
+      installedTrack,
       installedList,
-      installedSkill,
+      installedTrack,
       toggleResponse,
       uninstallResponse,
       refreshResponse,
@@ -718,104 +718,104 @@ describe('Auxiliary API clients', () => {
       );
     }) as typeof fetch;
 
-    const client = new SkillsClient({ host: 'http://example.com' });
+    const client = new TracksClient({ host: 'http://example.com' });
 
-    const installed = await client.installSkill({ source: '/tmp/my-skill', force: false });
-    expect(installed.name).toBe('my-skill');
+    const installed = await client.installTrack({ source: '/tmp/my-track', force: false });
+    expect(installed.name).toBe('my-track');
     expect(installed.enabled).toBe(true);
 
-    const list = await client.listInstalledSkills();
-    expect(list.skills).toHaveLength(1);
-    expect(list.skills[0].name).toBe('my-skill');
+    const list = await client.listInstalledTracks();
+    expect(list.tracks).toHaveLength(1);
+    expect(list.tracks[0].name).toBe('my-track');
 
-    const got = await client.getInstalledSkill('my-skill');
-    expect(got.name).toBe('my-skill');
+    const got = await client.getInstalledTrack('my-track');
+    expect(got.name).toBe('my-track');
 
-    const toggled = await client.toggleSkill('my-skill', false);
+    const toggled = await client.toggleTrack('my-track', false);
     expect(toggled.enabled).toBe(false);
 
-    const uninstalled = await client.uninstallSkill('my-skill');
+    const uninstalled = await client.uninstallTrack('my-track');
     expect(uninstalled.message).toContain('uninstalled');
 
-    const refreshed = await client.refreshSkill('my-skill');
+    const refreshed = await client.refreshTrack('my-track');
     expect(refreshed.message).toContain('updated');
-    expect(refreshed.skill.name).toBe('my-skill');
+    expect(refreshed.track.name).toBe('my-track');
 
     const marketplace = await client.getMarketplace();
-    expect(marketplace.skills).toHaveLength(1);
-    expect(marketplace.skills[0].installed).toBe(false);
+    expect(marketplace.tracks).toHaveLength(1);
+    expect(marketplace.tracks[0].installed).toBe(false);
 
     expect(global.fetch).toHaveBeenNthCalledWith(
       1,
-      'http://example.com/api/skills/install',
+      'http://example.com/api/tracks/install',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ source: '/tmp/my-skill', force: false }),
+        body: JSON.stringify({ source: '/tmp/my-track', force: false }),
       })
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       2,
-      'http://example.com/api/skills/installed',
+      'http://example.com/api/tracks/installed',
       expect.objectContaining({ method: 'GET' })
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       3,
-      'http://example.com/api/skills/installed/my-skill',
+      'http://example.com/api/tracks/installed/my-track',
       expect.objectContaining({ method: 'GET' })
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       4,
-      'http://example.com/api/skills/installed/my-skill',
+      'http://example.com/api/tracks/installed/my-track',
       expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ enabled: false }) })
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       5,
-      'http://example.com/api/skills/installed/my-skill',
+      'http://example.com/api/tracks/installed/my-track',
       expect.objectContaining({ method: 'DELETE' })
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       6,
-      'http://example.com/api/skills/installed/my-skill/refresh',
+      'http://example.com/api/tracks/installed/my-track/refresh',
       expect.objectContaining({ method: 'POST' })
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       7,
-      'http://example.com/api/skills/marketplace',
+      'http://example.com/api/tracks/marketplace',
       expect.objectContaining({ method: 'GET' })
     );
   });
 
-  it('SkillsClient.refreshSkill POSTs to the /refresh route', async () => {
+  it('TracksClient.refreshTrack POSTs to the /refresh route', async () => {
     global.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ message: 'updated', skill: { name: 'my-skill' } }), {
+      new Response(JSON.stringify({ message: 'updated', track: { name: 'my-track' } }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       })
     ) as typeof fetch;
 
-    const client = new SkillsClient({ host: 'http://example.com' });
-    const refreshed = await client.refreshSkill('my-skill');
+    const client = new TracksClient({ host: 'http://example.com' });
+    const refreshed = await client.refreshTrack('my-track');
 
     expect(refreshed.message).toBe('updated');
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://example.com/api/skills/installed/my-skill/refresh',
+      'http://example.com/api/tracks/installed/my-track/refresh',
       expect.objectContaining({ method: 'POST' })
     );
   });
 
-  it('SkillsClient percent-encodes skill names with special characters', async () => {
+  it('TracksClient percent-encodes track names with special characters', async () => {
     global.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ name: 'my skill', enabled: true }), {
+      new Response(JSON.stringify({ name: 'my track', enabled: true }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       })
     ) as typeof fetch;
 
-    const client = new SkillsClient({ host: 'http://example.com' });
-    await client.getInstalledSkill('my skill');
+    const client = new TracksClient({ host: 'http://example.com' });
+    await client.getInstalledTrack('my track');
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://example.com/api/skills/installed/my%20skill',
+      'http://example.com/api/tracks/installed/my%20track',
       expect.objectContaining({ method: 'GET' })
     );
   });
@@ -829,7 +829,7 @@ describe('Auxiliary API clients', () => {
           model: 'inherit',
           color: null,
           tools: ['bash', 'str_replace_editor'],
-          skills: [],
+          tracks: [],
           system_prompt: 'You are a helpful sub-agent.',
           when_to_use_examples: ['Use for broad research tasks'],
           permission_mode: null,
@@ -850,7 +850,7 @@ describe('Auxiliary API clients', () => {
           model: 'inherit',
           color: 'blue',
           tools: ['bash'],
-          skills: ['grep'],
+          tracks: ['grep'],
           system_prompt: 'Explore the repository.',
           when_to_use_examples: [],
           permission_mode: 'confirm_risky',
@@ -862,7 +862,7 @@ describe('Auxiliary API clients', () => {
           condenser: null,
           metadata: { team: 'core' },
           level: 'project',
-          source: '/workspace/.openhands/agents/code-explorer.md',
+          source: '/workspace/.handprint/agents/code-explorer.md',
           is_builtin: false,
         },
       ],
@@ -930,7 +930,7 @@ describe('Auxiliary API clients', () => {
         {
           name: 'city-weather',
           description: 'Weather plugin',
-          source: 'github:OpenHands/extensions',
+          source: 'github:Handprint/extensions',
           ref: null,
           repo_path: 'plugins/city-weather',
           installed: false,
@@ -966,7 +966,7 @@ describe('Auxiliary API clients', () => {
       resolved_ref: null,
       repo_path: null,
       installed_at: '2026-05-12T12:00:00Z',
-      install_path: '/home/.openhands/plugins/installed/demo-plugin',
+      install_path: '/home/.handprint/plugins/installed/demo-plugin',
     };
     const availableList = {
       plugins: [{ name: 'demo-plugin', version: '1.0.0', description: 'A test plugin' }],
@@ -1760,13 +1760,13 @@ describe('Auxiliary API clients', () => {
       conversationId: 'conv-123',
     });
 
-    await conversation.switchAcpModel('claude-haiku-4-5');
+    await conversation.switchAcpModel('haijun-minix');
 
     expect(global.fetch).toHaveBeenCalledWith(
       'http://example.com/api/conversations/conv-123/switch_acp_model',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ model: 'claude-haiku-4-5' }),
+        body: JSON.stringify({ model: 'haijun-minix' }),
       })
     );
   });
@@ -2057,13 +2057,13 @@ describe('Auxiliary API clients', () => {
     ) as typeof fetch;
 
     const client = new ConversationClient({ host: 'http://example.com' });
-    await client.switchAcpModel('conversation-1', 'claude-haiku-4-5');
+    await client.switchAcpModel('conversation-1', 'haijun-minix');
 
     expect(global.fetch).toHaveBeenCalledWith(
       'http://example.com/api/conversations/conversation-1/switch_acp_model',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ model: 'claude-haiku-4-5' }),
+        body: JSON.stringify({ model: 'haijun-minix' }),
       })
     );
   });
@@ -2080,11 +2080,11 @@ describe('Auxiliary API clients', () => {
     const info = await client.navigateConversation(
       'conversation-1',
       { event_id: 'event-7' },
-      { includeSkills: true }
+      { includeTracks: true }
     );
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://example.com/api/conversations/conversation-1/navigate?include_skills=true',
+      'http://example.com/api/conversations/conversation-1/navigate?include_tracks=true',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({ event_id: 'event-7' }),
@@ -2105,7 +2105,7 @@ describe('Auxiliary API clients', () => {
     const client = new ConversationClient({ host: 'http://example.com' });
     await client.navigateConversation('conversation-1', { event_id: null });
 
-    // No includeSkills option => no query string on the URL.
+    // No includeTracks option => no query string on the URL.
     expect(global.fetch).toHaveBeenCalledWith(
       'http://example.com/api/conversations/conversation-1/navigate',
       expect.objectContaining({
@@ -2385,7 +2385,7 @@ describe('Auxiliary API clients', () => {
     );
   });
 
-  it('ConversationClient wraps agent-canvas conversation endpoints', async () => {
+  it('ConversationClient wraps agent-viczin conversation endpoints', async () => {
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.resolve(
         new Response(JSON.stringify({ success: true, response: 'ok' }), {
@@ -2493,7 +2493,7 @@ describe('Auxiliary API clients', () => {
     await client.updateSecrets('c1', {
       secrets: { TOKEN: { kind: 'StaticSecret', value: 'secret' } },
     });
-    await client.forkConversation('c1', { title: 'Fork' }, { includeSkills: true });
+    await client.forkConversation('c1', { title: 'Fork' }, { includeTracks: true });
 
     expect(global.fetch).toHaveBeenNthCalledWith(
       1,
@@ -2528,7 +2528,7 @@ describe('Auxiliary API clients', () => {
     );
     expect(global.fetch).toHaveBeenNthCalledWith(
       10,
-      'http://example.com/api/conversations/c1/fork?include_skills=true',
+      'http://example.com/api/conversations/c1/fork?include_tracks=true',
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ title: 'Fork' }) })
     );
   });
@@ -2875,7 +2875,7 @@ describe('Auxiliary API clients', () => {
     const client = new GitClient({ host: 'http://example.com', apiKey: 'secret' });
     const result = await client.searchRepositories({
       provider: 'github',
-      query: 'OpenHands',
+      query: 'Handprint',
       limit: 30,
       pageId: '1',
     });
@@ -2883,7 +2883,7 @@ describe('Auxiliary API clients', () => {
     expect(result.items[0].full_name).toBe('OpenHands/software-agent-sdk');
     expect(result.next_page_id).toBe('2');
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://example.com/api/git/repositories/search?provider=github&query=OpenHands&limit=30&page_id=1',
+      'http://example.com/api/git/repositories/search?provider=github&query=Handprint&limit=30&page_id=1',
       expect.objectContaining({
         method: 'GET',
         headers: expect.objectContaining({

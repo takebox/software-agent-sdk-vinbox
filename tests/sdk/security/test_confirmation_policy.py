@@ -3,12 +3,12 @@
 import pytest
 from pydantic import BaseModel
 
-from openhands.sdk.security.confirmation_policy import (
+from handprint.sdk.security.confirmation_policy import (
     AlwaysConfirm,
     ConfirmationPolicyBase,
     NeverConfirm,
 )
-from openhands.sdk.security.risk import SecurityRisk
+from handprint.sdk.security.risk import SecurityRisk
 
 
 class TestConfirmationPolicyBase:

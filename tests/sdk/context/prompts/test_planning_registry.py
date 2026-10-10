@@ -10,9 +10,9 @@ import os
 from pathlib import Path
 from typing import Final
 
-from openhands.sdk.context.prompts.presets import PromptPreset, create_registry
-from openhands.sdk.context.prompts.section import Platform, PromptContext
-from openhands.sdk.context.prompts.sections.planning import PlanningSection
+from handprint.sdk.context.prompts.presets import PromptPreset, create_registry
+from handprint.sdk.context.prompts.section import Platform, PromptContext
+from handprint.sdk.context.prompts.sections.planning import PlanningSection
 
 
 SNAPSHOT_DIR: Final[Path] = Path(__file__).parent / "snapshots"
@@ -60,7 +60,7 @@ def test_planning_is_standalone_composition() -> None:
     ctx = _ctx(plan_structure=PLAN_STRUCTURE)
     static = create_registry(PromptPreset.PLANNING).build(ctx).static
     assert static.startswith("You are a Planning Agent")
-    # Standalone: none of the default OpenHands sections leak in.
+    # Standalone: none of the default Handprint sections leak in.
     for tag in ("<SOUL>", "<SECURITY>", "<MEMORY>", "<VERSION_CONTROL>", "<IMPORTANT>"):
         assert tag not in static
     for tag in ("<ROLE>", "<PLANNING_WORKFLOW>", "<PLAN_SCOPE>", "<PLAN_STRUCTURE>"):

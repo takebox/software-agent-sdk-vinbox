@@ -5,10 +5,10 @@ from unittest.mock import Mock, patch
 
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.impl.remote_conversation import RemoteConversation
-from openhands.sdk.llm import LLM
-from openhands.sdk.workspace import RemoteWorkspace
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.impl.remote_conversation import RemoteConversation
+from handprint.sdk.llm import LLM
+from handprint.sdk.workspace import RemoteWorkspace
 
 
 def _agent() -> Agent:
@@ -19,7 +19,7 @@ def _agent() -> Agent:
 
 
 def _setup_workspace_with_mock_client(
-    host: str = "http://localhost:8000",
+    host: str = "http://localhost:9000",
     conversation_id: str | None = None,
 ) -> tuple[RemoteWorkspace, Mock, str]:
     """Workspace + mock client that handles create, navigate, and state refresh."""
@@ -53,7 +53,7 @@ def _setup_workspace_with_mock_client(
     return workspace, mock_client, conversation_id
 
 
-@patch("openhands.sdk.conversation.impl.remote_conversation.WebSocketCallbackClient")
+@patch("handprint.sdk.conversation.impl.remote_conversation.WebSocketCallbackClient")
 def test_remote_navigate_posts_event_id(mock_ws_cls: Mock) -> None:
     """navigate_to(event) must POST {event_id} to /{id}/navigate."""
     mock_ws_cls.return_value = Mock()
@@ -72,7 +72,7 @@ def test_remote_navigate_posts_event_id(mock_ws_cls: Mock) -> None:
     assert nav_calls[0][1].get("json", {}) == {"event_id": "evt-7"}
 
 
-@patch("openhands.sdk.conversation.impl.remote_conversation.WebSocketCallbackClient")
+@patch("handprint.sdk.conversation.impl.remote_conversation.WebSocketCallbackClient")
 def test_remote_navigate_none_posts_null(mock_ws_cls: Mock) -> None:
     """navigate_to(None) selects the empty tree — body carries event_id=None."""
     mock_ws_cls.return_value = Mock()
@@ -90,7 +90,7 @@ def test_remote_navigate_none_posts_null(mock_ws_cls: Mock) -> None:
     assert nav_calls[0][1].get("json", {}) == {"event_id": None}
 
 
-@patch("openhands.sdk.conversation.impl.remote_conversation.WebSocketCallbackClient")
+@patch("handprint.sdk.conversation.impl.remote_conversation.WebSocketCallbackClient")
 def test_remote_navigate_refreshes_state(mock_ws_cls: Mock) -> None:
     """navigate_to refreshes cached state, since leaf_event_id isn't broadcast."""
     mock_ws_cls.return_value = Mock()

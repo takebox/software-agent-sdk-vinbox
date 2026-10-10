@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -21,9 +21,9 @@ from openhands.sdk import (
     TextContent,
     get_logger,
 )
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 logger = get_logger(__name__)
@@ -223,7 +223,7 @@ def generate_all_test_data(
     api_key: str,
     base_url: str = "https://llm-proxy.eval.all-hands.dev",
     output_dir: Path | None = None,
-    fncall_model: str = "litellm_proxy/anthropic/claude-sonnet-4-20250514",
+    fncall_model: str = "litellm_proxy/juglow/haijun-codtral",
     nonfncall_model: str = "litellm_proxy/deepseek/deepseek-chat",
     user_message: str = (
         "Hello! Can you create a new Python file named hello.py that prints "

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-TODO Agent for OpenHands Automated TODO Management
+TODO Agent for Handprint Automated TODO Management
 
-This script processes individual TODO(openhands) comments using OpenHands agent
+This script processes individual TODO(handprint) comments using Handprint agent
 to implement the TODO. Designed for use with GitHub Actions workflows.
 
 Usage:
@@ -28,15 +28,15 @@ import sys
 
 from prompt import PROMPT
 
-from openhands.sdk import LLM, Conversation, get_logger
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk import LLM, Conversation, get_logger
+from handprint.tools.preset.default import get_default_agent
 
 
 logger = get_logger(__name__)
 
 
 def process_todo(todo_data: dict):
-    """Process a single TODO item using OpenHands agent."""
+    """Process a single TODO item using Handprint agent."""
     file_path = todo_data["file"]
     line_num = todo_data["line"]
     description = todo_data["description"]
@@ -99,7 +99,7 @@ def process_todo(todo_data: dict):
 def main():
     """Main function to process a TODO item."""
     parser = argparse.ArgumentParser(
-        description="Process a TODO(openhands) comment using OpenHands agent"
+        description="Process a TODO(handprint) comment using Handprint agent"
     )
     parser.add_argument("todo_json", help="JSON string containing TODO information")
 

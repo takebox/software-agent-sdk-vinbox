@@ -14,21 +14,21 @@ import uuid
 
 import pytest
 
-from openhands.agent_server.telemetry import models as m
-from openhands.agent_server.telemetry.factory import (
+from handprint.agent_server.telemetry import models as m
+from handprint.agent_server.telemetry.factory import (
     DiagnosticEventFactory,
     build_runtime_properties,
 )
-from openhands.agent_server.telemetry.policy import (
+from handprint.agent_server.telemetry.policy import (
     TelemetryConsent,
     TelemetryDecision,
 )
-from openhands.agent_server.telemetry.sink import BufferedTelemetrySink
-from openhands.agent_server.telemetry.subscriber import (
+from handprint.agent_server.telemetry.sink import BufferedTelemetrySink
+from handprint.agent_server.telemetry.subscriber import (
     ConversationTelemetryContext,
     TelemetrySubscriber,
 )
-from openhands.sdk.event import AgentErrorEvent, ConversationStateUpdateEvent
+from handprint.sdk.event import AgentErrorEvent, ConversationStateUpdateEvent
 
 
 # Values that must never appear in any emitted payload.
@@ -68,7 +68,7 @@ class AlwaysFailingExporter:
         raise ConnectionError("still unreachable")
 
 
-def build_subscriber(sink, user_id: str | None = "canvas-user-7"):
+def build_subscriber(sink, user_id: str | None = "viczin-user-7"):
     factory = DiagnosticEventFactory(
         runtime=build_runtime_properties(deferred_init=False),
         salt="deployment-salt",
@@ -81,7 +81,7 @@ def build_subscriber(sink, user_id: str | None = "canvas-user-7"):
         context=ConversationTelemetryContext(
             conversation_ref=factory.conversation_ref(conversation_id),
             user_id=user_id,
-            llm_model_family="anthropic",
+            llm_model_family="juglow",
             agent_kind="agent",
             tool_count=4,
             is_fork=False,
@@ -146,7 +146,7 @@ async def test_opted_in_session_emits_sanitized_lifecycle_and_error_events():
     assert conversation_id.hex not in serialized
 
     # Correlation identity is the host's, verbatim.
-    assert all(p["distinct_id"] == "canvas-user-7" for p in exporter.payloads)
+    assert all(p["distinct_id"] == "viczin-user-7" for p in exporter.payloads)
 
     # Only allowlisted properties, and every event carries the schema version.
     for payload in exporter.payloads:
@@ -177,7 +177,7 @@ async def test_opted_in_session_reports_useful_diagnostics():
     assert (
         started["$insert_id"] == f"conversation_created:{started['conversation_ref']}"
     )
-    assert started["llm_model_family"] == "anthropic"
+    assert started["llm_model_family"] == "juglow"
     assert started["tool_count"] == 4
 
     error = by_name[m.EventName.CONVERSATION_ERROR]

@@ -315,13 +315,13 @@ describe('Event Structure', () => {
           role: 'user',
           content: [{ type: 'text', text: 'Hello, assistant!' }],
         },
-        activated_skills: ['code_review'],
+        activated_tracks: ['code_review'],
       };
 
       expect(event.llm_message).toBeDefined();
       expect(event.llm_message.role).toBe('user');
       expect(event.llm_message.content).toHaveLength(1);
-      expect(event.activated_skills).toContain('code_review');
+      expect(event.activated_tracks).toContain('code_review');
     });
   });
 

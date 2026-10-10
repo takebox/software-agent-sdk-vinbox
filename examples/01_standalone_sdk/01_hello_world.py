@@ -1,9 +1,9 @@
 import os
 
-from openhands.sdk import LLM, Agent, Conversation, Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.task_tracker import TaskTrackerTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation, Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.task_tracker import TaskTrackerTool
+from handprint.tools.terminal import TerminalTool
 
 
 llm = LLM(

@@ -7,23 +7,23 @@ from unittest.mock import MagicMock, patch
 
 from pydantic import SecretStr
 
-from openhands.sdk.agent.utils import fix_malformed_tool_arguments
-from openhands.sdk.conversation.conversation_stats import ConversationStats
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.hooks.config import HookConfig, HookDefinition, HookMatcher
-from openhands.sdk.llm import LLM, TextContent
-from openhands.sdk.llm.call_context import LLMCallContext
-from openhands.sdk.subagent.registry import (
+from handprint.sdk.agent.utils import fix_malformed_tool_arguments
+from handprint.sdk.conversation.conversation_stats import ConversationStats
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.hooks.config import HookConfig, HookDefinition, HookMatcher
+from handprint.sdk.llm import LLM, TextContent
+from handprint.sdk.llm.call_context import LLMCallContext
+from handprint.sdk.subagent.registry import (
     _reset_registry_for_tests,
     register_agent,
 )
-from openhands.sdk.subagent.schema import AgentDefinition
-from openhands.tools.delegate import (
+from handprint.sdk.subagent.schema import AgentDefinition
+from handprint.tools.delegate import (
     DelegateExecutor,
     DelegateObservation,
 )
-from openhands.tools.delegate.definition import DelegateAction
-from openhands.tools.preset import register_builtins_agents
+from handprint.tools.delegate.definition import DelegateAction
+from handprint.tools.preset import register_builtins_agents
 
 
 def create_test_executor_and_parent():
@@ -516,7 +516,7 @@ def test_spawn_passes_hook_config_to_sub_conversation():
         hooks=hook_config,
     )
 
-    from openhands.sdk.subagent.registry import (
+    from handprint.sdk.subagent.registry import (
         agent_definition_to_factory,
     )
 

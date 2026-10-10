@@ -1,4 +1,4 @@
-"""OpenHands Agent SDK — LLM Security Analyzer Example (Simplified)
+"""Handprint Agent SDK — LLM Security Analyzer Example (Simplified)
 
 This example shows how to use the LLMSecurityAnalyzer to automatically
 evaluate security risks of actions before execution.
@@ -10,16 +10,16 @@ from collections.abc import Callable
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, BaseConversation, Conversation
-from openhands.sdk.conversation.state import (
+from handprint.sdk import LLM, Agent, BaseConversation, Conversation
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.security.confirmation_policy import ConfirmRisky
-from openhands.sdk.security.llm_analyzer import LLMSecurityAnalyzer
-from openhands.sdk.tool import Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.security.confirmation_policy import ConfirmRisky
+from handprint.sdk.security.llm_analyzer import LLMSecurityAnalyzer
+from handprint.sdk.tool import Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 # Clean ^C exit: no stack trace noise

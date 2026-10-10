@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@openhands/typescript-client': path.resolve(__dirname, '../../dist'),
+      '@takebox-ai/typescript-client': path.resolve(__dirname, '../../dist'),
     },
   },
   server: {

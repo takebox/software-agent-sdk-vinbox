@@ -13,7 +13,7 @@ from typing import Any, cast
 import pytest
 from pydantic import PrivateAttr
 
-from openhands.sdk.llm import (
+from handprint.sdk.llm import (
     CLEANUP_PROFILE_NAME,
     LLM,
     LLMResponse,
@@ -23,11 +23,11 @@ from openhands.sdk.llm import (
     clean_outward_text,
     llm_profile_store,
 )
-from openhands.sdk.llm.llm import LLMCallContext
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.llm.streaming import TokenCallbackType
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.tool import ToolDefinition
+from handprint.sdk.llm.llm import LLMCallContext
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.llm.streaming import TokenCallbackType
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.tool import ToolDefinition
 
 
 class CapturingTestLLM(TestLLM):

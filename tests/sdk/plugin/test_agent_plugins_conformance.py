@@ -37,7 +37,7 @@ Plugin loader
 Discovery and isolation
   fixed locations only ..................... ``TestFixedLocations``
   missing locations are valid absence ...... ``TestFixedLocations``
-  isolate component types, skills, entries   ``TestFailureBoundaries``
+  isolate component types, tracks, entries   ``TestFailureBoundaries``
   ignore unsupported component types ....... ``TestFixedLocations``
 
 MCP support
@@ -67,13 +67,13 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.plugin import AgentPluginsFormat, Plugin, detect_format
-from openhands.sdk.plugin.format.agent_plugins import (
+from handprint.sdk.plugin import AgentPluginsFormat, Plugin, detect_format
+from handprint.sdk.plugin.format.agent_plugins import (
     _MANIFEST_SCHEMA_FILE,
     MANIFEST_SCHEMA_URL,
     _load_schema,
 )
-from openhands.sdk.plugin.format.agent_plugins_mcp import get_plugin_data_dir
+from handprint.sdk.plugin.format.agent_plugins_mcp import get_plugin_data_dir
 
 
 FIXTURES = Path(__file__).parents[2] / "fixtures" / "plugins" / "agent_plugins"
@@ -93,7 +93,7 @@ def plugin_data_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """
     root = tmp_path / "plugin-data"
     monkeypatch.setattr(
-        "openhands.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR", root
+        "handprint.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR", root
     )
     return root
 
@@ -131,13 +131,13 @@ class TestVendoredExample:
         )
         assert plugin.name == "agent-plugins-example"
         assert plugin.version == "1.0.0"
-        assert [skill.name for skill in plugin.skills] == ["migrate-agent-plugin"]
+        assert [track.name for track in plugin.tracks] == ["migrate-agent-plugin"]
 
-    def test_skill_resources_come_along(self):
-        """Upstream ships the skill's references/; they must survive loading."""
+    def test_track_resources_come_along(self):
+        """Upstream ships the track's references/; they must survive loading."""
         plugin = Plugin.load(fixture("agent-plugins-example"))
 
-        resources = plugin.skills[0].resources
+        resources = plugin.tracks[0].resources
         assert resources is not None
         assert sorted(resources.references) == [
             "client-extensions.md",
@@ -145,7 +145,7 @@ class TestVendoredExample:
             "validation-checklist.md",
         ]
 
-    def test_skills_only_package_contributes_nothing_else(self):
+    def test_tracks_only_package_contributes_nothing_else(self):
         """It has no mcp.json and no extension directory (spec §6.2)."""
         plugin = Plugin.load(fixture("agent-plugins-example"))
 
@@ -205,7 +205,7 @@ class TestSchemaSelection:
 
         plugin = Plugin.load(fixture("full-package"))
 
-        assert [skill.name for skill in plugin.skills] == ["greet", "summarize"]
+        assert [track.name for track in plugin.tracks] == ["greet", "summarize"]
         assert set(plugin.mcp_config) == {"local-tools", "remote-api"}
 
     def test_a_published_but_unvendored_version_is_rejected(self):
@@ -231,7 +231,7 @@ class TestManifestRejection:
         """§11.3 rule 2: no component of a rejected plugin may be discovered."""
         discovered: list[str] = []
         for loader in (
-            "load_skills",
+            "load_tracks",
             "load_mcp_config",
             "load_agents",
             "load_commands",
@@ -252,7 +252,7 @@ class TestManifestRejection:
         """An unknown top-level field and a non-object ``extensions`` (§5.2, §8.1)."""
         plugin = Plugin.load(fixture("non-fatal-manifest"))
 
-        assert [skill.name for skill in plugin.skills] == ["ok"]
+        assert [track.name for track in plugin.tracks] == ["ok"]
         assert "futureField" in caplog.text
         assert "non-object 'extensions'" in caplog.text
 
@@ -263,7 +263,7 @@ class TestFixedLocations:
     def test_every_supported_component_type_is_discovered(self):
         plugin = Plugin.load(fixture("full-package"))
 
-        assert [skill.name for skill in plugin.skills] == ["greet", "summarize"]
+        assert [track.name for track in plugin.tracks] == ["greet", "summarize"]
         assert set(plugin.mcp_config) == {"local-tools", "remote-api"}
         assert [agent.name for agent in plugin.agents] == ["full-package-helper"]
         assert [command.name for command in plugin.commands] == ["report"]
@@ -274,21 +274,21 @@ class TestFixedLocations:
         plugin = Plugin.load(fixture("manifest-only"))
 
         assert plugin.name == "manifest-only"
-        assert plugin.skills == []
+        assert plugin.tracks == []
         assert plugin.mcp_config == {}
         assert plugin.agents == []
         assert plugin.commands == []
         assert plugin.hooks is None
 
     def test_only_the_fixed_locations_are_searched(self):
-        """``wrong-locations`` ships the Claude Code layout at the root.
+        """``wrong-locations`` ships the Haijun Code layout at the root.
 
         ``.mcp.json``, ``hooks/``, ``commands/`` and ``agents/`` there are not
         this format's locations, so none of them may be loaded (§6.1).
         """
         plugin = Plugin.load(fixture("wrong-locations"))
 
-        assert [skill.name for skill in plugin.skills] == ["only"]
+        assert [track.name for track in plugin.tracks] == ["only"]
         assert plugin.mcp_config == {}
         assert plugin.hooks is None
         assert plugin.commands == []
@@ -299,7 +299,7 @@ class TestFixedLocations:
         plugin = Plugin.load(fixture("wrong-locations"))
 
         assert (Path(plugin.path) / "lsp").is_dir()
-        assert [skill.name for skill in plugin.skills] == ["only"]
+        assert [track.name for track in plugin.tracks] == ["only"]
 
     def test_the_declared_transport_is_the_one_carried(self):
         """§7.2.1: the entry's transport is what the client connects with."""
@@ -392,10 +392,10 @@ class TestPlaceholderExpansion:
 class TestFailureBoundaries:
     """Item 5: apply the boundary defined for each component type or entry."""
 
-    def test_one_broken_skill_does_not_take_its_siblings(self, caplog):
+    def test_one_broken_track_does_not_take_its_siblings(self, caplog):
         plugin = Plugin.load(fixture("partial-failures"))
 
-        assert [skill.name for skill in plugin.skills] == ["good"]
+        assert [track.name for track in plugin.tracks] == ["good"]
         assert "broken" in caplog.text
 
     @pytest.mark.parametrize(
@@ -416,10 +416,10 @@ class TestFailureBoundaries:
         assert set(plugin.mcp_config) == {"good-server"}
 
     def test_a_bad_mcp_entry_does_not_take_another_component_type(self):
-        """Skills and agents load beside five skipped MCP entries."""
+        """Tracks and agents load beside five skipped MCP entries."""
         plugin = Plugin.load(fixture("partial-failures"))
 
-        assert [skill.name for skill in plugin.skills] == ["good"]
+        assert [track.name for track in plugin.tracks] == ["good"]
         assert [agent.name for agent in plugin.agents] == ["partial-failures-helper"]
 
     def test_one_broken_agent_does_not_take_its_siblings(self):
@@ -451,7 +451,7 @@ class TestVersioning:
         plugin = Plugin.load(fixture("mcp-version-mismatch"))
 
         assert plugin.mcp_config == {}
-        assert [skill.name for skill in plugin.skills] == ["still-here"]
+        assert [track.name for track in plugin.tracks] == ["still-here"]
 
     def test_the_vendored_schema_keeps_its_published_identity(self):
         """A canonical identifier is never reassigned to different contents."""
@@ -469,7 +469,7 @@ class TestClientExtensions:
         assert plugin.entry_slash_command == "/full-package:report"
 
     def test_our_extension_directory_is_read(self):
-        """§8.2: file-based components live under ``dev.openhands/``."""
+        """§8.2: file-based components live under ``dev.handprint/``."""
         plugin = Plugin.load(fixture("full-package"))
 
         assert [command.name for command in plugin.commands] == ["report"]

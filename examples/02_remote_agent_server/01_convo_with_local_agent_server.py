@@ -6,10 +6,10 @@ from pathlib import Path
 from pydantic import SecretStr
 from scripts.utils import ManagedAPIServer
 
-from openhands.sdk import LLM, Conversation, RemoteConversation, Workspace, get_logger
-from openhands.sdk.event import ConversationStateUpdateEvent, HookExecutionEvent
-from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk import LLM, Conversation, RemoteConversation, Workspace, get_logger
+from handprint.sdk.event import ConversationStateUpdateEvent, HookExecutionEvent
+from handprint.sdk.hooks import HookConfig, HookDefinition, HookMatcher
+from handprint.tools.preset.default import get_default_agent
 
 
 logger = get_logger(__name__)
@@ -29,13 +29,13 @@ llm = LLM(
 )
 title_gen_llm = LLM(
     usage_id="title-gen-llm",
-    model=os.getenv("LLM_MODEL", "openhands/gpt-5-mini-2025-08-07"),
+    model=os.getenv("LLM_MODEL", "handprint/gpt-5-mini-2025-08-07"),
     base_url=os.getenv("LLM_BASE_URL"),
     api_key=SecretStr(api_key),
 )
 
 # Use managed API server
-with ManagedAPIServer(port=8001) as server:
+with ManagedAPIServer(port=9001) as server:
     # Create agent
     agent = get_default_agent(
         llm=llm,

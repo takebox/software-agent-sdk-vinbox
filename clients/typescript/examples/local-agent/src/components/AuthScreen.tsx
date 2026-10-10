@@ -42,7 +42,7 @@ export function AuthScreen({ onAuthenticate, models, defaultModel }: AuthScreenP
       <header id="auth-header" className="header">
         <h1 id="auth-title">
           <span className="logo">🤖</span>
-          OpenHands Chat
+          Handprint Chat
         </h1>
       </header>
 

@@ -1,8 +1,8 @@
-"""Tests for py_type function in openhands.sdk.tool.schema."""
+"""Tests for py_type function in handprint.sdk.tool.schema."""
 
 from typing import Any
 
-from openhands.sdk.tool.schema import py_type
+from handprint.sdk.tool.schema import py_type
 
 
 class TestPyTypePrimitiveTypes:

@@ -3,7 +3,7 @@
   "name": "switches",
   "llm_profile_ref": "default",
   "revision": 0,
-  "disabled_skills": [],
+  "disabled_tracks": [],
   "enable_sub_agents": true,
   "enable_switch_llm_tool": false,
   "__expected__": {

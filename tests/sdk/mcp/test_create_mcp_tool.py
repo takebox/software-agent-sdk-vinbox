@@ -19,8 +19,8 @@ from fastmcp.mcp_config import MCPConfig as FastMCPConfig, RemoteMCPServer
 from key_value.aio.stores.memory import MemoryStore
 from pydantic import SecretStr
 
-from openhands.sdk.mcp import create_mcp_tools
-from openhands.sdk.mcp.config import (
+from handprint.sdk.mcp import create_mcp_tools
+from handprint.sdk.mcp.config import (
     MCPApiKeyAuthCredential,
     MCPBasicAuthCredential,
     MCPBearerAuthCredential,
@@ -30,9 +30,9 @@ from openhands.sdk.mcp.config import (
     coerce_mcp_config,
     to_fastmcp_mcp_config,
 )
-from openhands.sdk.mcp.exceptions import MCPError, MCPTimeoutError
-from openhands.sdk.mcp.oauth import MCPOAuth
-from openhands.sdk.mcp.utils import _prepare_mcp_config
+from handprint.sdk.mcp.exceptions import MCPError, MCPTimeoutError
+from handprint.sdk.mcp.oauth import MCPOAuth
+from handprint.sdk.mcp.utils import _prepare_mcp_config
 
 
 logger = logging.getLogger(__name__)
@@ -262,7 +262,7 @@ def test_create_mcp_tools_skips_disabled_servers():
         }
     }
 
-    with patch("openhands.sdk.mcp.utils.MCPClient") as mock_client_class:
+    with patch("handprint.sdk.mcp.utils.MCPClient") as mock_client_class:
         create_mcp_tools(native_mcp_config(config))
 
     prepared = mock_client_class.call_args.args[0]
@@ -285,7 +285,7 @@ def test_create_mcp_tools_all_servers_disabled():
 
 
 def test_to_fastmcp_mcp_config_strips_enabled():
-    """``enabled`` is OpenHands-side only, and FastMCP would absorb it silently."""
+    """``enabled`` is Handprint-side only, and FastMCP would absorb it silently."""
     config = native_mcp_config(
         {
             "mcpServers": {
@@ -333,9 +333,9 @@ def test_prepare_mcp_config_applies_explicit_oauth_authentication():
                             "application_type": "native",
                         },
                         "scopes": ["email", "offline_access"],
-                        "client_name": "OpenHands",
-                        "client_id": "openhands-client",
-                        "client_secret": "openhands-secret",
+                        "client_name": "Handprint",
+                        "client_id": "handprint-client",
+                        "client_secret": "handprint-secret",
                     },
                 },
             }
@@ -353,9 +353,9 @@ def test_prepare_mcp_config_applies_explicit_oauth_authentication():
         "token_endpoint_auth_method": "private_key_jwt",
     }
     assert auth._scopes == ["email", "offline_access"]
-    assert auth._client_name == "OpenHands"
-    assert auth._client_id == "openhands-client"
-    assert auth._client_secret == "openhands-secret"
+    assert auth._client_name == "Handprint"
+    assert auth._client_id == "handprint-client"
+    assert auth._client_secret == "handprint-secret"
 
 
 def test_prepare_mcp_config_applies_oauth_token_storage_to_explicit_auth():
@@ -755,7 +755,7 @@ def test_create_mcp_tools_timeout_error_message():
         }
     }
 
-    with patch("openhands.sdk.mcp.utils.MCPClient") as mock_client_class:
+    with patch("handprint.sdk.mcp.utils.MCPClient") as mock_client_class:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
         mock_client.call_async_from_sync.side_effect = TimeoutError()

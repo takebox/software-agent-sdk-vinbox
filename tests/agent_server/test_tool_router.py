@@ -2,7 +2,7 @@
 
 import importlib
 
-from openhands.sdk.subagent.registry import (
+from handprint.sdk.subagent.registry import (
     _reset_registry_for_tests,
     get_agent_factory,
 )
@@ -14,7 +14,7 @@ def test_builtin_agents_registered_on_tool_router_import():
     The agent-server includes tool_router at startup, so this verifies that
     builtin sub-agents are available as soon as the server starts.
     """
-    import openhands.agent_server.tool_router as mod
+    import handprint.agent_server.tool_router as mod
 
     # Reset and reload to simulate a fresh import
     _reset_registry_for_tests()
@@ -32,8 +32,8 @@ def test_catalog_offers_the_stock_tools_a_profile_may_pick():
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
 
-    from openhands.agent_server.config import Config
-    from openhands.agent_server.tool_router import tool_router
+    from handprint.agent_server.config import Config
+    from handprint.agent_server.tool_router import tool_router
 
     app = FastAPI()
     app.state.config = Config()
@@ -86,10 +86,10 @@ def test_docker_runtime_catalog_does_not_report_host_usability(monkeypatch):
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
 
-    from openhands.agent_server.tool_router import tool_router
+    from handprint.agent_server.tool_router import tool_router
 
     monkeypatch.setattr(
-        "openhands.sdk.tool.registry._check_tool_usable", lambda name, checker: False
+        "handprint.sdk.tool.registry._check_tool_usable", lambda name, checker: False
     )
     app = FastAPI()
     app.state.config = SimpleNamespace(
@@ -110,7 +110,7 @@ def test_docker_catalog_follows_the_image_browser_setting(monkeypatch):
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
 
-    from openhands.agent_server.tool_router import tool_router
+    from handprint.agent_server.tool_router import tool_router
 
     app = FastAPI()
     app.state.config = SimpleNamespace(
@@ -133,7 +133,7 @@ def test_catalog_reports_a_disabled_browser_as_unusable():
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
 
-    from openhands.agent_server.tool_router import tool_router
+    from handprint.agent_server.tool_router import tool_router
 
     app = FastAPI()
     app.state.config = SimpleNamespace(

@@ -12,20 +12,20 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from openhands.sdk.profiles import (
+from handprint.sdk.profiles import (
     AGENT_PROFILE_SCHEMA_VERSION,
     ACPAgentProfile,
     AgentProfile,
-    OpenHandsAgentProfile,
+    HandprintAgentProfile,
     validate_agent_profile,
 )
-from openhands.sdk.profiles.agent_profile import (
+from handprint.sdk.profiles.agent_profile import (
     AgentProfileBase,
     _agent_profile_discriminator,
 )
 
 
-_ADAPTER: TypeAdapter[OpenHandsAgentProfile | ACPAgentProfile] = TypeAdapter(
+_ADAPTER: TypeAdapter[HandprintAgentProfile | ACPAgentProfile] = TypeAdapter(
     AgentProfile
 )
 
@@ -35,97 +35,97 @@ _ADAPTER: TypeAdapter[OpenHandsAgentProfile | ACPAgentProfile] = TypeAdapter(
 # ---------------------------------------------------------------------------
 
 
-def test_openhands_profile_round_trips() -> None:
-    profile = OpenHandsAgentProfile(
-        name="my-openhands",
+def test_handprint_profile_round_trips() -> None:
+    profile = HandprintAgentProfile(
+        name="my-handprint",
         llm_profile_ref="default",
         revision=3,
         mcp_server_refs=["fetch"],
-        disabled_skills=["pdf-tools"],
+        disabled_tracks=["pdf-tools"],
         system_message_suffix="be terse",
         tool_concurrency_limit=4,
     )
     reloaded = validate_agent_profile(profile.model_dump(mode="json"))
 
-    assert isinstance(reloaded, OpenHandsAgentProfile)
+    assert isinstance(reloaded, HandprintAgentProfile)
     assert reloaded == profile
-    assert reloaded.agent_kind == "openhands"
+    assert reloaded.agent_kind == "handprint"
     assert reloaded.agent == "CodeActAgent"
     assert reloaded.llm_profile_ref == "default"
     assert reloaded.revision == 3
     assert reloaded.mcp_server_refs == ["fetch"]
-    assert reloaded.disabled_skills == ["pdf-tools"]
+    assert reloaded.disabled_tracks == ["pdf-tools"]
     assert reloaded.tool_concurrency_limit == 4
 
 
-def test_openhands_profile_new_field_defaults() -> None:
-    """``enable_switch_llm_tool`` defaults True (global parity); ``disabled_skills``
+def test_handprint_profile_new_field_defaults() -> None:
+    """``enable_switch_llm_tool`` defaults True (global parity); ``disabled_tracks``
     defaults ``[]`` — the deny-list starts empty, so an unset field means "all
-    discovered skills" (#4017). Skills are selected by exclusion, never an
+    discovered tracks" (#4017). Tracks are selected by exclusion, never an
     allow-list of names that could dangle."""
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
-    assert profile.disabled_skills == []
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
+    assert profile.disabled_tracks == []
     reloaded = validate_agent_profile(
-        {"agent_kind": "openhands", "name": "oh", "llm_profile_ref": "default"}
+        {"agent_kind": "handprint", "name": "oh", "llm_profile_ref": "default"}
     )
-    assert isinstance(reloaded, OpenHandsAgentProfile)
-    assert reloaded.disabled_skills == []
+    assert isinstance(reloaded, HandprintAgentProfile)
+    assert reloaded.disabled_tracks == []
 
 
 def test_default_profile_preserves_explicit_empty_tools() -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="default", llm_profile_ref="default", revision=0, tools=[]
     )
 
     assert profile.tools == []
 
 
-def test_disabled_skills_round_trips() -> None:
+def test_disabled_tracks_round_trips() -> None:
     """A non-empty deny-list survives the JSON round-trip verbatim."""
     profile = validate_agent_profile(
-        OpenHandsAgentProfile(
-            name="oh", llm_profile_ref="default", disabled_skills=["a", "b"]
+        HandprintAgentProfile(
+            name="oh", llm_profile_ref="default", disabled_tracks=["a", "b"]
         ).model_dump(mode="json")
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
-    assert profile.disabled_skills == ["a", "b"]
+    assert isinstance(profile, HandprintAgentProfile)
+    assert profile.disabled_tracks == ["a", "b"]
 
 
-def test_acp_profile_has_no_skill_field() -> None:
-    """ACP profiles carry no skill-selection field at all — the subprocess owns
+def test_acp_profile_has_no_track_field() -> None:
+    """ACP profiles carry no track-selection field at all — the subprocess owns
     its tooling and prompt context (#4017). ``extra="forbid"`` rejects a stray
-    ``skill_refs``/``disabled_skills`` on an ACP payload."""
-    from openhands.sdk.profiles import ACPAgentProfile
+    ``track_refs``/``disabled_tracks`` on an ACP payload."""
+    from handprint.sdk.profiles import ACPAgentProfile
 
-    profile = ACPAgentProfile(name="acp", acp_server="claude-code")
-    assert not hasattr(profile, "skill_refs")
-    assert not hasattr(profile, "disabled_skills")
+    profile = ACPAgentProfile(name="acp", acp_server="haijun-code")
+    assert not hasattr(profile, "track_refs")
+    assert not hasattr(profile, "disabled_tracks")
     with pytest.raises(ValidationError):
         validate_agent_profile(
             {
                 "agent_kind": "acp",
                 "name": "acp",
-                "acp_server": "claude-code",
-                "disabled_skills": ["x"],
+                "acp_server": "haijun-code",
+                "disabled_tracks": ["x"],
             }
         )
 
 
 def test_persona_round_trips_and_defaults_to_none() -> None:
-    assert OpenHandsAgentProfile(name="oh", llm_profile_ref="d").persona is None
+    assert HandprintAgentProfile(name="oh", llm_profile_ref="d").persona is None
     profile = validate_agent_profile(
-        OpenHandsAgentProfile(
+        HandprintAgentProfile(
             name="oh", llm_profile_ref="d", persona="You are a reviewer."
         ).model_dump(mode="json")
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.persona == "You are a reviewer."
 
 
 @pytest.mark.parametrize("persona", ["", "x" * 65537])
 def test_persona_rejects_empty_and_oversized(persona: str) -> None:
     with pytest.raises(ValidationError):
-        OpenHandsAgentProfile(name="oh", llm_profile_ref="d", persona=persona)
+        HandprintAgentProfile(name="oh", llm_profile_ref="d", persona=persona)
 
 
 def test_acp_profile_rejects_persona() -> None:
@@ -134,7 +134,7 @@ def test_acp_profile_rejects_persona() -> None:
             {
                 "agent_kind": "acp",
                 "name": "acp",
-                "acp_server": "claude-code",
+                "acp_server": "haijun-code",
                 "persona": "x",
             }
         )
@@ -167,7 +167,7 @@ def test_acp_profile_minimal_defaults() -> None:
     profile = validate_agent_profile({"agent_kind": "acp", "name": "minimal"})
 
     assert isinstance(profile, ACPAgentProfile)
-    assert profile.acp_server == "claude-code"
+    assert profile.acp_server == "haijun-code"
     assert profile.acp_model is None
     assert profile.acp_session_mode is None
     assert profile.acp_prompt_timeout == 1800.0
@@ -186,14 +186,14 @@ def test_agent_profile_discriminator_declared_on_base():
     The discriminator accesses it directly without getattr.
     """
     base = AgentProfileBase(name="test-profile")
-    assert base.agent_kind == "openhands"
-    assert _agent_profile_discriminator(base) == "openhands"
+    assert base.agent_kind == "handprint"
+    assert _agent_profile_discriminator(base) == "handprint"
 
-    openhands_profile = OpenHandsAgentProfile(
-        name="test-openhands", llm_profile_ref="default"
+    handprint_profile = HandprintAgentProfile(
+        name="test-handprint", llm_profile_ref="default"
     )
-    assert openhands_profile.agent_kind == "openhands"
-    assert _agent_profile_discriminator(openhands_profile) == "openhands"
+    assert handprint_profile.agent_kind == "handprint"
+    assert _agent_profile_discriminator(handprint_profile) == "handprint"
 
     acp_profile = ACPAgentProfile(name="test-acp")
     assert acp_profile.agent_kind == "acp"
@@ -201,23 +201,23 @@ def test_agent_profile_discriminator_declared_on_base():
 
 
 def test_validate_dispatches_on_agent_kind() -> None:
-    openhands = validate_agent_profile(
-        {"agent_kind": "openhands", "name": "oh", "llm_profile_ref": "default"}
+    handprint = validate_agent_profile(
+        {"agent_kind": "handprint", "name": "oh", "llm_profile_ref": "default"}
     )
-    assert isinstance(openhands, OpenHandsAgentProfile)
-    assert openhands.agent_kind == "openhands"
+    assert isinstance(handprint, HandprintAgentProfile)
+    assert handprint.agent_kind == "handprint"
 
     acp = validate_agent_profile(
-        {"agent_kind": "acp", "name": "acp", "acp_model": "claude-opus-4-8"}
+        {"agent_kind": "acp", "name": "acp", "acp_model": "haijun-kamsa"}
     )
     assert isinstance(acp, ACPAgentProfile)
     assert acp.agent_kind == "acp"
 
 
-def test_missing_discriminator_defaults_to_openhands() -> None:
+def test_missing_discriminator_defaults_to_handprint() -> None:
     profile = validate_agent_profile({"name": "oh", "llm_profile_ref": "default"})
-    assert isinstance(profile, OpenHandsAgentProfile)
-    assert profile.agent_kind == "openhands"
+    assert isinstance(profile, HandprintAgentProfile)
+    assert profile.agent_kind == "handprint"
 
 
 def test_type_adapter_narrows_directly() -> None:
@@ -227,7 +227,7 @@ def test_type_adapter_narrows_directly() -> None:
 
 
 def test_validate_passes_through_instances() -> None:
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
     assert validate_agent_profile(profile) is profile
 
 
@@ -248,7 +248,7 @@ def test_acp_rejects_llm_profile_ref() -> None:
         )
 
 
-def test_openhands_rejects_acp_fields() -> None:
+def test_handprint_rejects_acp_fields() -> None:
     for acp_field, value in (
         ("acp_server", "codex"),
         ("acp_model", "gpt-5.5/medium"),
@@ -260,7 +260,7 @@ def test_openhands_rejects_acp_fields() -> None:
         with pytest.raises(ValidationError):
             validate_agent_profile(
                 {
-                    "agent_kind": "openhands",
+                    "agent_kind": "handprint",
                     "name": "oh",
                     "llm_profile_ref": "default",
                     acp_field: value,
@@ -268,9 +268,9 @@ def test_openhands_rejects_acp_fields() -> None:
             )
 
 
-def test_openhands_requires_llm_profile_ref() -> None:
+def test_handprint_requires_llm_profile_ref() -> None:
     with pytest.raises(ValidationError):
-        validate_agent_profile({"agent_kind": "openhands", "name": "oh"})
+        validate_agent_profile({"agent_kind": "handprint", "name": "oh"})
 
 
 def test_acp_rejects_unknown_acp_server() -> None:
@@ -310,7 +310,7 @@ def test_mcp_server_refs_null_vs_empty_are_distinct() -> None:
 
 
 def test_mcp_server_refs_default_is_null() -> None:
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="d")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="d")
     assert profile.mcp_server_refs is None
 
 
@@ -320,7 +320,7 @@ def test_mcp_server_refs_default_is_null() -> None:
 
 
 def test_schema_version_defaults_to_current() -> None:
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="d")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="d")
     assert profile.schema_version == AGENT_PROFILE_SCHEMA_VERSION
 
 
@@ -340,7 +340,7 @@ def test_schemaless_default_preserves_explicit_empty_tools() -> None:
             "tools": [],
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.tools == []
 
 
@@ -354,29 +354,29 @@ def test_v1_untouched_default_migrates_empty_tools_to_null() -> None:
             "tools": [],
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.schema_version == AGENT_PROFILE_SCHEMA_VERSION
     assert profile.tools is None
 
 
 @pytest.mark.parametrize(
-    "skills",
-    [[], [{"name": "old-skill", "content": "do stuff"}]],
+    "tracks",
+    [[], [{"name": "old-track", "content": "do stuff"}]],
 )
-def test_v1_profile_migrates_legacy_embedded_skills(skills: list[object]) -> None:
+def test_v1_profile_migrates_legacy_embedded_tracks(tracks: list[object]) -> None:
     profile = validate_agent_profile(
         {
             "schema_version": 1,
             "name": "default",
             "llm_profile_ref": "default",
             "revision": 0,
-            "skills": skills,
+            "tracks": tracks,
         }
     )
 
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.schema_version == AGENT_PROFILE_SCHEMA_VERSION
-    assert profile.disabled_skills == []
+    assert profile.disabled_tracks == []
 
 
 @pytest.mark.parametrize("schema_version", [1, 2])
@@ -414,7 +414,7 @@ def test_legacy_empty_tools_migrate_as_the_standard_set(
             **switches,
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert (
         None if profile.tools is None else [tool.name for tool in profile.tools]
     ) == expected
@@ -430,7 +430,7 @@ def test_v2_sub_agents_switch_pins_the_standard_set_plus_delegation() -> None:
             "enable_sub_agents": True,
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.schema_version == AGENT_PROFILE_SCHEMA_VERSION
     assert [tool.name for tool in profile.tools or []] == [
         "terminal",
@@ -454,7 +454,7 @@ def test_v2_sub_agents_switch_does_not_reach_an_explicit_list() -> None:
             "enable_sub_agents": True,
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [tool.name for tool in profile.tools or []] == ["glob", "switch_llm"]
 
 
@@ -469,7 +469,7 @@ def test_v2_default_switch_llm_needs_no_pinned_list() -> None:
             "enable_switch_llm_tool": True,
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.tools is None
 
 
@@ -484,7 +484,7 @@ def test_v2_fold_recognises_the_switch_llm_class_alias() -> None:
             "tools": [{"name": "SwitchLLMTool", "params": {}}],
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [tool.name for tool in profile.tools or []] == ["switch_llm"]
 
 
@@ -499,7 +499,7 @@ def test_v2_switch_llm_turned_off_pins_a_list_without_it() -> None:
             "enable_switch_llm_tool": False,
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [tool.name for tool in profile.tools or []] == [
         "terminal",
         "file_editor",
@@ -540,7 +540,7 @@ def test_v2_switches_coerce_like_booleans(value: object, expected: list[str]) ->
             "enable_switch_llm_tool": value,
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [tool.name for tool in profile.tools or []] == expected
 
 
@@ -605,7 +605,7 @@ def test_current_payload_accepts_retired_switches_as_deprecated_input(
         payload["schema_version"] = schema_version
     profile = validate_agent_profile(payload)
 
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [tool.name for tool in profile.tools or []] == expected
     assert switch not in profile.model_dump(mode="json")
 
@@ -613,7 +613,7 @@ def test_current_payload_accepts_retired_switches_as_deprecated_input(
 def test_current_payload_without_retired_switches_keeps_tools_unset() -> None:
     profile = validate_agent_profile({"name": "oh", "llm_profile_ref": "d"})
 
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert profile.tools is None
 
 
@@ -660,7 +660,7 @@ def test_saving_a_copy_under_a_new_name_keeps_the_selected_tools() -> None:
 
     profile = validate_agent_profile(copy)
 
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [tool.name for tool in profile.tools or []] == ["terminal", "glob"]
 
 
@@ -685,7 +685,7 @@ def test_tools_canonicalize_builtin_spellings_once() -> None:
         )
     )
 
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert [(tool.name, tool.params) for tool in profile.tools or []] == [
         ("finish", {"response_schema": {"type": "object"}}),
         ("terminal", {}),
@@ -733,9 +733,9 @@ def test_rejects_negative_schema_version() -> None:
 
 
 def test_id_is_uuid_and_autogenerated() -> None:
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="d")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="d")
     assert isinstance(profile.id, UUID)
-    other = OpenHandsAgentProfile(name="oh", llm_profile_ref="d")
+    other = HandprintAgentProfile(name="oh", llm_profile_ref="d")
     assert profile.id != other.id
 
 
@@ -758,8 +758,8 @@ def test_name_is_required() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_openhands_profile_persists_no_secret_fields() -> None:
-    dumped = OpenHandsAgentProfile(name="oh", llm_profile_ref="default").model_dump(
+def test_handprint_profile_persists_no_secret_fields() -> None:
+    dumped = HandprintAgentProfile(name="oh", llm_profile_ref="default").model_dump(
         mode="json"
     )
     # The profile carries a *reference*, never the credential itself.
@@ -769,7 +769,7 @@ def test_openhands_profile_persists_no_secret_fields() -> None:
 
 
 def test_acp_profile_persists_no_secret_fields() -> None:
-    dumped = ACPAgentProfile(name="acp", acp_server="claude-code").model_dump(
+    dumped = ACPAgentProfile(name="acp", acp_server="haijun-code").model_dump(
         mode="json"
     )
     # No embedded credential and no secret bag on the profile.
@@ -791,7 +791,7 @@ def test_verification_field_cannot_carry_a_secret() -> None:
             },
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
+    assert isinstance(profile, HandprintAgentProfile)
     assert not hasattr(profile.verification, "critic_api_key")
     assert profile.verification.critic_enabled is True
     assert profile.verification.critic_model_name == "gpt-5.5"
@@ -802,70 +802,70 @@ def test_verification_field_cannot_carry_a_secret() -> None:
     assert "sk-real-secret-value" not in json.dumps(exposed)
 
 
-def test_openhands_profile_has_no_embedded_skills_field() -> None:
-    """Profiles no longer carry embedded ``skills`` (#4017): the field is gone,
+def test_handprint_profile_has_no_embedded_tracks_field() -> None:
+    """Profiles no longer carry embedded ``tracks`` (#4017): the field is gone,
     and ``extra="forbid"`` rejects a stray one rather than silently accepting
     or dropping it. This is what makes the profile genuinely secret-free at
-    rest — the only field that could ever carry a secret (``skills[].mcp_tools``)
+    rest — the only field that could ever carry a secret (``tracks[].mcp_tools``)
     is gone."""
     with pytest.raises(ValidationError):
         validate_agent_profile(
             {
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "name": "oh",
                 "llm_profile_ref": "default",
                 "schema_version": AGENT_PROFILE_SCHEMA_VERSION,
-                "skills": [],
+                "tracks": [],
             }
         )
 
 
 # ---------------------------------------------------------------------------
-# Removed fields remain invalid in current-version payloads.  ``skills`` is an
+# Removed fields remain invalid in current-version payloads.  ``tracks`` is an
 # exception for v1 payloads because the v1-to-v2 migration explicitly retires it.
 # ---------------------------------------------------------------------------
 
 
-def test_current_profile_with_skills_field_is_rejected() -> None:
-    """A v2 payload must not retain the retired embedded ``skills`` field."""
+def test_current_profile_with_tracks_field_is_rejected() -> None:
+    """A v2 payload must not retain the retired embedded ``tracks`` field."""
     with pytest.raises(ValidationError):
         validate_agent_profile(
             {
                 "schema_version": AGENT_PROFILE_SCHEMA_VERSION,
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "name": "oh",
                 "llm_profile_ref": "default",
-                "skills": [{"name": "old-skill", "content": "do stuff"}],
+                "tracks": [{"name": "old-track", "content": "do stuff"}],
             }
         )
 
 
-def test_removed_skill_refs_field_is_rejected() -> None:
-    """The allow-list ``skill_refs`` was replaced by the ``disabled_skills``
+def test_removed_track_refs_field_is_rejected() -> None:
+    """The allow-list ``track_refs`` was replaced by the ``disabled_tracks``
     deny-list and never shipped, so a payload carrying it is rejected."""
     with pytest.raises(ValidationError):
         validate_agent_profile(
             {
                 "schema_version": 1,
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "name": "oh",
                 "llm_profile_ref": "default",
-                "skill_refs": ["pdf-tools"],
+                "track_refs": ["pdf-tools"],
             }
         )
 
 
-def test_payload_without_disabled_skills_adopts_empty_default() -> None:
-    """A payload that omits ``disabled_skills`` picks up the model default —
-    ``[]`` (all discovered skills)."""
+def test_payload_without_disabled_tracks_adopts_empty_default() -> None:
+    """A payload that omits ``disabled_tracks`` picks up the model default —
+    ``[]`` (all discovered tracks)."""
     profile = validate_agent_profile(
         {
             "schema_version": 1,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "name": "oh",
             "llm_profile_ref": "default",
         }
     )
-    assert isinstance(profile, OpenHandsAgentProfile)
-    assert profile.disabled_skills == []
-    assert profile.disabled_skills == []
+    assert isinstance(profile, HandprintAgentProfile)
+    assert profile.disabled_tracks == []
+    assert profile.disabled_tracks == []

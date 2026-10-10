@@ -2,8 +2,8 @@
 
 Covers both union variants, the null/empty/filter/dangling MCP cases, the
 dangling-LLM hard error, and the dry-run's redacted, side-effect-free
-diagnostics. Profiles no longer embed ``skills`` (#4017) — the skill catalog is
-server-discovered and filtered by the ``disabled_skills`` deny-list (never an
+diagnostics. Profiles no longer embed ``tracks`` (#4017) — the track catalog is
+server-discovered and filtered by the ``disabled_tracks`` deny-list (never an
 allow-list, which could dangle).
 """
 
@@ -12,22 +12,22 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import ACPAgent, Agent
-from openhands.sdk.llm import LLM
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.mcp.config import MCPServer, coerce_mcp_config
-from openhands.sdk.profiles import (
+from handprint.sdk.agent import ACPAgent, Agent
+from handprint.sdk.llm import LLM
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.mcp.config import MCPServer, coerce_mcp_config
+from handprint.sdk.profiles import (
     ACPAgentProfile,
     DanglingMcpServerRef,
-    OpenHandsAgentProfile,
+    HandprintAgentProfile,
     ProfileNotFound,
     resolve_agent_profile,
     resolve_agent_profile_dry_run,
 )
-from openhands.sdk.settings.model import ACPAgentSettings, OpenHandsAgentSettings
-from openhands.sdk.skills import Skill
-from openhands.sdk.tool import Tool, registry
-from openhands.sdk.tool.builtins import BUILT_IN_TOOL_CLASSES, BUILT_IN_TOOLS
+from handprint.sdk.settings.model import ACPAgentSettings, HandprintAgentSettings
+from handprint.sdk.tracks import Track
+from handprint.sdk.tool import Tool, registry
+from handprint.sdk.tool.builtins import BUILT_IN_TOOL_CLASSES, BUILT_IN_TOOLS
 
 
 _LLM_SECRET = "sk-LLM-SECRET-SHOULD-NOT-LEAK"
@@ -61,14 +61,14 @@ def mcp_config() -> dict[str, MCPServer]:
 
 
 # --------------------------------------------------------------------------- #
-# OpenHands path
+# Handprint path
 # --------------------------------------------------------------------------- #
 
 
-def test_openhands_resolves_to_settings_with_injected_llm(
+def test_handprint_resolves_to_settings_with_injected_llm(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh",
         llm_profile_ref="default",
         agent="CodeActAgent",
@@ -80,11 +80,11 @@ def test_openhands_resolves_to_settings_with_injected_llm(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.agent == "CodeActAgent"
     assert settings.tool_concurrency_limit == 3
     assert settings.agent_context is not None
@@ -109,33 +109,33 @@ def test_openhands_resolves_to_settings_with_injected_llm(
         (True, ["terminal", "file_editor", "task_tracker", "browser_tool_set"]),
     ],
 )
-def test_openhands_resolves_default_exec_tools(
+def test_handprint_resolves_default_exec_tools(
     llm_store: LLMProfileStore, browser_available: bool, expected: list[str]
 ) -> None:
     """Unset ``tools`` resolves to the standard set, browser only where usable."""
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
     assert profile.tools is None
 
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
         browser_available=browser_available,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     agent = settings.create_agent()
     assert [t.name for t in agent.tools] == expected
     assert "SwitchLLMTool" in agent.include_default_tools
 
 
-def test_openhands_profile_tools_selection_is_used_as_given(
+def test_handprint_profile_tools_selection_is_used_as_given(
     llm_store: LLMProfileStore,
 ) -> None:
     """An explicit profile ``tools`` list is used as given ([] = deliberately
     bare) and never gets the browser."""
-    picked = OpenHandsAgentProfile(
+    picked = HandprintAgentProfile(
         name="picked",
         llm_profile_ref="default",
         tools=[Tool(name="terminal", params={"username": "dev"})],
@@ -144,25 +144,25 @@ def test_openhands_profile_tools_selection_is_used_as_given(
         picked,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
         browser_available=True,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.create_agent().tools == [
         Tool(name="terminal", params={"username": "dev"})
     ]
 
-    bare = OpenHandsAgentProfile(name="bare", llm_profile_ref="default", tools=[])
+    bare = HandprintAgentProfile(name="bare", llm_profile_ref="default", tools=[])
     settings = resolve_agent_profile(
         bare,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
         browser_available=True,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.create_agent().tools == []
 
 
@@ -174,10 +174,10 @@ def test_openhands_profile_tools_selection_is_used_as_given(
         (None, ["terminal", "browser_tool_set"]),
     ],
 )
-def test_openhands_explicit_browser_is_launched_only_where_it_can_run(
+def test_handprint_explicit_browser_is_launched_only_where_it_can_run(
     llm_store: LLMProfileStore, browser_available: bool | None, expected: list[str]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="pinned",
         llm_profile_ref="default",
         tools=[Tool(name="terminal"), Tool(name="browser_tool_set")],
@@ -187,24 +187,24 @@ def test_openhands_explicit_browser_is_launched_only_where_it_can_run(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         browser_available=browser_available,
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert [tool.name for tool in settings.tools or []] == expected
 
 
 @pytest.mark.parametrize(
     ("mcp_server_refs", "scoped_mcp"), [(None, False), ([], True), (["fetch"], True)]
 )
-def test_openhands_profile_delegation_is_scoped_to_the_profile(
+def test_handprint_profile_delegation_is_scoped_to_the_profile(
     llm_store: LLMProfileStore,
     mcp_config: dict[str, MCPServer],
     mcp_server_refs: list[str] | None,
     scoped_mcp: bool,
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="delegating",
         llm_profile_ref="default",
         tools=[Tool(name="terminal"), Tool(name="task_tool_set")],
@@ -212,10 +212,10 @@ def test_openhands_profile_delegation_is_scoped_to_the_profile(
     )
 
     settings = resolve_agent_profile(
-        profile, llm_store=llm_store, mcp_config=mcp_config, available_skills=None
+        profile, llm_store=llm_store, mcp_config=mcp_config, available_tracks=None
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     scope = {"tools": True, "mcp_servers": scoped_mcp}
     assert settings.tools == [
         Tool(name="terminal"),
@@ -225,8 +225,8 @@ def test_openhands_profile_delegation_is_scoped_to_the_profile(
     assert profile.tools == [Tool(name="terminal"), Tool(name="task_tool_set")]
 
 
-def test_openhands_default_tools_are_not_scoped(llm_store: LLMProfileStore) -> None:
-    profile = OpenHandsAgentProfile(
+def test_handprint_default_tools_are_not_scoped(llm_store: LLMProfileStore) -> None:
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=[]
     )
 
@@ -234,24 +234,24 @@ def test_openhands_default_tools_are_not_scoped(llm_store: LLMProfileStore) -> N
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         browser_available=False,
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert all(not tool.params for tool in settings.tools or [])
 
 
 def test_resolve_without_browser_availability_keeps_unset_tools_unset(
     llm_store: LLMProfileStore,
 ) -> None:
-    profile = OpenHandsAgentProfile(name="default", llm_profile_ref="default")
+    profile = HandprintAgentProfile(name="default", llm_profile_ref="default")
 
     settings = resolve_agent_profile(
-        profile, llm_store=llm_store, mcp_config={}, available_skills=None
+        profile, llm_store=llm_store, mcp_config={}, available_tracks=None
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.tools is None
 
 
@@ -279,7 +279,7 @@ def test_dry_run_reports_selected_tools_it_cannot_run(
     unusable: list[str],
     failing: list[str],
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="pinned", llm_profile_ref="default", tools=tools
     )
 
@@ -287,7 +287,7 @@ def test_dry_run_reports_selected_tools_it_cannot_run(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         browser_available=browser_available,
     )
 
@@ -305,7 +305,7 @@ def test_dry_run_reports_a_registered_tool_that_is_not_usable(
 ) -> None:
     monkeypatch.setitem(registry._REG, "hello", lambda _params, _state: [])
     monkeypatch.setitem(registry._USABILITY_REG, "hello", lambda: False)
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="pinned", llm_profile_ref="default", tools=[Tool(name="hello")]
     )
 
@@ -313,7 +313,7 @@ def test_dry_run_reports_a_registered_tool_that_is_not_usable(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         check_usable=check_usable,
     )
 
@@ -321,10 +321,10 @@ def test_dry_run_reports_a_registered_tool_that_is_not_usable(
     assert diagnostics.valid is (unusable == [])
 
 
-def test_openhands_profile_persona_keeps_capability_guidance(
+def test_handprint_profile_persona_keeps_capability_guidance(
     llm_store: LLMProfileStore,
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="explorer",
         llm_profile_ref="default",
         persona="You are a read-only code explorer.",
@@ -334,10 +334,10 @@ def test_openhands_profile_persona_keeps_capability_guidance(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.persona == "You are a read-only code explorer."
     static = settings.create_agent().static_system_message
     assert static.startswith("You are a read-only code explorer.")
@@ -346,27 +346,27 @@ def test_openhands_profile_persona_keeps_capability_guidance(
     assert "Cite file paths." in (settings.create_agent().dynamic_context or "")
 
 
-def test_openhands_profile_without_persona_keeps_builtin_prompt(
+def test_handprint_profile_without_persona_keeps_builtin_prompt(
     llm_store: LLMProfileStore,
 ) -> None:
     settings = resolve_agent_profile(
-        OpenHandsAgentProfile(name="plain", llm_profile_ref="default"),
+        HandprintAgentProfile(name="plain", llm_profile_ref="default"),
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.persona is None
     agent = settings.create_agent()
     assert agent.persona is None
     assert "<ROLE>" in agent.static_system_message
 
 
-def test_openhands_copies_verification(
+def test_handprint_copies_verification(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
     profile.verification.critic_enabled = True
     profile.verification.critic_model_name = "critic-x"
 
@@ -374,124 +374,124 @@ def test_openhands_copies_verification(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.verification.critic_enabled is True
     assert settings.verification.critic_model_name == "critic-x"
     # The profile carries no critic_api_key; it defaults to None on resolve.
     assert settings.verification.critic_api_key is None
 
 
-def test_openhands_resolve_sets_load_project_skills(
+def test_handprint_resolve_sets_load_project_tracks(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    """Project skills are repo-scoped and can't be resolved at profile-resolve
+    """Project tracks are repo-scoped and can't be resolved at profile-resolve
     time (no workspace yet); ``LocalConversation`` loads them lazily on first
-    use, gated on ``load_project_skills`` (#4016). The resolver must set it,
+    use, gated on ``load_project_tracks`` (#4016). The resolver must set it,
     since the resolved ``AgentContext`` otherwise defaults it False."""
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.agent_context is not None
-    assert settings.agent_context.load_project_skills is True
+    assert settings.agent_context.load_project_tracks is True
 
 
 def test_missing_llm_ref_raises_profile_not_found(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="does-not-exist")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="does-not-exist")
     with pytest.raises(ProfileNotFound):
         resolve_agent_profile(
             profile,
             llm_store=llm_store,
             mcp_config=mcp_config,
-            available_skills=None,
+            available_tracks=None,
             cipher=None,
         )
 
 
 # --------------------------------------------------------------------------- #
-# disabled_skills deny-list over discovered skills (#4017)
+# disabled_tracks deny-list over discovered tracks (#4017)
 # --------------------------------------------------------------------------- #
 
 
-def _discovered_skills() -> list[Skill]:
+def _discovered_tracks() -> list[Track]:
     return [
-        Skill(name="alpha", content="a"),
-        Skill(name="beta", content="b"),
-        Skill(name="gamma", content="c"),
+        Track(name="alpha", content="a"),
+        Track(name="beta", content="b"),
+        Track(name="gamma", content="c"),
     ]
 
 
-def test_disabled_skills_empty_includes_all_discovered(
+def test_disabled_tracks_empty_includes_all_discovered(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    # The default deny-list ([]) keeps every discovered skill.
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
-    assert profile.disabled_skills == []
+    # The default deny-list ([]) keeps every discovered track.
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
+    assert profile.disabled_tracks == []
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
-    assert {s.name for s in settings.agent_context.skills} == {
+    assert isinstance(settings, HandprintAgentSettings)
+    assert {s.name for s in settings.agent_context.tracks} == {
         "alpha",
         "beta",
         "gamma",
     }
-    # The deny-list is carried onto the context so the lazy project-skill load
+    # The deny-list is carried onto the context so the lazy project-track load
     # honors it too.
-    assert settings.agent_context.disabled_skills == []
+    assert settings.agent_context.disabled_tracks == []
 
 
-def test_disabled_skills_excludes_named(
+def test_disabled_tracks_excludes_named(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    # Disabling one skill drops exactly it; the rest of the catalog remains.
-    profile = OpenHandsAgentProfile(
-        name="oh", llm_profile_ref="default", disabled_skills=["beta"]
+    # Disabling one track drops exactly it; the rest of the catalog remains.
+    profile = HandprintAgentProfile(
+        name="oh", llm_profile_ref="default", disabled_tracks=["beta"]
     )
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
-    assert {s.name for s in settings.agent_context.skills} == {"alpha", "gamma"}
-    assert settings.agent_context.disabled_skills == ["beta"]
+    assert isinstance(settings, HandprintAgentSettings)
+    assert {s.name for s in settings.agent_context.tracks} == {"alpha", "gamma"}
+    assert settings.agent_context.disabled_tracks == ["beta"]
 
 
-def test_disabled_skills_missing_name_is_noop(
+def test_disabled_tracks_missing_name_is_noop(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
     # The #4017 fix: a disabled name absent from the catalog is a harmless no-op
-    # — resolution succeeds (never DanglingSkillRef) and yields all catalog
-    # skills. This is the whole point of the deny-list over an allow-list.
-    profile = OpenHandsAgentProfile(
-        name="oh", llm_profile_ref="default", disabled_skills=["not-in-catalog"]
+    # — resolution succeeds (never DanglingTrackRef) and yields all catalog
+    # tracks. This is the whole point of the deny-list over an allow-list.
+    profile = HandprintAgentProfile(
+        name="oh", llm_profile_ref="default", disabled_tracks=["not-in-catalog"]
     )
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
-    assert {s.name for s in settings.agent_context.skills} == {
+    assert isinstance(settings, HandprintAgentSettings)
+    assert {s.name for s in settings.agent_context.tracks} == {
         "alpha",
         "beta",
         "gamma",
@@ -505,115 +505,115 @@ def test_duplicate_named_catalog_is_deduped(
     # whose names overlap) is de-duplicated by name, last-wins — resolution must
     # not trip AgentContext's duplicate-name validator.
     catalog = [
-        Skill(name="alpha", content="first"),
-        Skill(name="beta", content="b"),
-        Skill(name="alpha", content="second"),
+        Track(name="alpha", content="first"),
+        Track(name="beta", content="b"),
+        Track(name="alpha", content="second"),
     ]
-    profile = OpenHandsAgentProfile(
-        name="oh", llm_profile_ref="default", disabled_skills=["beta"]
+    profile = HandprintAgentProfile(
+        name="oh", llm_profile_ref="default", disabled_tracks=["beta"]
     )
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=catalog,
+        available_tracks=catalog,
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
-    skills = {s.name: s.content for s in settings.agent_context.skills}
-    assert skills == {"alpha": "second"}  # de-duped (last wins); beta disabled
+    assert isinstance(settings, HandprintAgentSettings)
+    tracks = {s.name: s.content for s in settings.agent_context.tracks}
+    assert tracks == {"alpha": "second"}  # de-duped (last wins); beta disabled
 
 
-def test_acp_profile_has_no_skill_selection_field(
+def test_acp_profile_has_no_track_selection_field(
     llm_store: LLMProfileStore,
 ) -> None:
-    # An ACP profile selects no skills of its own: the catalog the caller passes
+    # An ACP profile selects no tracks of its own: the catalog the caller passes
     # is taken whole, since there is no deny-list to apply.
-    acp = ACPAgentProfile(name="acp", acp_server="claude-code")
-    assert not hasattr(acp, "skill_refs")
-    assert not hasattr(acp, "disabled_skills")
+    acp = ACPAgentProfile(name="acp", acp_server="haijun-code")
+    assert not hasattr(acp, "track_refs")
+    assert not hasattr(acp, "disabled_tracks")
     acp_settings = resolve_agent_profile(
         acp,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
     assert isinstance(acp_settings, ACPAgentSettings)
     assert acp_settings.agent_context is not None
-    assert {s.name for s in acp_settings.agent_context.skills} == {
+    assert {s.name for s in acp_settings.agent_context.tracks} == {
         "alpha",
         "beta",
         "gamma",
     }
 
 
-def test_acp_profile_gets_no_skills_without_a_catalog(
+def test_acp_profile_gets_no_tracks_without_a_catalog(
     llm_store: LLMProfileStore,
 ) -> None:
-    # available_skills=None is how a deployment says "the ACP CLI sources its
-    # own skills" (#4019) — nothing is injected.
+    # available_tracks=None is how a deployment says "the ACP CLI sources its
+    # own tracks" (#4019) — nothing is injected.
     acp_settings = resolve_agent_profile(
-        ACPAgentProfile(name="acp", acp_server="claude-code"),
+        ACPAgentProfile(name="acp", acp_server="haijun-code"),
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert isinstance(acp_settings, ACPAgentSettings)
     assert acp_settings.agent_context is not None
-    assert acp_settings.agent_context.skills == []
+    assert acp_settings.agent_context.tracks == []
 
 
-def test_no_available_skills_yields_no_skills(
+def test_no_available_tracks_yields_no_tracks(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    # available_skills=None (no discovery run) → no user/public skills reach the
-    # agent. Profiles no longer embed skills (#4017), so there is no other
-    # source (project skills load separately in LocalConversation).
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
+    # available_tracks=None (no discovery run) → no user/public tracks reach the
+    # agent. Profiles no longer embed tracks (#4017), so there is no other
+    # source (project tracks load separately in LocalConversation).
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
-    assert settings.agent_context.skills == []
+    assert isinstance(settings, HandprintAgentSettings)
+    assert settings.agent_context.tracks == []
 
 
 def test_seed_then_resolve_with_narrower_catalog_does_not_dangle(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    # #4017 regression: a global whose AgentContext carries an inline skill whose
+    # #4017 regression: a global whose AgentContext carries an inline track whose
     # name is NOT in the launch discovery catalog. The old freeze-by-name seed
-    # would name that skill and then hard-fail at launch (DanglingSkillRef). The
+    # would name that track and then hard-fail at launch (DanglingTrackRef). The
     # deny-list seed disables nothing, so seed->resolve against the narrower
-    # catalog succeeds and yields exactly the catalog skills.
-    from openhands.sdk.profiles import build_seed_profile
-    from openhands.sdk.settings.model import validate_agent_settings
+    # catalog succeeds and yields exactly the catalog tracks.
+    from handprint.sdk.profiles import build_seed_profile
+    from handprint.sdk.settings.model import validate_agent_settings
 
     settings = validate_agent_settings(
         {
-            "agent_kind": "openhands",
-            "agent_context": {"skills": [{"name": "inline-only", "content": "x"}]},
+            "agent_kind": "handprint",
+            "agent_context": {"tracks": [{"name": "inline-only", "content": "x"}]},
         }
     )
     profile = build_seed_profile(settings, active_llm_profile="default")
-    assert isinstance(profile, OpenHandsAgentProfile)
-    assert profile.disabled_skills == []
+    assert isinstance(profile, HandprintAgentProfile)
+    assert profile.disabled_tracks == []
 
     # Launch catalog does NOT contain "inline-only" — must still resolve.
     resolved = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert isinstance(resolved, OpenHandsAgentSettings)
-    assert {s.name for s in resolved.agent_context.skills} == {
+    assert isinstance(resolved, HandprintAgentSettings)
+    assert {s.name for s in resolved.agent_context.tracks} == {
         "alpha",
         "beta",
         "gamma",
@@ -628,14 +628,14 @@ def test_seed_then_resolve_with_narrower_catalog_does_not_dangle(
 def test_mcp_null_refs_passes_config_through(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=None
     )
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert settings.mcp_config != {}
@@ -645,14 +645,14 @@ def test_mcp_null_refs_passes_config_through(
 def test_mcp_empty_refs_means_none(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=[]
     )
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert settings.mcp_config == {}
@@ -661,14 +661,14 @@ def test_mcp_empty_refs_means_none(
 def test_mcp_filter_selects_named_keys(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=["other"]
     )
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert settings.mcp_config != {}
@@ -678,7 +678,7 @@ def test_mcp_filter_selects_named_keys(
 def test_mcp_dangling_ref_raises(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=["fetch", "missing"]
     )
     with pytest.raises(DanglingMcpServerRef) as exc:
@@ -686,7 +686,7 @@ def test_mcp_dangling_ref_raises(
             profile,
             llm_store=llm_store,
             mcp_config=mcp_config,
-            available_skills=None,
+            available_tracks=None,
             cipher=None,
         )
     assert exc.value.missing == ["missing"]
@@ -695,7 +695,7 @@ def test_mcp_dangling_ref_raises(
 def test_mcp_dangling_when_config_is_none(
     llm_store: LLMProfileStore,
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=["fetch"]
     )
     with pytest.raises(DanglingMcpServerRef) as exc:
@@ -703,7 +703,7 @@ def test_mcp_dangling_when_config_is_none(
             profile,
             llm_store=llm_store,
             mcp_config={},
-            available_skills=None,
+            available_tracks=None,
             cipher=None,
         )
     assert exc.value.missing == ["fetch"]
@@ -730,7 +730,7 @@ def test_acp_resolves_to_settings_without_credentials(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert isinstance(settings, ACPAgentSettings)
@@ -750,12 +750,12 @@ def test_acp_resolves_to_settings_without_credentials(
 def test_acp_blank_command_resolves_empty_list(
     llm_store: LLMProfileStore,
 ) -> None:
-    profile = ACPAgentProfile(name="acp", acp_server="claude-code")
+    profile = ACPAgentProfile(name="acp", acp_server="haijun-code")
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert isinstance(settings, ACPAgentSettings)
@@ -763,23 +763,23 @@ def test_acp_blank_command_resolves_empty_list(
     assert settings.acp_args == []
 
 
-def test_acp_never_loads_project_skills(
+def test_acp_never_loads_project_tracks(
     llm_store: LLMProfileStore,
 ) -> None:
-    """An ACP CLI reads ``AGENTS.md`` and its own project skills from the session
+    """An ACP CLI reads ``AGENTS.md`` and its own project tracks from the session
     cwd, so loading them here would duplicate that content in the prompt
     (#4019). ACP convention: no injected datetime."""
-    profile = ACPAgentProfile(name="acp", acp_server="claude-code")
+    profile = ACPAgentProfile(name="acp", acp_server="haijun-code")
     settings = resolve_agent_profile(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
     assert isinstance(settings, ACPAgentSettings)
     assert settings.agent_context is not None
-    assert settings.agent_context.load_project_skills is False
+    assert settings.agent_context.load_project_tracks is False
     assert settings.agent_context.current_datetime is None
 
 
@@ -788,20 +788,20 @@ def test_acp_never_loads_project_skills(
 # --------------------------------------------------------------------------- #
 
 
-def test_dry_run_openhands_valid_and_redacted(
+def test_dry_run_handprint_valid_and_redacted(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=["fetch"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert diag.agent_kind == "openhands"
+    assert diag.agent_kind == "handprint"
     assert diag.valid is True
     assert diag.errors == []
     assert diag.llm_profile_ref == "default"
@@ -819,14 +819,14 @@ def test_dry_run_openhands_valid_and_redacted(
 def test_dry_run_reports_dangling_llm_and_mcp(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="nope", mcp_server_refs=["missing"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.valid is False
@@ -837,26 +837,26 @@ def test_dry_run_reports_dangling_llm_and_mcp(
     assert diag.resolved_settings is None
 
 
-def test_dry_run_reports_disabled_and_resolved_skills(
+def test_dry_run_reports_disabled_and_resolved_tracks(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
     # Deny-list: the dry-run reports the disabled names and the resolved set
     # (catalog minus disabled). A disabled name absent from the catalog does not
     # invalidate the profile — the deny-list can't dangle.
-    profile = OpenHandsAgentProfile(
-        name="oh", llm_profile_ref="default", disabled_skills=["beta", "missing"]
+    profile = HandprintAgentProfile(
+        name="oh", llm_profile_ref="default", disabled_tracks=["beta", "missing"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert diag.disabled_skills == ["beta", "missing"]
-    assert set(diag.resolved_skills) == {"alpha", "gamma"}
+    assert diag.disabled_tracks == ["beta", "missing"]
+    assert set(diag.resolved_tracks) == {"alpha", "gamma"}
     assert diag.valid is True
-    assert not any("Skill" in e for e in diag.errors)
+    assert not any("Track" in e for e in diag.errors)
     assert diag.resolved_settings is not None
 
 
@@ -864,16 +864,16 @@ def test_dry_run_default_disabled_resolves_all_discovered(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
     # Default deny-list ([]) resolves the whole catalog.
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default")
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default")
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert diag.disabled_skills == []
-    assert set(diag.resolved_skills) == {"alpha", "beta", "gamma"}
+    assert diag.disabled_tracks == []
+    assert set(diag.resolved_tracks) == {"alpha", "beta", "gamma"}
 
 
 def test_dry_run_total_on_llm_store_transient_error(
@@ -886,14 +886,14 @@ def test_dry_run_total_on_llm_store_transient_error(
         raise TimeoutError("profile store lock acquisition timed out")
 
     llm_store.load = _boom  # type: ignore[method-assign]
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=["fetch"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.valid is False
@@ -907,14 +907,14 @@ def test_dry_run_verdict_matches_real_resolve(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
     # A dangling MCP ref: dry-run says invalid, real resolve raises.
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="oh", llm_profile_ref="default", mcp_server_refs=["missing"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.valid is False
@@ -923,7 +923,7 @@ def test_dry_run_verdict_matches_real_resolve(
             profile,
             llm_store=llm_store,
             mcp_config=mcp_config,
-            available_skills=None,
+            available_tracks=None,
             cipher=None,
         )
 
@@ -938,12 +938,12 @@ def test_dry_run_tools_match_the_launched_agent(
 ) -> None:
     """``resolved_settings.tools`` is what the launch actually builds."""
     monkeypatch.setitem(registry._REG, "hello", lambda _params, _state: [])
-    profile = OpenHandsAgentProfile(name="oh", llm_profile_ref="default", tools=tools)
+    profile = HandprintAgentProfile(name="oh", llm_profile_ref="default", tools=tools)
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
         browser_available=browser_available,
     )
@@ -951,7 +951,7 @@ def test_dry_run_tools_match_the_launched_agent(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
         browser_available=browser_available,
     ).create_agent()
@@ -975,7 +975,7 @@ def test_dry_run_acp_reports_credential_channels_by_role(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.agent_kind == "acp"
@@ -996,7 +996,7 @@ def test_dry_run_acp_pi_reports_its_credential_file(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
     )
     assert diag.agent_kind == "acp"
     assert diag.valid is True
@@ -1013,38 +1013,38 @@ def test_dry_run_acp_reports_the_injected_catalog(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert diag.disabled_skills == []
-    assert set(diag.resolved_skills) == {"alpha", "beta", "gamma"}
+    assert diag.disabled_tracks == []
+    assert set(diag.resolved_tracks) == {"alpha", "beta", "gamma"}
     assert diag.valid is True
 
     bare = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert bare.resolved_skills == []
+    assert bare.resolved_tracks == []
     assert bare.valid is True
 
 
-def test_dry_run_skill_verdict_matches_real_resolve(
+def test_dry_run_track_verdict_matches_real_resolve(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
     # A disabled name absent from the catalog never invalidates: dry-run stays
     # valid and the real resolve succeeds with the full catalog. The deny-list
     # cannot dangle (unlike the MCP allow-list).
-    profile = OpenHandsAgentProfile(
-        name="oh", llm_profile_ref="default", disabled_skills=["missing"]
+    profile = HandprintAgentProfile(
+        name="oh", llm_profile_ref="default", disabled_tracks=["missing"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
     assert diag.valid is True
@@ -1052,33 +1052,33 @@ def test_dry_run_skill_verdict_matches_real_resolve(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=_discovered_skills(),
+        available_tracks=_discovered_tracks(),
         cipher=None,
     )
-    assert isinstance(settings, OpenHandsAgentSettings)
-    assert {s.name for s in settings.agent_context.skills} == {
+    assert isinstance(settings, HandprintAgentSettings)
+    assert {s.name for s in settings.agent_context.tracks} == {
         "alpha",
         "beta",
         "gamma",
     }
 
 
-def test_dry_run_unknown_catalog_resolves_no_skills(
+def test_dry_run_unknown_catalog_resolves_no_tracks(
     llm_store: LLMProfileStore, mcp_config: dict[str, MCPServer]
 ) -> None:
-    # available_skills=None (discovery skipped/failed) → no user/public skills
+    # available_tracks=None (discovery skipped/failed) → no user/public tracks
     # resolve, and the profile stays valid (the deny-list has nothing to flag).
-    profile = OpenHandsAgentProfile(
-        name="oh", llm_profile_ref="default", disabled_skills=["alpha"]
+    profile = HandprintAgentProfile(
+        name="oh", llm_profile_ref="default", disabled_tracks=["alpha"]
     )
     diag = resolve_agent_profile_dry_run(
         profile,
         llm_store=llm_store,
         mcp_config=mcp_config,
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
-    assert diag.resolved_skills == []
+    assert diag.resolved_tracks == []
     assert diag.valid is True
 
 
@@ -1092,7 +1092,7 @@ def test_dry_run_acp_custom_server_has_no_credential_channels(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.acp_api_key_secret_name is None
@@ -1111,7 +1111,7 @@ def test_custom_acp_without_command_is_invalid(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.valid is False
@@ -1122,7 +1122,7 @@ def test_custom_acp_without_command_is_invalid(
             profile,
             llm_store=llm_store,
             mcp_config={},
-            available_skills=None,
+            available_tracks=None,
             cipher=None,
         )
 
@@ -1140,7 +1140,7 @@ def test_dry_run_normalizes_settings_build_failure(
         profile,
         llm_store=llm_store,
         mcp_config={},
-        available_skills=None,
+        available_tracks=None,
         cipher=None,
     )
     assert diag.valid is False

@@ -22,12 +22,12 @@ import re
 import tempfile
 from pathlib import Path
 
-from openhands.sdk import LLM, Agent, Conversation, Tool
-from openhands.sdk.agent.critic_mixin import ITERATIVE_REFINEMENT_ITERATION_KEY
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.critic import APIBasedCritic, CriticResult, IterativeRefinementConfig
-from openhands.sdk.critic.base import CriticBase
-from openhands.tools.file_editor import FileEditorTool
+from handprint.sdk import LLM, Agent, Conversation, Tool
+from handprint.sdk.agent.critic_mixin import ITERATIVE_REFINEMENT_ITERATION_KEY
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.critic import APIBasedCritic, CriticResult, IterativeRefinementConfig
+from handprint.sdk.critic.base import CriticBase
+from handprint.tools.file_editor import FileEditorTool
 
 
 # Keep the live example deterministic and comfortably inside the harness timeout:
@@ -71,7 +71,7 @@ def get_default_critic(llm: LLM) -> CriticBase | None:
 
     Example:
         llm = LLM(
-            model="anthropic/claude-sonnet-4-5",
+            model="juglow/haijun-codtral",
             api_key=api_key,
             base_url="https://llm-proxy.eval.all-hands.dev",
         )
@@ -104,17 +104,17 @@ def get_default_critic(llm: LLM) -> CriticBase | None:
 INITIAL_TASK_PROMPT = """\
 Create `greeting.txt` containing exactly this one line, including the final newline:
 
-Hello from the OpenHands critic example!
+Hello from the Handprint critic example!
 
 Use the file editor, verify the content once, then finish. Do not create other files,
 initialize version control, or perform unrelated work.
 """
 
-EXPECTED_GREETING = "Hello from the OpenHands critic example!\n"
+EXPECTED_GREETING = "Hello from the Handprint critic example!\n"
 
 
 llm_api_key = get_required_env("LLM_API_KEY")
-llm_model = os.getenv("LLM_MODEL", "anthropic/claude-haiku-4-5-20251001")
+llm_model = os.getenv("LLM_MODEL", "juglow/haijun-minix")
 llm = LLM(
     model=llm_model,
     api_key=llm_api_key,

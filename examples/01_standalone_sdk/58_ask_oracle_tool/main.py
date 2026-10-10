@@ -20,9 +20,9 @@ import tempfile
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, LocalConversation, Tool
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.tools.ask_oracle import ORACLE_PROFILE_NAME, AskOracleTool
+from handprint.sdk import LLM, Agent, LocalConversation, Tool
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.tools.ask_oracle import ORACLE_PROFILE_NAME, AskOracleTool
 
 
 DEFAULT_BASE_URL = "https://llm-proxy.app.all-hands.dev"

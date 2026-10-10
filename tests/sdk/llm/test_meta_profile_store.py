@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.llm.meta_profile_store import (
+from handprint.sdk.llm.meta_profile_store import (
     MetaProfile,
     MetaProfileClass,
     MetaProfileLimitExceeded,

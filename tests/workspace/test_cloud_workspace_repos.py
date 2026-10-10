@@ -1,4 +1,4 @@
-"""Tests for repository cloning and skill loading in OpenHandsCloudWorkspace."""
+"""Tests for repository cloning and track loading in HandprintCloudWorkspace."""
 
 import logging
 import tempfile
@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Import from SDK repo module (cloud workspace re-exports these)
-from openhands.sdk.workspace.repo import (
+from handprint.sdk.workspace.repo import (
     CloneResult,
     GitProvider,
     RepoMapping,
@@ -542,26 +542,26 @@ class TestCloneRepos:
 
 
 class TestCloudWorkspaceRepoMethods:
-    """Tests for OpenHandsCloudWorkspace repo methods."""
+    """Tests for HandprintCloudWorkspace repo methods."""
 
-    @patch("openhands.sdk.workspace.remote.base._clone_repos_helper")
+    @patch("handprint.sdk.workspace.remote.base._clone_repos_helper")
     @patch.object(
         __import__(
-            "openhands.workspace.cloud.workspace", fromlist=["OpenHandsCloudWorkspace"]
-        ).OpenHandsCloudWorkspace,
+            "handprint.workspace.cloud.workspace", fromlist=["HandprintCloudWorkspace"]
+        ).HandprintCloudWorkspace,
         "_get_secret_value",
         return_value=None,
     )
     def test_clone_repos_full_url_list(self, mock_secret, mock_clone):
         """Test clone_repos with list of full URL strings."""
-        from openhands.workspace import OpenHandsCloudWorkspace
+        from handprint.workspace import HandprintCloudWorkspace
 
         mock_clone.return_value = CloneResult(0, [], {})
 
         with patch.object(
-            OpenHandsCloudWorkspace, "model_post_init", lambda self, ctx: None
+            HandprintCloudWorkspace, "model_post_init", lambda self, ctx: None
         ):
-            workspace = OpenHandsCloudWorkspace(
+            workspace = HandprintCloudWorkspace(
                 cloud_api_url="https://test.com",
                 cloud_api_key="test-key",
                 local_agent_server_mode=True,
@@ -584,24 +584,24 @@ class TestCloudWorkspaceRepoMethods:
             assert len(repos) == 2
             assert all(isinstance(r, RepoSource) for r in repos)
 
-    @patch("openhands.sdk.workspace.remote.base._clone_repos_helper")
+    @patch("handprint.sdk.workspace.remote.base._clone_repos_helper")
     @patch.object(
         __import__(
-            "openhands.workspace.cloud.workspace", fromlist=["OpenHandsCloudWorkspace"]
-        ).OpenHandsCloudWorkspace,
+            "handprint.workspace.cloud.workspace", fromlist=["HandprintCloudWorkspace"]
+        ).HandprintCloudWorkspace,
         "_get_secret_value",
         return_value=None,
     )
     def test_clone_repos_dict_list(self, mock_secret, mock_clone):
         """Test clone_repos with list of dicts."""
-        from openhands.workspace import OpenHandsCloudWorkspace
+        from handprint.workspace import HandprintCloudWorkspace
 
         mock_clone.return_value = CloneResult(0, [], {})
 
         with patch.object(
-            OpenHandsCloudWorkspace, "model_post_init", lambda self, ctx: None
+            HandprintCloudWorkspace, "model_post_init", lambda self, ctx: None
         ):
-            workspace = OpenHandsCloudWorkspace(
+            workspace = HandprintCloudWorkspace(
                 cloud_api_url="https://test.com",
                 cloud_api_key="test-key",
                 local_agent_server_mode=True,
@@ -625,12 +625,12 @@ class TestCloudWorkspaceRepoMethods:
 
     def test_get_repos_context_from_mappings(self):
         """Test get_repos_context with explicit mappings."""
-        from openhands.workspace import OpenHandsCloudWorkspace
+        from handprint.workspace import HandprintCloudWorkspace
 
         with patch.object(
-            OpenHandsCloudWorkspace, "model_post_init", lambda self, ctx: None
+            HandprintCloudWorkspace, "model_post_init", lambda self, ctx: None
         ):
-            workspace = OpenHandsCloudWorkspace(
+            workspace = HandprintCloudWorkspace(
                 cloud_api_url="https://test.com",
                 cloud_api_key="test-key",
                 local_agent_server_mode=True,
@@ -650,16 +650,16 @@ class TestCloudWorkspaceRepoMethods:
             assert "## Cloned Repositories" in context
             assert "`owner/repo`" in context
 
-    def test_load_skills_from_agent_server_preserves_base_context(self):
-        """OpenHandsCloudWorkspace override must forward base_context through
+    def test_load_tracks_from_agent_server_preserves_base_context(self):
+        """HandprintCloudWorkspace override must forward base_context through
         to RemoteWorkspace so caller-configured AgentContext fields survive."""
-        from openhands.sdk.context import AgentContext
-        from openhands.workspace import OpenHandsCloudWorkspace
+        from handprint.sdk.context import AgentContext
+        from handprint.workspace import HandprintCloudWorkspace
 
         with patch.object(
-            OpenHandsCloudWorkspace, "model_post_init", lambda self, ctx: None
+            HandprintCloudWorkspace, "model_post_init", lambda self, ctx: None
         ):
-            workspace = OpenHandsCloudWorkspace(
+            workspace = HandprintCloudWorkspace(
                 cloud_api_url="https://test.com",
                 cloud_api_key="test-key",
                 local_agent_server_mode=True,
@@ -667,26 +667,26 @@ class TestCloudWorkspaceRepoMethods:
             workspace._sandbox_id = "test-sandbox"
             workspace._session_api_key = "test-session"
             workspace.working_dir = "/workspace/project"
-            workspace.host = "http://localhost:8000"
+            workspace.host = "http://localhost:9000"
 
             base_context = AgentContext(
                 marketplace_path="internal/marketplace.json",
-                disabled_skills=["risky-skill"],
+                disabled_tracks=["risky-track"],
             )
 
             with patch.object(
                 workspace,
-                "_call_skills_api",
-                return_value=[{"name": "test-skill", "content": "Test content"}],
+                "_call_tracks_api",
+                return_value=[{"name": "test-track", "content": "Test content"}],
             ):
-                skills, context = workspace.load_skills_from_agent_server(
+                tracks, context = workspace.load_tracks_from_agent_server(
                     base_context=base_context
                 )
 
-            assert len(skills) == 1
+            assert len(tracks) == 1
             assert context.marketplace_path == "internal/marketplace.json"
-            assert context.disabled_skills == ["risky-skill"]
-            assert context.load_public_skills is False
+            assert context.disabled_tracks == ["risky-track"]
+            assert context.load_public_tracks is False
 
 
 class TestCloneReposIntegration:

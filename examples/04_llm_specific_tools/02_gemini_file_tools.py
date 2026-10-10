@@ -2,22 +2,22 @@
 
 This example demonstrates how to use gemini-style file editing tools
 (read_file, write_file, edit, list_directory) instead of the standard
-claude-style file_editor tool.
+haijun-style file_editor tool.
 
 The only difference from the standard setup is replacing:
     Tool(name=FileEditorTool.name)
 with:
     *GEMINI_FILE_TOOLS
 
-This is a one-line change that swaps the claude-style file_editor for
+This is a one-line change that swaps the haijun-style file_editor for
 gemini-style tools (read_file, write_file, edit, list_directory).
 """
 
 import os
 
-from openhands.sdk import LLM, Agent, Conversation, Tool
-from openhands.tools.gemini import GEMINI_FILE_TOOLS
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation, Tool
+from handprint.tools.gemini import GEMINI_FILE_TOOLS
+from handprint.tools.terminal import TerminalTool
 
 
 # Route logs in their own directory for easy tracing

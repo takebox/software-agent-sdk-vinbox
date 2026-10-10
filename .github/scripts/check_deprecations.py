@@ -66,23 +66,23 @@ PACKAGES: tuple[PackageConfig, ...] = (
     PackageConfig(
         name="openhands-sdk",
         pyproject=REPO_ROOT / "openhands-sdk" / "pyproject.toml",
-        source_roots=(REPO_ROOT / "openhands-sdk" / "openhands" / "sdk",),
+        source_roots=(REPO_ROOT / "openhands-sdk" / "handprint" / "sdk",),
     ),
     PackageConfig(
         name="openhands-tools",
         pyproject=REPO_ROOT / "openhands-tools" / "pyproject.toml",
-        source_roots=(REPO_ROOT / "openhands-tools" / "openhands" / "tools",),
+        source_roots=(REPO_ROOT / "openhands-tools" / "handprint" / "tools",),
     ),
     PackageConfig(
         name="openhands-workspace",
         pyproject=REPO_ROOT / "openhands-workspace" / "pyproject.toml",
-        source_roots=(REPO_ROOT / "openhands-workspace" / "openhands" / "workspace",),
+        source_roots=(REPO_ROOT / "openhands-workspace" / "handprint" / "workspace",),
     ),
     PackageConfig(
         name="openhands-agent-server",
         pyproject=REPO_ROOT / "openhands-agent-server" / "pyproject.toml",
         source_roots=(
-            REPO_ROOT / "openhands-agent-server" / "openhands" / "agent_server",
+            REPO_ROOT / "openhands-agent-server" / "handprint" / "agent_server",
         ),
     ),
 )

@@ -106,7 +106,7 @@ jobs:
             - name: Build binary (Windows)
               if: runner.os == 'Windows'
               shell: bash
-              run: uv run pyinstaller openhands-agent-server/openhands/agent_server/agent-server.spec
+              run: uv run pyinstaller openhands-agent-server/handprint/agent_server/agent-server.spec
 
             - name: Smoke-test binary
               shell: bash
@@ -122,7 +122,7 @@ jobs:
                   "$BIN" --help
 
                   echo "Testing server startup and template loading..."
-                  "$BIN" --port 8002 > server_test.log 2>&1 &
+                  "$BIN" --port 9002 > server_test.log 2>&1 &
                   SERVER_PID=$!
 
                   cleanup() {
@@ -146,7 +146,7 @@ jobs:
                           echo "ERROR: Server process exited before /health responded"
                           exit 1
                       fi
-                      if curl -f -s http://localhost:8002/health >/dev/null 2>&1; then
+                      if curl -f -s http://localhost:9002/health >/dev/null 2>&1; then
                           echo "✓ /health responded after ${i} attempt(s)"
                           echo "✓ Binary smoke test passed"
                           exit 0
@@ -208,7 +208,7 @@ jobs:
               run: |
                   set -euo pipefail
                   mkdir -p release-assets
-                  OPENHANDS_SUPPRESS_BANNER=1 uv run python \
+                  HANDPRINT_SUPPRESS_BANNER=1 uv run python \
                       .github/scripts/export_agent_server_openapi.py \
                       --output release-assets/openapi.json
                   uv run python \
@@ -366,7 +366,7 @@ jobs:
                   echo "Starting container ..."
                   docker run --platform="linux/${ARCH}" -d --rm \
                       --name "$CONTAINER" \
-                      -p 127.0.0.1:8000:8000 \
+                      -p 127.0.0.1:9000:8000 \
                       "$TAG_FQN" --host 0.0.0.0
 
                   cleanup() {
@@ -376,7 +376,7 @@ jobs:
                   trap cleanup EXIT
 
                   for i in $(seq 1 40); do
-                      if curl -f -s http://localhost:8000/health >/dev/null 2>&1; then
+                      if curl -f -s http://localhost:9000/health >/dev/null 2>&1; then
                           echo "✓ /health responded for $TAG_FQN on linux/${ARCH}"
                           exit 0
                       fi

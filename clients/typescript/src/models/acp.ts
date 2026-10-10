@@ -1,7 +1,7 @@
 /**
  * ACP (Agent Client Protocol) provider registry — TypeScript mirror of the
  * Python source of truth at
- * `openhands.sdk.settings.acp_providers.ACP_PROVIDERS` in
+ * `handprint.sdk.settings.acp_providers.ACP_PROVIDERS` in
  * https://github.com/OpenHands/software-agent-sdk.
  *
  * The data lives in `./acp-providers.json` so the Python drift check in
@@ -31,19 +31,19 @@ export type ACPProviderKey = keyof typeof providersData;
 
 /**
  * One selectable model for a built-in ACP provider's model picker. Mirrors
- * `openhands.sdk.settings.acp_providers.ACPModelOption` field-for-field.
+ * `handprint.sdk.settings.acp_providers.ACPModelOption` field-for-field.
  */
 export interface ACPModelOption {
   /** Exact model identifier sent to the ACP server as `acp_model`. */
   readonly id: string;
-  /** Human-readable label shown in the model picker (e.g. `"Claude Opus 4.7"`). */
+  /** Human-readable label shown in the model picker (e.g. `"Haijun Kamsa 4.7"`). */
   readonly label: string;
 }
 
 /**
  * Declarative spec for one file-content credential a provider can consume
  * (e.g. Codex `auth.json`). Mirrors
- * `openhands.sdk.settings.acp_providers.ACPFileSecretSpec` field-for-field.
+ * `handprint.sdk.settings.acp_providers.ACPFileSecretSpec` field-for-field.
  */
 export interface ACPFileSecretSpec {
   /** Reserved secret name whose value is the file's content. */
@@ -63,7 +63,7 @@ export interface ACPFileSecretSpec {
 /**
  * One provider's rule for env vars that must not coexist with a credential it
  * authenticates with. Mirrors
- * `openhands.sdk.settings.acp_providers.ACPEnvConflictSpec` field-for-field.
+ * `handprint.sdk.settings.acp_providers.ACPEnvConflictSpec` field-for-field.
  */
 export interface ACPEnvConflictSpec {
   /** Env var whose presence means the provider authenticates with it. */
@@ -74,7 +74,7 @@ export interface ACPEnvConflictSpec {
 
 /**
  * Immutable metadata record for one built-in ACP provider. Mirrors
- * `openhands.sdk.settings.acp_providers.ACPProviderInfo` field-for-field.
+ * `handprint.sdk.settings.acp_providers.ACPProviderInfo` field-for-field.
  */
 export interface ACPProviderInfo {
   readonly key: ACPProviderKey;
@@ -144,7 +144,7 @@ export function getAcpProvider(key: string | null | undefined): ACPProviderInfo 
 
 /**
  * Allow-list of fields that travel on an `ACPAgent` settings payload.
- * Mirrors `openhands.sdk.settings.model.ACPAgentSettings`'s field set.
+ * Mirrors `handprint.sdk.settings.model.ACPAgentSettings`'s field set.
  * Clients filter ACP-only fields out when switching to a non-ACP variant.
  */
 export const ACP_SETTINGS_KEYS: readonly string[] = [

@@ -24,12 +24,12 @@ import time
 
 import pytest
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.sdk import Agent, Tool
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.subagent.registry import _reset_registry_for_tests, register_agent
-from openhands.tools.task import TaskToolSet
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.sdk import Agent, Tool
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.subagent.registry import _reset_registry_for_tests, register_agent
+from handprint.tools.task import TaskToolSet
 from tests.agent_server.stress.budgets import PARALLEL_SUBAGENTS
 from tests.agent_server.stress.probe import ResourceProbe
 from tests.agent_server.stress.scripts import (

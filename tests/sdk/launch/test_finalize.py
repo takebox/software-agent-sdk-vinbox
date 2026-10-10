@@ -4,21 +4,21 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, AgentContext
-from openhands.sdk.agent import ACPAgent
-from openhands.sdk.conversation.request import AgentLaunchAdditions
-from openhands.sdk.launch import (
+from handprint.sdk import LLM, Agent, AgentContext
+from handprint.sdk.agent import ACPAgent
+from handprint.sdk.conversation.request import AgentLaunchAdditions
+from handprint.sdk.launch import (
     AgentLaunchError,
     LaunchedAgent,
     LaunchRuntime,
     ResolvedLaunch,
     finalize,
 )
-from openhands.sdk.profiles.agent_profile import LaunchedAgentProfile
-from openhands.sdk.secret import StaticSecret
-from openhands.sdk.settings.model import ACPAgentSettings, OpenHandsAgentSettings
-from openhands.sdk.skills import Skill
-from openhands.sdk.tool import Tool
+from handprint.sdk.profiles.agent_profile import LaunchedAgentProfile
+from handprint.sdk.secret import StaticSecret
+from handprint.sdk.settings.model import ACPAgentSettings, HandprintAgentSettings
+from handprint.sdk.tracks import Track
+from handprint.sdk.tool import Tool
 
 
 LAUNCHED_AT = datetime(2026, 9, 30, 12, 10, tzinfo=UTC)
@@ -26,7 +26,7 @@ LAUNCHED_AT = datetime(2026, 9, 30, 12, 10, tzinfo=UTC)
 
 def _settings(**kwargs) -> ResolvedLaunch:
     return ResolvedLaunch(
-        settings=OpenHandsAgentSettings(
+        settings=HandprintAgentSettings(
             llm=LLM(model="gpt-4o", usage_id="agent"), **kwargs
         )
     )
@@ -180,28 +180,28 @@ def test_settings_that_cannot_build_an_agent_are_a_launch_error(monkeypatch):
     def fail(self):
         raise ValueError("OpenAI subscription login is required")
 
-    monkeypatch.setattr(OpenHandsAgentSettings, "create_agent", fail)
+    monkeypatch.setattr(HandprintAgentSettings, "create_agent", fail)
 
     with pytest.raises(AgentLaunchError, match="subscription login"):
         finalize(_settings(), LaunchRuntime())
 
 
-def test_native_sourcing_strips_managed_skills_from_an_acp_agent():
-    skill = Skill(name="managed", content="x")
+def test_native_sourcing_strips_managed_tracks_from_an_acp_agent():
+    track = Track(name="managed", content="x")
     source = ResolvedLaunch(
         settings=ACPAgentSettings(
             acp_command=["echo"],
-            agent_context=AgentContext(skills=[skill], current_datetime=None),
+            agent_context=AgentContext(tracks=[track], current_datetime=None),
         )
     )
 
-    native = finalize(source, LaunchRuntime(acp_skill_sourcing="native"))
-    managed = finalize(source, LaunchRuntime(acp_skill_sourcing="openhands_managed"))
+    native = finalize(source, LaunchRuntime(acp_track_sourcing="native"))
+    managed = finalize(source, LaunchRuntime(acp_track_sourcing="handprint_managed"))
 
     assert native.agent.agent_context is not None
-    assert native.agent.agent_context.skills == []
+    assert native.agent.agent_context.tracks == []
     assert managed.agent.agent_context is not None
-    assert [s.name for s in managed.agent.agent_context.skills] == ["managed"]
+    assert [s.name for s in managed.agent.agent_context.tracks] == ["managed"]
 
 
 def test_managed_secrets_are_dropped_from_the_agent_context():
@@ -222,12 +222,12 @@ def test_managed_secrets_are_dropped_from_the_agent_context():
 
 
 def test_client_tools_are_added_once():
-    agent = _agent().model_copy(update={"tools": [Tool(name="canvas_ui")]})
+    agent = _agent().model_copy(update={"tools": [Tool(name="viczin_ui")]})
 
     launched = finalize(
         agent,
         LaunchRuntime(),
-        client_tools=[Tool(name="canvas_ui"), Tool(name="launch_child")],
+        client_tools=[Tool(name="viczin_ui"), Tool(name="launch_child")],
     )
 
-    assert _tool_names(launched) == ["canvas_ui", "launch_child"]
+    assert _tool_names(launched) == ["viczin_ui", "launch_child"]

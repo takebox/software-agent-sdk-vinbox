@@ -4,7 +4,7 @@ These tests aim to be a behavioral spec for conversation restore:
 
 - Normal lifecycle: start -> send/run -> send/run -> close -> restore -> send/run
 - Restore MUST fail if the agent toolset changes (tools are part of the system prompt)
-- Restore MUST succeed if other agent configuration changes (LLM, condenser, skills)
+- Restore MUST succeed if other agent configuration changes (LLM, condenser, tracks)
 """
 
 from __future__ import annotations
@@ -28,26 +28,26 @@ from litellm.types.utils import (
 )
 from pydantic import SecretStr
 
-from openhands.sdk import Agent
-from openhands.sdk.context import AgentContext, KeywordTrigger, Skill
-from openhands.sdk.context.condenser.llm_summarizing_condenser import (
+from handprint.sdk import Agent
+from handprint.sdk.context import AgentContext, KeywordTrigger, Track
+from handprint.sdk.context.condenser.llm_summarizing_condenser import (
     LLMSummarizingCondenser,
 )
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import ActionEvent, MessageEvent
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
-from openhands.sdk.event.types import ROOT_PARENT_ID
-from openhands.sdk.llm import LLM
-from openhands.sdk.llm.utils.openhands_provider import (
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import ActionEvent, MessageEvent
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.sdk.event.types import ROOT_PARENT_ID
+from handprint.sdk.llm import LLM
+from handprint.sdk.llm.utils.handprint_provider import (
     LITELLM_PROXY_PREFIX,
-    OPENHANDS_LLM_PROXY_BASE_URL,
-    OPENHANDS_PROVIDER_PREFIX,
+    HANDPRINT_LLM_PROXY_BASE_URL,
+    HANDPRINT_PROVIDER_PREFIX,
 )
-from openhands.sdk.security.llm_analyzer import LLMSecurityAnalyzer
-from openhands.sdk.security.risk import SecurityRisk
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.security.llm_analyzer import LLMSecurityAnalyzer
+from handprint.sdk.security.risk import SecurityRisk
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 from tests.conftest import create_mock_litellm_response
 
 
@@ -120,8 +120,8 @@ def _agent(
     llm_model: str,
     tools: list[Tool],
     condenser_max_size: int,
-    skill_name: str,
-    skill_keyword: str,
+    track_name: str,
+    track_keyword: str,
     include_default_tools: list[str] | None = None,
     temperature: float | None = None,
     reasoning_effort: str | None = None,
@@ -146,11 +146,11 @@ def _agent(
     )
 
     ctx = AgentContext(
-        skills=[
-            Skill(
-                name=skill_name,
-                content=f"Skill content for {skill_name}",
-                trigger=KeywordTrigger(keywords=[skill_keyword]),
+        tracks=[
+            Track(
+                name=track_name,
+                content=f"Track content for {track_name}",
+                trigger=KeywordTrigger(keywords=[track_keyword]),
             )
         ]
     )
@@ -202,23 +202,23 @@ def _tool_call_response(
     )
 
 
-def _rewrite_openhands_llms_to_legacy_proxy(value: Any) -> None:
+def _rewrite_handprint_llms_to_legacy_proxy(value: Any) -> None:
     if isinstance(value, dict):
         model = value.get("model")
-        if isinstance(model, str) and model.startswith(OPENHANDS_PROVIDER_PREFIX):
-            model_name = model.removeprefix(OPENHANDS_PROVIDER_PREFIX)
+        if isinstance(model, str) and model.startswith(HANDPRINT_PROVIDER_PREFIX):
+            model_name = model.removeprefix(HANDPRINT_PROVIDER_PREFIX)
             value["model"] = f"{LITELLM_PROXY_PREFIX}{model_name}"
-            value["base_url"] = OPENHANDS_LLM_PROXY_BASE_URL
+            value["base_url"] = HANDPRINT_LLM_PROXY_BASE_URL
         for child in value.values():
-            _rewrite_openhands_llms_to_legacy_proxy(child)
+            _rewrite_handprint_llms_to_legacy_proxy(child)
         return
 
     if isinstance(value, list):
         for child in value:
-            _rewrite_openhands_llms_to_legacy_proxy(child)
+            _rewrite_handprint_llms_to_legacy_proxy(child)
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_lifecycle_happy_path(mock_completion):
     """Baseline: restore should load prior events and allow further execution."""
 
@@ -246,8 +246,8 @@ def test_conversation_restore_lifecycle_happy_path(mock_completion):
             llm_model="gpt-4o-mini",
             tools=persisted_tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         initial = lifecycle.run_initial_session(persisted_agent)
@@ -259,8 +259,8 @@ def test_conversation_restore_lifecycle_happy_path(mock_completion):
             llm_model="gpt-4o-mini",
             tools=runtime_tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             temperature=0.42,
         )
 
@@ -280,7 +280,7 @@ def test_conversation_restore_lifecycle_happy_path(mock_completion):
             restored.close()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_preserves_security_risk_and_summary(mock_completion):
     """Restore should preserve action metadata derived from tool call arguments."""
 
@@ -327,8 +327,8 @@ def test_conversation_restore_preserves_security_risk_and_summary(mock_completio
             llm_model="gpt-4o-mini",
             tools=persisted_tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         persisted = lifecycle.create_conversation(persisted_agent)
@@ -345,8 +345,8 @@ def test_conversation_restore_preserves_security_risk_and_summary(mock_completio
             llm_model="gpt-4o-mini",
             tools=runtime_tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         restored = lifecycle.restore(runtime_agent)
@@ -384,7 +384,7 @@ def test_conversation_restore_preserves_security_risk_and_summary(mock_completio
             restored.close()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_fails_when_removing_tools(mock_completion):
     """Restore must fail when runtime tools remove a persisted tool."""
 
@@ -406,8 +406,8 @@ def test_conversation_restore_fails_when_removing_tools(mock_completion):
             llm_model="gpt-4o-mini",
             tools=persisted_tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
         lifecycle.run_initial_session(persisted_agent)
 
@@ -415,8 +415,8 @@ def test_conversation_restore_fails_when_removing_tools(mock_completion):
             llm_model="gpt-4o-mini",
             tools=[Tool(name="TerminalTool")],
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         with pytest.raises(
@@ -428,7 +428,7 @@ def test_conversation_restore_fails_when_removing_tools(mock_completion):
         assert "FileEditorTool" in str(exc.value)
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_succeeds_when_adding_tools(mock_completion):
     """Restore must succeed when runtime tools add a new tool.
 
@@ -453,8 +453,8 @@ def test_conversation_restore_succeeds_when_adding_tools(mock_completion):
             llm_model="gpt-4o-mini",
             tools=persisted_tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
         lifecycle.run_initial_session(persisted_agent)
 
@@ -462,15 +462,15 @@ def test_conversation_restore_succeeds_when_adding_tools(mock_completion):
             llm_model="gpt-4o-mini",
             tools=[Tool(name="TerminalTool"), Tool(name="FileEditorTool")],
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         conversation = lifecycle.restore(runtime_agent)
         assert conversation is not None
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_fails_when_agent_class_changes(mock_completion):
     """Restore must fail when persisted and runtime agent types differ."""
 
@@ -492,8 +492,8 @@ def test_conversation_restore_fails_when_agent_class_changes(mock_completion):
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
         lifecycle.run_initial_session(persisted_agent)
 
@@ -501,8 +501,8 @@ def test_conversation_restore_fails_when_agent_class_changes(mock_completion):
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             agent_type=DifferentAgent,
         )
 
@@ -513,7 +513,7 @@ def test_conversation_restore_fails_when_agent_class_changes(mock_completion):
         assert "self is of type" in str(exc.value)
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_fails_when_default_tools_removed(mock_completion):
     """Restore must fail if include_default_tools removes a built-in tool."""
 
@@ -535,8 +535,8 @@ def test_conversation_restore_fails_when_default_tools_removed(mock_completion):
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             include_default_tools=["FinishTool", "ThinkTool"],
         )
         lifecycle.run_initial_session(persisted_agent)
@@ -545,8 +545,8 @@ def test_conversation_restore_fails_when_default_tools_removed(mock_completion):
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             include_default_tools=["FinishTool"],
         )
 
@@ -559,7 +559,7 @@ def test_conversation_restore_fails_when_default_tools_removed(mock_completion):
         assert "think" in str(exc.value)
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_conversation_restore_succeeds_when_default_tools_added(mock_completion):
     """Restore must succeed if include_default_tools adds a built-in tool.
 
@@ -584,8 +584,8 @@ def test_conversation_restore_succeeds_when_default_tools_added(mock_completion)
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             include_default_tools=["FinishTool"],
         )
         lifecycle.run_initial_session(persisted_agent)
@@ -594,8 +594,8 @@ def test_conversation_restore_succeeds_when_default_tools_added(mock_completion)
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             include_default_tools=["FinishTool", "ThinkTool"],
         )
 
@@ -603,8 +603,8 @@ def test_conversation_restore_succeeds_when_default_tools_added(mock_completion)
         assert conversation is not None
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
-def test_conversation_restore_succeeds_when_llm_condenser_and_skills_change(
+@patch("handprint.sdk.llm.llm.litellm_completion")
+def test_conversation_restore_succeeds_when_llm_condenser_and_tracks_change(
     mock_completion,
 ):
     """Restore should succeed when ONLY non-breaking agent config changes."""
@@ -628,8 +628,8 @@ def test_conversation_restore_succeeds_when_llm_condenser_and_skills_change(
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
         initial = lifecycle.run_initial_session(persisted_agent)
 
@@ -637,8 +637,8 @@ def test_conversation_restore_succeeds_when_llm_condenser_and_skills_change(
             llm_model="gpt-4o",
             tools=tools,
             condenser_max_size=120,
-            skill_name="skill-v2",
-            skill_keyword="beta",
+            track_name="track-v2",
+            track_keyword="beta",
         )
 
         restored = lifecycle.restore(runtime_agent)
@@ -650,11 +650,11 @@ def test_conversation_restore_succeeds_when_llm_condenser_and_skills_change(
             assert isinstance(restored.agent.condenser, LLMSummarizingCondenser)
             assert restored.agent.condenser.max_size == 120
 
-            restored.send_message("beta: please use the new skill")
+            restored.send_message("beta: please use the new track")
             last_event = restored.state.events[-1]
             assert isinstance(last_event, MessageEvent)
             assert last_event.source == "user"
-            assert last_event.activated_skills == ["skill-v2"]
+            assert last_event.activated_tracks == ["track-v2"]
 
             restored.run()
             assert len(restored.state.events) > initial["event_count"]
@@ -662,8 +662,8 @@ def test_conversation_restore_succeeds_when_llm_condenser_and_skills_change(
             restored.close()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
-def test_openhands_provider_restore_writes_public_model_shape(mock_completion):
+@patch("handprint.sdk.llm.llm.litellm_completion")
+def test_handprint_provider_restore_writes_public_model_shape(mock_completion):
     captured_completion_kwargs: list[dict[str, Any]] = []
 
     def capture_completion(*_args: Any, **kwargs: Any):
@@ -685,29 +685,29 @@ def test_openhands_provider_restore_writes_public_model_shape(mock_completion):
 
         tools = [Tool(name="TerminalTool"), Tool(name="FileEditorTool")]
         agent = _agent(
-            llm_model="openhands/claude-opus-4-8",
+            llm_model="handprint/haijun-kamsa",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         lifecycle.run_initial_session(agent)
 
         base_state = lifecycle.read_base_state()
         llm_payload = base_state["agent"]["llm"]
-        assert llm_payload["model"] == "openhands/claude-opus-4-8"
+        assert llm_payload["model"] == "handprint/haijun-kamsa"
         assert "base_url" not in llm_payload
 
-        assert captured_completion_kwargs[-1]["model"] == "claude-opus-4-8"
+        assert captured_completion_kwargs[-1]["model"] == "haijun-kamsa"
         assert captured_completion_kwargs[-1]["custom_llm_provider"] == "litellm_proxy"
         assert (
-            captured_completion_kwargs[-1]["api_base"] == OPENHANDS_LLM_PROXY_BASE_URL
+            captured_completion_kwargs[-1]["api_base"] == HANDPRINT_LLM_PROXY_BASE_URL
         )
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
-def test_conversation_restore_rewrites_legacy_openhands_proxy_snapshot(
+@patch("handprint.sdk.llm.llm.litellm_completion")
+def test_conversation_restore_rewrites_legacy_handprint_proxy_snapshot(
     mock_completion,
 ):
     captured_completion_kwargs: list[dict[str, Any]] = []
@@ -731,51 +731,51 @@ def test_conversation_restore_rewrites_legacy_openhands_proxy_snapshot(
 
         tools = [Tool(name="TerminalTool"), Tool(name="FileEditorTool")]
         persisted_agent = _agent(
-            llm_model="openhands/claude-opus-4-8",
+            llm_model="handprint/haijun-kamsa",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
         initial = lifecycle.run_initial_session(persisted_agent)
 
         legacy_base_state = lifecycle.read_base_state()
-        _rewrite_openhands_llms_to_legacy_proxy(legacy_base_state["agent"])
+        _rewrite_handprint_llms_to_legacy_proxy(legacy_base_state["agent"])
         lifecycle.write_base_state(legacy_base_state)
 
         runtime_agent = _agent(
-            llm_model="openhands/claude-opus-4-8",
+            llm_model="handprint/haijun-kamsa",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         restored = lifecycle.restore(runtime_agent)
         try:
             assert restored.id == initial["conversation_id"]
             assert len(restored.state.events) == initial["event_count"]
-            assert restored.agent.llm.model == "openhands/claude-opus-4-8"
+            assert restored.agent.llm.model == "handprint/haijun-kamsa"
 
             restored_base_state = lifecycle.read_base_state()
             restored_llm_payload = restored_base_state["agent"]["llm"]
-            assert restored_llm_payload["model"] == "openhands/claude-opus-4-8"
+            assert restored_llm_payload["model"] == "handprint/haijun-kamsa"
             assert "base_url" not in restored_llm_payload
 
             lifecycle.send_and_run(restored, "Third message")
-            assert captured_completion_kwargs[-1]["model"] == "claude-opus-4-8"
+            assert captured_completion_kwargs[-1]["model"] == "haijun-kamsa"
             assert (
                 captured_completion_kwargs[-1]["custom_llm_provider"] == "litellm_proxy"
             )
             assert (
                 captured_completion_kwargs[-1]["api_base"]
-                == OPENHANDS_LLM_PROXY_BASE_URL
+                == HANDPRINT_LLM_PROXY_BASE_URL
             )
         finally:
             restored.close()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_restore_reasoning_effort_none_strips_temperature(mock_completion):
     """Reasoning models should accept reasoning_effort and ignore temperature/top_p."""
 
@@ -804,8 +804,8 @@ def test_restore_reasoning_effort_none_strips_temperature(mock_completion):
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
         initial = lifecycle.run_initial_session(persisted_agent)
 
@@ -813,8 +813,8 @@ def test_restore_reasoning_effort_none_strips_temperature(mock_completion):
             llm_model="o3-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
             temperature=0.33,
             reasoning_effort="none",
         )
@@ -835,7 +835,7 @@ def test_restore_reasoning_effort_none_strips_temperature(mock_completion):
             restored.close()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_restore_pre_event_tree_conversation_with_artifact_tail_keeps_history(
     mock_completion,
 ):
@@ -869,8 +869,8 @@ def test_restore_pre_event_tree_conversation_with_artifact_tail_keeps_history(
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         # 1) Produce a realistic event log by actually running a session.
@@ -924,7 +924,7 @@ def test_restore_pre_event_tree_conversation_with_artifact_tail_keeps_history(
             restored.close()
 
 
-@patch("openhands.sdk.llm.llm.litellm_completion")
+@patch("handprint.sdk.llm.llm.litellm_completion")
 def test_restore_event_tree_conversation_keeps_history(mock_completion):
     """Control for the pre-event-tree case: a normal 1.33.0+ restore is unaffected.
 
@@ -953,8 +953,8 @@ def test_restore_event_tree_conversation_keeps_history(mock_completion):
             llm_model="gpt-4o-mini",
             tools=tools,
             condenser_max_size=80,
-            skill_name="skill-v1",
-            skill_keyword="alpha",
+            track_name="track-v1",
+            track_keyword="alpha",
         )
 
         lifecycle.run_initial_session(agent)

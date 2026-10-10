@@ -4,5 +4,5 @@
   "version": "1.0.0",
   "description": "A copyable reference package and migration guide for Agent Plugins v1.0.0.",
   "license": "MIT",
-  "keywords": ["agent-plugins", "example", "migration", "skills"]
+  "keywords": ["agent-plugins", "example", "migration", "tracks"]
 }

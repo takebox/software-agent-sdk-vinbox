@@ -10,7 +10,7 @@ make build
 
 ## Repository boundaries
 
-This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Canvas in [`OpenHands/OpenHands`](https://github.com/OpenHands/OpenHands); automation scheduling, webhooks, run history, and dispatch belong in [`OpenHands/automation`](https://github.com/OpenHands/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/skills/custom-codereview-guide.md`](.agents/skills/custom-codereview-guide.md) for every PR.
+This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Viczin in [`Handprint/Handprint`](https://github.com/Handprint/Handprint); automation scheduling, webhooks, run history, and dispatch belong in [`Handprint/automation`](https://github.com/Handprint/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md) for every PR.
 
 ## Code Quality
 
@@ -49,7 +49,7 @@ software-agent-sdk/
 3. Run tests and checks
 4. Push and create a pull request
 
-For questions, join our [Slack community](https://openhands.dev/joinslack).
+For questions, join our [Slack community](https://handprint.dev/joinslack).
 
 ## LLM message construction invariant
 
@@ -57,10 +57,10 @@ For questions, join our [Slack community](https://openhands.dev/joinslack).
 the first `user` message.**
 
 The canonical enforcement lives in `Agent.init_state()`
-(`openhands-sdk/openhands/sdk/agent/agent.py`): it guarantees the `SystemPromptEvent`
+(`openhands-sdk/handprint/sdk/agent/agent.py`): it guarantees the `SystemPromptEvent`
 sits at the head of the event stream (index 0/1) and raises `AssertionError` if a user
 `MessageEvent` appears before it. `LLMConvertibleEvent.events_to_messages()`
-(`openhands-sdk/openhands/sdk/event/base.py`) projects the event stream to messages in
+(`openhands-sdk/handprint/sdk/event/base.py`) projects the event stream to messages in
 order, preserving the system lead-in on the main agent loop.
 
 This applies to **all** standalone LLM calls, not just the agent loop: condensers, goal

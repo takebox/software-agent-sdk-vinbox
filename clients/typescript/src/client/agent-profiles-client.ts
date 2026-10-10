@@ -15,7 +15,7 @@ export interface AgentProfilesClientOptions {
 
 export interface GetAgentProfileOptions {
   /**
-   * Controls server-side `skills[].mcp_tools` secret exposure via
+   * Controls server-side `tracks[].mcp_tools` secret exposure via
    * `X-Expose-Secrets`:
    * - `"encrypted"`: Fernet-encrypted values (safe for frontend round-trip)
    * - `"plaintext"`: raw secret values (backend clients only)
@@ -49,7 +49,7 @@ export interface ActivateAgentProfileResponse {
 /**
  * Client for the agent-server `/api/agent-profiles` endpoints.
  *
- * Mirrors `agent_profiles_router.py` in the OpenHands agent-server.
+ * Mirrors `agent_profiles_router.py` in the Handprint agent-server.
  * Error status codes surfaced via `HttpError.status`:
  * - 404: profile not found (get/rename/materialize)
  * - 409: profile limit exceeded (save) or new_name already exists (rename)

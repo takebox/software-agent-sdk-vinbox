@@ -1,14 +1,14 @@
 import json
 
-from openhands.sdk import Agent, Conversation, LocalConversation, Tool
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.event.llm_convertible.observation import ObservationEvent
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.subagent.registry import _reset_registry_for_tests, register_agent
-from openhands.sdk.testing import TestLLM
-from openhands.tools.task import TaskToolSet
-from openhands.tools.task.definition import TASK_TOOL_EXAMPLES, TaskObservation
-from openhands.tools.task.manager import TaskStatus
+from handprint.sdk import Agent, Conversation, LocalConversation, Tool
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.event.llm_convertible.observation import ObservationEvent
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.subagent.registry import _reset_registry_for_tests, register_agent
+from handprint.sdk.testing import TestLLM
+from handprint.tools.task import TaskToolSet
+from handprint.tools.task.definition import TASK_TOOL_EXAMPLES, TaskObservation
+from handprint.tools.task.manager import TaskStatus
 
 
 def _task_tool_call(

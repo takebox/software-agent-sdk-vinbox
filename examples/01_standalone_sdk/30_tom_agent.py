@@ -10,10 +10,10 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, Conversation
-from openhands.sdk.tool import Tool
-from openhands.tools.preset.default import get_default_tools
-from openhands.tools.tom_consult import (
+from handprint.sdk import LLM, Agent, Conversation
+from handprint.sdk.tool import Tool
+from handprint.tools.preset.default import get_default_tools
+from handprint.tools.tom_consult import (
     SleeptimeComputeAction,
     SleeptimeComputeObservation,
     SleeptimeComputeTool,
@@ -58,12 +58,12 @@ tools.append(Tool(name=SleeptimeComputeTool.name, params=tom_params))
 
 # Create agent with Tom capabilities
 # This agent can consult Tom for personalized guidance
-# Note: Tom's user modeling data will be stored in ~/.openhands/
+# Note: Tom's user modeling data will be stored in ~/.handprint/
 agent: Agent = Agent(llm=llm, tools=tools)
 
 # Start conversation
 cwd: str = os.getcwd()
-PERSISTENCE_DIR = os.path.expanduser("~/.openhands")
+PERSISTENCE_DIR = os.path.expanduser("~/.handprint")
 CONVERSATIONS_DIR = os.path.join(PERSISTENCE_DIR, "conversations")
 conversation = Conversation(
     agent=agent, workspace=cwd, persistence_dir=CONVERSATIONS_DIR

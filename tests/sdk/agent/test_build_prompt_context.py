@@ -9,13 +9,13 @@ import warnings
 import pytest
 from deprecation import DeprecatedWarning
 
-import openhands.sdk.agent.base as agent_base
-from openhands.sdk import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.context.prompts.section import Platform, PromptContext
-from openhands.sdk.llm import LLM
-from openhands.sdk.skills import Skill
-from openhands.sdk.tool import Tool
+import handprint.sdk.agent.base as agent_base
+from handprint.sdk import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.context.prompts.section import Platform, PromptContext
+from handprint.sdk.llm import LLM
+from handprint.sdk.tracks import Track
+from handprint.sdk.tool import Tool
 
 
 def _make_llm(model: str = "test-model") -> LLM:
@@ -56,7 +56,7 @@ def test_equivalent_to_static_template_kwargs(monkeypatch) -> None:
 @pytest.fixture
 def enable_browser_deprecated(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "openhands.sdk.utils.deprecation._current_version", lambda: "1.51.0"
+        "handprint.sdk.utils.deprecation._current_version", lambda: "1.51.0"
     )
 
 
@@ -71,8 +71,8 @@ def test_enable_browser_kwarg_is_deprecated() -> None:
 
 
 def test_model_family_from_spec() -> None:
-    agent = Agent(llm=_make_llm(model="claude-sonnet-4-5"), tools=[])
-    assert agent._build_prompt_context().model_family == "anthropic_claude"
+    agent = Agent(llm=_make_llm(model="haijun-codtral"), tools=[])
+    assert agent._build_prompt_context().model_family == "juglow_haijun"
 
 
 def test_template_kwargs_passthrough_includes_security_analyzer_and_cli_mode() -> None:
@@ -118,7 +118,7 @@ def test_dynamic_snapshot_from_agent_context() -> None:
 def test_no_agent_context_yields_empty_dynamic_fields() -> None:
     agent = Agent(llm=_make_llm(), tools=[])
     ctx = agent._build_prompt_context()
-    assert ctx.skill_names == ()
+    assert ctx.track_names == ()
     assert ctx.secret_names == ()
     assert ctx.now is None
 
@@ -126,7 +126,7 @@ def test_no_agent_context_yields_empty_dynamic_fields() -> None:
 def test_explicit_model_family_kwarg_wins_over_spec() -> None:
     """A caller-supplied model_family is not overwritten by the auto-detected one."""
     agent = Agent(
-        llm=_make_llm(model="claude-sonnet-4-5"),
+        llm=_make_llm(model="haijun-codtral"),
         tools=[],
         system_prompt_kwargs={"model_family": "custom"},
     )
@@ -140,12 +140,12 @@ def test_model_variant_from_spec() -> None:
     assert ctx.template_kwargs["model_variant"] == "gpt-5-codex"
 
 
-def test_skill_names_snapshot_from_agent_context() -> None:
+def test_track_names_snapshot_from_agent_context() -> None:
     agent = Agent(
         llm=_make_llm(),
         tools=[],
         agent_context=AgentContext(
-            skills=[Skill(name="demo", content="x", source="s.md", trigger=None)]
+            tracks=[Track(name="demo", content="x", source="s.md", trigger=None)]
         ),
     )
-    assert agent._build_prompt_context().skill_names == ("demo",)
+    assert agent._build_prompt_context().track_names == ("demo",)

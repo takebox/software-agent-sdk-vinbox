@@ -18,16 +18,16 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.agent.parallel_executor import ParallelToolExecutor
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.conversation.resource_lock_manager import ResourceLockManager
-from openhands.sdk.subagent.registry import _reset_registry_for_tests
-from openhands.sdk.tool import ToolDefinition
-from openhands.tools.preset import register_builtins_agents
-from openhands.tools.task.definition import TaskAction, TaskTool
-from openhands.tools.task.impl import TaskExecutor
-from openhands.tools.task.manager import TaskManager
+from handprint.sdk import LLM, Agent
+from handprint.sdk.agent.parallel_executor import ParallelToolExecutor
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.conversation.resource_lock_manager import ResourceLockManager
+from handprint.sdk.subagent.registry import _reset_registry_for_tests
+from handprint.sdk.tool import ToolDefinition
+from handprint.tools.preset import register_builtins_agents
+from handprint.tools.task.definition import TaskAction, TaskTool
+from handprint.tools.task.impl import TaskExecutor
+from handprint.tools.task.manager import TaskManager
 
 
 def _make_llm() -> LLM:

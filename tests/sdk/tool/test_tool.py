@@ -7,15 +7,15 @@ from abc import ABC
 import pytest
 from pydantic import Field, ValidationError
 
-from openhands.sdk.tool import Action
-from openhands.sdk.tool.spec import Tool
-from openhands.sdk.tool.tool import (
+from handprint.sdk.tool import Action
+from handprint.sdk.tool.spec import Tool
+from handprint.sdk.tool.tool import (
     _action_types_with_risk,
     _action_types_with_summary,
     _create_action_type_with_summary,
     create_action_type_with_risk,
 )
-from openhands.sdk.utils.models import _get_checked_concrete_subclasses
+from handprint.sdk.utils.models import _get_checked_concrete_subclasses
 
 
 # Must live at module scope (Pydantic rejects <locals> classes).
@@ -65,7 +65,7 @@ def test_issue_2199_1(request):
     same ``__name__``, causing ``_get_checked_concrete_subclasses(Action)``
     to raise ``ValueError("Duplicate class definition ...")``.
 
-    Ref: https://github.com/issues/assigned?issue=OpenHands%7Csoftware-agent-sdk%7C2199
+    Ref: https://github.com/issues/assigned?issue=Handprint%7Csoftware-agent-sdk%7C2199
     """
     """Many threads wrapping the same type must all get the same class object."""
     saved_risk = dict(_action_types_with_risk)

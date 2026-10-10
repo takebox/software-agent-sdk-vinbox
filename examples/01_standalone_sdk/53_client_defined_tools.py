@@ -14,10 +14,10 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, Conversation, Event, Tool
-from openhands.sdk.event.llm_convertible.action import ActionEvent
-from openhands.sdk.tool import ClientToolSpec
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation, Event, Tool
+from handprint.sdk.event.llm_convertible.action import ActionEvent
+from handprint.sdk.tool import ClientToolSpec
+from handprint.tools.terminal import TerminalTool
 
 
 # ---------------------------------------------------------------------------

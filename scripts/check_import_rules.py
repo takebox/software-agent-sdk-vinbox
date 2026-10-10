@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
 """
-Check import dependency rules across openhands packages.
+Check import dependency rules across handprint packages.
 
 Rules:
-1. openhands.sdk should NOT import from:
-   - openhands.tools
-   - openhands.workspace
-   - openhands.agent_server
+1. handprint.sdk should NOT import from:
+   - handprint.tools
+   - handprint.workspace
+   - handprint.agent_server
 
-2. openhands.tools can import from:
-   - openhands.sdk
+2. handprint.tools can import from:
+   - handprint.sdk
    BUT NOT from:
-   - openhands.workspace
-   - openhands.agent_server
+   - handprint.workspace
+   - handprint.agent_server
 
-3. openhands.workspace can import from:
-   - openhands.sdk
-   - openhands.tools
+3. handprint.workspace can import from:
+   - handprint.sdk
+   - handprint.tools
    BUT NOT from:
-   - openhands.agent_server
+   - handprint.agent_server
 
-4. openhands.agent_server can import from:
-   - openhands.sdk
-   - openhands.tools
+4. handprint.agent_server can import from:
+   - handprint.sdk
+   - handprint.tools
    BUT NOT from:
-   - openhands.workspace
+   - handprint.workspace
 """
 
 import ast
@@ -66,9 +66,9 @@ def get_imports_from_file(file_path: Path) -> set[str]:
 
 
 def check_sdk_imports(sdk_path: Path) -> list[tuple[Path, str]]:
-    """Check that openhands.sdk doesn't import from tools/workspace/agent_server."""  # noqa: E501
+    """Check that handprint.sdk doesn't import from tools/workspace/agent_server."""  # noqa: E501
     violations = []
-    forbidden = ["openhands.tools", "openhands.workspace", "openhands.agent_server"]
+    forbidden = ["handprint.tools", "handprint.workspace", "handprint.agent_server"]
 
     for py_file in sdk_path.rglob("*.py"):
         imports = get_imports_from_file(py_file)
@@ -81,9 +81,9 @@ def check_sdk_imports(sdk_path: Path) -> list[tuple[Path, str]]:
 
 
 def check_tools_imports(tools_path: Path) -> list[tuple[Path, str]]:
-    """Check that openhands.tools doesn't import from workspace or agent_server."""
+    """Check that handprint.tools doesn't import from workspace or agent_server."""
     violations = []
-    forbidden = ["openhands.workspace", "openhands.agent_server"]
+    forbidden = ["handprint.workspace", "handprint.agent_server"]
 
     for py_file in tools_path.rglob("*.py"):
         imports = get_imports_from_file(py_file)
@@ -96,9 +96,9 @@ def check_tools_imports(tools_path: Path) -> list[tuple[Path, str]]:
 
 
 def check_agent_server_imports(agent_server_path: Path) -> list[tuple[Path, str]]:
-    """Check that openhands.agent_server doesn't import from workspace."""
+    """Check that handprint.agent_server doesn't import from workspace."""
     violations = []
-    forbidden = ["openhands.workspace"]
+    forbidden = ["handprint.workspace"]
 
     for py_file in agent_server_path.rglob("*.py"):
         imports = get_imports_from_file(py_file)
@@ -121,10 +121,10 @@ def main(files: list[str] | None = None) -> int:
         0 if no violations found, 1 otherwise.
     """
     repo_root = Path(__file__).parent.parent
-    sdk_path = repo_root / "openhands-sdk" / "openhands" / "sdk"
-    tools_path = repo_root / "openhands-tools" / "openhands" / "tools"
+    sdk_path = repo_root / "openhands-sdk" / "handprint" / "sdk"
+    tools_path = repo_root / "openhands-tools" / "handprint" / "tools"
     agent_server_path = (
-        repo_root / "openhands-agent-server" / "openhands" / "agent_server"
+        repo_root / "openhands-agent-server" / "handprint" / "agent_server"
     )
 
     # If specific files are provided, filter checks to only those directories
@@ -146,7 +146,7 @@ def main(files: list[str] | None = None) -> int:
     if check_sdk and sdk_path.exists():
         violations = check_sdk_imports(sdk_path)
         if violations:
-            print("[ERROR] Violations in openhands.sdk:")
+            print("[ERROR] Violations in handprint.sdk:")
             for file, imp in violations:
                 rel_path = file.relative_to(repo_root)
                 print(
@@ -159,7 +159,7 @@ def main(files: list[str] | None = None) -> int:
     if check_tools and tools_path.exists():
         violations = check_tools_imports(tools_path)
         if violations:
-            print("[ERROR] Violations in openhands.tools:")
+            print("[ERROR] Violations in handprint.tools:")
             for file, imp in violations:
                 rel_path = file.relative_to(repo_root)
                 print(
@@ -172,7 +172,7 @@ def main(files: list[str] | None = None) -> int:
     if check_agent_server and agent_server_path.exists():
         violations = check_agent_server_imports(agent_server_path)
         if violations:
-            print("[ERROR] Violations in openhands.agent_server:")
+            print("[ERROR] Violations in handprint.agent_server:")
             for file, imp in violations:
                 rel_path = file.relative_to(repo_root)
                 print(
@@ -184,12 +184,12 @@ def main(files: list[str] | None = None) -> int:
     if all_violations:
         print(
             "\nImport dependency rules:\n"
-            "  - openhands.sdk: Cannot import tools/workspace/agent_server\n"
-            "  - openhands.tools: Cannot import workspace/agent_server "
+            "  - handprint.sdk: Cannot import tools/workspace/agent_server\n"
+            "  - handprint.tools: Cannot import workspace/agent_server "
             "(can import sdk)\n"
-            "  - openhands.agent_server: Cannot import workspace "
+            "  - handprint.agent_server: Cannot import workspace "
             "(can import sdk/tools)\n"
-            "  - openhands.workspace: Can import sdk/tools"
+            "  - handprint.workspace: Can import sdk/tools"
         )
         return 1
 

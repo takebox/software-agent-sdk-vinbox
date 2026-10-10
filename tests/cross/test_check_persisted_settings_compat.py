@@ -14,7 +14,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict
 
 
-os.environ.setdefault("OPENHANDS_SUPPRESS_BANNER", "1")
+os.environ.setdefault("HANDPRINT_SUPPRESS_BANNER", "1")
 
 
 def _load_script_module(name: str):
@@ -55,7 +55,7 @@ class _AdditiveSettings(BaseModel):
     items: list[_AdditiveItem]
 
 
-class _LegacyAgentProfileWithoutSkills(BaseModel):
+class _LegacyAgentProfileWithoutTracks(BaseModel):
     """Simulates removing a persisted profile field without a version bump."""
 
     model_config = ConfigDict(extra="ignore")
@@ -78,10 +78,10 @@ def _load_additive_settings(data: Any) -> _AdditiveSettings:
     return _AdditiveSettings.model_validate(data)
 
 
-def _load_legacy_agent_profile_without_skills(
+def _load_legacy_agent_profile_without_tracks(
     data: Any,
-) -> _LegacyAgentProfileWithoutSkills:
-    return _LegacyAgentProfileWithoutSkills.model_validate(data)
+) -> _LegacyAgentProfileWithoutTracks:
+    return _LegacyAgentProfileWithoutTracks.model_validate(data)
 
 
 _SHAPE_CHANGING_SURFACE = SurfaceConfig(
@@ -104,7 +104,7 @@ _PROFILE_SHAPE_CHANGING_SURFACE = SurfaceConfig(
     key="agent_profile",
     display_name="AgentProfile",
     current_version=1,
-    loader=_load_legacy_agent_profile_without_skills,
+    loader=_load_legacy_agent_profile_without_tracks,
     migration_guidance="Bump the schema version and add a migration.",
 )
 
@@ -320,14 +320,14 @@ def test_validate_baseline_rejects_profile_field_removal_without_version_bump() 
             "schema_version": 1,
             "name": "default",
             "llm_profile_ref": "default",
-            "skills": [],
+            "tracks": [],
         },
     )
 
     with pytest.raises(
         PersistedSettingsCompatError,
         match=(
-            "did not preserve persisted field 'skills' without advancing "
+            "did not preserve persisted field 'tracks' without advancing "
             "schema_version 1"
         ),
     ):

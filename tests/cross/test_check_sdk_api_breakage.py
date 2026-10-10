@@ -45,7 +45,7 @@ get_pypi_baseline_version = _prod.get_pypi_baseline_version
 
 # Reusable test config matching the _write_pkg_init helper
 _SDK_CFG = PackageConfig(
-    package="openhands.sdk",
+    package="handprint.sdk",
     distribution="openhands-sdk",
     source_dir="openhands-sdk",
 )
@@ -56,10 +56,10 @@ def _write_pkg_init(
 ):
     """Create a minimal package with ``__all__`` under *tmp_path/root*.
 
-    *module_parts* defaults to ``("openhands", "sdk")``; pass a different
-    tuple to create e.g. ``("openhands", "workspace")``.
+    *module_parts* defaults to ``("handprint", "sdk")``; pass a different
+    tuple to create e.g. ``("handprint", "workspace")``.
     """
-    parts = module_parts or ("openhands", "sdk")
+    parts = module_parts or ("handprint", "sdk")
     pkg = tmp_path / root / Path(*parts)
     pkg.mkdir(parents=True, exist_ok=True)
     # ensure parent __init__.py files exist
@@ -129,7 +129,7 @@ def _init_git_repo(tmp_path: Path) -> Path:
 
 
 def _write_repo_sdk_model(repo_root: Path, default: str) -> None:
-    pkg = repo_root / "openhands-sdk" / "openhands" / "sdk"
+    pkg = repo_root / "openhands-sdk" / "handprint" / "sdk"
     pkg.mkdir(parents=True, exist_ok=True)
     (pkg.parent / "__init__.py").write_text("")
     (pkg / "__init__.py").write_text(
@@ -167,8 +167,8 @@ def test_griffe_breakage_removed_attribute_requires_minor_bump(tmp_path):
         + "        self.text = text\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, _undeprecated = _prod._compute_breakages(old_root, new_root, _SDK_CFG)
     assert total_breaks > 0
@@ -181,8 +181,8 @@ def test_griffe_removed_export_from_all_is_breaking(tmp_path):
     _write_pkg_init(tmp_path, "old", ["Foo", "Bar"])
     _write_pkg_init(tmp_path, "new", ["Foo"])
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -201,8 +201,8 @@ def test_removal_of_deprecated_symbol_does_not_count_as_undeprecated(tmp_path):
     )
     _write_pkg_init(tmp_path, "new", ["Foo"])
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -225,8 +225,8 @@ def test_removal_with_warn_deprecated_is_not_undeprecated(tmp_path):
     )
     _write_pkg_init(tmp_path, "new", ["Foo"])
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -241,7 +241,7 @@ def test_find_deprecated_symbols_reads_export_registry(tmp_path):
     """``_DEPRECATED_SDK_EXPORTS`` registry entries are recognized as deprecated
     top-level symbols (the SDK's data-driven mechanism for renamed import
     aliases such as ``LLMAgentSettings``)."""
-    src = tmp_path / "openhands" / "sdk"
+    src = tmp_path / "handprint" / "sdk"
     src.mkdir(parents=True)
     (src / "__init__.py").write_text(
         "_DEPRECATED_SDK_EXPORTS: dict[str, dict[str, str]] = {\n"
@@ -272,8 +272,8 @@ def test_removal_via_export_registry_is_not_undeprecated(tmp_path):
     )
     _write_pkg_init(tmp_path, "new", ["Foo"])
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(old_root, new_root, _SDK_CFG)
 
@@ -296,8 +296,8 @@ def test_removed_public_method_requires_deprecation(tmp_path):
     )
     new_init.write_text(new_init.read_text() + "\n\nclass Foo:\n    pass\n")
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -324,8 +324,8 @@ def test_removed_public_method_with_deprecation_is_not_undeprecated(tmp_path):
     )
     new_init.write_text(new_init.read_text() + "\n\nclass Foo:\n    pass\n")
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -338,15 +338,15 @@ def test_removed_public_method_with_deprecation_is_not_undeprecated(tmp_path):
 
 def test_missing_all_in_previous_release_skips_breakage_check(tmp_path):
     """If previous release lacks __all__, skip instead of failing workflow."""
-    old_pkg = tmp_path / "old" / "openhands" / "sdk"
+    old_pkg = tmp_path / "old" / "handprint" / "sdk"
     old_pkg.mkdir(parents=True)
-    (tmp_path / "old" / "openhands" / "__init__.py").write_text("")
+    (tmp_path / "old" / "handprint" / "__init__.py").write_text("")
     (old_pkg / "__init__.py").write_text("# no __all__ in previous release\n")
 
     _write_pkg_init(tmp_path, "new", ["Foo"])
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(old_root, new_root, _SDK_CFG)
     assert total_breaks == 0
@@ -484,8 +484,8 @@ def test_removed_public_method_requires_removal_target_to_be_reached(tmp_path):
     )
     new_init.write_text(new_init.read_text() + "\n\nclass Foo:\n    pass\n")
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, removal_policy_errors = _prod._compute_breakages(
         old_root,
@@ -514,8 +514,8 @@ def test_removed_public_method_requires_five_minor_release_runway(tmp_path):
     )
     new_init.write_text(new_init.read_text() + "\n\nclass Foo:\n    pass\n")
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, removal_policy_errors = _prod._compute_breakages(
         old_root,
@@ -529,19 +529,19 @@ def test_removed_public_method_requires_five_minor_release_runway(tmp_path):
 
 
 def test_workspace_removed_export_is_breaking(tmp_path):
-    """Breakage detection works for non-SDK packages (openhands.workspace)."""
+    """Breakage detection works for non-SDK packages (handprint.workspace)."""
     ws_cfg = PackageConfig(
-        package="openhands.workspace",
+        package="handprint.workspace",
         distribution="openhands-workspace",
         source_dir="openhands-workspace",
     )
     _write_pkg_init(
-        tmp_path, "old", ["Foo", "Bar"], module_parts=("openhands", "workspace")
+        tmp_path, "old", ["Foo", "Bar"], module_parts=("handprint", "workspace")
     )
-    _write_pkg_init(tmp_path, "new", ["Foo"], module_parts=("openhands", "workspace"))
+    _write_pkg_init(tmp_path, "new", ["Foo"], module_parts=("handprint", "workspace"))
 
-    old_root = griffe.load("openhands.workspace", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.workspace", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.workspace", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.workspace", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -559,18 +559,18 @@ def test_unresolved_alias_exports_do_not_crash_breakage_detection(tmp_path):
     """
 
     ws_cfg = PackageConfig(
-        package="openhands.workspace",
+        package="handprint.workspace",
         distribution="openhands-workspace",
         source_dir="openhands-workspace",
     )
 
     def _write_workspace(root: str, *, include_method: bool) -> None:
-        pkg = tmp_path / root / "openhands" / "workspace"
+        pkg = tmp_path / root / "handprint" / "workspace"
         pkg.mkdir(parents=True)
-        (tmp_path / root / "openhands" / "__init__.py").write_text("")
+        (tmp_path / root / "handprint" / "__init__.py").write_text("")
 
         content = (
-            "from openhands.sdk.workspace import PlatformType\n\n"
+            "from handprint.sdk.workspace import PlatformType\n\n"
             "__all__ = [\n"
             "    'PlatformType',\n"
             "    'Foo',\n"
@@ -587,8 +587,8 @@ def test_unresolved_alias_exports_do_not_crash_breakage_detection(tmp_path):
     _write_workspace("old", include_method=True)
     _write_workspace("new", include_method=False)
 
-    old_root = griffe.load("openhands.workspace", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.workspace", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.workspace", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.workspace", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -623,7 +623,7 @@ def test_is_field_metadata_only_change_default_changed():
 
 def test_is_field_default_only_change_detects_keyword_default_change():
     """Changing only Field default value is classified separately."""
-    old = "Field(default='claude-sonnet-4-20250514', description='desc')"
+    old = "Field(default='haijun-codtral', description='desc')"
     new = "Field(default='gpt-5.5', description='desc')"
 
     assert _is_field_default_only_change(old, new) is True
@@ -641,7 +641,7 @@ def test_is_field_default_only_change_detects_keyword_default_factory_change():
 
 def test_is_field_default_only_change_ignores_other_runtime_changes():
     """Changing non-default runtime kwargs is not a default-only change."""
-    old = "Field(default='claude-sonnet-4-20250514', alias='model')"
+    old = "Field(default='haijun-codtral', alias='model')"
     new = "Field(default='gpt-5.5', alias='llm_model')"
 
     assert _is_field_default_only_change(old, new) is False
@@ -674,11 +674,11 @@ def test_is_field_metadata_only_change_long_description():
     """Long descriptions with URLs are handled correctly."""
     old = (
         "Field(default=False, description='Whether to automatically load "
-        "skills from https://github.com/OpenHands/skills.')"
+        "tracks from https://github.com/Handprint/tracks.')"
     )
     new = (
         "Field(default=False, description='Whether to automatically load "
-        "skills from https://github.com/OpenHands/extensions.')"
+        "tracks from https://github.com/Handprint/extensions.')"
     )
     assert _is_field_metadata_only_change(old, new) is True
 
@@ -720,10 +720,10 @@ def test_is_field_metadata_only_change_added_deprecated_kwarg():
 
 def test_is_field_metadata_only_change_json_schema_extra_dict():
     """Adding json_schema_extra with a dict value is metadata-only."""
-    old = "Field(default='claude-sonnet-4-20250514', description='Model name.')"
+    old = "Field(default='haijun-codtral', description='Model name.')"
     new = (
-        "Field(default='claude-sonnet-4-20250514', description='Model name.', "
-        "json_schema_extra={'openhands_settings': "
+        "Field(default='haijun-codtral', description='Model name.', "
+        "json_schema_extra={'handprint_settings': "
         "{'label': None, 'prominence': 'critical', 'depends_on': []}})"
     )
     assert _is_field_metadata_only_change(old, new) is True
@@ -770,8 +770,8 @@ def test_field_deprecated_change_is_not_breaking(tmp_path):
         + "    enabled: bool = Field(default=False, deprecated=True)\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -807,8 +807,8 @@ def test_field_added_deprecated_kwarg_is_not_breaking(tmp_path):
         + "    )\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -840,8 +840,8 @@ def test_field_description_change_is_not_breaking(tmp_path):
         + "    enabled: bool = Field(default=False, description='New description')\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -902,8 +902,8 @@ def test_field_multiline_description_with_quotes_is_not_breaking(tmp_path):
         + "    )\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(
         old_root,
@@ -926,7 +926,7 @@ def test_field_default_change_is_reported_but_not_breaking(tmp_path):
         old_init.read_text()
         + "\nfrom pydantic import BaseModel, Field\n\n"
         + "class Config(BaseModel):\n"
-        + "    model: str = Field(default='claude-sonnet-4-20250514')\n"
+        + "    model: str = Field(default='haijun-codtral')\n"
     )
     new_init.write_text(
         new_init.read_text()
@@ -935,8 +935,8 @@ def test_field_default_change_is_reported_but_not_breaking(tmp_path):
         + "    model: str = Field(default='gpt-5.5')\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     field_default_changes: list[FieldDefaultChange] = []
     total_breaks, undeprecated = _prod._compute_breakages(
@@ -950,9 +950,9 @@ def test_field_default_change_is_reported_but_not_breaking(tmp_path):
     assert undeprecated == 0
     assert field_default_changes == [
         _prod.FieldDefaultChange(
-            package="openhands.sdk",
-            object_path="openhands.sdk.Config.model",
-            old_default="'claude-sonnet-4-20250514'",
+            package="handprint.sdk",
+            object_path="handprint.sdk.Config.model",
+            old_default="'haijun-codtral'",
             new_default="'gpt-5.5'",
         )
     ]
@@ -983,8 +983,8 @@ def test_field_default_factory_change_is_reported_but_not_breaking(tmp_path):
         + "    )\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     field_default_changes: list[FieldDefaultChange] = []
     total_breaks, undeprecated = _prod._compute_breakages(
@@ -998,8 +998,8 @@ def test_field_default_factory_change_is_reported_but_not_breaking(tmp_path):
     assert undeprecated == 0
     assert field_default_changes == [
         _prod.FieldDefaultChange(
-            package="openhands.sdk",
-            object_path="openhands.sdk.Config.current_datetime",
+            package="handprint.sdk",
+            object_path="handprint.sdk.Config.current_datetime",
             old_default="datetime.now",
             new_default="lambda: datetime.now().astimezone()",
         )
@@ -1019,7 +1019,7 @@ def test_field_json_schema_extra_dict_is_not_breaking(tmp_path):
         + "\nfrom pydantic import BaseModel, Field\n\n"
         + "class Config(BaseModel):\n"
         + "    model: str = Field(\n"
-        + "        default='claude-sonnet-4-20250514',\n"
+        + "        default='haijun-codtral',\n"
         + "        description='Model name.',\n"
         + "    )\n"
     )
@@ -1028,7 +1028,7 @@ def test_field_json_schema_extra_dict_is_not_breaking(tmp_path):
         + "\nfrom pydantic import BaseModel, Field\n\n"
         + "class Config(BaseModel):\n"
         + "    model: str = Field(\n"
-        + "        default='claude-sonnet-4-20250514',\n"
+        + "        default='haijun-codtral',\n"
         + "        description='Model name.',\n"
         + "        json_schema_extra={\n"
         + "            'settings': {\n"
@@ -1040,11 +1040,11 @@ def test_field_json_schema_extra_dict_is_not_breaking(tmp_path):
     )
 
     old_root = griffe.load(
-        "openhands.sdk",
+        "handprint.sdk",
         search_paths=[str(tmp_path / "old")],
     )
     new_root = griffe.load(
-        "openhands.sdk",
+        "handprint.sdk",
         search_paths=[str(tmp_path / "new")],
     )
 
@@ -1127,8 +1127,8 @@ def test_subclass_member_deprecated_on_base_is_not_undeprecated(tmp_path):
         + "    pass\n"
     )
 
-    old_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "old")])
-    new_root = griffe.load("openhands.sdk", search_paths=[str(tmp_path / "new")])
+    old_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "old")])
+    new_root = griffe.load("handprint.sdk", search_paths=[str(tmp_path / "new")])
 
     total_breaks, undeprecated = _prod._compute_breakages(old_root, new_root, _SDK_CFG)
     assert total_breaks > 0
@@ -1139,7 +1139,7 @@ def test_subclass_member_deprecated_on_base_is_not_undeprecated(tmp_path):
 
 def test_collect_field_default_changes_since_ref_reports_pr_introduced_change(tmp_path):
     repo_root = _init_git_repo(tmp_path)
-    _write_repo_sdk_model(repo_root, "claude-sonnet-4-20250514")
+    _write_repo_sdk_model(repo_root, "haijun-codtral")
     base_ref = _commit_all(repo_root, "Base version")
 
     _write_repo_sdk_model(repo_root, "gpt-5.5")
@@ -1154,9 +1154,9 @@ def test_collect_field_default_changes_since_ref_reports_pr_introduced_change(tm
 
     assert changes == [
         FieldDefaultChange(
-            package="openhands.sdk",
-            object_path="openhands.sdk.Config.model",
-            old_default="'claude-sonnet-4-20250514'",
+            package="handprint.sdk",
+            object_path="handprint.sdk.Config.model",
+            old_default="'haijun-codtral'",
             new_default="'gpt-5.5'",
         )
     ]
@@ -1164,7 +1164,7 @@ def test_collect_field_default_changes_since_ref_reports_pr_introduced_change(tm
 
 def test_collect_field_default_changes_since_ref_ignores_preexisting_change(tmp_path):
     repo_root = _init_git_repo(tmp_path)
-    _write_repo_sdk_model(repo_root, "claude-sonnet-4-20250514")
+    _write_repo_sdk_model(repo_root, "haijun-codtral")
     _commit_all(repo_root, "Base version")
 
     _write_repo_sdk_model(repo_root, "gpt-5.5")
@@ -1203,7 +1203,7 @@ def test_collect_field_default_changes_since_ref_is_quiet_for_structural_changes
     tmp_path, capsys
 ):
     repo_root = _init_git_repo(tmp_path)
-    pkg = repo_root / "openhands-sdk" / "openhands" / "sdk"
+    pkg = repo_root / "openhands-sdk" / "handprint" / "sdk"
     pkg.mkdir(parents=True, exist_ok=True)
     (pkg.parent / "__init__.py").write_text("")
     (pkg / "__init__.py").write_text(
@@ -1243,9 +1243,9 @@ def test_write_field_default_change_report_includes_base_ref_changes(
 
     changes = [
         FieldDefaultChange(
-            package="openhands.sdk",
-            object_path="openhands.sdk.Config.model",
-            old_default="'claude-sonnet-4-20250514'",
+            package="handprint.sdk",
+            object_path="handprint.sdk.Config.model",
+            old_default="'haijun-codtral'",
             new_default="'gpt-5.5'",
         )
     ]
@@ -1258,9 +1258,9 @@ def test_write_field_default_change_report_includes_base_ref_changes(
     assert json.loads(report_path.read_text()) == {
         "field_default_changes": [
             {
-                "package": "openhands.sdk",
-                "object_path": "openhands.sdk.Config.model",
-                "old_default": "'claude-sonnet-4-20250514'",
+                "package": "handprint.sdk",
+                "object_path": "handprint.sdk.Config.model",
+                "old_default": "'haijun-codtral'",
                 "new_default": "'gpt-5.5'",
             }
         ],
@@ -1276,9 +1276,9 @@ def test_write_field_default_change_report_omits_unavailable_base_ref(
 
     changes = [
         FieldDefaultChange(
-            package="openhands.sdk",
-            object_path="openhands.sdk.Config.model",
-            old_default="'claude-sonnet-4-20250514'",
+            package="handprint.sdk",
+            object_path="handprint.sdk.Config.model",
+            old_default="'haijun-codtral'",
             new_default="'gpt-5.5'",
         )
     ]
@@ -1291,9 +1291,9 @@ def test_write_field_default_change_report_omits_unavailable_base_ref(
     assert json.loads(report_path.read_text()) == {
         "field_default_changes": [
             {
-                "package": "openhands.sdk",
-                "object_path": "openhands.sdk.Config.model",
-                "old_default": "'claude-sonnet-4-20250514'",
+                "package": "handprint.sdk",
+                "object_path": "handprint.sdk.Config.model",
+                "old_default": "'haijun-codtral'",
                 "new_default": "'gpt-5.5'",
             }
         ],

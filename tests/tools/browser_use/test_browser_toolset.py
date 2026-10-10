@@ -10,16 +10,16 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.event import Event, SystemPromptEvent
-from openhands.sdk.llm import LLM
-from openhands.sdk.tool import Tool, ToolDefinition
-from openhands.sdk.tool.registry import resolve_tool
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.browser_use import BrowserToolSet
-from openhands.tools.browser_use.definition import BROWSER_PROMPT_GUIDANCE
-from openhands.tools.browser_use.impl import BrowserToolExecutor
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.event import Event, SystemPromptEvent
+from handprint.sdk.llm import LLM
+from handprint.sdk.tool import Tool, ToolDefinition
+from handprint.sdk.tool.registry import resolve_tool
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.browser_use import BrowserToolSet
+from handprint.tools.browser_use.definition import BROWSER_PROMPT_GUIDANCE
+from handprint.tools.browser_use.impl import BrowserToolExecutor
 
 
 @pytest.fixture(autouse=True)
@@ -374,7 +374,7 @@ def test_browser_toolset_warns_when_config_ignored(caplog):
 
         # Second call with different config should warn
         with caplog.at_level(
-            "WARNING", logger="openhands.tools.browser_use.definition"
+            "WARNING", logger="handprint.tools.browser_use.definition"
         ):
             BrowserToolSet.create(conv_state=conv_state, headless=False)
 
@@ -389,7 +389,7 @@ def test_browser_toolset_no_warning_when_no_config(caplog):
         BrowserToolSet.create(conv_state=conv_state)
 
         with caplog.at_level(
-            "WARNING", logger="openhands.tools.browser_use.definition"
+            "WARNING", logger="handprint.tools.browser_use.definition"
         ):
             BrowserToolSet.create(conv_state=conv_state)
 
@@ -555,11 +555,11 @@ def test_no_browser_guidance_when_browser_fails_to_start():
 
 def test_migrated_profile_with_pinned_browser_resolves_on_browserless_runtime():
     """A migrated profile pinning `browser_tool_set` resolves without a browser."""
-    from openhands.sdk.tool.defaults import (
+    from handprint.sdk.tool.defaults import (
         fold_retired_tool_switches,
         resolve_tool_specs,
     )
-    from openhands.sdk.tool.registry import resolve_tool
+    from handprint.sdk.tool.registry import resolve_tool
 
     migrated = fold_retired_tool_switches({"tools": None, "enable_sub_agents": True})[
         "tools"

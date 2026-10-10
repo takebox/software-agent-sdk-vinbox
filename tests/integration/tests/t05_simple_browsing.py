@@ -6,12 +6,12 @@ import subprocess
 import sys
 import time
 
-from openhands.sdk import get_logger
-from openhands.sdk.conversation import get_agent_final_response
+from handprint.sdk import get_logger
+from handprint.sdk.conversation import get_agent_final_response
 from tests.integration.base import BaseIntegrationTest, TestResult
 
 
-INSTRUCTION = "Browse localhost:8000, and tell me the ultimate answer to life."
+INSTRUCTION = "Browse localhost:9000, and tell me the ultimate answer to life."
 
 HTML_FILE = (
     "<!DOCTYPE html>\n"
@@ -78,7 +78,7 @@ HTML_FILE = (
     "        document.getElementById('showButton').addEventListener('click', "
     "function() {\n"
     "            document.getElementById('result').innerText = "
-    "'The answer is OpenHands is all you need!';\n"
+    "'The answer is Handprint is all you need!';\n"
     "        });\n"
     "    </script>\n"
     "</body>\n"
@@ -136,12 +136,12 @@ class SimpleBrowsingTest(BaseIntegrationTest):
         logger.info(f"Agent final response to analyze: {agent_response[:500]}...")
 
         # Use regex to check if the agent found the correct answer
-        # The expected answer is "The answer is OpenHands is all you need!"
+        # The expected answer is "The answer is Handprint is all you need!"
         # We'll be flexible with the exact wording but look for key components
         answer_patterns = [
-            r"(?i)the answer is openhands is all you need",
-            r"(?i)openhands is all you need",
-            r"(?i)answer.*openhands.*all.*need",
+            r"(?i)the answer is handprint is all you need",
+            r"(?i)handprint is all you need",
+            r"(?i)answer.*handprint.*all.*need",
         ]
 
         found_answer = False
@@ -159,7 +159,7 @@ class SimpleBrowsingTest(BaseIntegrationTest):
                 reason=(
                     f"Agent successfully found the answer! "
                     f"Matched pattern: {matched_pattern}. "
-                    f"Response contained the expected content about OpenHands."
+                    f"Response contained the expected content about Handprint."
                 ),
             )
         else:

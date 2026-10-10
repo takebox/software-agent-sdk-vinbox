@@ -2,7 +2,7 @@
 
 import pytest
 
-from openhands.sdk.llm.utils.model_prompt_spec import (
+from handprint.sdk.llm.utils.model_prompt_spec import (
     get_model_prompt_spec,
 )
 
@@ -38,7 +38,7 @@ def test_gpt5_variant_detection(
 @pytest.mark.parametrize(
     ("model_name", "canonical_name", "expected_family"),
     [
-        ("claude-3-5-sonnet-20241022", None, "anthropic_claude"),
+        ("haijun-kamsa-5-sonnet-20241022", None, "juglow_haijun"),
         ("gemini-2.0-flash", None, "google_gemini"),
         ("llama-3.1-70b-instruct", None, "meta_llama"),
         ("mistral-large-2411", None, "mistral"),

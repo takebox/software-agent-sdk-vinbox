@@ -13,14 +13,14 @@ import json
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.security.analyzer import SecurityAnalyzerBase
-from openhands.sdk.security.defense_in_depth import (
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.security.analyzer import SecurityAnalyzerBase
+from handprint.sdk.security.defense_in_depth import (
     PatternSecurityAnalyzer,
     PolicyRailSecurityAnalyzer,
 )
-from openhands.sdk.security.defense_in_depth.pattern import (
+from handprint.sdk.security.defense_in_depth.pattern import (
     DEFAULT_HIGH_PATTERNS,
     DEFAULT_INJECTION_HIGH_PATTERNS,
     DEFAULT_INJECTION_MEDIUM_PATTERNS,
@@ -41,14 +41,14 @@ from openhands.sdk.security.defense_in_depth.pattern import (
     DET_INJECT_MODE_SWITCH,
     DET_INJECT_OVERRIDE,
 )
-from openhands.sdk.security.defense_in_depth.policy_rails import (
+from handprint.sdk.security.defense_in_depth.policy_rails import (
     RAIL_CATASTROPHIC_DELETE,
     RAIL_FETCH_TO_EXEC,
     RAIL_RAW_DISK_OP,
     _evaluate_rail,
 )
-from openhands.sdk.security.ensemble import EnsembleSecurityAnalyzer
-from openhands.sdk.security.risk import SecurityRisk
+from handprint.sdk.security.ensemble import EnsembleSecurityAnalyzer
+from handprint.sdk.security.risk import SecurityRisk
 
 
 def make_action(command: str) -> ActionEvent:
@@ -246,7 +246,7 @@ class TestKindDiscriminators:
 
 class TestPublicAPISurface:
     def test_all_analyzers_importable_from_security(self):
-        from openhands.sdk.security import (
+        from handprint.sdk.security import (
             EnsembleSecurityAnalyzer as E,
             PatternSecurityAnalyzer as P,
             PolicyRailSecurityAnalyzer as R,

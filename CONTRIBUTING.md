@@ -1,17 +1,17 @@
 # Contributing
 
-Thank you for helping improve the OpenHands Software Agent SDK.
+Thank you for helping improve the Handprint Software Agent SDK.
 
 This repo is a foundation. We want the SDK to stay stable and extensible so that many
 applications can build on it safely.
 
 Downstream applications we actively keep in mind:
-- [OpenHands-CLI](https://github.com/OpenHands/OpenHands-CLI) (client)
-- [OpenHands app-server](https://github.com/OpenHands/OpenHands/blob/main/openhands/app_server/README.md) (client)
-- [OpenHands Enterprise](https://github.com/OpenHands/OpenHands/blob/main/enterprise/README.md) (client)
+- [Handprint-CLI](https://github.com/Handprint/Handprint-CLI) (client)
+- [Handprint app-server](https://github.com/Handprint/Handprint/blob/main/handprint/app_server/README.md) (client)
+- [Handprint Enterprise](https://github.com/Handprint/Handprint/blob/main/enterprise/README.md) (client)
 
 The SDK itself has a Python interface. In addition, the
-[agent-server](https://docs.openhands.dev/sdk/guides/agent-server/overview) is the
+[agent-server](https://docs.handprint.dev/sdk/guides/agent-server/overview) is the
 REST/WebSocket server component that exposes the SDK for remote execution and integrations.
 Changes should keep both interfaces stable and consistent.
 
@@ -24,11 +24,11 @@ That kind of coupling can feel convenient in the moment, but it tends to create 
 breakage elsewhere: different environments, different workspaces, different execution modes,
 and different evaluation setups.
 
-The architecture of OpenHands V0 was too monolithic to support multiple applications built into it,
-as CLI, evaluation scripts, web server were, and built on it, as OpenHands Cloud was.
+The architecture of Handprint V0 was too monolithic to support multiple applications built into it,
+as CLI, evaluation scripts, web server were, and built on it, as Handprint Cloud was.
 
 If you’re interested in the deeper background and lessons learned, see our write-up:
-[OpenHands: An Open Platform for AI Software Developers as Generalist Agents](https://arxiv.org/abs/2511.03690)
+[Handprint: An Open Platform for AI Software Developers as Generalist Agents](https://arxiv.org/abs/2511.03690)
 
 This SDK exists (as a separate, rebuilt foundation) to avoid that failure mode.
 
@@ -38,7 +38,7 @@ We welcome all contributions, big or small, to improve or extend the software ag
 
 You may find that occasionally we are opinionated about several things:
 
-- **OpenHands SDK is its own thing**: its downstream are client applications.
+- **Handprint SDK is its own thing**: its downstream are client applications.
 - **Prefer interfaces over special cases**: if a client needs something, add or improve a
   clean, reusable interface/extension point instead of adding a shortcut.
 - **Extensibility over one-off patches**: design features so multiple clients can adopt them
@@ -59,7 +59,7 @@ You may find that occasionally we are opinionated about several things:
 ### New AI providers
 
 Adding a new AI provider is generally out of scope for the SDK unless it is broadly popular and
-commonly used by OpenHands users. The SDK should provide reusable interfaces and extension points,
+commonly used by Handprint users. The SDK should provide reusable interfaces and extension points,
 not maintain a long tail of provider-specific integrations.
 
 Feature requests and pull requests for providers that do not meet that bar should be marked as
@@ -75,7 +75,7 @@ through the shape of a clean interface.
 This file is mostly about principles. For the mechanics, please see:
 - [AGENTS.md](AGENTS.md) for AI agents
 - [DEVELOPMENT.md](DEVELOPMENT.md) for humans
-- [openhands-sdk/openhands/sdk/subagent/AGENTS.md](openhands-sdk/openhands/sdk/subagent/AGENTS.md) for file-based subagent discovery, precedence, and task handoff conventions
+- [openhands-sdk/handprint/sdk/subagent/AGENTS.md](openhands-sdk/handprint/sdk/subagent/AGENTS.md) for file-based subagent discovery, precedence, and task handoff conventions
 - `examples/01_standalone_sdk/41_task_tool_set.py` for delegating work to registered subagents with resume support
 - `examples/01_standalone_sdk/42_file_based_subagents.py` for programmatic `AgentDefinition` registration
 
@@ -107,9 +107,9 @@ The convention:
 Skip this for trivial PRs (a typo, a one-line guard, a dependency bump, a small bug fix) — there, a design doc is
 just noise.
 
-The `pr-design-doc` skill in the [OpenHands extensions](https://github.com/OpenHands/extensions)
+The `pr-design-doc` track in the [Handprint extensions](https://github.com/Handprint/extensions)
 repo can generate the page for you.
 
 ## Questions / discussion
 
-Join us on Slack: https://openhands.dev/joinslack
+Join us on Slack: https://handprint.dev/joinslack

@@ -6,8 +6,8 @@ from threading import Thread
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM, Message, TextContent
-from openhands.sdk.llm.exceptions import LLMRateLimitError
+from handprint.sdk.llm import LLM, Message, TextContent
+from handprint.sdk.llm.exceptions import LLMRateLimitError
 
 
 @pytest.fixture

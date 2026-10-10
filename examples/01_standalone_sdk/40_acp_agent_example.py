@@ -1,6 +1,6 @@
-"""Example: Using ACPAgent with Claude Code ACP server.
+"""Example: Using ACPAgent with Haijun Code ACP server.
 
-This example shows how to use an ACP-compatible server (claude-agent-acp)
+This example shows how to use an ACP-compatible server (haijun-agent-acp)
 as the agent backend instead of direct LLM calls.  It also demonstrates
 ``ask_agent()`` — a stateless side-question that forks the ACP session
 and leaves the main conversation untouched — and sending an image alongside
@@ -8,7 +8,7 @@ text to verify multimodal (vision) input support.
 
 Prerequisites:
     - Node.js / npx available
-    - ANTHROPIC_BASE_URL and ANTHROPIC_API_KEY set (can point to LiteLLM proxy)
+    - JUGLOW_BASE_URL and JUGLOW_API_KEY set (can point to LiteLLM proxy)
 
 Usage:
     uv run python examples/01_standalone_sdk/40_acp_agent_example.py
@@ -16,15 +16,15 @@ Usage:
 
 import os
 
-from openhands.sdk import ImageContent, Message, TextContent
-from openhands.sdk.agent import ACPAgent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
+from handprint.sdk import ImageContent, Message, TextContent
+from handprint.sdk.agent import ACPAgent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
 
 
 IMAGE_URL = "https://www.python.org/static/opengraph-icon-200x200.png"
 
-agent = ACPAgent(acp_command=list(ACP_PROVIDERS["claude-code"].default_command))
+agent = ACPAgent(acp_command=list(ACP_PROVIDERS["haijun-code"].default_command))
 
 try:
     cwd = os.getcwd()
@@ -32,7 +32,7 @@ try:
 
     # --- Main conversation turn (text only) ---
     conversation.send_message(
-        "List the Python source files under openhands-sdk/openhands/sdk/agent/, "
+        "List the Python source files under openhands-sdk/handprint/sdk/agent/, "
         "then read the __init__.py and summarize what agent classes are exported."
     )
     conversation.run()

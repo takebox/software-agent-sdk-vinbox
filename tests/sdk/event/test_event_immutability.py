@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Self
 
 import pytest
 
-from openhands.sdk.event import (
+from handprint.sdk.event import (
     ActionEvent,
     AgentErrorEvent,
     Condensation,
@@ -17,18 +17,18 @@ from openhands.sdk.event import (
     SystemPromptEvent,
     UserRejectObservation,
 )
-from openhands.sdk.llm import (
+from handprint.sdk.llm import (
     ImageContent,
     Message,
     MessageToolCall,
     TextContent,
 )
-from openhands.sdk.tool import ToolDefinition, ToolExecutor
-from openhands.sdk.tool.schema import Action, Observation
+from handprint.sdk.tool import ToolDefinition, ToolExecutor
+from handprint.sdk.tool.schema import Action, Observation
 
 
 if TYPE_CHECKING:
-    from openhands.sdk.conversation.impl.local_conversation import LocalConversation
+    from handprint.sdk.conversation.impl.local_conversation import LocalConversation
 
 
 class EventsImmutabilityMockAction(Action):
@@ -196,7 +196,7 @@ def test_message_event_is_frozen():
         )
 
     with pytest.raises(Exception):
-        event.activated_skills = ["test_skill"]
+        event.activated_tracks = ["test_track"]
 
     with pytest.raises(Exception):
         event.extended_content = [TextContent(text="Extended content")]

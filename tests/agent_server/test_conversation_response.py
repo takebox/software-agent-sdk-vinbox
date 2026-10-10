@@ -8,14 +8,14 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.conversation_router import conversation_router
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.dependencies import get_conversation_service
-from openhands.agent_server.event_service import EventService
-from openhands.sdk import Message
-from openhands.sdk.event import ActionEvent, MessageEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.tool.builtins.finish import FinishAction
+from handprint.agent_server.conversation_router import conversation_router
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.dependencies import get_conversation_service
+from handprint.agent_server.event_service import EventService
+from handprint.sdk import Message
+from handprint.sdk.event import ActionEvent, MessageEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.tool.builtins.finish import FinishAction
 
 
 @pytest.fixture

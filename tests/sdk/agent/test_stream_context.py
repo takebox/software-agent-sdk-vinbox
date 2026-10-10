@@ -10,13 +10,13 @@ import uuid
 import pytest
 from litellm.types.utils import Delta, ModelResponseStream, StreamingChoices
 
-from openhands.sdk.agent.stream_context import (
+from handprint.sdk.agent.stream_context import (
     StreamAborted,
     StreamContext,
     StreamDelta,
     StreamStarted,
 )
-from openhands.sdk.conversation.secret_registry import StreamOutputMask
+from handprint.sdk.conversation.secret_registry import StreamOutputMask
 
 
 def _no_secrets() -> StreamOutputMask:

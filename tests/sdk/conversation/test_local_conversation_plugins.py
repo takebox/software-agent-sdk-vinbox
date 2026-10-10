@@ -10,22 +10,22 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, AgentContext, Conversation
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.hooks import HookConfig
-from openhands.sdk.hooks.config import HookDefinition, HookMatcher
-from openhands.sdk.marketplace import MarketplaceRegistration
-from openhands.sdk.mcp.client import MCPClient
-from openhands.sdk.mcp.config import MCPServer, dump_mcp_config
-from openhands.sdk.plugin import (
+from handprint.sdk import LLM, Agent, AgentContext, Conversation
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.hooks import HookConfig
+from handprint.sdk.hooks.config import HookDefinition, HookMatcher
+from handprint.sdk.marketplace import MarketplaceRegistration
+from handprint.sdk.mcp.client import MCPClient
+from handprint.sdk.mcp.config import MCPServer, dump_mcp_config
+from handprint.sdk.plugin import (
     PluginSource,
     discovery,
     install_plugin,
     installed,
 )
-from openhands.sdk.skills import Skill
-from openhands.sdk.skills.skill import DEFAULT_MARKETPLACE_PATH
-from openhands.sdk.tool.builtins import ThinkTool
+from handprint.sdk.tracks import Track
+from handprint.sdk.tracks.track import DEFAULT_MARKETPLACE_PATH
+from handprint.sdk.tool.builtins import ThinkTool
 
 
 class EmptyMCPClient:
@@ -82,7 +82,7 @@ def basic_agent(mock_llm):
 def create_test_plugin(
     plugin_dir: Path,
     name: str = "test-plugin",
-    skills: list[dict] | None = None,
+    tracks: list[dict] | None = None,
     mcp_config: dict | None = None,
     hooks: dict | None = None,
 ):
@@ -93,14 +93,14 @@ def create_test_plugin(
     manifest = {"name": name, "version": "1.0.0", "description": f"Test plugin {name}"}
     (manifest_dir / "plugin.json").write_text(json.dumps(manifest))
 
-    if skills:
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir(exist_ok=True)
-        for skill in skills:
-            skill_name = skill["name"]
-            skill_content = skill["content"]
-            skill_file = skills_dir / f"{skill_name}.md"
-            skill_file.write_text(f"---\nname: {skill_name}\n---\n{skill_content}")
+    if tracks:
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir(exist_ok=True)
+        for track in tracks:
+            track_name = track["name"]
+            track_content = track["content"]
+            track_file = tracks_dir / f"{track_name}.md"
+            track_file.write_text(f"---\nname: {track_name}\n---\n{track_content}")
 
     if mcp_config:
         mcp_file = plugin_dir / ".mcp.json"
@@ -130,7 +130,7 @@ def create_test_marketplace(
         create_test_plugin(
             marketplace_dir / "plugins" / plugin_name,
             name=plugin_name,
-            skills=plugin.get("skills"),
+            tracks=plugin.get("tracks"),
             mcp_config=plugin.get("mcp_config"),
             hooks=plugin.get("hooks"),
         )
@@ -154,27 +154,27 @@ def create_test_marketplace(
     return marketplace_dir
 
 
-def create_test_marketplace_with_standalone_skills(
+def create_test_marketplace_with_standalone_tracks(
     marketplace_dir: Path,
-    skills: list[str],
-    name: str = "skills-marketplace",
+    tracks: list[str],
+    name: str = "tracks-marketplace",
 ) -> Path:
-    """Helper to create a marketplace declaring only standalone skills."""
+    """Helper to create a marketplace declaring only standalone tracks."""
     manifest_dir = marketplace_dir / ".plugin"
     manifest_dir.mkdir(parents=True, exist_ok=True)
     entries = []
-    for skill_name in skills:
-        skill_dir = marketplace_dir / "skills" / skill_name
-        skill_dir.mkdir(parents=True, exist_ok=True)
-        (skill_dir / "SKILL.md").write_text(
-            f"---\nname: {skill_name}\ndescription: {skill_name} desc\n---\nbody"
+    for track_name in tracks:
+        track_dir = marketplace_dir / "tracks" / track_name
+        track_dir.mkdir(parents=True, exist_ok=True)
+        (track_dir / "TRACK.md").write_text(
+            f"---\nname: {track_name}\ndescription: {track_name} desc\n---\nbody"
         )
-        entries.append({"name": skill_name, "source": f"./skills/{skill_name}"})
+        entries.append({"name": track_name, "source": f"./tracks/{track_name}"})
     manifest = {
         "name": name,
         "owner": {"name": "Test Team"},
         "plugins": [],
-        "skills": entries,
+        "tracks": entries,
     }
     (manifest_dir / "marketplace.json").write_text(json.dumps(manifest))
     return marketplace_dir
@@ -193,22 +193,22 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "auto-plugin",
-                    "skills": [{"name": "auto-skill", "content": "Auto-loaded skill"}],
+                    "tracks": [{"name": "auto-track", "content": "Auto-loaded track"}],
                 }
             ],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
-        public_skill = Skill(name="public-skill", content="Public", trigger=None)
+        public_track = Track(name="public-track", content="Public", trigger=None)
         with patch(
-            "openhands.sdk.context.agent_context.load_available_skills",
-            return_value={"public-skill": public_skill},
-        ) as load_available_skills:
+            "handprint.sdk.context.agent_context.load_available_tracks",
+            return_value={"public-track": public_track},
+        ) as load_available_tracks:
             agent = Agent(
                 llm=mock_llm,
                 tools=[],
                 agent_context=AgentContext(
-                    load_public_skills=True,
+                    load_public_tracks=True,
                     registered_marketplaces=[
                         MarketplaceRegistration(
                             name="auto",
@@ -219,7 +219,7 @@ class TestLocalConversationPlugins:
                 ),
             )
 
-        load_available_skills.assert_called_with(
+        load_available_tracks.assert_called_with(
             work_dir=None,
             include_user=False,
             include_project=False,
@@ -235,22 +235,22 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "auto-skill" in skill_names
-        assert "public-skill" in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "auto-track" in track_names
+        assert "public-track" in track_names
         assert conversation.resolved_plugins is not None
         assert len(conversation.resolved_plugins) == 1
 
-    def test_auto_load_marketplace_standalone_skills(self, tmp_path: Path, mock_llm):
-        """Standalone marketplace skills auto-load into the agent context."""
-        marketplace_dir = create_test_marketplace_with_standalone_skills(
+    def test_auto_load_marketplace_standalone_tracks(self, tmp_path: Path, mock_llm):
+        """Standalone marketplace tracks auto-load into the agent context."""
+        marketplace_dir = create_test_marketplace_with_standalone_tracks(
             tmp_path / "marketplace",
-            skills=["greet", "commit"],
+            tracks=["greet", "commit"],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
         with patch(
-            "openhands.sdk.context.agent_context.load_available_skills",
+            "handprint.sdk.context.agent_context.load_available_tracks",
             return_value={},
         ):
             agent = Agent(
@@ -259,7 +259,7 @@ class TestLocalConversationPlugins:
                 agent_context=AgentContext(
                     registered_marketplaces=[
                         MarketplaceRegistration(
-                            name="skills-only",
+                            name="tracks-only",
                             source=str(marketplace_dir),
                             auto_load=True,
                         )
@@ -275,24 +275,24 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = {s.name for s in conversation.agent.agent_context.skills}
-        assert {"greet", "commit"} <= skill_names
+        track_names = {s.name for s in conversation.agent.agent_context.tracks}
+        assert {"greet", "commit"} <= track_names
 
         conversation.close()
 
     def test_plugin_wins_over_standalone_on_name_collision(
         self, tmp_path: Path, mock_llm
     ):
-        """A plugin skill overrides a same-named standalone skill (catalog rule)."""
+        """A plugin track overrides a same-named standalone track (catalog rule)."""
         marketplace_dir = tmp_path / "marketplace"
         create_test_plugin(
             marketplace_dir / "plugins" / "p",
             name="p",
-            skills=[{"name": "shared", "content": "FROM_PLUGIN"}],
+            tracks=[{"name": "shared", "content": "FROM_PLUGIN"}],
         )
-        standalone = marketplace_dir / "skills" / "shared"
+        standalone = marketplace_dir / "tracks" / "shared"
         standalone.mkdir(parents=True)
-        (standalone / "SKILL.md").write_text(
+        (standalone / "TRACK.md").write_text(
             "---\nname: shared\ndescription: d\n---\nFROM_STANDALONE"
         )
         manifest_dir = marketplace_dir / ".plugin"
@@ -303,14 +303,14 @@ class TestLocalConversationPlugins:
                     "name": "collision",
                     "owner": {"name": "Test Team"},
                     "plugins": [{"name": "p", "source": "./plugins/p"}],
-                    "skills": [{"name": "shared", "source": "./skills/shared"}],
+                    "tracks": [{"name": "shared", "source": "./tracks/shared"}],
                 }
             )
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
         with patch(
-            "openhands.sdk.context.agent_context.load_available_skills",
+            "handprint.sdk.context.agent_context.load_available_tracks",
             return_value={},
         ):
             agent = Agent(
@@ -335,10 +335,10 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skills = {s.name: s for s in conversation.agent.agent_context.skills}
-        assert "shared" in skills
-        assert "FROM_PLUGIN" in skills["shared"].content
-        assert "FROM_STANDALONE" not in skills["shared"].content
+        tracks = {s.name: s for s in conversation.agent.agent_context.tracks}
+        assert "shared" in tracks
+        assert "FROM_PLUGIN" in tracks["shared"].content
+        assert "FROM_STANDALONE" not in tracks["shared"].content
 
         conversation.close()
 
@@ -350,11 +350,11 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "formatter",
-                    "skills": [{"name": "formatter-skill", "content": "Format"}],
+                    "tracks": [{"name": "formatter-track", "content": "Format"}],
                 },
                 {
                     "name": "linter",
-                    "skills": [{"name": "linter-skill", "content": "Lint"}],
+                    "tracks": [{"name": "linter-track", "content": "Lint"}],
                 },
             ],
         )
@@ -382,8 +382,8 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        assert [skill.name for skill in conversation.agent.agent_context.skills] == [
-            "formatter-skill"
+        assert [track.name for track in conversation.agent.agent_context.tracks] == [
+            "formatter-track"
         ]
         assert conversation.resolved_plugins is not None
         assert len(conversation.resolved_plugins) == 1
@@ -398,7 +398,7 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "auto-plugin",
-                    "skills": [{"name": "auto-skill", "content": "Auto-loaded skill"}],
+                    "tracks": [{"name": "auto-track", "content": "Auto-loaded track"}],
                 }
             ],
         )
@@ -430,7 +430,7 @@ class TestLocalConversationPlugins:
         )
 
         with patch(
-            "openhands.sdk.marketplace.registry.fetch_plugin_with_resolution",
+            "handprint.sdk.marketplace.registry.fetch_plugin_with_resolution",
             return_value=(marketplace_dir, "abc123"),
         ) as mock_fetch:
             conversation._ensure_plugins_loaded()
@@ -441,8 +441,8 @@ class TestLocalConversationPlugins:
             repo_path="catalogs/team",
         )
         assert conversation.agent.agent_context is not None
-        assert [skill.name for skill in conversation.agent.agent_context.skills] == [
-            "auto-skill"
+        assert [track.name for track in conversation.agent.agent_context.tracks] == [
+            "auto-track"
         ]
         conversation.close()
 
@@ -454,7 +454,7 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "auto-plugin",
-                    "skills": [{"name": "auto-skill", "content": "Auto-loaded skill"}],
+                    "tracks": [{"name": "auto-track", "content": "Auto-loaded track"}],
                 }
             ],
         )
@@ -483,7 +483,7 @@ class TestLocalConversationPlugins:
         )
 
         with caplog.at_level(
-            "WARNING", logger="openhands.sdk.conversation.impl.local_conversation"
+            "WARNING", logger="handprint.sdk.conversation.impl.local_conversation"
         ):
             conversation._ensure_plugins_loaded()
 
@@ -491,8 +491,8 @@ class TestLocalConversationPlugins:
             "Failed to load marketplace 'broken'; continuing without it" in caplog.text
         )
         assert conversation.agent.agent_context is not None
-        assert [skill.name for skill in conversation.agent.agent_context.skills] == [
-            "auto-skill"
+        assert [track.name for track in conversation.agent.agent_context.tracks] == [
+            "auto-track"
         ]
         conversation.close()
 
@@ -502,7 +502,7 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "auto-plugin",
-                    "skills": [{"name": "auto-skill", "content": "Auto-loaded skill"}],
+                    "tracks": [{"name": "auto-track", "content": "Auto-loaded track"}],
                 }
             ],
         )
@@ -545,7 +545,7 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "manual-plugin",
-                    "skills": [{"name": "manual-skill", "content": "Manual skill"}],
+                    "tracks": [{"name": "manual-track", "content": "Manual track"}],
                 }
             ],
         )
@@ -569,7 +569,7 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        assert conversation.agent.agent_context.skills == []
+        assert conversation.agent.agent_context.tracks == []
         assert conversation.resolved_plugins is None
 
         conversation.close()
@@ -583,14 +583,14 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "auto-plugin",
-                    "skills": [{"name": "shared", "content": "Auto content"}],
+                    "tracks": [{"name": "shared", "content": "Auto content"}],
                 }
             ],
         )
         explicit_plugin = create_test_plugin(
             tmp_path / "explicit-plugin",
             name="explicit-plugin",
-            skills=[{"name": "shared", "content": "Explicit content"}],
+            tracks=[{"name": "shared", "content": "Explicit content"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -617,20 +617,20 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skills = {s.name: s for s in conversation.agent.agent_context.skills}
-        assert skills["shared"].content == "Explicit content"
+        tracks = {s.name: s for s in conversation.agent.agent_context.tracks}
+        assert tracks["shared"].content == "Explicit content"
         assert conversation.resolved_plugins is not None
         assert len(conversation.resolved_plugins) == 2
 
         conversation.close()
 
-    def test_registered_marketplaces_keep_public_skill_loading(self, tmp_path: Path):
+    def test_registered_marketplaces_keep_public_track_loading(self, tmp_path: Path):
         with patch(
-            "openhands.sdk.context.agent_context.load_available_skills",
+            "handprint.sdk.context.agent_context.load_available_tracks",
             return_value={},
-        ) as mock_load_available_skills:
+        ) as mock_load_available_tracks:
             AgentContext(
-                load_public_skills=True,
+                load_public_tracks=True,
                 registered_marketplaces=[
                     MarketplaceRegistration(
                         name="auto",
@@ -640,7 +640,7 @@ class TestLocalConversationPlugins:
                 ],
             )
 
-        mock_load_available_skills.assert_called_with(
+        mock_load_available_tracks.assert_called_with(
             work_dir=None,
             include_user=False,
             include_project=False,
@@ -653,7 +653,7 @@ class TestLocalConversationPlugins:
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="test-plugin",
-            skills=[{"name": "test-skill", "content": "Test skill content"}],
+            tracks=[{"name": "test-track", "content": "Test track content"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -668,10 +668,10 @@ class TestLocalConversationPlugins:
         # Plugins are lazy loaded - trigger loading
         conversation._ensure_plugins_loaded()
 
-        # Agent should have been updated with plugin skills
+        # Agent should have been updated with plugin tracks
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "test-skill" in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "test-track" in track_names
 
         # Verify resolved plugins are tracked
         assert conversation.resolved_plugins is not None
@@ -687,7 +687,7 @@ class TestLocalConversationPlugins:
             plugins=[
                 {
                     "name": "manual-plugin",
-                    "skills": [{"name": "manual-skill", "content": "Manual skill"}],
+                    "tracks": [{"name": "manual-track", "content": "Manual track"}],
                 }
             ],
         )
@@ -709,10 +709,10 @@ class TestLocalConversationPlugins:
         conversation.load_plugin("manual-plugin@manual")
 
         assert conversation.agent.agent_context is not None
-        skills = {
-            skill.name: skill for skill in conversation.agent.agent_context.skills
+        tracks = {
+            track.name: track for track in conversation.agent.agent_context.tracks
         }
-        assert skills["manual-skill"].content == "Manual skill"
+        assert tracks["manual-track"].content == "Manual track"
         assert conversation.resolved_plugins is not None
         assert len(conversation.resolved_plugins) == 1
 
@@ -735,7 +735,7 @@ class TestLocalConversationPlugins:
                         "ref": "${PLUGIN_REF}",
                         "path": "plugins/private-plugin",
                     },
-                    "skills": [{"name": "private-skill", "content": "Private skill"}],
+                    "tracks": [{"name": "private-track", "content": "Private track"}],
                 }
             ],
         )
@@ -761,7 +761,7 @@ class TestLocalConversationPlugins:
         with (
             caplog.at_level(logging.INFO),
             patch(
-                "openhands.sdk.conversation.impl.local_conversation."
+                "handprint.sdk.conversation.impl.local_conversation."
                 "fetch_plugin_with_resolution",
                 return_value=(plugin_dir, "abc123"),
             ) as mock_fetch,
@@ -776,8 +776,8 @@ class TestLocalConversationPlugins:
             repo_path="plugins/private-plugin",
         )
         assert conversation.agent.agent_context is not None
-        assert [skill.name for skill in conversation.agent.agent_context.skills] == [
-            "private-skill"
+        assert [track.name for track in conversation.agent.agent_context.tracks] == [
+            "private-track"
         ]
         assert conversation.resolved_plugins is not None
         assert len(conversation.resolved_plugins) == 1
@@ -908,7 +908,7 @@ class TestLocalConversationPlugins:
             return runtime_processor, runtime_processor.on_event
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation.create_hook_callback",
+            "handprint.sdk.conversation.impl.local_conversation.create_hook_callback",
             side_effect=mock_create_hook_callback,
         ) as mock_create_hook_callback:
             conversation.load_plugin("hook-plugin")
@@ -953,12 +953,12 @@ class TestLocalConversationPlugins:
         plugin1 = create_test_plugin(
             tmp_path / "plugin1",
             name="plugin1",
-            skills=[{"name": "skill-a", "content": "Content A"}],
+            tracks=[{"name": "track-a", "content": "Content A"}],
         )
         plugin2 = create_test_plugin(
             tmp_path / "plugin2",
             name="plugin2",
-            skills=[{"name": "skill-b", "content": "Content B"}],
+            tracks=[{"name": "track-b", "content": "Content B"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -977,9 +977,9 @@ class TestLocalConversationPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "skill-a" in skill_names
-        assert "skill-b" in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "track-a" in track_names
+        assert "track-b" in track_names
 
         # Verify both plugins tracked
         assert conversation.resolved_plugins is not None
@@ -1057,7 +1057,7 @@ class TestLocalConversationPlugins:
         )
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation.create_hook_callback",
+            "handprint.sdk.conversation.impl.local_conversation.create_hook_callback",
             return_value=(processor, processor.on_event),
         ) as mock_create_hook_callback:
             conversation._ensure_plugins_loaded()
@@ -1074,7 +1074,7 @@ class TestLocalConversationPlugins:
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="test-plugin",
-            skills=[{"name": "test-skill", "content": "Test skill content"}],
+            tracks=[{"name": "test-track", "content": "Test track content"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -1156,7 +1156,7 @@ class TestConversationFactoryPlugins:
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="test-plugin",
-            skills=[{"name": "factory-skill", "content": "Factory skill content"}],
+            tracks=[{"name": "factory-track", "content": "Factory track content"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -1174,8 +1174,8 @@ class TestConversationFactoryPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "factory-skill" in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "factory-track" in track_names
         conversation.close()
 
     def test_factory_with_string_workspace_and_plugins(
@@ -1185,7 +1185,7 @@ class TestConversationFactoryPlugins:
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="plugin",
-            skills=[{"name": "skill", "content": "Content"}],
+            tracks=[{"name": "track", "content": "Content"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -1201,7 +1201,7 @@ class TestConversationFactoryPlugins:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        assert len(conversation.agent.agent_context.skills) == 1
+        assert len(conversation.agent.agent_context.tracks) == 1
         conversation.close()
 
     def test_factory_with_no_plugins(self, tmp_path: Path, basic_agent):
@@ -1417,7 +1417,7 @@ class TestPluginSourceSecretExpansion:
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="private-plugin",
-            skills=[{"name": "private-skill", "content": "Private content"}],
+            tracks=[{"name": "private-track", "content": "Private content"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -1445,7 +1445,7 @@ class TestPluginSourceSecretExpansion:
             return plugin_dir, "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation."
+            "handprint.sdk.conversation.impl.local_conversation."
             "fetch_plugin_with_resolution",
             side_effect=fake_fetch,
         ):
@@ -1480,7 +1480,7 @@ class TestPluginSourceSecretExpansion:
             return plugin_dir, "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation."
+            "handprint.sdk.conversation.impl.local_conversation."
             "fetch_plugin_with_resolution",
             side_effect=fake_fetch,
         ):
@@ -1512,7 +1512,7 @@ class TestPluginSourceSecretExpansion:
             return plugin_dir, "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation."
+            "handprint.sdk.conversation.impl.local_conversation."
             "fetch_plugin_with_resolution",
             side_effect=fake_fetch,
         ):
@@ -1540,7 +1540,7 @@ class TestPluginSourceSecretExpansion:
             return plugin_dir, "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
         with patch(
-            "openhands.sdk.conversation.impl.local_conversation."
+            "handprint.sdk.conversation.impl.local_conversation."
             "fetch_plugin_with_resolution",
             side_effect=fake_fetch,
         ):
@@ -1566,15 +1566,15 @@ class TestAmbientPluginAutoLoad:
     ):
         """An installed + enabled plugin loads with no explicit attach.
 
-        The plugin contributes only a skill (no MCP / no explicit specs), so this
-        also covers that a skills-only ambient plugin still updates the agent.
+        The plugin contributes only a track (no MCP / no explicit specs), so this
+        also covers that a tracks-only ambient plugin still updates the agent.
         """
         install_store = tmp_path / "installed-store"
         install_store.mkdir()
         source = create_test_plugin(
             tmp_path / "src",
             name="ambient-plugin",
-            skills=[{"name": "ambient-skill", "content": "Ambient content"}],
+            tracks=[{"name": "ambient-track", "content": "Ambient content"}],
         )
         install_plugin(str(source), installed_dir=install_store)
         self._isolate(monkeypatch, [tmp_path / "empty-user"], install_store)
@@ -1587,8 +1587,8 @@ class TestAmbientPluginAutoLoad:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "ambient-skill" in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "ambient-track" in track_names
         conversation.close()
 
     def test_explicitly_attached_plugin_overrides_ambient_plugin(
@@ -1599,12 +1599,12 @@ class TestAmbientPluginAutoLoad:
         create_test_plugin(
             user_dir / "shared",
             name="shared",
-            skills=[{"name": "ambient-skill", "content": "Ambient"}],
+            tracks=[{"name": "ambient-track", "content": "Ambient"}],
         )
         explicit_src = create_test_plugin(
             tmp_path / "explicit",
             name="shared",
-            skills=[{"name": "explicit-skill", "content": "Explicit"}],
+            tracks=[{"name": "explicit-track", "content": "Explicit"}],
         )
         install_store = tmp_path / "installed-store"
         install_store.mkdir()
@@ -1621,9 +1621,9 @@ class TestAmbientPluginAutoLoad:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "explicit-skill" in skill_names
-        assert "ambient-skill" not in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "explicit-track" in track_names
+        assert "ambient-track" not in track_names
         conversation.close()
 
     def test_ambient_plugins_are_not_recorded_in_resolved_plugins(
@@ -1634,7 +1634,7 @@ class TestAmbientPluginAutoLoad:
         create_test_plugin(
             user_dir / "ambient",
             name="ambient-plugin",
-            skills=[{"name": "ambient-skill", "content": "Ambient"}],
+            tracks=[{"name": "ambient-track", "content": "Ambient"}],
         )
         install_store = tmp_path / "installed-store"
         install_store.mkdir()
@@ -1648,8 +1648,8 @@ class TestAmbientPluginAutoLoad:
         conversation._ensure_plugins_loaded()
 
         assert conversation.agent.agent_context is not None
-        skill_names = [s.name for s in conversation.agent.agent_context.skills]
-        assert "ambient-skill" in skill_names
+        track_names = [s.name for s in conversation.agent.agent_context.tracks]
+        assert "ambient-track" in track_names
         assert conversation.resolved_plugins is None
         conversation.close()
 
@@ -1662,7 +1662,7 @@ class TestAmbientPluginAutoLoad:
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="test-plugin",
-            skills=[{"name": "s", "content": "c"}],
+            tracks=[{"name": "s", "content": "c"}],
         )
         workspace = tmp_path / "workspace"
         workspace.mkdir()
@@ -1677,7 +1677,7 @@ class TestAmbientPluginAutoLoad:
         with (
             caplog.at_level(logging.DEBUG),
             patch(
-                "openhands.sdk.conversation.impl.local_conversation."
+                "handprint.sdk.conversation.impl.local_conversation."
                 "fetch_plugin_with_resolution",
                 return_value=(plugin_dir, "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
             ),
@@ -1700,7 +1700,7 @@ class TestAgentPluginsMCPExpansion:
         self, tmp_path: Path, basic_agent, monkeypatch: pytest.MonkeyPatch
     ):
         monkeypatch.setattr(
-            "openhands.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
+            "handprint.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
             tmp_path / "plugin-data",
         )
         plugin_dir = tmp_path / "plugin"
@@ -1757,7 +1757,7 @@ class TestAgentPluginsMCPExpansion:
         """load_plugin() expands twice -- the runtime servers and the merged
         config -- and both must leave an Agent Plugins package literal."""
         monkeypatch.setattr(
-            "openhands.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
+            "handprint.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
             tmp_path / "plugin-data",
         )
         monkeypatch.setenv("LEAKED", "from-environment")

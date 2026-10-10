@@ -6,9 +6,9 @@ Usage:
 
 import os
 
-from openhands.sdk import LLM, Agent, LocalConversation, Tool
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, LocalConversation, Tool
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.tools.terminal import TerminalTool
 
 
 LLM_API_KEY = os.getenv("LLM_API_KEY")
@@ -16,7 +16,7 @@ store = LLMProfileStore()
 
 store.save(
     "gpt",
-    LLM(model="openhands/gpt-5.2", api_key=LLM_API_KEY),
+    LLM(model="handprint/gpt-5.2", api_key=LLM_API_KEY),
     include_secrets=True,
 )
 

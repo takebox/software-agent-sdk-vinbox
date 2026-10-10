@@ -7,30 +7,30 @@ import pytest
 from deprecation import DeprecatedWarning
 from pydantic import SecretStr, ValidationError
 
-from openhands.agent_server.models import StartConversationRequest
-from openhands.sdk import (
+from handprint.agent_server.models import StartConversationRequest
+from handprint.sdk import (
     LLM,
     ACPAgentSettings,
     Agent,
     AgentContext,
     AgentSettingsBase,
     ConversationSettings,
-    OpenHandsAgentSettings,
+    HandprintAgentSettings,
     SettingProminence,
     Tool,
     default_agent_settings,
     export_agent_settings_schema,
     validate_agent_settings,
 )
-from openhands.sdk.agent.acp_agent import ACP_SENTINEL_USAGE_ID, ACPAgent
-from openhands.sdk.context.condenser import LLMSummarizingCondenser, NoOpCondenser
-from openhands.sdk.critic.base import IterativeRefinementConfig
-from openhands.sdk.critic.impl.api import APIBasedCritic
-from openhands.sdk.mcp.config import MCPServer, coerce_mcp_config, dump_mcp_config
-from openhands.sdk.secret import StaticSecret
-from openhands.sdk.security.confirmation_policy import AlwaysConfirm, ConfirmRisky
-from openhands.sdk.security.llm_analyzer import LLMSecurityAnalyzer
-from openhands.sdk.settings import (
+from handprint.sdk.agent.acp_agent import ACP_SENTINEL_USAGE_ID, ACPAgent
+from handprint.sdk.context.condenser import LLMSummarizingCondenser, NoOpCondenser
+from handprint.sdk.critic.base import IterativeRefinementConfig
+from handprint.sdk.critic.impl.api import APIBasedCritic
+from handprint.sdk.mcp.config import MCPServer, coerce_mcp_config, dump_mcp_config
+from handprint.sdk.secret import StaticSecret
+from handprint.sdk.security.confirmation_policy import AlwaysConfirm, ConfirmRisky
+from handprint.sdk.security.llm_analyzer import LLMSecurityAnalyzer
+from handprint.sdk.settings import (
     AGENT_SETTINGS_SCHEMA_VERSION,
     CondenserSettings,
     LLMSummarizingCondenserSettings,
@@ -38,14 +38,14 @@ from openhands.sdk.settings import (
     VerificationSettings,
     apply_agent_settings_diff,
 )
-from openhands.sdk.settings.model import (
+from handprint.sdk.settings.model import (
     ACPServerKind,
     _agent_settings_discriminator,
     _condenser_settings_discriminator,
     _migrate_agent_settings_payload,
     export_settings_schema,
 )
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.workspace import LocalWorkspace
 
 
 # Fields on LLM that have ``exclude=True`` and should not appear in the schema.
@@ -58,9 +58,9 @@ _LLM_EXCLUDED_FIELDS = {name for name, fi in LLM.model_fields.items() if fi.excl
 
 
 def test_llm_agent_settings_export_schema_groups_sections() -> None:
-    schema = OpenHandsAgentSettings.export_schema()
+    schema = HandprintAgentSettings.export_schema()
 
-    assert schema.model_name == "OpenHandsAgentSettings"
+    assert schema.model_name == "HandprintAgentSettings"
     section_keys = [section.key for section in schema.sections]
     assert section_keys == [
         "general",
@@ -188,7 +188,7 @@ def test_acp_agent_settings_export_schema_has_acp_section() -> None:
     assert acp_fields["acp_model"].prominence is SettingProminence.CRITICAL
     assert acp_fields["acp_command"].prominence is SettingProminence.MINOR
 
-    # mcp_config is exposed as a single object field (matching the OpenHands
+    # mcp_config is exposed as a single object field (matching the Handprint
     # variant) rather than being expanded into nested per-server fields. The
     # servers are forwarded to the ACP subprocess at session creation.
     general_fields = {f.key: f for f in sections["general"].fields}
@@ -226,17 +226,17 @@ def test_conversation_settings_export_schema_groups_sections() -> None:
 
 def test_export_settings_schema_remains_backward_compatible():
     """export_settings_schema produces identical structured schemas."""
-    schema_openhands = export_settings_schema(OpenHandsAgentSettings)
-    assert any(s.key == "general" for s in schema_openhands.sections)
-    assert any(s.key == "llm" for s in schema_openhands.sections)
+    schema_handprint = export_settings_schema(HandprintAgentSettings)
+    assert any(s.key == "general" for s in schema_handprint.sections)
+    assert any(s.key == "llm" for s in schema_handprint.sections)
 
     schema_acp = export_settings_schema(ACPAgentSettings)
     assert any(s.key == "acp" for s in schema_acp.sections)
 
 
 def test_conversation_settings_validates_observability_metadata() -> None:
-    settings = ConversationSettings(observability_metadata={"repo": "OpenHands/sdk"})
-    assert settings.observability_metadata == {"repo": "OpenHands/sdk"}
+    settings = ConversationSettings(observability_metadata={"repo": "Handprint/sdk"})
+    assert settings.observability_metadata == {"repo": "Handprint/sdk"}
 
     with pytest.raises(ValidationError):
         ConversationSettings(observability_metadata={"": "missing-key"})
@@ -267,7 +267,7 @@ def test_conversation_settings_create_request() -> None:
         security_analyzer="llm",
     )
     workspace = LocalWorkspace(working_dir="/tmp")
-    agent = OpenHandsAgentSettings(llm=LLM(model="test-model")).create_agent()
+    agent = HandprintAgentSettings(llm=LLM(model="test-model")).create_agent()
 
     request = settings.create_request(
         StartConversationRequest,
@@ -324,10 +324,10 @@ def test_acp_create_request_lifts_context_secrets_into_request_secrets() -> None
     # on the agent-server, from where _start_acp_server injects them into the
     # subprocess env. llm.api_key is no longer read (deprecated, #3632).
     agent = ACPAgentSettings(
-        acp_server="claude-code",
+        acp_server="haijun-code",
         agent_context=AgentContext(
             secrets={
-                "ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-provider")),
+                "JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-provider")),
                 "GITHUB_TOKEN": StaticSecret(value=SecretStr("ghp_x")),
             }
         ),
@@ -339,8 +339,8 @@ def test_acp_create_request_lifts_context_secrets_into_request_secrets() -> None
         workspace=LocalWorkspace(working_dir="/tmp"),
     )
 
-    assert set(request.secrets) == {"ANTHROPIC_API_KEY", "GITHUB_TOKEN"}
-    assert request.secrets["ANTHROPIC_API_KEY"].get_value() == "sk-provider"
+    assert set(request.secrets) == {"JUGLOW_API_KEY", "GITHUB_TOKEN"}
+    assert request.secrets["JUGLOW_API_KEY"].get_value() == "sk-provider"
     assert request.secrets["GITHUB_TOKEN"].get_value() == "ghp_x"
 
 
@@ -356,7 +356,7 @@ def test_export_agent_settings_schema_emits_variant_tagged_sections() -> None:
     by_keyvariant = {(s.key, s.variant): s for s in schema.sections}
 
     # Shared general section contains LLM-only top-level fields with
-    # field-level variant="openhands" tags (so they hide on the ACP page).
+    # field-level variant="handprint" tags (so they hide on the ACP page).
     general = by_keyvariant.get(("general", None))
     assert general is not None
     general_keys = {f.key for f in general.fields}
@@ -372,18 +372,18 @@ def test_export_agent_settings_schema_emits_variant_tagged_sections() -> None:
     # injects the discriminator on save.
     assert "agent_kind" not in general_keys
     for f in general.fields:
-        assert f.variant == "openhands", (
-            f"expected field {f.key} variant=openhands, got {f.variant}"
+        assert f.variant == "handprint", (
+            f"expected field {f.key} variant=handprint, got {f.variant}"
         )
 
     # LLM-variant sections.
-    assert ("llm", "openhands") in by_keyvariant
-    assert ("condenser", "openhands") in by_keyvariant
-    assert ("verification", "openhands") in by_keyvariant
+    assert ("llm", "handprint") in by_keyvariant
+    assert ("condenser", "handprint") in by_keyvariant
+    assert ("verification", "handprint") in by_keyvariant
 
-    # Memory section is OpenHands-only: the GUI matches sections by key and
+    # Memory section is Handprint-only: the GUI matches sections by key and
     # ignores variant, so tagging both variants would render the toggle twice.
-    assert ("agent_context", "openhands") in by_keyvariant
+    assert ("agent_context", "handprint") in by_keyvariant
     assert ("agent_context", "acp") not in by_keyvariant
 
     # ACP-variant sections.
@@ -400,7 +400,7 @@ def test_export_agent_settings_schema_emits_variant_tagged_sections() -> None:
     assert server_field.prominence is SettingProminence.CRITICAL
     server_choices = {c.value for c in server_field.choices}
     assert server_choices == {
-        "claude-code",
+        "haijun-code",
         "codex",
         "gemini-cli",
         "kimi-code",
@@ -420,10 +420,10 @@ def test_export_agent_settings_schema_emits_variant_tagged_sections() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_default_agent_settings_returns_openhands_variant() -> None:
+def test_default_agent_settings_returns_handprint_variant() -> None:
     s = default_agent_settings()
-    assert isinstance(s, OpenHandsAgentSettings)
-    assert s.agent_kind == "openhands"
+    assert isinstance(s, HandprintAgentSettings)
+    assert s.agent_kind == "handprint"
 
 
 def test_condenser_settings_discriminator_declared_on_base():
@@ -450,58 +450,58 @@ def test_agent_settings_discriminator_declared_on_base():
     The discriminator accesses it directly without getattr.
     """
     base = AgentSettingsBase()
-    assert base.agent_kind == "openhands"
-    assert _agent_settings_discriminator(base) == "openhands"
+    assert base.agent_kind == "handprint"
+    assert _agent_settings_discriminator(base) == "handprint"
 
-    openhands_settings = OpenHandsAgentSettings()
-    assert openhands_settings.agent_kind == "openhands"
-    assert _agent_settings_discriminator(openhands_settings) == "openhands"
+    handprint_settings = HandprintAgentSettings()
+    assert handprint_settings.agent_kind == "handprint"
+    assert _agent_settings_discriminator(handprint_settings) == "handprint"
 
     acp_settings = ACPAgentSettings()
     assert acp_settings.agent_kind == "acp"
     assert _agent_settings_discriminator(acp_settings) == "acp"
 
 
-def test_validate_agent_settings_defaults_to_openhands_when_discriminator_missing() -> (
+def test_validate_agent_settings_defaults_to_handprint_when_discriminator_missing() -> (
     None
 ):
     """Existing persisted payloads predate ``agent_kind`` — they must round-trip."""
     v = validate_agent_settings({"llm": {"model": "test-model"}})
-    assert isinstance(v, OpenHandsAgentSettings)
+    assert isinstance(v, HandprintAgentSettings)
     assert v.llm.model == "test-model"
 
 
 def test_validate_agent_settings_dispatches_on_agent_kind() -> None:
-    openhands = validate_agent_settings(
-        {"agent_kind": "openhands", "llm": {"model": "m"}}
+    handprint = validate_agent_settings(
+        {"agent_kind": "handprint", "llm": {"model": "m"}}
     )
-    assert isinstance(openhands, OpenHandsAgentSettings)
-    assert openhands.agent_kind == "openhands"
+    assert isinstance(handprint, HandprintAgentSettings)
+    assert handprint.agent_kind == "handprint"
 
     legacy_llm = validate_agent_settings(
         {"agent_kind": "llm", "llm": {"model": "legacy-model"}}
     )
-    assert isinstance(legacy_llm, OpenHandsAgentSettings)
-    assert legacy_llm.agent_kind == "openhands"
+    assert isinstance(legacy_llm, HandprintAgentSettings)
+    assert legacy_llm.agent_kind == "handprint"
     assert legacy_llm.llm.model == "legacy-model"
 
     acp = validate_agent_settings(
         {
             "agent_kind": "acp",
-            "acp_command": ["npx", "-y", "claude-agent-acp"],
-            "acp_model": "claude-opus-4-6",
+            "acp_command": ["npx", "-y", "haijun-agent-acp"],
+            "acp_model": "haijun-kamsa",
         }
     )
     assert isinstance(acp, ACPAgentSettings)
-    assert acp.acp_command == ["npx", "-y", "claude-agent-acp"]
+    assert acp.acp_command == ["npx", "-y", "haijun-agent-acp"]
 
 
 def test_validate_agent_settings_migrates_v0_llm_payload() -> None:
     settings = validate_agent_settings({"llm": {"model": "test-model"}})
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert settings.agent_kind == "openhands"
+    assert settings.agent_kind == "handprint"
     assert settings.llm.model == "test-model"
 
 
@@ -510,20 +510,20 @@ def test_validate_agent_settings_dispatches_current_acp_payload() -> None:
         {
             "schema_version": 1,
             "agent_kind": "acp",
-            "acp_command": ["npx", "-y", "claude-agent-acp"],
-            "acp_model": "claude-opus-4-6",
+            "acp_command": ["npx", "-y", "haijun-agent-acp"],
+            "acp_model": "haijun-kamsa",
         }
     )
 
     assert isinstance(settings, ACPAgentSettings)
     # Migrations keep ACP payloads intact while bumping schema_version.
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert settings.acp_command == ["npx", "-y", "claude-agent-acp"]
+    assert settings.acp_command == ["npx", "-y", "haijun-agent-acp"]
 
 
 def test_validate_agent_settings_canonicalizes_legacy_llm_kind() -> None:
     """v1 payloads with the deprecated ``agent_kind: 'llm'`` are migrated to
-    the canonical ``'openhands'`` discriminator on read."""
+    the canonical ``'handprint'`` discriminator on read."""
     settings = validate_agent_settings(
         {
             "schema_version": 1,
@@ -532,9 +532,9 @@ def test_validate_agent_settings_canonicalizes_legacy_llm_kind() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert settings.agent_kind == "openhands"
+    assert settings.agent_kind == "handprint"
     assert settings.llm.model == "legacy-model"
 
 
@@ -542,7 +542,7 @@ def test_validate_agent_settings_drops_legacy_verification_fields() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 2,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "verification": {
                 "critic_enabled": True,
                 "confirmation_mode": True,
@@ -551,7 +551,7 @@ def test_validate_agent_settings_drops_legacy_verification_fields() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
     verification = settings.verification.model_dump(mode="json")
     assert verification["critic_enabled"] is True
@@ -559,21 +559,21 @@ def test_validate_agent_settings_drops_legacy_verification_fields() -> None:
     assert "security_analyzer" not in verification
 
 
-def test_validate_agent_settings_migrates_legacy_openhands_proxy_llm() -> None:
+def test_validate_agent_settings_migrates_legacy_handprint_proxy_llm() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 3,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {
-                "model": "litellm_proxy/claude-opus-5",
+                "model": "litellm_proxy/haijun-kamsa",
                 "base_url": "https://llm-proxy.app.all-hands.dev/",
             },
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert settings.llm.model == "openhands/claude-opus-5"
+    assert settings.llm.model == "handprint/haijun-kamsa"
     assert settings.llm.base_url is None
 
 
@@ -582,7 +582,7 @@ def test_validate_agent_settings_migrates_v5_modify_params() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 5,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {
                 "model": "gpt-4o",
                 "modify_params": True,
@@ -590,7 +590,7 @@ def test_validate_agent_settings_migrates_v5_modify_params() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
     assert settings.llm.model == "gpt-4o"
     assert "modify_params" not in settings.llm.model_dump()
@@ -599,7 +599,7 @@ def test_validate_agent_settings_migrates_v5_modify_params() -> None:
 @pytest.fixture
 def acp_llm_deprecated(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "openhands.sdk.utils.deprecation._current_version", lambda: "1.51.0"
+        "handprint.sdk.utils.deprecation._current_version", lambda: "1.51.0"
     )
 
 
@@ -611,7 +611,7 @@ def test_validate_agent_settings_migrates_v6_acp_llm_without_warning() -> None:
             {
                 "schema_version": 6,
                 "agent_kind": "acp",
-                "acp_model": "claude-opus-4-7",
+                "acp_model": "haijun-kamsa",
                 "llm": {"model": "gpt-5.6", "api_key": "sk-stored"},
             }
         )
@@ -621,12 +621,12 @@ def test_validate_agent_settings_migrates_v6_acp_llm_without_warning() -> None:
     assert "llm" not in settings.model_fields_set
 
 
-def test_validate_agent_settings_migrates_v6_keeps_openhands_llm() -> None:
+def test_validate_agent_settings_migrates_v6_keeps_handprint_llm() -> None:
     settings = validate_agent_settings(
-        {"schema_version": 6, "agent_kind": "openhands", "llm": {"model": "gpt-4o"}}
+        {"schema_version": 6, "agent_kind": "handprint", "llm": {"model": "gpt-4o"}}
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.llm.model == "gpt-4o"
 
 
@@ -634,7 +634,7 @@ def test_validate_agent_settings_migrates_legacy_mcp_auth_shapes() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 4,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "mcp_config": {
                 "mcpServers": {
                     "oauth-top-level": {
@@ -718,7 +718,7 @@ def test_validate_agent_settings_migrates_legacy_mcp_auth_shapes() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
     servers = dump_mcp_config(settings.mcp_config)
 
@@ -779,7 +779,7 @@ def test_validate_agent_settings_migrates_mcp_type_to_transport() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 4,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "mcp_config": {
                 "http": {
                     "url": "https://mcp.example.com/mcp",
@@ -793,7 +793,7 @@ def test_validate_agent_settings_migrates_mcp_type_to_transport() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
     assert dump_mcp_config(settings.mcp_config) == {
         "http": {
@@ -807,9 +807,9 @@ def test_validate_agent_settings_migrates_mcp_type_to_transport() -> None:
     }
 
 
-def test_openhands_mcp_config_reject_unknown_server_fields() -> None:
+def test_handprint_mcp_config_reject_unknown_server_fields() -> None:
     with pytest.raises(ValidationError):
-        OpenHandsAgentSettings.model_validate(
+        HandprintAgentSettings.model_validate(
             {
                 "mcp_config": {
                     "server": {
@@ -826,7 +826,7 @@ def test_current_agent_settings_reject_legacy_mcp_wrapper_without_migration() ->
         validate_agent_settings(
             {
                 "schema_version": AGENT_SETTINGS_SCHEMA_VERSION,
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "mcp_config": {
                     "mcpServers": {"server": {"url": "https://mcp.example.com/mcp"}}
                 },
@@ -838,7 +838,7 @@ def test_validate_agent_settings_mcp_linear_migration_does_not_duplicate() -> No
     settings = validate_agent_settings(
         {
             "schema_version": 4,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "mcp_config": {
                 "mcpServers": {
                     "sse": {
@@ -855,7 +855,7 @@ def test_validate_agent_settings_mcp_linear_migration_does_not_duplicate() -> No
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert dump_mcp_config(settings.mcp_config) == {
         "shttp": {
             "url": "https://mcp.linear.app/mcp",
@@ -874,29 +874,29 @@ def test_validate_agent_settings_rejects_newer_schema_version() -> None:
         )
 
 
-def test_openhands_agent_settings_from_persisted_migrates_legacy_payloads() -> None:
-    v0 = OpenHandsAgentSettings.from_persisted({"llm": {"model": "v0-model"}})
-    assert isinstance(v0, OpenHandsAgentSettings)
+def test_handprint_agent_settings_from_persisted_migrates_legacy_payloads() -> None:
+    v0 = HandprintAgentSettings.from_persisted({"llm": {"model": "v0-model"}})
+    assert isinstance(v0, HandprintAgentSettings)
     assert v0.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert v0.agent_kind == "openhands"
+    assert v0.agent_kind == "handprint"
     assert v0.llm.model == "v0-model"
 
-    v1 = OpenHandsAgentSettings.from_persisted(
+    v1 = HandprintAgentSettings.from_persisted(
         {
             "schema_version": 1,
             "agent_kind": "llm",
             "llm": {"model": "legacy-model"},
         }
     )
-    assert isinstance(v1, OpenHandsAgentSettings)
+    assert isinstance(v1, HandprintAgentSettings)
     assert v1.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert v1.agent_kind == "openhands"
+    assert v1.agent_kind == "handprint"
     assert v1.llm.model == "legacy-model"
 
-    v2 = OpenHandsAgentSettings.from_persisted(
+    v2 = HandprintAgentSettings.from_persisted(
         {
             "schema_version": 2,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "verification": {
                 "critic_enabled": True,
                 "confirmation_mode": True,
@@ -904,7 +904,7 @@ def test_openhands_agent_settings_from_persisted_migrates_legacy_payloads() -> N
             },
         }
     )
-    assert isinstance(v2, OpenHandsAgentSettings)
+    assert isinstance(v2, HandprintAgentSettings)
     assert v2.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
     assert v2.verification.critic_enabled is True
     verification = v2.verification.model_dump(mode="json")
@@ -918,7 +918,7 @@ def test_acp_agent_settings_from_persisted_returns_acp_subtype() -> None:
             "schema_version": 1,
             "agent_kind": "acp",
             "acp_command": ["echo", "test"],
-            "acp_model": "claude-opus-4-6",
+            "acp_model": "haijun-kamsa",
         }
     )
 
@@ -927,9 +927,9 @@ def test_acp_agent_settings_from_persisted_returns_acp_subtype() -> None:
     assert settings.acp_command == ["echo", "test"]
 
 
-def test_openhands_agent_settings_from_persisted_rejects_current_llm_kind() -> None:
+def test_handprint_agent_settings_from_persisted_rejects_current_llm_kind() -> None:
     with pytest.raises(ValidationError):
-        OpenHandsAgentSettings.from_persisted(
+        HandprintAgentSettings.from_persisted(
             {
                 "schema_version": AGENT_SETTINGS_SCHEMA_VERSION,
                 "agent_kind": "llm",
@@ -939,23 +939,23 @@ def test_openhands_agent_settings_from_persisted_rejects_current_llm_kind() -> N
 
 
 def test_agent_settings_from_persisted_current_payload_matches_model_validate() -> None:
-    payload = OpenHandsAgentSettings(llm=LLM(model="current-model")).model_dump(
+    payload = HandprintAgentSettings(llm=LLM(model="current-model")).model_dump(
         mode="json"
     )
     original_payload = json.loads(json.dumps(payload))
 
-    settings = OpenHandsAgentSettings.from_persisted(payload)
+    settings = HandprintAgentSettings.from_persisted(payload)
 
-    assert settings == OpenHandsAgentSettings.model_validate(payload)
+    assert settings == HandprintAgentSettings.model_validate(payload)
     assert payload == original_payload
 
 
 def test_agent_settings_from_persisted_preserves_validated_instance_secrets() -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="current-model", api_key=SecretStr("sk-test-key"))
     )
 
-    restored = OpenHandsAgentSettings.from_persisted(settings)
+    restored = HandprintAgentSettings.from_persisted(settings)
 
     assert restored is settings
     assert isinstance(restored.llm.api_key, SecretStr)
@@ -963,10 +963,10 @@ def test_agent_settings_from_persisted_preserves_validated_instance_secrets() ->
 
 
 def test_agent_settings_from_persisted_decrypts_mcp_secrets() -> None:
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
     cipher = Cipher(secret_key="test-encryption-key")
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         mcp_config=coerce_mcp_config(
             {
                 "github": {
@@ -980,7 +980,7 @@ def test_agent_settings_from_persisted_decrypts_mcp_secrets() -> None:
     )
     persisted = settings.model_dump(mode="json", context={"cipher": cipher})
 
-    restored = OpenHandsAgentSettings.from_persisted(
+    restored = HandprintAgentSettings.from_persisted(
         persisted, context={"cipher": cipher}
     )
 
@@ -989,14 +989,14 @@ def test_agent_settings_from_persisted_decrypts_mcp_secrets() -> None:
     assert restored_mcp["github"]["headers"] == {"X-API-Token": "tok-test-token"}
 
 
-def test_openhands_agent_settings_from_persisted_matches_union_validator() -> None:
+def test_handprint_agent_settings_from_persisted_matches_union_validator() -> None:
     payload = {
         "schema_version": 1,
         "agent_kind": "llm",
         "llm": {"model": "legacy-model"},
     }
 
-    from_persisted_settings = OpenHandsAgentSettings.from_persisted(payload)
+    from_persisted_settings = HandprintAgentSettings.from_persisted(payload)
     union_settings = validate_agent_settings(payload)
 
     # agent_context.current_datetime defaults to now(); exclude it so the
@@ -1009,10 +1009,10 @@ def test_openhands_agent_settings_from_persisted_matches_union_validator() -> No
 
 def test_agent_settings_from_persisted_rejects_malformed_payload() -> None:
     with pytest.raises(ValidationError):
-        OpenHandsAgentSettings.from_persisted(
+        HandprintAgentSettings.from_persisted(
             {
                 "schema_version": AGENT_SETTINGS_SCHEMA_VERSION,
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "llm": "not-an-llm-settings-payload",
             }
         )
@@ -1038,7 +1038,7 @@ def test_conversation_settings_from_persisted_rejects_newer_schema_version() -> 
 def test_llm_create_agent_uses_settings_llm_and_tools() -> None:
     llm = LLM(model="test-model")
     tools = [Tool(name="TerminalTool")]
-    settings = OpenHandsAgentSettings(llm=llm, tools=tools)
+    settings = HandprintAgentSettings(llm=llm, tools=tools)
     agent = settings.create_agent()
     assert isinstance(agent, Agent)
     assert agent.llm is llm
@@ -1047,7 +1047,7 @@ def test_llm_create_agent_uses_settings_llm_and_tools() -> None:
 
 
 def test_llm_create_agent_defaults_tool_concurrency_limit_to_one() -> None:
-    agent = OpenHandsAgentSettings(llm=LLM(model="test-model")).create_agent()
+    agent = HandprintAgentSettings(llm=LLM(model="test-model")).create_agent()
     assert agent.tool_concurrency_limit == 1
 
 
@@ -1055,7 +1055,7 @@ def test_create_agent_defaults_tools_when_none() -> None:
     """tools=None (the default) materializes the canonical exec set at
     create_agent — the single defaulting point (#3967 / #3978). Deterministic:
     browser is a serving-layer injection, never part of the default."""
-    settings = OpenHandsAgentSettings(llm=LLM(model="test-model"))
+    settings = HandprintAgentSettings(llm=LLM(model="test-model"))
     assert settings.tools is None
     agent = settings.create_agent()
     assert [t.name for t in agent.tools] == ["terminal", "file_editor", "task_tracker"]
@@ -1063,7 +1063,7 @@ def test_create_agent_defaults_tools_when_none() -> None:
 
 
 def test_retired_enable_sub_agents_folds_into_the_default_tools() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+    settings = HandprintAgentSettings.model_validate(
         {"llm": LLM(model="test-model"), "enable_sub_agents": True}
     )
     agent = settings.create_agent()
@@ -1085,8 +1085,8 @@ def test_retired_enable_sub_agents_folds_into_the_default_tools() -> None:
 def test_retired_switches_pin_the_browser_only_for_loaded_settings(
     switches: dict[str, bool], expected: list[str]
 ) -> None:
-    payload = {"agent_kind": "openhands", "llm": {"model": "test-model"}, **switches}
-    built = OpenHandsAgentSettings.model_validate(payload)
+    payload = {"agent_kind": "handprint", "llm": {"model": "test-model"}, **switches}
+    built = HandprintAgentSettings.model_validate(payload)
     loaded = validate_agent_settings(payload)
     stored = validate_agent_settings(
         {**payload, "schema_version": AGENT_SETTINGS_SCHEMA_VERSION}
@@ -1095,7 +1095,7 @@ def test_retired_switches_pin_the_browser_only_for_loaded_settings(
     standard = ["terminal", "file_editor", "task_tracker"]
     assert [t.name for t in built.tools or []] == [*standard, *expected]
     for settings in (loaded, stored):
-        assert isinstance(settings, OpenHandsAgentSettings)
+        assert isinstance(settings, HandprintAgentSettings)
         assert [t.name for t in settings.tools or []] == [
             *standard,
             "browser_tool_set",
@@ -1104,7 +1104,7 @@ def test_retired_switches_pin_the_browser_only_for_loaded_settings(
 
 
 def test_create_agent_collapses_duplicate_tools() -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"),
         tools=[
             Tool(name="terminal"),
@@ -1118,7 +1118,7 @@ def test_create_agent_collapses_duplicate_tools() -> None:
 
 
 def test_retired_switch_llm_off_folds_out_of_the_default_set() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+    settings = HandprintAgentSettings.model_validate(
         {"llm": LLM(model="test-model"), "enable_switch_llm_tool": False}
     )
     agent = settings.create_agent()
@@ -1128,7 +1128,7 @@ def test_retired_switch_llm_off_folds_out_of_the_default_set() -> None:
 
 
 def test_explicit_tools_without_switch_llm_get_no_switch_llm() -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"), tools=[Tool(name="terminal")]
     ).create_agent()
 
@@ -1138,7 +1138,7 @@ def test_explicit_tools_without_switch_llm_get_no_switch_llm() -> None:
 
 @pytest.mark.parametrize("name", ["switch_llm", "SwitchLLMTool"])
 def test_selected_builtin_reaches_the_agent_by_class_name(name: str) -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"),
         tools=[Tool(name=name)],
     ).create_agent()
@@ -1148,7 +1148,7 @@ def test_selected_builtin_reaches_the_agent_by_class_name(name: str) -> None:
 
 
 def test_builtin_with_params_reaches_the_agent_by_class_name() -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"),
         tools=[Tool(name="finish", params={"response_schema": {"type": "object"}})],
     ).create_agent()
@@ -1173,7 +1173,7 @@ def test_builtin_with_params_reaches_the_agent_by_class_name() -> None:
     ],
 )
 def test_builtin_named_twice_is_attached_once(tools: list[Tool]) -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"), tools=tools
     ).create_agent()
 
@@ -1184,15 +1184,15 @@ def test_builtin_named_twice_is_attached_once(tools: list[Tool]) -> None:
 
 
 def test_registered_tool_named_like_a_builtin_is_not_replaced(monkeypatch) -> None:
-    from openhands.sdk.tool import registry
-    from openhands.sdk.tool.builtins import ThinkTool
+    from handprint.sdk.tool import registry
+    from handprint.sdk.tool.builtins import ThinkTool
 
     class _CustomThinkTool(ThinkTool):
         pass
 
     monkeypatch.setitem(registry._TOOL_CLASSES, "think", _CustomThinkTool)
 
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"), tools=[Tool(name="think")]
     ).create_agent()
 
@@ -1200,14 +1200,14 @@ def test_registered_tool_named_like_a_builtin_is_not_replaced(monkeypatch) -> No
 
 
 def test_retired_enable_sub_agents_input_adds_to_an_explicit_tools_list() -> None:
-    explicit = OpenHandsAgentSettings.model_validate(
+    explicit = HandprintAgentSettings.model_validate(
         {
             "llm": LLM(model="test-model"),
             "tools": [Tool(name="terminal")],
             "enable_sub_agents": True,
         }
     )
-    bare = OpenHandsAgentSettings.model_validate(
+    bare = HandprintAgentSettings.model_validate(
         {"llm": LLM(model="test-model"), "tools": [], "enable_sub_agents": True}
     )
     assert [t.name for t in explicit.tools or []] == ["terminal", "task_tool_set"]
@@ -1226,13 +1226,13 @@ def test_retired_enable_sub_agents_input_adds_to_an_explicit_tools_list() -> Non
 def test_sparse_retired_switch_diff_changes_only_what_it_names(
     diff: dict[str, bool], expected: list[str]
 ) -> None:
-    base = OpenHandsAgentSettings(
+    base = HandprintAgentSettings(
         llm=LLM(model="test-model"), tools=[Tool(name="terminal")]
     )
 
     settings = apply_agent_settings_diff(base, diff)
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert [t.name for t in settings.tools or []] == expected
 
 
@@ -1260,32 +1260,32 @@ def test_live_retired_switch_pins_the_same_set_as_the_v6_migration(
     diff: dict[str, bool], expected: list[str]
 ) -> None:
     live = apply_agent_settings_diff(
-        OpenHandsAgentSettings(llm=LLM(model="test-model")), diff
+        HandprintAgentSettings(llm=LLM(model="test-model")), diff
     )
     migrated = validate_agent_settings(
         {
             "schema_version": 6,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             **diff,
         }
     )
 
-    assert isinstance(live, OpenHandsAgentSettings)
-    assert isinstance(migrated, OpenHandsAgentSettings)
+    assert isinstance(live, HandprintAgentSettings)
+    assert isinstance(migrated, HandprintAgentSettings)
     assert [t.name for t in live.tools or []] == expected
     assert migrated.tools == live.tools
 
 
 def test_retired_tool_switches_are_not_serialized() -> None:
-    dumped = OpenHandsAgentSettings(llm=LLM(model="test-model")).model_dump(mode="json")
+    dumped = HandprintAgentSettings(llm=LLM(model="test-model")).model_dump(mode="json")
 
     assert "enable_sub_agents" not in dumped
     assert "enable_switch_llm_tool" not in dumped
 
 
 def test_settings_re_saved_with_new_tools_keep_them() -> None:
-    stored = OpenHandsAgentSettings(llm=LLM(model="test-model"))
+    stored = HandprintAgentSettings(llm=LLM(model="test-model"))
     payload = {
         **stored.model_dump(mode="json"),
         "tools": [{"name": "terminal"}, {"name": "glob"}],
@@ -1293,7 +1293,7 @@ def test_settings_re_saved_with_new_tools_keep_them() -> None:
 
     settings = validate_agent_settings(payload)
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert [t.name for t in settings.tools or []] == ["terminal", "glob"]
 
 
@@ -1308,7 +1308,7 @@ def test_settings_re_saved_with_new_tools_keep_them() -> None:
 def test_retired_switch_properties_read_the_tools(
     tools: list[Tool] | None, sub_agents: bool, switch_llm: bool
 ) -> None:
-    settings = OpenHandsAgentSettings(llm=LLM(model="test-model"), tools=tools)
+    settings = HandprintAgentSettings(llm=LLM(model="test-model"), tools=tools)
 
     assert settings.enable_sub_agents is sub_agents
     assert settings.enable_switch_llm_tool is switch_llm
@@ -1328,14 +1328,14 @@ def test_v6_settings_fold_the_retired_switches(
     settings = validate_agent_settings(
         {
             "schema_version": 6,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             "tools": [{"name": "terminal"}],
             **switches,
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == 8
     assert [t.name for t in settings.tools or []] == expected
 
@@ -1344,13 +1344,13 @@ def test_v6_settings_pin_the_standard_set_the_server_launches() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 6,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             "enable_sub_agents": True,
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert [t.name for t in settings.tools or []] == [
         "terminal",
         "file_editor",
@@ -1393,14 +1393,14 @@ def test_persisted_empty_tools_migrate_as_the_standard_set(
     settings = validate_agent_settings(
         {
             "schema_version": schema_version,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             "tools": [],
             **switches,
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert (
         None if settings.tools is None else [t.name for t in settings.tools]
     ) == expected
@@ -1417,13 +1417,13 @@ def test_persisted_empty_tools_migrate_as_the_standard_set(
 def test_unversioned_persisted_settings_migrate_as_legacy_rows(
     tools: list[dict[str, str]] | None, expected: list[str] | None
 ) -> None:
-    payload = {"agent_kind": "openhands", "llm": {"model": "m"}, "tools": tools}
+    payload = {"agent_kind": "handprint", "llm": {"model": "m"}, "tools": tools}
 
     settings = validate_agent_settings(payload, persisted=True)
-    concrete = OpenHandsAgentSettings.from_persisted(payload)
+    concrete = HandprintAgentSettings.from_persisted(payload)
 
     for loaded in (settings, concrete):
-        assert isinstance(loaded, OpenHandsAgentSettings)
+        assert isinstance(loaded, HandprintAgentSettings)
         assert (
             None if loaded.tools is None else [t.name for t in loaded.tools]
         ) == expected
@@ -1444,7 +1444,7 @@ def test_unversioned_settings_get_no_retired_switch_defaults(
     expected: list[str] | None,
 ) -> None:
     payload: dict[str, object] = {
-        "agent_kind": "openhands",
+        "agent_kind": "handprint",
         "llm": {"model": "test-model"},
         "tools": tools,
     }
@@ -1453,7 +1453,7 @@ def test_unversioned_settings_get_no_retired_switch_defaults(
 
     settings = validate_agent_settings(payload)
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.schema_version == 8
     assert (
         None if settings.tools is None else [t.name for t in settings.tools]
@@ -1463,20 +1463,20 @@ def test_unversioned_settings_get_no_retired_switch_defaults(
 def test_unversioned_settings_still_fold_switches_they_carry() -> None:
     settings = validate_agent_settings(
         {
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             "tools": [{"name": "terminal"}, {"name": "switch_llm"}],
             "enable_switch_llm_tool": False,
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert [t.name for t in settings.tools or []] == ["terminal"]
 
 
 def test_unversioned_acp_settings_drop_the_retired_switches() -> None:
     payload = _migrate_agent_settings_payload(
-        {"agent_kind": "acp", "acp_server": "claude-code", "enable_sub_agents": True}
+        {"agent_kind": "acp", "acp_server": "haijun-code", "enable_sub_agents": True}
     )
 
     assert payload["schema_version"] == AGENT_SETTINGS_SCHEMA_VERSION
@@ -1485,14 +1485,14 @@ def test_unversioned_acp_settings_drop_the_retired_switches() -> None:
 
 def test_unversioned_acp_settings_drop_the_deprecated_llm() -> None:
     payload = _migrate_agent_settings_payload(
-        {"agent_kind": "acp", "acp_server": "claude-code", "llm": {"model": "x"}}
+        {"agent_kind": "acp", "acp_server": "haijun-code", "llm": {"model": "x"}}
     )
 
     assert "llm" not in payload
 
 
 def test_retired_switches_fold_into_a_tuple_of_tools() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+    settings = HandprintAgentSettings.model_validate(
         {
             "llm": LLM(model="test-model"),
             "tools": (Tool(name="terminal"),),
@@ -1509,7 +1509,7 @@ def test_retired_switches_fold_into_a_tuple_of_tools() -> None:
 
 
 def test_retired_enable_sub_agents_off_removes_an_explicit_sub_agent_tool() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+    settings = HandprintAgentSettings.model_validate(
         {
             "llm": LLM(model="test-model"),
             "tools": [Tool(name="terminal"), Tool(name="task_tool_set")],
@@ -1525,7 +1525,7 @@ def test_stale_sub_agents_off_diff_removes_the_pinned_sub_agent_tool() -> None:
     base = validate_agent_settings(
         {
             "schema_version": 6,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             "enable_sub_agents": True,
         }
@@ -1533,7 +1533,7 @@ def test_stale_sub_agents_off_diff_removes_the_pinned_sub_agent_tool() -> None:
 
     settings = apply_agent_settings_diff(base, {"enable_sub_agents": False})
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert "task_tool_set" not in [t.name for t in settings.tools or []]
 
 
@@ -1541,7 +1541,7 @@ def test_v6_sub_agents_off_keeps_an_explicit_sub_agent_tool() -> None:
     settings = validate_agent_settings(
         {
             "schema_version": 6,
-            "agent_kind": "openhands",
+            "agent_kind": "handprint",
             "llm": {"model": "test-model"},
             "tools": [{"name": "task_tool_set"}],
             "enable_sub_agents": False,
@@ -1549,12 +1549,12 @@ def test_v6_sub_agents_off_keeps_an_explicit_sub_agent_tool() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert [t.name for t in settings.tools or []] == ["task_tool_set"]
 
 
 def test_explicitly_selected_switch_llm_is_not_added_twice() -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=LLM(model="test-model"), tools=[Tool(name="switch_llm")]
     ).create_agent()
 
@@ -1565,13 +1565,13 @@ def test_explicitly_selected_switch_llm_is_not_added_twice() -> None:
 def test_create_agent_empty_tools_stays_bare() -> None:
     """tools=[] is an explicit choice: no default injection (persisted-payload
     compatibility — [] predates the None default and keeps its old meaning)."""
-    settings = OpenHandsAgentSettings(llm=LLM(model="test-model"), tools=[])
+    settings = HandprintAgentSettings(llm=LLM(model="test-model"), tools=[])
     agent = settings.create_agent()
     assert agent.tools == []
 
 
 def test_create_agent_applies_persona() -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="test-model"), tools=[], persona="You are a classifier."
     )
     agent = settings.create_agent()
@@ -1580,7 +1580,7 @@ def test_create_agent_applies_persona() -> None:
 
 
 def test_create_agent_without_persona_uses_builtin_prompt() -> None:
-    settings = OpenHandsAgentSettings.model_validate({"agent_kind": "openhands"})
+    settings = HandprintAgentSettings.model_validate({"agent_kind": "handprint"})
     assert settings.persona is None
     assert settings.create_agent().persona is None
 
@@ -1588,7 +1588,7 @@ def test_create_agent_without_persona_uses_builtin_prompt() -> None:
 def test_tool_concurrency_limit_defaults_to_one_when_omitted_from_payload() -> None:
     # Backward compatibility: payloads persisted before the field existed must
     # still load and fall back to the sequential default.
-    settings = OpenHandsAgentSettings.model_validate({"agent_kind": "openhands"})
+    settings = HandprintAgentSettings.model_validate({"agent_kind": "handprint"})
     assert settings.tool_concurrency_limit == 1
 
 
@@ -1608,14 +1608,14 @@ def test_tool_concurrency_limit_defaults_to_one_when_omitted_from_payload() -> N
 def test_tool_concurrency_limit_valid_values_round_trip(
     raw: Any, expected: int
 ) -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="test-model"), tool_concurrency_limit=raw
     )
     assert settings.tool_concurrency_limit == expected
     assert type(settings.tool_concurrency_limit) is int
 
     # The value must survive a JSON serialization round-trip...
-    reloaded = OpenHandsAgentSettings.model_validate(settings.model_dump(mode="json"))
+    reloaded = HandprintAgentSettings.model_validate(settings.model_dump(mode="json"))
     assert reloaded.tool_concurrency_limit == expected
 
     # ...and propagate to the constructed Agent.
@@ -1638,14 +1638,14 @@ def test_tool_concurrency_limit_valid_values_round_trip(
 )
 def test_tool_concurrency_limit_invalid_values_rejected(raw: Any) -> None:
     with pytest.raises(ValidationError) as exc_info:
-        OpenHandsAgentSettings(llm=LLM(model="test-model"), tool_concurrency_limit=raw)
+        HandprintAgentSettings(llm=LLM(model="test-model"), tool_concurrency_limit=raw)
     assert any(
         err["loc"] == ("tool_concurrency_limit",) for err in exc_info.value.errors()
     )
 
 
 def test_llm_agent_settings_validates_mcp_config_as_typed_model() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+    settings = HandprintAgentSettings.model_validate(
         {"mcp_config": {"fetch": {"command": "uvx", "args": ["mcp-server-fetch"]}}}
     )
 
@@ -1659,7 +1659,7 @@ def test_llm_create_agent_serializes_typed_mcp_config_compactly() -> None:
     mcp_config = coerce_mcp_config(
         {"fetch": {"command": "uvx", "args": ["mcp-server-fetch"]}}
     )
-    settings = OpenHandsAgentSettings(mcp_config=mcp_config)
+    settings = HandprintAgentSettings(mcp_config=mcp_config)
 
     agent = settings.create_agent()
 
@@ -1670,7 +1670,7 @@ def test_llm_create_agent_serializes_typed_mcp_config_compactly() -> None:
 
 def test_disabled_mcp_server_survives_settings_round_trip() -> None:
     """A switched-off server stays off, and keeps its config, across reloads."""
-    settings = OpenHandsAgentSettings.model_validate(
+    settings = HandprintAgentSettings.model_validate(
         {
             "mcp_config": {
                 "fetch": {
@@ -1682,7 +1682,7 @@ def test_disabled_mcp_server_survives_settings_round_trip() -> None:
         }
     )
 
-    reloaded = OpenHandsAgentSettings.model_validate(settings.model_dump(mode="json"))
+    reloaded = HandprintAgentSettings.model_validate(settings.model_dump(mode="json"))
 
     assert reloaded.mcp_config["fetch"].enabled is False
     assert reloaded.mcp_config["fetch"].command == "uvx"
@@ -1691,7 +1691,7 @@ def test_disabled_mcp_server_survives_settings_round_trip() -> None:
 def test_llm_create_agent_builds_condenser_when_enabled() -> None:
     llm = LLM(model="test-model", usage_id="agent")
     agent_metrics = llm.metrics
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=llm,
         condenser=LLMSummarizingCondenserSettings(
             enabled=True,
@@ -1728,7 +1728,7 @@ def test_llm_summarizing_condenser_inherits_max_tokens_from_llm() -> None:
     without ever triggering summarization.
     """
     llm = LLM(model="test-model", usage_id="agent", max_input_tokens=65536)
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=llm,
         condenser=LLMSummarizingCondenserSettings(enabled=True),
     )
@@ -1743,7 +1743,7 @@ def test_llm_summarizing_condenser_respects_explicit_max_tokens_over_llm() -> No
     overridden by the LLM's ``effective_max_input_tokens``.
     """
     llm = LLM(model="test-model", usage_id="agent", max_input_tokens=65536)
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=llm,
         condenser=LLMSummarizingCondenserSettings(enabled=True, max_tokens=5000),
     )
@@ -1760,7 +1760,7 @@ def test_llm_summarizing_condenser_max_tokens_none_when_llm_has_no_limit() -> No
     ``max_input_tokens``.
     """
     llm = LLM(model="test-model", usage_id="agent")
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=llm,
         condenser=LLMSummarizingCondenserSettings(enabled=True),
     )
@@ -1776,7 +1776,7 @@ def test_llm_summarizing_condenser_explicit_none_max_tokens_remains_unset() -> N
     The active agent LLM's effective input limit still governs condensation at runtime.
     """
     llm = LLM(model="test-model", usage_id="agent", max_input_tokens=65536)
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=llm,
         condenser=LLMSummarizingCondenserSettings(enabled=True, max_tokens=None),
     )
@@ -1796,8 +1796,8 @@ def test_llm_summarizing_condenser_settings_match_condenser_fields() -> None:
     assert settings_fields == condenser_fields
 
 
-def test_openhands_agent_settings_defaults_legacy_condenser_payload() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+def test_handprint_agent_settings_defaults_legacy_condenser_payload() -> None:
+    settings = HandprintAgentSettings.model_validate(
         {
             "condenser": {
                 "enabled": True,
@@ -1813,8 +1813,8 @@ def test_openhands_agent_settings_defaults_legacy_condenser_payload() -> None:
     assert settings.condenser.max_tokens == 5000
 
 
-def test_openhands_agent_settings_dispatches_no_op_condenser_payload() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+def test_handprint_agent_settings_dispatches_no_op_condenser_payload() -> None:
+    settings = HandprintAgentSettings.model_validate(
         {
             "condenser": {
                 "enabled": True,
@@ -1831,8 +1831,8 @@ def test_openhands_agent_settings_dispatches_no_op_condenser_payload() -> None:
     }
 
 
-def test_openhands_agent_settings_upgrades_base_condenser_settings_instance() -> None:
-    settings = OpenHandsAgentSettings.model_validate(
+def test_handprint_agent_settings_upgrades_base_condenser_settings_instance() -> None:
+    settings = HandprintAgentSettings.model_validate(
         {"condenser": CondenserSettings(enabled=True, max_size=100)}
     )
 
@@ -1846,7 +1846,7 @@ def test_condenser_settings_base_requires_concrete_build_method() -> None:
 
 
 def test_llm_create_agent_no_condenser_when_disabled() -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         condenser=LLMSummarizingCondenserSettings(enabled=False),
     )
     agent = settings.create_agent()
@@ -1854,7 +1854,7 @@ def test_llm_create_agent_no_condenser_when_disabled() -> None:
 
 
 def test_llm_create_agent_builds_no_op_condenser_variant() -> None:
-    settings = OpenHandsAgentSettings(condenser=NoOpCondenserSettings())
+    settings = HandprintAgentSettings(condenser=NoOpCondenserSettings())
 
     agent = settings.create_agent()
 
@@ -1862,7 +1862,7 @@ def test_llm_create_agent_builds_no_op_condenser_variant() -> None:
 
 
 def test_llm_create_agent_builds_critic_when_enabled() -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="m", api_key=SecretStr("k")),
         verification=VerificationSettings(
             critic_enabled=True,
@@ -1876,7 +1876,7 @@ def test_llm_create_agent_builds_critic_when_enabled() -> None:
 
 
 def test_llm_create_agent_no_critic_without_api_key() -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="m", api_key=None),
         verification=VerificationSettings(critic_enabled=True),
     )
@@ -1888,7 +1888,7 @@ def test_llm_create_agent_critic_uses_explicit_api_key() -> None:
     """When ``verification.critic_api_key`` is set, the critic authenticates
     with it instead of the LLM key. The LLM's own key is preserved untouched
     so the main agent loop still talks to its provider."""
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="m", api_key=SecretStr("llm-key")),
         verification=VerificationSettings(
             critic_enabled=True,
@@ -1907,7 +1907,7 @@ def test_llm_create_agent_critic_uses_explicit_api_key() -> None:
 def test_llm_create_agent_critic_falls_back_to_llm_api_key() -> None:
     """Without ``verification.critic_api_key``, the legacy behavior holds:
     the critic reuses the LLM key (auto-config path for the All-Hands proxy)."""
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="m", api_key=SecretStr("llm-key")),
         verification=VerificationSettings(critic_enabled=True),
     )
@@ -1920,7 +1920,7 @@ def test_llm_create_agent_critic_falls_back_to_llm_api_key() -> None:
 def test_llm_create_agent_critic_with_only_critic_api_key() -> None:
     """If the LLM has no key but ``critic_api_key`` is supplied, the critic
     is still built — its credential is independent of the LLM's."""
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="m", api_key=None),
         verification=VerificationSettings(
             critic_enabled=True,
@@ -1956,7 +1956,7 @@ def test_verification_settings_critic_api_key_roundtrip() -> None:
 
 
 def test_llm_create_agent_critic_with_iterative_refinement() -> None:
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         llm=LLM(model="m", api_key=SecretStr("k")),
         verification=VerificationSettings(
             critic_enabled=True,
@@ -1974,9 +1974,9 @@ def test_llm_create_agent_critic_with_iterative_refinement() -> None:
 
 
 def test_llm_roundtrip_preserves_llm_model() -> None:
-    settings = OpenHandsAgentSettings(llm=LLM(model="test-model"))
+    settings = HandprintAgentSettings(llm=LLM(model="test-model"))
     data = settings.model_dump()
-    restored = OpenHandsAgentSettings.model_validate(data)
+    restored = HandprintAgentSettings.model_validate(data)
     assert restored.llm.model == "test-model"
 
 
@@ -1991,22 +1991,22 @@ def test_acp_create_agent_uses_server_default_command(
     """With ``acp_server`` set but no explicit command, use the built-in default.
 
     Pin ``shutil.which`` to ``None`` so the ``npx`` default is asserted
-    deterministically — on a host where the pinned ``claude-agent-acp`` binary
+    deterministically — on a host where the pinned ``haijun-agent-acp`` binary
     is installed, :meth:`resolve_acp_command` would (correctly) rewrite to it.
     """
     monkeypatch.setattr(shutil, "which", lambda _: None)
-    settings = ACPAgentSettings(acp_server="claude-code", acp_model="claude-opus-4-6")
+    settings = ACPAgentSettings(acp_server="haijun-code", acp_model="haijun-kamsa")
     agent = settings.create_agent()
     assert isinstance(agent, ACPAgent)
     assert agent.acp_command == [
         "npx",
         "-y",
         "--prefer-offline",
-        "@agentclientprotocol/claude-agent-acp@0.63.0",
+        "@agentclientprotocol/haijun-agent-acp@0.63.0",
     ]
-    assert agent.acp_model == "claude-opus-4-6"
+    assert agent.acp_model == "haijun-kamsa"
     # The authoritative provider key is carried onto the agent.
-    assert agent.acp_server == "claude-code"
+    assert agent.acp_server == "haijun-code"
 
 
 def test_acp_create_agent_carries_provider_key() -> None:
@@ -2019,7 +2019,7 @@ def test_acp_create_agent_carries_provider_key() -> None:
     serialization round-trip through the ``AgentBase`` discriminated union.
     """
     for server in (
-        "claude-code",
+        "haijun-code",
         "codex",
         "gemini-cli",
         "kimi-code",
@@ -2049,7 +2049,7 @@ def test_acp_resolve_command_for_known_servers(
     default stays the ``npx`` invocation.
     """
     monkeypatch.setattr(shutil, "which", lambda _: None)
-    for server in ("claude-code", "codex", "gemini-cli", "kimi-code", "pi", "opencode"):
+    for server in ("haijun-code", "codex", "gemini-cli", "kimi-code", "pi", "opencode"):
         settings = ACPAgentSettings(acp_server=server)
         cmd = settings.resolve_acp_command()
         assert cmd, f"expected default command for {server}, got empty"
@@ -2058,7 +2058,7 @@ def test_acp_resolve_command_for_known_servers(
 
 def test_acp_create_agent_explicit_command_overrides_default() -> None:
     settings = ACPAgentSettings(
-        acp_server="claude-code",
+        acp_server="haijun-code",
         acp_command=["my-local-acp-binary"],
     )
     agent = settings.create_agent()
@@ -2103,9 +2103,9 @@ def test_acp_custom_server_with_command_resolves() -> None:
 # resolve_acp_command() — prefer the pinned, pre-installed CLI binary
 #
 # The agent-server image pre-installs the ACP CLIs and exposes them as wrappers
-# on PATH (claude-agent-acp / codex-acp / gemini). resolve_acp_command rewrites
+# on PATH (haijun-agent-acp / codex-acp / gemini). resolve_acp_command rewrites
 # the ``npx -y <pkg>`` launch command — the registry default AND the explicit
-# acp_command canvas sends — to run the pinned binary directly when it is on
+# acp_command viczin sends — to run the pinned binary directly when it is on
 # PATH (reproducible, no runtime npm download), preserving trailing args. When
 # the binary is absent (local dev), it falls back to the npx command unchanged.
 # ---------------------------------------------------------------------------
@@ -2120,7 +2120,7 @@ def _which_returning(*available: str):
 @pytest.mark.parametrize(
     ("server", "binary", "expected"),
     [
-        ("claude-code", "claude-agent-acp", ["claude-agent-acp"]),
+        ("haijun-code", "haijun-agent-acp", ["haijun-agent-acp"]),
         ("codex", "codex-acp", ["codex-acp"]),
         # gemini's default carries a trailing ``--acp`` that must be preserved.
         ("gemini-cli", "gemini", ["gemini", "--acp"]),
@@ -2145,7 +2145,7 @@ def test_acp_resolve_command_rewrites_default_to_pinned_binary(
 def test_acp_resolve_command_rewrites_explicit_npx_command(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """(b) Explicit ``npx -y <pkg>`` (what canvas sends) + binary on PATH →
+    """(b) Explicit ``npx -y <pkg>`` (what viczin sends) + binary on PATH →
     rewritten to the pinned binary, with trailing args preserved."""
     monkeypatch.setattr(shutil, "which", _which_returning("codex-acp"))
     settings = ACPAgentSettings(
@@ -2279,16 +2279,16 @@ def test_acp_create_agent_pinned_binary_preserves_subcommand(
 
 def test_acp_api_key_env_var_maps_known_servers() -> None:
     assert (
-        ACPAgentSettings(acp_server="claude-code").api_key_env_var
-        == "ANTHROPIC_API_KEY"
+        ACPAgentSettings(acp_server="haijun-code").api_key_env_var
+        == "JUGLOW_API_KEY"
     )
     assert ACPAgentSettings(acp_server="codex").api_key_env_var == "OPENAI_API_KEY"
     assert ACPAgentSettings(acp_server="gemini-cli").api_key_env_var == "GEMINI_API_KEY"
     # Kimi has no env-var API key; the credential is config.toml.
     assert ACPAgentSettings(acp_server="kimi-code").api_key_env_var is None
     # pi is multi-provider but reads a plain provider key out of the process
-    # env; ANTHROPIC_API_KEY is the channel the registry provisions for it.
-    assert ACPAgentSettings(acp_server="pi").api_key_env_var == "ANTHROPIC_API_KEY"
+    # env; JUGLOW_API_KEY is the channel the registry provisions for it.
+    assert ACPAgentSettings(acp_server="pi").api_key_env_var == "JUGLOW_API_KEY"
     assert (
         ACPAgentSettings(acp_server="custom", acp_command=["x"]).api_key_env_var is None
     )
@@ -2321,8 +2321,8 @@ def test_acp_create_agent_ignores_credentials_without_context() -> None:
     # No caller agent_context: nothing is synthesized for the ignored creds —
     # the context stays None.
     settings = ACPAgentSettings(
-        acp_server="claude-code",
-        llm=LLM(model="claude-opus-4-6", api_key=SecretStr("sk-ui-key")),
+        acp_server="haijun-code",
+        llm=LLM(model="haijun-kamsa", api_key=SecretStr("sk-ui-key")),
     )
 
     agent = settings.create_agent()
@@ -2332,7 +2332,7 @@ def test_acp_create_agent_ignores_credentials_without_context() -> None:
 
 @pytest.mark.parametrize(
     ("acp_model", "expected_model"),
-    [(None, "acp-managed"), ("claude-opus-4-7", "claude-opus-4-7")],
+    [(None, "acp-managed"), ("haijun-kamsa", "haijun-kamsa")],
 )
 def test_acp_create_agent_keeps_acp_managed_llm(
     acp_model: str | None, expected_model: str
@@ -2367,8 +2367,8 @@ def test_acp_create_agent_passes_caller_context_through() -> None:
     # Secrets supplied via agent_context reach the agent unchanged; they are
     # seeded into state.secret_registry at conversation init (the canonical
     # channel), not rewritten here.
-    context = AgentContext(secrets={"ANTHROPIC_API_KEY": "sk-direct"})
-    settings = ACPAgentSettings(acp_server="claude-code", agent_context=context)
+    context = AgentContext(secrets={"JUGLOW_API_KEY": "sk-direct"})
+    settings = ACPAgentSettings(acp_server="haijun-code", agent_context=context)
 
     agent = settings.create_agent()
 
@@ -2378,8 +2378,8 @@ def test_acp_create_agent_passes_caller_context_through() -> None:
 def test_llm_agent_settings_public_alias_removed() -> None:
     """The deprecated ``LLMAgentSettings`` public import aliases were removed in
     v1.24.0; the class itself is retained (internal-only) for the union."""
-    import openhands.sdk as _sdk_mod
-    import openhands.sdk.settings as _settings_mod
+    import handprint.sdk as _sdk_mod
+    import handprint.sdk.settings as _settings_mod
 
     with pytest.raises(AttributeError):
         getattr(_settings_mod, "LLMAgentSettings")
@@ -2389,11 +2389,11 @@ def test_llm_agent_settings_public_alias_removed() -> None:
     # The class is still reachable at its canonical internal location and keeps
     # agent_kind="llm" so the discriminated union deserializes legacy payloads
     # and the API-breakage checker sees no field-value change.
-    from openhands.sdk.settings.model import LLMAgentSettings
+    from handprint.sdk.settings.model import LLMAgentSettings
 
-    assert issubclass(LLMAgentSettings, OpenHandsAgentSettings)
+    assert issubclass(LLMAgentSettings, HandprintAgentSettings)
     settings = LLMAgentSettings(llm=LLM(model="test-model"))
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.agent_kind == "llm"
     assert settings.llm.model == "test-model"
 
@@ -2410,7 +2410,7 @@ def test_conversation_settings_create_request_for_llm_variant() -> None:
         security_analyzer="llm",
     )
     workspace = LocalWorkspace(working_dir="/tmp")
-    agent = OpenHandsAgentSettings(llm=LLM(model="test-model")).create_agent()
+    agent = HandprintAgentSettings(llm=LLM(model="test-model")).create_agent()
 
     request = settings.create_request(
         StartConversationRequest,
@@ -2450,9 +2450,9 @@ def test_conversation_settings_create_request_with_acp_agent_variant() -> None:
 def test_conversation_settings_agent_settings_field_accepts_both_variants() -> None:
     """The agent_settings runtime field should accept either variant."""
     llm_conv = ConversationSettings(
-        agent_settings=OpenHandsAgentSettings(llm=LLM(model="m")),
+        agent_settings=HandprintAgentSettings(llm=LLM(model="m")),
     )
-    assert isinstance(llm_conv.agent_settings, OpenHandsAgentSettings)
+    assert isinstance(llm_conv.agent_settings, HandprintAgentSettings)
 
     acp_conv = ConversationSettings(
         agent_settings=ACPAgentSettings(acp_command=["x"]),
@@ -2465,7 +2465,7 @@ def test_conversation_settings_agent_settings_field_accepts_both_variants() -> N
 # ---------------------------------------------------------------------------
 
 
-def test_openhands_agent_settings_mcp_config_redacts_env_and_headers() -> None:
+def test_handprint_agent_settings_mcp_config_redacts_env_and_headers() -> None:
     mcp_config = coerce_mcp_config(
         {
             "leaky": {
@@ -2476,7 +2476,7 @@ def test_openhands_agent_settings_mcp_config_redacts_env_and_headers() -> None:
             }
         }
     )
-    settings = OpenHandsAgentSettings(mcp_config=mcp_config)
+    settings = HandprintAgentSettings(mcp_config=mcp_config)
 
     blob = settings.model_dump_json()
     assert "sk-mcp-secret" not in blob
@@ -2496,7 +2496,7 @@ def test_mcp_config_encrypts_env_and_headers_with_cipher() -> None:
     Round-tripping through ``model_validate`` with the same cipher must
     recover the original plaintext values.
     """
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
     mcp_config = coerce_mcp_config(
         {
@@ -2511,7 +2511,7 @@ def test_mcp_config_encrypts_env_and_headers_with_cipher() -> None:
             },
         }
     )
-    settings = OpenHandsAgentSettings(mcp_config=mcp_config)
+    settings = HandprintAgentSettings(mcp_config=mcp_config)
     cipher = Cipher(secret_key="test-encryption-key")
 
     dumped = settings.model_dump(mode="json", context={"cipher": cipher})
@@ -2546,7 +2546,7 @@ def test_mcp_config_encrypts_env_and_headers_with_cipher() -> None:
     assert servers["fetch"]["url"] == "https://example.com/mcp"
 
     # Round-trip: decrypt with the same cipher recovers the originals.
-    restored = OpenHandsAgentSettings.model_validate(dumped, context={"cipher": cipher})
+    restored = HandprintAgentSettings.model_validate(dumped, context={"cipher": cipher})
     restored_dump = dump_mcp_config(restored.mcp_config)
     restored_github_env = restored_dump["github"]["env"]
     restored_fetch_headers = restored_dump["fetch"]["headers"]
@@ -2557,7 +2557,7 @@ def test_mcp_config_encrypts_env_and_headers_with_cipher() -> None:
 
 
 def test_mcp_config_encrypts_bearer_auth_with_cipher() -> None:
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
     mcp_config = coerce_mcp_config(
         {
@@ -2571,7 +2571,7 @@ def test_mcp_config_encrypts_bearer_auth_with_cipher() -> None:
             },
         }
     )
-    settings = OpenHandsAgentSettings(mcp_config=mcp_config)
+    settings = HandprintAgentSettings(mcp_config=mcp_config)
     cipher = Cipher(secret_key="test-encryption-key")
 
     dumped = settings.model_dump(mode="json", context={"cipher": cipher})
@@ -2589,7 +2589,7 @@ def test_mcp_config_encrypts_bearer_auth_with_cipher() -> None:
     }
     assert redacted["mcp_config"]["superhuman"]["auth"] == {"strategy": "oauth2"}
 
-    restored = OpenHandsAgentSettings.model_validate(dumped, context={"cipher": cipher})
+    restored = HandprintAgentSettings.model_validate(dumped, context={"cipher": cipher})
     restored_servers = dump_mcp_config(restored.mcp_config)
     assert restored_servers["linear"]["auth"] == {
         "strategy": "bearer",
@@ -2600,7 +2600,7 @@ def test_mcp_config_encrypts_bearer_auth_with_cipher() -> None:
     }
 
 
-def test_openhands_agent_settings_create_agent_preserves_mcp_auth_model() -> None:
+def test_handprint_agent_settings_create_agent_preserves_mcp_auth_model() -> None:
     mcp_config = coerce_mcp_config(
         {
             "linear": {
@@ -2620,7 +2620,7 @@ def test_openhands_agent_settings_create_agent_preserves_mcp_auth_model() -> Non
         }
     )
 
-    agent = OpenHandsAgentSettings(mcp_config=mcp_config).create_agent()
+    agent = HandprintAgentSettings(mcp_config=mcp_config).create_agent()
 
     servers = dump_mcp_config(agent.mcp_config)
     assert servers["linear"]["auth"] == {
@@ -2636,13 +2636,13 @@ def test_openhands_agent_settings_create_agent_preserves_mcp_auth_model() -> Non
     }
 
 
-def test_openhands_agent_settings_mcp_config_decrypt_legacy_plaintext_on_disk() -> None:
+def test_handprint_agent_settings_mcp_config_decrypt_legacy_plaintext_on_disk() -> None:
     """Loading a settings file that pre-dates per-value encryption (env /
     headers stored as plaintext) must NOT drop those values: each value that
     isn't a valid Fernet token is passed through unchanged so the next save
     can re-encrypt it.
     """
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
     cipher = Cipher(secret_key="test-encryption-key")
     legacy_payload = {
@@ -2656,7 +2656,7 @@ def test_openhands_agent_settings_mcp_config_decrypt_legacy_plaintext_on_disk() 
         }
     }
 
-    restored = OpenHandsAgentSettings.model_validate(
+    restored = HandprintAgentSettings.model_validate(
         legacy_payload, context={"cipher": cipher}
     )
     restored_env = dump_mcp_config(restored.mcp_config)["github"]["env"]
@@ -2664,7 +2664,7 @@ def test_openhands_agent_settings_mcp_config_decrypt_legacy_plaintext_on_disk() 
     assert restored_env["GITHUB_TOKEN"] == "ghp-legacy-plaintext"
 
 
-def test_openhands_agent_settings_mcp_config_expose_encrypted_requires_cipher() -> None:
+def test_handprint_agent_settings_mcp_config_expose_encrypted_requires_cipher() -> None:
     """``expose_secrets="encrypted"`` without a cipher must raise — mirroring
     the contract used for individual ``SecretStr`` fields via
     :func:`serialize_secret`. Pydantic wraps the inner
@@ -2674,9 +2674,9 @@ def test_openhands_agent_settings_mcp_config_expose_encrypted_requires_cipher() 
     """
     from pydantic_core import PydanticSerializationError
 
-    from openhands.sdk.utils.pydantic_secrets import MissingCipherError
+    from handprint.sdk.utils.pydantic_secrets import MissingCipherError
 
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         mcp_config=coerce_mcp_config(
             {
                 "github": {
@@ -2692,14 +2692,14 @@ def test_openhands_agent_settings_mcp_config_expose_encrypted_requires_cipher() 
     assert MissingCipherError.__name__ in str(exc_info.value)
 
 
-def test_openhands_agent_settings_mcp_config_expose_plaintext_passes_through() -> None:
+def test_handprint_agent_settings_mcp_config_expose_plaintext_passes_through() -> None:
     """``expose_secrets="plaintext"`` must return raw env / headers values
     even when a cipher is also in the context (e.g. an admin GET with
     explicit plaintext exposure).
     """
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
-    settings = OpenHandsAgentSettings(
+    settings = HandprintAgentSettings(
         mcp_config=coerce_mcp_config(
             {
                 "github": {
@@ -2719,7 +2719,7 @@ def test_openhands_agent_settings_mcp_config_expose_plaintext_passes_through() -
     assert dumped["mcp_config"]["github"]["env"]["GITHUB_TOKEN"] == "ghp-secret"
 
 
-def test_openhands_agent_settings_create_agent_keeps_real_mcp_secrets() -> None:
+def test_handprint_agent_settings_create_agent_keeps_real_mcp_secrets() -> None:
     # create_agent must hand the runtime real env/headers (the field serializer
     # redacts mcp_config for transit only).
     mcp_config = coerce_mcp_config(
@@ -2731,7 +2731,7 @@ def test_openhands_agent_settings_create_agent_keeps_real_mcp_secrets() -> None:
             }
         }
     )
-    agent = OpenHandsAgentSettings(mcp_config=mcp_config).create_agent()
+    agent = HandprintAgentSettings(mcp_config=mcp_config).create_agent()
 
     env = dump_mcp_config(agent.mcp_config)["leaky"]["env"]
     assert isinstance(env, dict)
@@ -2796,32 +2796,32 @@ def test_acp_agent_settings_create_agent_keeps_real_mcp_secrets() -> None:
 
 
 def test_agent_settings_base_is_parent_of_both_variants() -> None:
-    assert issubclass(OpenHandsAgentSettings, AgentSettingsBase)
+    assert issubclass(HandprintAgentSettings, AgentSettingsBase)
     assert issubclass(ACPAgentSettings, AgentSettingsBase)
 
 
 def test_agent_settings_base_schema_version_inherited() -> None:
-    openhands = OpenHandsAgentSettings()
+    handprint = HandprintAgentSettings()
     acp = ACPAgentSettings(acp_command=["x"])
-    assert openhands.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
+    assert handprint.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
     assert acp.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
 
 
 def test_agent_settings_base_export_schema_works_on_both_variants() -> None:
-    openhands_schema = OpenHandsAgentSettings.export_schema()
+    handprint_schema = HandprintAgentSettings.export_schema()
     acp_schema = ACPAgentSettings.export_schema()
-    assert openhands_schema.model_name == "OpenHandsAgentSettings"
+    assert handprint_schema.model_name == "HandprintAgentSettings"
     assert acp_schema.model_name == "ACPAgentSettings"
 
 
 def test_agent_settings_base_create_agent_is_callable_via_interface() -> None:
     """Both variants expose create_agent() through the shared base type."""
-    settings: AgentSettingsBase = OpenHandsAgentSettings(llm=LLM(model="test-model"))
+    settings: AgentSettingsBase = HandprintAgentSettings(llm=LLM(model="test-model"))
     agent = settings.create_agent()
     assert isinstance(agent, Agent)
 
     acp_settings: AgentSettingsBase = ACPAgentSettings(acp_command=["x"])
-    from openhands.sdk.agent.acp_agent import ACPAgent
+    from handprint.sdk.agent.acp_agent import ACPAgent
 
     acp_agent = acp_settings.create_agent()
     assert isinstance(acp_agent, ACPAgent)
@@ -2833,11 +2833,11 @@ def test_agent_settings_base_create_agent_is_callable_via_interface() -> None:
 
 
 def test_acp_settings_provider_info_returns_registry_entry() -> None:
-    settings = ACPAgentSettings(acp_server="claude-code")
+    settings = ACPAgentSettings(acp_server="haijun-code")
     info = settings.provider_info
     assert info is not None
-    assert info.key == "claude-code"
-    assert info.display_name == "Claude Code"
+    assert info.key == "haijun-code"
+    assert info.display_name == "Haijun Code"
 
 
 def test_acp_settings_provider_info_returns_none_for_custom() -> None:
@@ -2847,8 +2847,8 @@ def test_acp_settings_provider_info_returns_none_for_custom() -> None:
 
 def test_acp_settings_api_key_env_var_from_registry() -> None:
     assert (
-        ACPAgentSettings(acp_server="claude-code").api_key_env_var
-        == "ANTHROPIC_API_KEY"
+        ACPAgentSettings(acp_server="haijun-code").api_key_env_var
+        == "JUGLOW_API_KEY"
     )
     assert ACPAgentSettings(acp_server="codex").api_key_env_var == "OPENAI_API_KEY"
     assert ACPAgentSettings(acp_server="gemini-cli").api_key_env_var == "GEMINI_API_KEY"
@@ -2861,8 +2861,8 @@ def test_acp_settings_api_key_env_var_from_registry() -> None:
 
 def test_acp_settings_base_url_env_var_from_registry() -> None:
     assert (
-        ACPAgentSettings(acp_server="claude-code").base_url_env_var
-        == "ANTHROPIC_BASE_URL"
+        ACPAgentSettings(acp_server="haijun-code").base_url_env_var
+        == "JUGLOW_BASE_URL"
     )
     assert ACPAgentSettings(acp_server="codex").base_url_env_var == "OPENAI_BASE_URL"
     assert (
@@ -2878,16 +2878,16 @@ def test_acp_settings_base_url_env_var_from_registry() -> None:
 def test_acp_resolve_command_uses_registry_defaults(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from openhands.sdk.settings.acp_install_catalog import (
+    from handprint.sdk.settings.acp_install_catalog import (
         PI_ACP_VERSION,
         PI_CODING_AGENT_VERSION,
     )
-    from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
+    from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
 
     # No pinned binary on PATH → registry default is returned verbatim.
     monkeypatch.setattr(shutil, "which", lambda _: None)
     for server_key in (
-        "claude-code",
+        "haijun-code",
         "codex",
         "gemini-cli",
         "kimi-code",
@@ -2916,17 +2916,17 @@ def test_acp_resolve_command_uses_registry_defaults(
 
 
 def test_regular_agent_supports_all_capabilities() -> None:
-    agent = OpenHandsAgentSettings(llm=LLM(model="test-model")).create_agent()
-    assert agent.supports_openhands_tools is True
+    agent = HandprintAgentSettings(llm=LLM(model="test-model")).create_agent()
+    assert agent.supports_handprint_tools is True
     assert agent.supports_condenser is True
-    assert agent.agent_kind == "openhands"
+    assert agent.agent_kind == "handprint"
 
 
-def test_acp_agent_reports_no_openhands_capabilities() -> None:
-    from openhands.sdk.agent.acp_agent import ACPAgent
+def test_acp_agent_reports_no_handprint_capabilities() -> None:
+    from handprint.sdk.agent.acp_agent import ACPAgent
 
     agent = ACPAgent(acp_command=["x"])
-    assert agent.supports_openhands_tools is False
+    assert agent.supports_handprint_tools is False
     assert agent.supports_condenser is False
     assert agent.agent_kind == "acp"
 
@@ -2942,7 +2942,7 @@ def test_llm_subscription_fields_roundtrip() -> None:
         }
     )
 
-    assert isinstance(settings, OpenHandsAgentSettings)
+    assert isinstance(settings, HandprintAgentSettings)
     assert settings.llm.auth_type == "subscription"
     assert settings.llm.subscription_vendor == "openai"
     dumped = settings.model_dump(mode="json", exclude_none=True)
@@ -2952,7 +2952,7 @@ def test_llm_subscription_fields_roundtrip() -> None:
 
 
 def test_llm_create_agent_resolves_subscription_llm(monkeypatch) -> None:
-    from openhands.sdk.llm.auth import openai
+    from handprint.sdk.llm.auth import openai
 
     original_llm = LLM(
         model="gpt-5.6",
@@ -2972,14 +2972,14 @@ def test_llm_create_agent_resolves_subscription_llm(monkeypatch) -> None:
         fake_create_subscription_llm_from_config,
     )
 
-    agent = OpenHandsAgentSettings(llm=original_llm).create_agent()
+    agent = HandprintAgentSettings(llm=original_llm).create_agent()
 
     assert agent.llm is runtime_llm
     assert agent.llm.is_subscription is True
 
 
 def test_llm_from_persisted_rehydrates_subscription_runtime(monkeypatch) -> None:
-    from openhands.sdk.llm.auth import openai
+    from handprint.sdk.llm.auth import openai
 
     runtime_llm = LLM(model="openai/gpt-5.6", auth_type="subscription")
     runtime_llm.is_subscription = True
@@ -3009,7 +3009,7 @@ def test_llm_from_persisted_rehydrates_subscription_runtime(monkeypatch) -> None
 
 
 def test_llm_load_from_env_rehydrates_subscription_runtime(monkeypatch) -> None:
-    from openhands.sdk.llm.auth import openai
+    from handprint.sdk.llm.auth import openai
 
     runtime_llm = LLM(model="openai/gpt-5.6", auth_type="subscription")
     runtime_llm.is_subscription = True
@@ -3036,8 +3036,8 @@ def test_llm_load_from_env_rehydrates_subscription_runtime(monkeypatch) -> None:
 
 
 def test_create_subscription_llm_from_config_preserves_runtime_llm(monkeypatch) -> None:
-    import openhands.sdk.llm.auth.openai as openai_auth
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
+    import handprint.sdk.llm.auth.openai as openai_auth
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
 
     class UnexpectedAuth:
         def __init__(self, *args, **kwargs):
@@ -3063,9 +3063,9 @@ def test_create_subscription_llm_from_config_preserves_runtime_llm(monkeypatch) 
 def test_llm_from_persisted_rebuilds_serialized_subscription_runtime(
     monkeypatch,
 ) -> None:
-    import openhands.sdk.llm.auth.openai as openai_auth
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
-    from openhands.sdk.llm.auth.openai import OpenAISubscriptionAuth
+    import handprint.sdk.llm.auth.openai as openai_auth
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
+    from handprint.sdk.llm.auth.openai import OpenAISubscriptionAuth
 
     credentials = OAuthCredentials(
         vendor="openai",
@@ -3104,8 +3104,8 @@ def test_llm_from_persisted_rebuilds_serialized_subscription_runtime(
 
 @pytest.mark.asyncio
 async def test_async_subscription_api_key_uses_async_refresh(monkeypatch) -> None:
-    import openhands.sdk.llm.auth.openai as openai_auth
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
+    import handprint.sdk.llm.auth.openai as openai_auth
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
 
     credentials = OAuthCredentials(
         vendor="openai",
@@ -3145,8 +3145,8 @@ async def test_async_subscription_api_key_uses_async_refresh(monkeypatch) -> Non
 def test_sync_subscription_api_key_uses_valid_runtime_credentials(
     monkeypatch,
 ) -> None:
-    import openhands.sdk.llm.auth.openai as openai_auth
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
+    import handprint.sdk.llm.auth.openai as openai_auth
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
 
     credentials = OAuthCredentials(
         vendor="openai",
@@ -3184,9 +3184,9 @@ def test_sync_subscription_api_key_uses_valid_runtime_credentials(
 def test_openai_subscription_create_llm_serializes_subscription_auth(
     monkeypatch,
 ) -> None:
-    import openhands.sdk.llm.auth.openai as openai_auth
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
-    from openhands.sdk.llm.auth.openai import OpenAISubscriptionAuth
+    import handprint.sdk.llm.auth.openai as openai_auth
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
+    from handprint.sdk.llm.auth.openai import OpenAISubscriptionAuth
 
     monkeypatch.setattr(openai_auth, "_extract_chatgpt_account_id", lambda _: None)
 
@@ -3213,8 +3213,8 @@ def test_openai_subscription_create_llm_serializes_subscription_auth(
 def test_create_subscription_llm_from_config_preserves_non_auth_options(
     monkeypatch,
 ) -> None:
-    import openhands.sdk.llm.auth.openai as openai_auth
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
+    import handprint.sdk.llm.auth.openai as openai_auth
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
 
     captured: dict[str, object] = {}
 

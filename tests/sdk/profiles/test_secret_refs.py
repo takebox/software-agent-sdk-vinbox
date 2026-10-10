@@ -1,9 +1,9 @@
 """``secret_refs`` — the profile's allow-list over a conversation's secrets."""
 
-from openhands.sdk.profiles import validate_agent_profile
+from handprint.sdk.profiles import validate_agent_profile
 
 
-def _openhands(**overrides):
+def _handprint(**overrides):
     return validate_agent_profile(
         {"name": "explorer", "llm_profile_ref": "default", **overrides}
     )
@@ -12,16 +12,16 @@ def _openhands(**overrides):
 def _acp(**overrides):
     return validate_agent_profile(
         {
-            "name": "claude",
+            "name": "haijun",
             "agent_kind": "acp",
-            "acp_server": "claude-code",
+            "acp_server": "haijun-code",
             **overrides,
         }
     )
 
 
 def test_defaults_to_unrestricted():
-    assert _openhands().secret_refs is None
+    assert _handprint().secret_refs is None
     assert _acp().secret_refs is None
 
 
@@ -34,5 +34,5 @@ class TestPersistence:
         assert profile.secret_refs is None
 
     def test_the_field_round_trips(self):
-        profile = _openhands(secret_refs=["A", "B"])
+        profile = _handprint(secret_refs=["A", "B"])
         assert validate_agent_profile(profile.model_dump()).secret_refs == ["A", "B"]

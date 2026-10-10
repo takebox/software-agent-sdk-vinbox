@@ -13,17 +13,17 @@ from datetime import datetime
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
 )
-from openhands.sdk.conversation import ConversationVisualizerBase
-from openhands.sdk.event import Event
-from openhands.sdk.tool import Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.task_tracker import TaskTrackerTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.conversation import ConversationVisualizerBase
+from handprint.sdk.event import Event
+from handprint.sdk.tool import Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.task_tracker import TaskTrackerTool
+from handprint.tools.terminal import TerminalTool
 
 
 # Configure LLM

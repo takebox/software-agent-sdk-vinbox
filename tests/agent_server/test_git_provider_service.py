@@ -5,12 +5,12 @@ from typing import Any
 import httpx
 import pytest
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.git_provider_service import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.git_provider_service import (
     GitProviderAPIError,
     search_provider_repositories,
 )
-from openhands.sdk.workspace.repo import GitProvider
+from handprint.sdk.workspace.repo import GitProvider
 
 
 class FakeResponse:
@@ -71,7 +71,7 @@ def _repo(full_name: str, repo_id: int) -> dict[str, object]:
 
 def _patch_provider_token(monkeypatch, token: str | None = "github-token") -> None:
     monkeypatch.setattr(
-        "openhands.agent_server.git_provider_service._resolve_provider_token",
+        "handprint.agent_server.git_provider_service._resolve_provider_token",
         lambda _config, _provider: token,
     )
 
@@ -85,7 +85,7 @@ def _patch_github_client(monkeypatch, responses: list[FakeResponse]):
             captured["init"] = _kwargs
 
     monkeypatch.setattr(
-        "openhands.agent_server.git_provider_service.httpx.AsyncClient",
+        "handprint.agent_server.git_provider_service.httpx.AsyncClient",
         BoundFakeAsyncClient,
     )
     return captured
@@ -112,7 +112,7 @@ async def test_search_provider_repositories_maps_github_repositories(monkeypatch
                 [
                     _repo("OpenHands/software-agent-sdk", 123),
                     {
-                        **_repo("OpenHands/other", 456),
+                        **_repo("Handprint/other", 456),
                         "private": True,
                         "default_branch": "trunk",
                     },
@@ -159,12 +159,12 @@ async def test_search_provider_repositories_filters_across_pages(monkeypatch):
     captured = _patch_github_client(
         monkeypatch,
         [
-            FakeResponse([_repo("OpenHands/first-page", 1)], next_page=2),
+            FakeResponse([_repo("Handprint/first-page", 1)], next_page=2),
             FakeResponse(
                 [
                     _repo("OpenHands/software-agent-sdk", 2),
-                    _repo("OpenHands/software-agents", 3),
-                    _repo("OpenHands/another", 4),
+                    _repo("Handprint/software-agents", 3),
+                    _repo("Handprint/another", 4),
                 ]
             ),
         ],
@@ -196,7 +196,7 @@ async def test_search_provider_repositories_filters_across_pages(monkeypatch):
     ]
     assert [item.full_name for item in result.items] == [
         "OpenHands/software-agent-sdk",
-        "OpenHands/software-agents",
+        "Handprint/software-agents",
     ]
     assert result.next_page_id is None
 
@@ -210,7 +210,7 @@ async def test_search_provider_repositories_continues_from_offset_cursor(monkeyp
             FakeResponse(
                 [
                     _repo("OpenHands/software-agent-sdk", 1),
-                    _repo("OpenHands/software-agents", 2),
+                    _repo("Handprint/software-agents", 2),
                 ],
                 next_page=3,
             )
@@ -221,7 +221,7 @@ async def test_search_provider_repositories_continues_from_offset_cursor(monkeyp
         Config(), GitProvider.GITHUB, query="software", limit=1, page_id="2:1"
     )
 
-    assert [item.full_name for item in result.items] == ["OpenHands/software-agents"]
+    assert [item.full_name for item in result.items] == ["Handprint/software-agents"]
     assert result.next_page_id == "3"
 
 
@@ -242,33 +242,33 @@ async def test_search_provider_repositories_cursor_survives_limit_changes(
     monkeypatch,
 ):
     _patch_provider_token(monkeypatch)
-    repos = [_repo(f"OpenHands/r{i:02d}", i) for i in range(10)]
+    repos = [_repo(f"Handprint/r{i:02d}", i) for i in range(10)]
     captured = _patch_github_client(
         monkeypatch,
         [FakeResponse(repos), FakeResponse(repos)],
     )
 
     first = await search_provider_repositories(
-        Config(), GitProvider.GITHUB, query="OpenHands/r", limit=4
+        Config(), GitProvider.GITHUB, query="Handprint/r", limit=4
     )
     second = await search_provider_repositories(
         Config(),
         GitProvider.GITHUB,
-        query="OpenHands/r",
+        query="Handprint/r",
         limit=2,
         page_id=first.next_page_id,
     )
 
     assert [item.full_name for item in first.items] == [
-        "OpenHands/r00",
-        "OpenHands/r01",
-        "OpenHands/r02",
-        "OpenHands/r03",
+        "Handprint/r00",
+        "Handprint/r01",
+        "Handprint/r02",
+        "Handprint/r03",
     ]
     assert first.next_page_id == "1:4"
     assert [item.full_name for item in second.items] == [
-        "OpenHands/r04",
-        "OpenHands/r05",
+        "Handprint/r04",
+        "Handprint/r05",
     ]
     assert second.next_page_id == "1:6"
     assert [params["per_page"] for _path, params in captured["calls"]] == [100, 100]
@@ -309,7 +309,7 @@ async def test_search_provider_repositories_maps_timeout(monkeypatch):
             raise httpx.TimeoutException("timeout")
 
     monkeypatch.setattr(
-        "openhands.agent_server.git_provider_service.httpx.AsyncClient",
+        "handprint.agent_server.git_provider_service.httpx.AsyncClient",
         TimeoutAsyncClient,
     )
 

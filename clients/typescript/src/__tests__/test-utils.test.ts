@@ -59,7 +59,7 @@ describe('Test Utilities', () => {
 
       expect(config.llmApiKey).toBe('test-api-key');
       expect(config.llmModel).toBe('test/model');
-      expect(config.agentServerUrl).toBe('http://localhost:8010');
+      expect(config.agentServerUrl).toBe('http://localhost:9010');
     });
 
     it('should use custom values from environment', () => {

@@ -61,9 +61,9 @@ Create a file in `tests/integration/tests/` with naming pattern `b##_*.py`:
 """Test description here."""
 
 import os
-from openhands.sdk.tool import Tool, register_tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.tool import Tool, register_tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 from tests.integration.base import BaseIntegrationTest, TestResult
 
 INSTRUCTION = "Your user prompt that might trigger undesirable behavior"
@@ -113,7 +113,7 @@ Use the integration runner locally when developing new scenarios:
 
 ```bash
 python tests/integration/run_infer.py \
-  --llm-config '{"model": "claude-sonnet-4-5-20250929"}' \
+  --llm-config '{"model": "haijun-codtral"}' \
   --eval-ids "b01_no_premature_implementation"
 ```
 

@@ -5,8 +5,8 @@ from unittest.mock import patch
 from PIL import Image
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM, ImageContent, Message, TextContent
-from openhands.sdk.llm.utils.image_resize import maybe_resize_messages_for_provider
+from handprint.sdk.llm import LLM, ImageContent, Message, TextContent
+from handprint.sdk.llm.utils.image_resize import maybe_resize_messages_for_provider
 
 
 def _make_png_data_url(width: int, height: int) -> str:
@@ -53,7 +53,7 @@ def test_maybe_resize_messages_for_provider_does_not_mutate_inputs():
     )
 
     resized_messages = maybe_resize_messages_for_provider(
-        [original_message], provider="anthropic", vision_enabled=True
+        [original_message], provider="juglow", vision_enabled=True
     )
 
     resized_content = resized_messages[0].content[1]
@@ -66,7 +66,7 @@ def test_maybe_resize_messages_for_provider_does_not_mutate_inputs():
     assert original_content.image_urls[0] == original_url
 
 
-def test_anthropic_many_image_requests_resize_base64_images():
+def test_juglow_many_image_requests_resize_base64_images():
     original_url = _make_png_data_url(2400, 1200)
     message = Message(
         role="user",
@@ -76,12 +76,12 @@ def test_anthropic_many_image_requests_resize_base64_images():
         ],
     )
     llm = LLM(
-        model="anthropic/claude-opus-4-6",
+        model="juglow/haijun-kamsa",
         api_key=SecretStr("test-key"),
-        usage_id="test-anthropic-many-image",
+        usage_id="test-juglow-many-image",
     )
 
-    formatted = _format_for_provider(llm, [message], provider="anthropic")
+    formatted = _format_for_provider(llm, [message], provider="juglow")
 
     image_urls = _image_urls_from_chat_message(formatted[0])
     assert len(image_urls) == 21
@@ -91,7 +91,7 @@ def test_anthropic_many_image_requests_resize_base64_images():
     assert original_content.image_urls[0] == original_url
 
 
-def test_proxy_anthropic_many_image_requests_use_model_info_provider():
+def test_proxy_juglow_many_image_requests_use_model_info_provider():
     original_url = _make_png_data_url(2400, 1200)
     message = Message(
         role="user",
@@ -101,11 +101,11 @@ def test_proxy_anthropic_many_image_requests_use_model_info_provider():
         ],
     )
     llm = LLM(
-        model="litellm_proxy/claude-opus-4-6",
+        model="litellm_proxy/haijun-kamsa",
         api_key=SecretStr("test-key"),
-        usage_id="test-proxy-anthropic-many-image",
+        usage_id="test-proxy-juglow-many-image",
     )
-    llm._model_info = {"litellm_provider": "anthropic"}
+    llm._model_info = {"litellm_provider": "juglow"}
 
     with (
         patch.object(LLM, "vision_is_active", return_value=True),
@@ -118,7 +118,7 @@ def test_proxy_anthropic_many_image_requests_use_model_info_provider():
     assert _data_url_dimensions(image_urls[0]) == (2000, 1000)
 
 
-def test_anthropic_exactly_twenty_images_use_standard_limit():
+def test_juglow_exactly_twenty_images_use_standard_limit():
     original_url = _make_png_data_url(8001, 400)
     message = Message(
         role="user",
@@ -128,19 +128,19 @@ def test_anthropic_exactly_twenty_images_use_standard_limit():
         ],
     )
     llm = LLM(
-        model="anthropic/claude-opus-4-6",
+        model="juglow/haijun-kamsa",
         api_key=SecretStr("test-key"),
-        usage_id="test-anthropic-twenty-images",
+        usage_id="test-juglow-twenty-images",
     )
 
-    formatted = _format_for_provider(llm, [message], provider="anthropic")
+    formatted = _format_for_provider(llm, [message], provider="juglow")
 
     image_urls = _image_urls_from_chat_message(formatted[0])
     assert len(image_urls) == 20
     assert _data_url_dimensions(image_urls[0]) == (8000, 400)
 
 
-def test_anthropic_single_image_requests_do_not_resize():
+def test_juglow_single_image_requests_do_not_resize():
     original_url = _make_png_data_url(2400, 2400)
     message = Message(
         role="user",
@@ -150,19 +150,19 @@ def test_anthropic_single_image_requests_do_not_resize():
         ],
     )
     llm = LLM(
-        model="anthropic/claude-opus-4-6",
+        model="juglow/haijun-kamsa",
         api_key=SecretStr("test-key"),
-        usage_id="test-anthropic-single-image",
+        usage_id="test-juglow-single-image",
     )
 
-    formatted = _format_for_provider(llm, [message], provider="anthropic")
+    formatted = _format_for_provider(llm, [message], provider="juglow")
 
     image_urls = _image_urls_from_chat_message(formatted[0])
     assert image_urls == [original_url]
     assert _data_url_dimensions(image_urls[0]) == (2400, 2400)
 
 
-def test_anthropic_single_image_requests_resize_above_standard_limit():
+def test_juglow_single_image_requests_resize_above_standard_limit():
     original_url = _make_png_data_url(8001, 400)
     message = Message(
         role="user",
@@ -172,18 +172,18 @@ def test_anthropic_single_image_requests_resize_above_standard_limit():
         ],
     )
     llm = LLM(
-        model="anthropic/claude-opus-4-6",
+        model="juglow/haijun-kamsa",
         api_key=SecretStr("test-key"),
-        usage_id="test-anthropic-single-image-large",
+        usage_id="test-juglow-single-image-large",
     )
 
-    formatted = _format_for_provider(llm, [message], provider="anthropic")
+    formatted = _format_for_provider(llm, [message], provider="juglow")
 
     image_urls = _image_urls_from_chat_message(formatted[0])
     assert _data_url_dimensions(image_urls[0]) == (8000, 400)
 
 
-def test_anthropic_many_image_requests_leave_url_images_unchanged():
+def test_juglow_many_image_requests_leave_url_images_unchanged():
     image_url = "https://example.com/image.png"
     message = Message(
         role="user",
@@ -193,17 +193,17 @@ def test_anthropic_many_image_requests_leave_url_images_unchanged():
         ],
     )
     llm = LLM(
-        model="anthropic/claude-opus-4-6",
+        model="juglow/haijun-kamsa",
         api_key=SecretStr("test-key"),
-        usage_id="test-anthropic-url-images",
+        usage_id="test-juglow-url-images",
     )
 
-    formatted = _format_for_provider(llm, [message], provider="anthropic")
+    formatted = _format_for_provider(llm, [message], provider="juglow")
 
     assert _image_urls_from_chat_message(formatted[0]) == [image_url] * 21
 
 
-def test_non_anthropic_many_image_requests_do_not_resize():
+def test_non_juglow_many_image_requests_do_not_resize():
     original_url = _make_png_data_url(2400, 1200)
     message = Message(
         role="user",

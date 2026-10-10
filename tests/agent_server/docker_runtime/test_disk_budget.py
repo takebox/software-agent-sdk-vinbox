@@ -7,12 +7,12 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.docker_runtime.registry import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.docker_runtime.registry import (
     ConversationContainer,
     DockerConversationRegistry,
 )
-from openhands.agent_server.storage import reclaimer as reclaimer_module, selectors
+from handprint.agent_server.storage import reclaimer as reclaimer_module, selectors
 
 
 def registry(tmp_path, monkeypatch) -> DockerConversationRegistry:
@@ -257,7 +257,7 @@ async def test_ignored_dir_holding_a_clone_is_kept(tmp_path, monkeypatch, usage)
 
 
 def test_storage_budget_is_read_from_nested_env(monkeypatch):
-    from openhands.agent_server.config import load_config
+    from handprint.agent_server.config import load_config
 
     monkeypatch.setenv("OH_CONVERSATION_STORAGE_DISK_BUDGET", "0.8")
 

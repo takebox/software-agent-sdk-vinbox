@@ -2,7 +2,7 @@ import { ACP_PROVIDERS, ACP_SETTINGS_KEYS, getAcpProvider } from '../index';
 import type { ACPProviderKey } from '../index';
 
 /**
- * The canvas ACP authentication section (#3728) renders provider-specific
+ * The viczin ACP authentication section (#3728) renders provider-specific
  * credential forms by reading the descriptor fields off {@link ACP_PROVIDERS}
  * rather than hardcoding provider lists. These tests lock in that every
  * built-in provider exposes the credential metadata that UI relies on:
@@ -32,12 +32,12 @@ describe('ACP provider credential descriptors', () => {
   });
 
   it.each<[ACPProviderKey, string, string | null]>([
-    ['claude-code', 'ANTHROPIC_API_KEY', 'ANTHROPIC_BASE_URL'],
+    ['haijun-code', 'JUGLOW_API_KEY', 'JUGLOW_BASE_URL'],
     ['codex', 'OPENAI_API_KEY', 'OPENAI_BASE_URL'],
     ['gemini-cli', 'GEMINI_API_KEY', 'GEMINI_BASE_URL'],
     // pi reads a provider key out of the environment but resolves base URLs
     // from its own catalogue, so it has no base-URL override var.
-    ['pi', 'ANTHROPIC_API_KEY', null],
+    ['pi', 'JUGLOW_API_KEY', null],
     // opencode's own gateway (OpenCode Zen) resolves its endpoint from the
     // model catalogue, so it has no base-URL override var either.
     ['opencode', 'OPENCODE_API_KEY', null],
@@ -90,8 +90,8 @@ describe('ACP provider credential descriptors', () => {
   });
 
   describe('file_secrets', () => {
-    it('claude-code authenticates via env var only (no file secrets)', () => {
-      expect(ACP_PROVIDERS['claude-code'].file_secrets).toEqual([]);
+    it('haijun-code authenticates via env var only (no file secrets)', () => {
+      expect(ACP_PROVIDERS['haijun-code'].file_secrets).toEqual([]);
     });
 
     it('codex declares its ChatGPT auth.json file secret', () => {
@@ -125,7 +125,7 @@ describe('ACP provider credential descriptors', () => {
       });
     });
 
-    it('every file secret carries the descriptor fields the canvas renders from', () => {
+    it('every file secret carries the descriptor fields the viczin renders from', () => {
       for (const key of KEYS) {
         for (const spec of ACP_PROVIDERS[key].file_secrets) {
           expect(typeof spec.secret_name).toBe('string');

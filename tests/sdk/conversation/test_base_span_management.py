@@ -7,11 +7,11 @@ from uuid import UUID
 
 import pytest
 
-from openhands.sdk.conversation.base import BaseConversation
-from openhands.sdk.conversation.conversation_stats import ConversationStats
-from openhands.sdk.conversation.types import TraceMetadataValue
-from openhands.sdk.llm.llm import LLM
-from openhands.sdk.tool.schema import Action, Observation
+from handprint.sdk.conversation.base import BaseConversation
+from handprint.sdk.conversation.conversation_stats import ConversationStats
+from handprint.sdk.conversation.types import TraceMetadataValue
+from handprint.sdk.llm.llm import LLM
+from handprint.sdk.tool.schema import Action, Observation
 
 
 class MockConversation(BaseConversation):
@@ -95,10 +95,10 @@ def test_base_conversation_span_management():
 
     with (
         patch(
-            "openhands.sdk.conversation.base.should_enable_observability"
+            "handprint.sdk.conversation.base.should_enable_observability"
         ) as mock_should_enable,
-        patch("openhands.sdk.conversation.base.start_root_span") as mock_start_span,
-        patch("openhands.sdk.conversation.base.end_root_span") as mock_end_span,
+        patch("handprint.sdk.conversation.base.start_root_span") as mock_start_span,
+        patch("handprint.sdk.conversation.base.end_root_span") as mock_end_span,
     ):
         # Test when observability is enabled
         mock_should_enable.return_value = True
@@ -142,10 +142,10 @@ def test_base_conversation_passes_observability_metadata_and_tag_attributes():
 
     with (
         patch(
-            "openhands.sdk.conversation.base.should_enable_observability",
+            "handprint.sdk.conversation.base.should_enable_observability",
             return_value=True,
         ),
-        patch("openhands.sdk.conversation.base.start_root_span") as mock_start_span,
+        patch("handprint.sdk.conversation.base.start_root_span") as mock_start_span,
     ):
         metadata: dict[str, TraceMetadataValue] = {
             "repo_name": "OpenHands/software-agent-sdk"
@@ -182,11 +182,11 @@ def test_base_conversation_uses_custom_observability_span_name_as_child_span():
 
     with (
         patch(
-            "openhands.sdk.conversation.base.should_enable_observability",
+            "handprint.sdk.conversation.base.should_enable_observability",
             return_value=True,
         ),
-        patch("openhands.sdk.conversation.base.start_root_span") as mock_start_span,
-        patch("openhands.sdk.conversation.base.start_child_span") as mock_child_span,
+        patch("handprint.sdk.conversation.base.start_root_span") as mock_start_span,
+        patch("handprint.sdk.conversation.base.start_child_span") as mock_child_span,
     ):
         conversation._start_observability_span(
             "test-session-id",
@@ -217,10 +217,10 @@ def test_base_conversation_span_management_disabled():
 
     with (
         patch(
-            "openhands.sdk.conversation.base.should_enable_observability"
+            "handprint.sdk.conversation.base.should_enable_observability"
         ) as mock_should_enable,
-        patch("openhands.sdk.conversation.base.start_root_span") as mock_start_span,
-        patch("openhands.sdk.conversation.base.end_root_span") as mock_end_span,
+        patch("handprint.sdk.conversation.base.start_root_span") as mock_start_span,
+        patch("handprint.sdk.conversation.base.end_root_span") as mock_end_span,
     ):
         # Test when observability is disabled
         mock_should_enable.return_value = False
@@ -245,11 +245,11 @@ def test_base_conversation_no_span_warnings(caplog):
 
     with (
         patch(
-            "openhands.sdk.conversation.base.should_enable_observability",
+            "handprint.sdk.conversation.base.should_enable_observability",
             return_value=True,
         ),
-        patch("openhands.sdk.conversation.base.start_root_span"),
-        patch("openhands.sdk.conversation.base.end_root_span"),
+        patch("handprint.sdk.conversation.base.start_root_span"),
+        patch("handprint.sdk.conversation.base.end_root_span"),
     ):
         # Capture logs at WARNING level
         with caplog.at_level(logging.WARNING):

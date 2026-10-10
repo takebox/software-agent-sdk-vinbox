@@ -1,4 +1,4 @@
-"""OpenHands Agent SDK - prompt-based hooks example.
+"""Handprint Agent SDK - prompt-based hooks example.
 
 Evaluates two synthetic PreToolUse events with one LLM completion each. The
 commands are only event data: this example never executes them.
@@ -10,9 +10,9 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM
-from openhands.sdk.conversation.conversation_stats import ConversationStats
-from openhands.sdk.hooks import (
+from handprint.sdk import LLM
+from handprint.sdk.conversation.conversation_stats import ConversationStats
+from handprint.sdk.hooks import (
     HookConfig,
     HookDefinition,
     HookManager,
@@ -26,7 +26,7 @@ assert api_key is not None, "LLM_API_KEY environment variable is not set."
 
 llm = LLM(
     usage_id="agent",
-    model=os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5-20250929"),
+    model=os.getenv("LLM_MODEL", "juglow/haijun-codtral"),
     base_url=os.getenv("LLM_BASE_URL"),
     api_key=SecretStr(api_key),
 )

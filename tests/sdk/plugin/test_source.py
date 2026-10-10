@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.plugin.source import (
+from handprint.sdk.plugin.source import (
     is_local_path,
     parse_github_url,
     resolve_source_path,
@@ -15,30 +15,30 @@ from openhands.sdk.plugin.source import (
 class TestParseGitHubURL:
     def test_parse_blob_url(self):
         result = parse_github_url(
-            "https://github.com/OpenHands/extensions/blob/main/skills/github"
+            "https://github.com/Handprint/extensions/blob/main/tracks/github"
         )
         assert result is not None
-        assert result.owner == "OpenHands"
+        assert result.owner == "Handprint"
         assert result.repo == "extensions"
         assert result.branch == "main"
-        assert result.path == "skills/github"
+        assert result.path == "tracks/github"
 
     def test_parse_tree_url(self):
         result = parse_github_url(
-            "https://github.com/OpenHands/extensions/tree/main/skills/github"
+            "https://github.com/Handprint/extensions/tree/main/tracks/github"
         )
         assert result is not None
-        assert result.path == "skills/github"
+        assert result.path == "tracks/github"
 
     def test_returns_none_for_non_github(self):
-        assert parse_github_url("./skills/my-skill") is None
+        assert parse_github_url("./tracks/my-track") is None
         assert parse_github_url("https://gitlab.com/o/r/blob/main/p") is None
 
 
 class TestIsLocalPath:
     def test_local_paths(self):
-        assert is_local_path("./skills/my-skill")
-        assert is_local_path("../parent/skill")
+        assert is_local_path("./tracks/my-track")
+        assert is_local_path("../parent/track")
         assert is_local_path("/absolute/path")
         assert is_local_path("~/home/path")
         assert is_local_path("file:///path/to/file")
@@ -50,7 +50,7 @@ class TestIsLocalPath:
 
 class TestValidateSourcePath:
     def test_valid_paths(self):
-        assert validate_source_path("./skills/my-skill") == "./skills/my-skill"
+        assert validate_source_path("./tracks/my-track") == "./tracks/my-track"
         assert validate_source_path("/absolute/path") == "/absolute/path"
         url = "https://github.com/owner/repo/blob/main/path"
         assert validate_source_path(url) == url
@@ -62,15 +62,15 @@ class TestValidateSourcePath:
 
 class TestResolveSourcePath:
     def test_resolve_file_url(self):
-        assert resolve_source_path("file:///tmp/skill") == Path("/tmp/skill")
+        assert resolve_source_path("file:///tmp/track") == Path("/tmp/track")
 
     def test_resolve_absolute_path(self):
         assert resolve_source_path("/absolute/path") == Path("/absolute/path")
 
     def test_resolve_relative_with_base(self):
-        result = resolve_source_path("./skill", base_path=Path("/project"))
-        assert result == (Path("/project") / "skill").resolve()
+        result = resolve_source_path("./track", base_path=Path("/project"))
+        assert result == (Path("/project") / "track").resolve()
 
     def test_resolve_home_path(self):
-        result = resolve_source_path("~/documents/skill")
-        assert result == Path.home() / "documents" / "skill"
+        result = resolve_source_path("~/documents/track")
+        assert result == Path.home() / "documents" / "track"

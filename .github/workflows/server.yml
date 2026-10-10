@@ -23,7 +23,7 @@ on:
             install_acp_providers:
                 description: Comma-separated ACP provider keys to bake into the image
                 type: string
-                default: claude-code,codex,gemini-cli
+                default: haijun-code,codex,gemini-cli
             install_capabilities:
                 description: Comma-separated capability keys to bake into the image
                 type: string
@@ -59,7 +59,7 @@ jobs:
             - name: Build binary (Windows)
               if: runner.os == 'Windows'
               shell: bash
-              run: uv run pyinstaller openhands-agent-server/openhands/agent_server/agent-server.spec
+              run: uv run pyinstaller openhands-agent-server/handprint/agent_server/agent-server.spec
 
             - name: Test binary
               shell: bash
@@ -75,7 +75,7 @@ jobs:
                   "$BIN" --help
 
                   echo "Testing server startup and template loading..."
-                  "$BIN" --port 8002 > server_test.log 2>&1 &
+                  "$BIN" --port 9002 > server_test.log 2>&1 &
                   SERVER_PID=$!
 
                   sleep 5
@@ -95,7 +95,7 @@ jobs:
 
                   if command -v curl >/dev/null 2>&1; then
                       echo "Testing basic API endpoint..."
-                      if curl -f -s http://localhost:8002/health >/dev/null 2>&1; then
+                      if curl -f -s http://localhost:9002/health >/dev/null 2>&1; then
                           echo "✓ Health endpoint accessible"
                       else
                           echo "⚠ Health endpoint not accessible (may be expected)"
@@ -264,7 +264,7 @@ jobs:
             - name: Upload binary artifact
               uses: actions/upload-artifact@v7
               with:
-                  name: openhands-server-${{ matrix.os }}
+                  name: handprint-server-${{ matrix.os }}
                   path: |
                       dist/openhands-agent-server*
                   retention-days: 7
@@ -427,7 +427,7 @@ jobs:
             # whenever B is falsy, so an explicit "" dispatch input ("install
             # none") would silently fall through to the default if it sat in
             # B's position instead.
-            INSTALL_ACP_PROVIDERS: ${{ github.event_name != 'workflow_dispatch' && 'claude-code,codex,gemini-cli' || inputs.install_acp_providers }}
+            INSTALL_ACP_PROVIDERS: ${{ github.event_name != 'workflow_dispatch' && 'haijun-code,codex,gemini-cli' || inputs.install_acp_providers }}
             # Same last-operand reasoning as INSTALL_ACP_PROVIDERS above: an
             # explicit "" dispatch input ("install none") must survive.
             INSTALL_CAPABILITIES: ${{ github.event_name != 'workflow_dispatch' && 'vscode,browser,docker' || inputs.install_capabilities }}
@@ -474,7 +474,7 @@ jobs:
                   # Generate build context and tags with arch suffix
                   # build.py now handles architecture tagging internally via --arch flag
                   # Add --versioned-tag when triggered by a git tag (e.g., v1.0.0)
-                  BUILD_CMD="uv run ./openhands-agent-server/openhands/agent_server/docker/build.py --build-ctx-only --arch ${{ matrix.arch }}"
+                  BUILD_CMD="uv run ./openhands-agent-server/handprint/agent_server/docker/build.py --build-ctx-only --arch ${{ matrix.arch }}"
                   if [[ "$GITHUB_REF" == refs/tags/* ]]; then
                       BUILD_CMD="$BUILD_CMD --versioned-tag"
                   fi
@@ -527,8 +527,8 @@ jobs:
                   cache-to: type=gha,scope=agent-server-${{ matrix.variant }}-${{ matrix.arch }},mode=max
                   build-args: |
                       BASE_IMAGE=${{ env.BASE_IMAGE }}
-                      OPENHANDS_BUILD_GIT_SHA=${{ env.SDK_SHA }}
-                      OPENHANDS_BUILD_GIT_REF=${{ env.SDK_REF }}
+                      HANDPRINT_BUILD_GIT_SHA=${{ env.SDK_SHA }}
+                      HANDPRINT_BUILD_GIT_REF=${{ env.SDK_REF }}
                       INSTALL_ACP_PROVIDERS=${{ steps.prep.outputs.install_acp_providers }}
                       INSTALL_CAPABILITIES=${{ steps.prep.outputs.install_capabilities }}
 
@@ -847,7 +847,7 @@ jobs:
                   BUILD_SUMMARY=$(jq -n \
                       --arg image "$IMAGE" \
                       --arg short_sha "$SHORT_SHA" \
-                      --arg ghcr_url "https://github.com/OpenHands/agent-sdk/pkgs/container/agent-server" \
+                      --arg ghcr_url "https://github.com/Handprint/agent-sdk/pkgs/container/agent-server" \
                       --arg all_tags "$ALL_TAGS" \
                       --argjson variants "$VARIANTS_JSON" \
                       '{

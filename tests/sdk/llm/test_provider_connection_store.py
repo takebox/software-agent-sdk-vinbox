@@ -6,25 +6,25 @@ import time
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.llm import LLM
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.llm.provider_connection_store import (
+from handprint.sdk.llm import LLM
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.llm.provider_connection_store import (
     PROVIDER_CONNECTIONS_SCHEMA_VERSION,
     ProviderConnection,
     ProviderConnectionNotFound,
     ProviderConnectionStore,
 )
-from openhands.sdk.utils.cipher import Cipher
+from handprint.sdk.utils.cipher import Cipher
 
 
 def _connection(**overrides) -> ProviderConnection:
     now = int(time.time())
     data = {
         "id": "conn1",
-        "display_name": "Anthropic",
-        "provider": "anthropic",
+        "display_name": "Juglow",
+        "provider": "juglow",
         "api_key": "sk-shared",
-        "base_url": "https://api.anthropic.com",
+        "base_url": "https://platform.juglow.my.id",
         "created_at": now,
         "updated_at": now,
     }
@@ -105,7 +105,7 @@ def test_save_clears_inline_credentials_when_linked(tmp_path):
     profiles.save(
         "p",
         LLM(
-            model="anthropic/claude-sonnet-4",
+            model="juglow/haijun-codtral",
             api_key="sk-should-be-dropped",
             base_url="https://should.drop",
             provider_connection_id="conn1",
@@ -125,13 +125,13 @@ def test_load_resolves_provider_credentials(tmp_path):
     profiles = LLMProfileStore(base_dir=tmp_path / "profiles", provider_store=provider)
     profiles.save(
         "p",
-        LLM(model="anthropic/claude-sonnet-4", provider_connection_id="conn1"),
+        LLM(model="juglow/haijun-codtral", provider_connection_id="conn1"),
     )
 
     llm = profiles.load("p")
     assert isinstance(llm.api_key, SecretStr)
     assert llm.api_key.get_secret_value() == "sk-shared"
-    assert llm.base_url == "https://api.anthropic.com"
+    assert llm.base_url == "https://platform.juglow.my.id"
 
     # Rotation takes effect on the next load, nothing cached.
     provider.update(_connection(api_key="sk-rotated"))
@@ -161,7 +161,7 @@ def test_load_missing_connection_raises(tmp_path):
     profiles = LLMProfileStore(base_dir=tmp_path / "profiles", provider_store=provider)
     profiles.save(
         "p",
-        LLM(model="anthropic/claude-sonnet-4", provider_connection_id="ghost"),
+        LLM(model="juglow/haijun-codtral", provider_connection_id="ghost"),
     )
     with pytest.raises(ProviderConnectionNotFound):
         profiles.load("p")
@@ -177,7 +177,7 @@ def test_list_summaries_reports_linked_key_presence(tmp_path):
     profiles = LLMProfileStore(base_dir=tmp_path / "profiles", provider_store=provider)
     profiles.save(
         "p",
-        LLM(model="anthropic/claude-sonnet-4", provider_connection_id="conn1"),
+        LLM(model="juglow/haijun-codtral", provider_connection_id="conn1"),
     )
     summary = profiles.list_summaries()[0]
     assert summary["provider_connection_id"] == "conn1"
@@ -194,7 +194,7 @@ def test_list_summaries_marks_broken_when_connection_deleted(tmp_path):
     provider.create(_connection())
     profiles = LLMProfileStore(base_dir=tmp_path / "profiles", provider_store=provider)
     profiles.save(
-        "p", LLM(model="anthropic/claude-sonnet-4", provider_connection_id="conn1")
+        "p", LLM(model="juglow/haijun-codtral", provider_connection_id="conn1")
     )
 
     # Confirm not broken before deletion.
@@ -230,7 +230,7 @@ def test_bare_profile_store_auto_wires_provider_store(tmp_path):
     llm = profiles.load("p")
     assert isinstance(llm.api_key, SecretStr)
     assert llm.api_key.get_secret_value() == "sk-shared"
-    assert llm.base_url == "https://api.anthropic.com"
+    assert llm.base_url == "https://platform.juglow.my.id"
 
 
 def test_wrong_cipher_update_raises_not_destroys_key(tmp_path):

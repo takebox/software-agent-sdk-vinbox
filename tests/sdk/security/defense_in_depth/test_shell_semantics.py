@@ -21,14 +21,14 @@ from __future__ import annotations
 
 import json
 
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.security.defense_in_depth.pattern import PatternSecurityAnalyzer
-from openhands.sdk.security.defense_in_depth.shell_semantics import (
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.security.defense_in_depth.pattern import PatternSecurityAnalyzer
+from handprint.sdk.security.defense_in_depth.shell_semantics import (
     _MAX_NESTING_DEPTH,
     scan_shell_command,
 )
-from openhands.sdk.security.risk import SecurityRisk
+from handprint.sdk.security.risk import SecurityRisk
 
 
 _DETECTOR_ID = "test.detector.id"

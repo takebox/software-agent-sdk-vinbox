@@ -3,7 +3,7 @@
   "name": "default",
   "llm_profile_ref": "default",
   "revision": 0,
-  "disabled_skills": [],
+  "disabled_tracks": [],
   "tools": [
     { "name": "terminal", "params": {} },
     { "name": "task_tool_set", "params": {} }
@@ -11,6 +11,6 @@
   "__expected__": {
     "name": "default",
     "llm_profile_ref": "default",
-    "disabled_skills": []
+    "disabled_tracks": []
   }
 }

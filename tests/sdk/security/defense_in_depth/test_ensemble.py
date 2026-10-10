@@ -7,12 +7,12 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.security.analyzer import SecurityAnalyzerBase
-from openhands.sdk.security.confirmation_policy import ConfirmRisky
-from openhands.sdk.security.ensemble import EnsembleSecurityAnalyzer
-from openhands.sdk.security.risk import SecurityRisk
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.security.analyzer import SecurityAnalyzerBase
+from handprint.sdk.security.confirmation_policy import ConfirmRisky
+from handprint.sdk.security.ensemble import EnsembleSecurityAnalyzer
+from handprint.sdk.security.risk import SecurityRisk
 
 
 # ---------------------------------------------------------------------------

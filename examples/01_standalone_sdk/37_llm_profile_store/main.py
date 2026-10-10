@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, LLMProfileStore
+from handprint.sdk import LLM, LLMProfileStore
 
 
 SCRIPT_DIR = Path(__file__).parent

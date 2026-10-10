@@ -13,7 +13,7 @@ import tempfile
 from collections import defaultdict
 from pathlib import Path
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     AgentContext,
@@ -21,11 +21,11 @@ from openhands.sdk import (
     Tool,
     register_agent,
 )
-from openhands.sdk.context import Skill
-from openhands.tools.delegate import DelegationVisualizer
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.task import TaskToolSet
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.context import Track
+from handprint.tools.delegate import DelegationVisualizer
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.task import TaskToolSet
+from handprint.tools.terminal import TerminalTool
 
 
 llm = LLM(
@@ -49,8 +49,8 @@ def create_code_analyst(llm: LLM) -> Agent:
         ],
         tool_concurrency_limit=4,
         agent_context=AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="code_analysis",
                     content=(
                         "You analyze code structure. Use the terminal to count files, "
@@ -75,8 +75,8 @@ def create_doc_reviewer(llm: LLM) -> Agent:
         ],
         tool_concurrency_limit=4,
         agent_context=AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="doc_review",
                     content=(
                         "You review project documentation. Check README files, "
@@ -101,8 +101,8 @@ def create_dependency_checker(llm: LLM) -> Agent:
         ],
         tool_concurrency_limit=4,
         agent_context=AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="dependency_check",
                     content=(
                         "You analyze project dependencies. Read pyproject.toml, "

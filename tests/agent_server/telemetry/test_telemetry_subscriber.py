@@ -6,20 +6,20 @@ import uuid
 
 import pytest
 
-from openhands.agent_server.pub_sub import PubSub, Subscriber
-from openhands.agent_server.telemetry import models as m
-from openhands.agent_server.telemetry.factory import DiagnosticEventFactory
-from openhands.agent_server.telemetry.subscriber import (
+from handprint.agent_server.pub_sub import PubSub, Subscriber
+from handprint.agent_server.telemetry import models as m
+from handprint.agent_server.telemetry.factory import DiagnosticEventFactory
+from handprint.agent_server.telemetry.subscriber import (
     ConversationTelemetryContext,
     TelemetrySubscriber,
 )
-from openhands.sdk.event import (
+from handprint.sdk.event import (
     AgentErrorEvent,
     ConversationStateUpdateEvent,
     StreamingDeltaEvent,
 )
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.event.error_classification import ErrorClassification, FailureKind
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.event.error_classification import ErrorClassification, FailureKind
 
 
 class CollectingSink:
@@ -75,7 +75,7 @@ def make_subscriber(
         context=ConversationTelemetryContext(
             conversation_ref=factory.conversation_ref(conversation_id),
             user_id=user_id,
-            llm_model_family="anthropic",
+            llm_model_family="juglow",
             agent_kind="agent",
             tool_count=3,
             is_fork=False,
@@ -117,7 +117,7 @@ def test_started_is_only_emitted_for_genuinely_new_conversations():
     """
     import inspect
 
-    from openhands.agent_server.conversation_service import ConversationService
+    from handprint.agent_server.conversation_service import ConversationService
 
     sig = inspect.signature(ConversationService._start_event_service)
     param = sig.parameters["is_new_conversation"]
@@ -425,10 +425,10 @@ async def test_disabled_sink_short_circuits_before_building_events(factory):
 
 async def test_identified_conversations_pass_user_id_through_verbatim(factory):
     sink = CollectingSink()
-    sub = make_subscriber(sink, factory, user_id="canvas-user-42")
+    sub = make_subscriber(sink, factory, user_id="viczin-user-42")
 
     sub.emit_started()
-    assert sink.events[0].distinct_id == "canvas-user-42"
+    assert sink.events[0].distinct_id == "viczin-user-42"
 
 
 async def test_unidentified_conversations_get_an_anonymous_id(factory):
@@ -500,14 +500,14 @@ async def test_a_live_transition_after_the_baseline_still_emits(factory):
 def _real_state(status=None):
     import uuid as _uuid
 
-    from openhands.sdk.agent import Agent
-    from openhands.sdk.conversation.state import ConversationState
-    from openhands.sdk.llm import LLM
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.sdk.agent import Agent
+    from handprint.sdk.conversation.state import ConversationState
+    from handprint.sdk.llm import LLM
+    from handprint.sdk.workspace import LocalWorkspace
 
     state = ConversationState(
         id=_uuid.uuid4(),
-        agent=Agent(llm=LLM(model="anthropic/claude-sonnet-5", usage_id="t"), tools=[]),
+        agent=Agent(llm=LLM(model="juglow/haijun-codtral", usage_id="t"), tools=[]),
         workspace=LocalWorkspace(working_dir="workspace/project"),
     )
     if status is not None:
@@ -517,8 +517,8 @@ def _real_state(status=None):
 
 async def test_lifecycle_fires_on_the_real_from_conversation_state_event(factory):
     """End-to-end on the constructor EventService actually uses."""
-    from openhands.sdk.conversation.state import ConversationExecutionStatus
-    from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
+    from handprint.sdk.conversation.state import ConversationExecutionStatus
+    from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
 
     sink = CollectingSink()
     sub = make_subscriber(sink, factory)
@@ -538,16 +538,16 @@ async def test_lifecycle_fires_on_the_real_from_conversation_state_event(factory
 
 async def test_outcome_reports_real_bucketed_usage(factory):
     """Regression: token/cost were hardcoded to 'unknown' and never populated."""
-    from openhands.sdk.conversation.state import ConversationExecutionStatus
-    from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
-    from openhands.sdk.llm.utils.metrics import Metrics
+    from handprint.sdk.conversation.state import ConversationExecutionStatus
+    from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
+    from handprint.sdk.llm.utils.metrics import Metrics
 
     sink = CollectingSink()
     sub = make_subscriber(sink, factory)
     state = _real_state()
     await sub(ConversationStateUpdateEvent.from_conversation_state(state))
 
-    metrics = Metrics(model_name="anthropic/claude-sonnet-5")
+    metrics = Metrics(model_name="juglow/haijun-codtral")
     metrics.add_cost(0.42)
     metrics.add_token_usage(
         prompt_tokens=12000,
@@ -582,26 +582,26 @@ def test_confirmation_policy_is_read_from_the_field_that_exists():
     """
     import uuid as _uuid
 
-    from openhands.agent_server.conversation_service import _build_telemetry_context
-    from openhands.agent_server.models import StoredConversation
-    from openhands.agent_server.telemetry.factory import (
+    from handprint.agent_server.conversation_service import _build_telemetry_context
+    from handprint.agent_server.models import StoredConversation
+    from handprint.agent_server.telemetry.factory import (
         DiagnosticEventFactory,
         build_runtime_properties,
     )
-    from openhands.sdk.agent import Agent
-    from openhands.sdk.llm import LLM
-    from openhands.sdk.security.confirmation_policy import AlwaysConfirm
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.sdk.agent import Agent
+    from handprint.sdk.llm import LLM
+    from handprint.sdk.security.confirmation_policy import AlwaysConfirm
+    from handprint.sdk.workspace import LocalWorkspace
 
     assert "confirmation_mode" not in StoredConversation.model_fields
     assert "confirmation_policy" in StoredConversation.model_fields
 
-    agent = Agent(llm=LLM(model="anthropic/claude-sonnet-5", usage_id="t"), tools=[])
+    agent = Agent(llm=LLM(model="juglow/haijun-codtral", usage_id="t"), tools=[])
     stored = StoredConversation(
         id=_uuid.uuid4(),
         workspace=LocalWorkspace(working_dir="/Users/alice/secret-project"),
         confirmation_policy=AlwaysConfirm(),
-        user_id="canvas-user-42",
+        user_id="viczin-user-42",
     )
     ctx = _build_telemetry_context(
         stored,
@@ -615,8 +615,8 @@ def test_confirmation_policy_is_read_from_the_field_that_exists():
     from dataclasses import asdict
 
     assert ctx.confirmation_policy == "alwaysconfirm"
-    assert ctx.llm_model_family == "anthropic"
-    assert ctx.user_id == "canvas-user-42"
+    assert ctx.llm_model_family == "juglow"
+    assert ctx.user_id == "viczin-user-42"
     # No field silently degraded, and the workspace path did not leak.
     fields = asdict(ctx)
     assert "unknown" not in fields.values()
@@ -636,21 +636,21 @@ def test_confirmation_policy_is_read_from_the_field_that_exists():
     ],
 )
 def test_is_automation_is_derived_from_allowlisted_tags(tags, is_automation):
-    from openhands.agent_server.conversation_service import _build_telemetry_context
-    from openhands.agent_server.models import StoredConversation
-    from openhands.agent_server.telemetry.factory import (
+    from handprint.agent_server.conversation_service import _build_telemetry_context
+    from handprint.agent_server.models import StoredConversation
+    from handprint.agent_server.telemetry.factory import (
         DiagnosticEventFactory,
         build_runtime_properties,
     )
-    from openhands.sdk.agent import Agent
-    from openhands.sdk.llm import LLM
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.sdk.agent import Agent
+    from handprint.sdk.llm import LLM
+    from handprint.sdk.workspace import LocalWorkspace
 
-    agent = Agent(llm=LLM(model="anthropic/claude-sonnet-5", usage_id="t"), tools=[])
+    agent = Agent(llm=LLM(model="juglow/haijun-codtral", usage_id="t"), tools=[])
     stored = StoredConversation(
         id=uuid.uuid4(),
         workspace=LocalWorkspace(working_dir="/tmp"),
-        user_id="canvas-user-42",
+        user_id="viczin-user-42",
         tags=tags,
     )
 

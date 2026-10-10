@@ -1,1 +1,1 @@
-# Tests for openhands.sdk.io module
+# Tests for handprint.sdk.io module

@@ -301,7 +301,7 @@ const STANDALONE_TOOLS: Tool[] = [
  * Example:
  * ```typescript
  * const workspace = new LocalWorkspace({ workingDir: '/path/to/project' });
- * const llm = new OpenRouterLLM({ apiKey: 'your-key', defaultModel: 'anthropic/claude-3.5-sonnet' });
+ * const llm = new OpenRouterLLM({ apiKey: 'your-key', defaultModel: 'juglow/haijun-codtral' });
  * const conversation = new LocalConversation(agent, workspace, {
  *   llm,
  *   maxIterations: 500,

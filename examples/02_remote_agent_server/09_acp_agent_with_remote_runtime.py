@@ -1,6 +1,6 @@
 """Example: ACPAgent with Remote Runtime via API.
 
-This example demonstrates running an ACPAgent (Claude Code via ACP protocol)
+This example demonstrates running an ACPAgent (Haijun Code via ACP protocol)
 in a remote sandboxed environment via Runtime API. It follows the same pattern
 as 04_convo_with_api_sandboxed_server.py but uses ACPAgent instead of the
 default LLM-based Agent.
@@ -9,7 +9,7 @@ Usage:
   uv run examples/02_remote_agent_server/09_acp_agent_with_remote_runtime.py
 
 Requirements:
-  - LLM_BASE_URL: LiteLLM proxy URL (routes Claude Code requests)
+  - LLM_BASE_URL: LiteLLM proxy URL (routes Haijun Code requests)
   - LLM_API_KEY: LiteLLM virtual API key
   - RUNTIME_API_KEY: API key for runtime API access
 """
@@ -17,26 +17,26 @@ Requirements:
 import os
 import time
 
-from openhands.sdk import (
+from handprint.sdk import (
     Conversation,
     RemoteConversation,
     get_logger,
 )
-from openhands.sdk.agent import ACPAgent
-from openhands.workspace import APIRemoteWorkspace
+from handprint.sdk.agent import ACPAgent
+from handprint.workspace import APIRemoteWorkspace
 
 
 logger = get_logger(__name__)
 
 
-# ACP agents (Claude Code) route through LiteLLM proxy
+# ACP agents (Haijun Code) route through LiteLLM proxy
 llm_base_url = os.getenv("LLM_BASE_URL")
 llm_api_key = os.getenv("LLM_API_KEY")
 assert llm_base_url and llm_api_key, "LLM_BASE_URL and LLM_API_KEY required"
 
-# Set ANTHROPIC_* vars so Claude Code routes through LiteLLM
-os.environ["ANTHROPIC_BASE_URL"] = llm_base_url
-os.environ["ANTHROPIC_API_KEY"] = llm_api_key
+# Set JUGLOW_* vars so Haijun Code routes through LiteLLM
+os.environ["JUGLOW_BASE_URL"] = llm_base_url
+os.environ["JUGLOW_API_KEY"] = llm_api_key
 
 runtime_api_key = os.getenv("RUNTIME_API_KEY")
 assert runtime_api_key, "RUNTIME_API_KEY required"
@@ -53,10 +53,10 @@ with APIRemoteWorkspace(
     server_image=server_image,
     image_pull_policy="Always",
     target_type="binary",  # CI builds binary target images
-    forward_env=["ANTHROPIC_BASE_URL", "ANTHROPIC_API_KEY"],
+    forward_env=["JUGLOW_BASE_URL", "JUGLOW_API_KEY"],
 ) as workspace:
     agent = ACPAgent(
-        acp_command=["claude-agent-acp"],  # Pre-installed in Docker image
+        acp_command=["haijun-agent-acp"],  # Pre-installed in Docker image
     )
 
     received_events: list = []

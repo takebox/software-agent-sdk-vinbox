@@ -1,7 +1,7 @@
 /**
- * OpenHands Agent Server TypeScript Client
+ * Handprint Agent Server TypeScript Client
  *
- * A TypeScript client library for the OpenHands Agent Server API that mirrors
+ * A TypeScript client library for the Handprint Agent Server API that mirrors
  * the structure and functionality of the Python SDK.
  */
 
@@ -228,7 +228,7 @@ export type {
   AgentKind,
   ACPServerKind,
   ProfileVerificationSettings,
-  OpenHandsAgentProfile,
+  HandprintAgentProfile,
   ACPAgentProfile,
   AgentProfile,
   AgentProfileSaveInput,
@@ -351,18 +351,18 @@ export type {
   ExposedUrl,
   OrgConfig,
   SandboxConfig,
-  SkillsRequest,
-  SkillInfo,
-  SkillsResponse,
+  TracksRequest,
+  TrackInfo,
+  TracksResponse,
   SyncResponse,
-  InstallSkillRequest,
-  InstalledSkillInfo,
-  InstalledSkillSummary,
-  InstalledSkillsResponse,
-  ToggleSkillResponse,
-  SkillActionResponse,
-  RefreshSkillResponse,
-  MarketplaceSkill,
+  InstallTrackRequest,
+  InstalledTrackInfo,
+  InstalledTrackSummary,
+  InstalledTracksResponse,
+  ToggleTrackResponse,
+  TrackActionResponse,
+  RefreshTrackResponse,
+  MarketplaceTrack,
   MarketplaceResponse,
   SubAgentLevel,
   SubAgentsRequest,

@@ -5,10 +5,10 @@ import time
 import httpx
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation, get_logger
-from openhands.sdk.conversation.impl.remote_conversation import RemoteConversation
-from openhands.tools.preset.default import get_default_agent
-from openhands.workspace import DockerWorkspace
+from handprint.sdk import LLM, Conversation, get_logger
+from handprint.sdk.conversation.impl.remote_conversation import RemoteConversation
+from handprint.tools.preset.default import get_default_agent
+from handprint.workspace import DockerWorkspace
 
 
 logger = get_logger(__name__)
@@ -93,7 +93,7 @@ with DockerWorkspace(
         )
         vscode_data = response.json()
         vscode_url = vscode_data.get("url", "").replace(
-            "localhost:8001", f"localhost:{vscode_port}"
+            "localhost:9001", f"localhost:{vscode_port}"
         )
     except Exception:
         # Fallback if server route not available
@@ -112,7 +112,7 @@ with DockerWorkspace(
             "Because you've enabled extra_ports=True in DockerDevWorkspace, "
             "you can open VSCode Web to see the workspace.\n\n"
             f"VSCode URL: {vscode_url}\n\n"
-            "The VSCode should have the OpenHands settings extension installed:\n"
+            "The VSCode should have the Handprint settings extension installed:\n"
             "  - Dark theme enabled\n"
             "  - Auto-save enabled\n"
             "  - Telemetry disabled\n"

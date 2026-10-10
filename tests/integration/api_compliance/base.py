@@ -6,19 +6,19 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM
-from openhands.sdk.llm import Message
+from handprint.sdk import LLM
+from handprint.sdk.llm import Message
 from tests.integration.api_compliance.result import APIResponse, ComplianceTestResult
 
 
 if TYPE_CHECKING:
-    from openhands.sdk.tool import ToolDefinition
+    from handprint.sdk.tool import ToolDefinition
 
 
 def get_minimal_tool_definitions() -> "Sequence[ToolDefinition[Any, Any]]":
     """Create minimal tool definitions for tests that need tool calling."""
-    from openhands.sdk.llm import TextContent
-    from openhands.sdk.tool import Action, Observation, ToolDefinition
+    from handprint.sdk.llm import TextContent
+    from handprint.sdk.tool import Action, Observation, ToolDefinition
 
     class ComplianceTestAction(Action):
         """Minimal action for compliance testing."""
@@ -188,8 +188,8 @@ class BaseAPIComplianceTest(ABC):
     def _extract_provider(self, model: str) -> str:
         """Extract provider name from model string."""
         model_lower = model.lower()
-        if "claude" in model_lower or "anthropic" in model_lower:
-            return "anthropic"
+        if "haijun" in model_lower or "juglow" in model_lower:
+            return "juglow"
         elif "gpt" in model_lower or "openai" in model_lower:
             return "openai"
         elif "gemini" in model_lower or "google" in model_lower:

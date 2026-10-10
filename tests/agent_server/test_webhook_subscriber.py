@@ -2,7 +2,7 @@
 Standalone unit tests for WebhookSubscriber class functionality.
 
 This test file recreates the WebhookSubscriber class logic to test it
-without dependencies on the openhands.sdk module.
+without dependencies on the handprint.sdk module.
 """
 
 import asyncio
@@ -16,20 +16,20 @@ import httpx
 import pytest
 from pydantic import BaseModel, SecretStr, ValidationError
 
-from openhands.agent_server.config import WebhookSpec
-from openhands.agent_server.conversation_service import (
+from handprint.agent_server.config import WebhookSpec
+from handprint.agent_server.conversation_service import (
     ConversationService,
     WebhookSubscriber,
 )
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.models import StoredConversation
-from openhands.agent_server.pub_sub import PubSub
-from openhands.agent_server.utils import utc_now
-from openhands.sdk import LLM, Agent, Event
-from openhands.sdk.event import StreamingDeltaEvent
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.llm.message import Message, TextContent
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.models import StoredConversation
+from handprint.agent_server.pub_sub import PubSub
+from handprint.agent_server.utils import utc_now
+from handprint.sdk import LLM, Agent, Event
+from handprint.sdk.event import StreamingDeltaEvent
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.llm.message import Message, TextContent
+from handprint.sdk.workspace import LocalWorkspace
 from tests.agent_server.stress.scripts import (
     SlowTestLLM,
     start_conversation_with_test_llm,
@@ -43,7 +43,7 @@ def mock_event_service():
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         # Mock httpx.get to prevent HTTP calls to staging server during LLM init
-        with patch("openhands.sdk.llm.utils.model_info.httpx.get") as mock_get:
+        with patch("handprint.sdk.llm.utils.model_info.httpx.get") as mock_get:
             mock_get.return_value = MagicMock(json=lambda: {"data": []})
             service = EventService(
                 stored=StoredConversation(
@@ -1237,11 +1237,11 @@ class TestConversationWebhookSubscriber:
         self, mock_client_class, webhook_spec, mock_event_service
     ):
         """Test successful posting of conversation info."""
-        from openhands.agent_server.conversation_service import (
+        from handprint.agent_server.conversation_service import (
             ConversationWebhookSubscriber,
         )
-        from openhands.agent_server.models import ConversationInfo
-        from openhands.sdk.conversation.state import ConversationExecutionStatus
+        from handprint.agent_server.models import ConversationInfo
+        from handprint.sdk.conversation.state import ConversationExecutionStatus
 
         # Setup mock client
         mock_client = AsyncMock()
@@ -1284,11 +1284,11 @@ class TestConversationWebhookSubscriber:
         self, mock_client_class, webhook_spec, mock_event_service
     ):
         """Test posting conversation info with session API key."""
-        from openhands.agent_server.conversation_service import (
+        from handprint.agent_server.conversation_service import (
             ConversationWebhookSubscriber,
         )
-        from openhands.agent_server.models import ConversationInfo
-        from openhands.sdk.conversation.state import ConversationExecutionStatus
+        from handprint.agent_server.models import ConversationInfo
+        from handprint.sdk.conversation.state import ConversationExecutionStatus
 
         # Setup mock client
         mock_client = AsyncMock()
@@ -1333,11 +1333,11 @@ class TestConversationWebhookSubscriber:
         self, webhook_spec, mock_event_service
     ):
         """Test HTTP error handling with retry logic for conversation webhooks."""
-        from openhands.agent_server.conversation_service import (
+        from handprint.agent_server.conversation_service import (
             ConversationWebhookSubscriber,
         )
-        from openhands.agent_server.models import ConversationInfo
-        from openhands.sdk.conversation.state import ConversationExecutionStatus
+        from handprint.agent_server.models import ConversationInfo
+        from handprint.sdk.conversation.state import ConversationExecutionStatus
 
         subscriber = ConversationWebhookSubscriber(
             spec=webhook_spec,

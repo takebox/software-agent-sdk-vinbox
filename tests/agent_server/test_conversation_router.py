@@ -9,14 +9,14 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.conversation_registry import ConversationRegistry
-from openhands.agent_server.conversation_router import conversation_router
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.dependencies import get_conversation_service
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.launch import launch_source
-from openhands.agent_server.models import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.conversation_registry import ConversationRegistry
+from handprint.agent_server.conversation_router import conversation_router
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.dependencies import get_conversation_service
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.launch import launch_source
+from handprint.agent_server.models import (
     ConversationInfo,
     ConversationPage,
     ConversationRuntimeInfo,
@@ -25,22 +25,22 @@ from openhands.agent_server.models import (
     SendMessageRequest,
     StartConversationRequest,
 )
-from openhands.agent_server.utils import utc_now
-from openhands.sdk import LLM, Agent, TextContent, Tool
-from openhands.sdk.agent.acp_agent import ACPAgent
-from openhands.sdk.agent.base import AgentBase
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.launch import LaunchRuntime, LaunchStores, finalize
-from openhands.sdk.llm import llm_profile_store
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.marketplace.registry import (
+from handprint.agent_server.utils import utc_now
+from handprint.sdk import LLM, Agent, TextContent, Tool
+from handprint.sdk.agent.acp_agent import ACPAgent
+from handprint.sdk.agent.base import AgentBase
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.launch import LaunchRuntime, LaunchStores, finalize
+from handprint.sdk.llm import llm_profile_store
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.marketplace.registry import (
     PluginNotFoundError,
     PluginResolutionError,
 )
-from openhands.sdk.plugin import PluginFetchError
-from openhands.sdk.security.llm_analyzer import LLMSecurityAnalyzer
-from openhands.sdk.settings import AGENT_SETTINGS_SCHEMA_VERSION
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.plugin import PluginFetchError
+from handprint.sdk.security.llm_analyzer import LLMSecurityAnalyzer
+from handprint.sdk.settings import AGENT_SETTINGS_SCHEMA_VERSION
+from handprint.sdk.workspace import LocalWorkspace
 
 
 @pytest.fixture
@@ -593,12 +593,12 @@ def test_start_conversation_merges_observability_headers(
             "/api/conversations",
             json=request_data,
             headers={
-                "X-OpenHands-Observability-Metadata": (
+                "X-Handprint-Observability-Metadata": (
                     '{"automation.id":"a1","caller":"header"}'
                 ),
-                "X-OpenHands-Observability-Span-Name": "automation.conversation",
-                "X-OpenHands-Observability-Tags": "automation,webhook",
-                "X-OpenHands-Observability-Parent-Span-Context": "parent-context",
+                "X-Handprint-Observability-Span-Name": "automation.conversation",
+                "X-Handprint-Observability-Tags": "automation,webhook",
+                "X-Handprint-Observability-Parent-Span-Context": "parent-context",
             },
         )
 
@@ -641,8 +641,8 @@ def test_start_conversation_body_observability_overrides_headers(
             "/api/conversations",
             json=request_data,
             headers={
-                "X-OpenHands-Observability-Span-Name": "header.span",
-                "X-OpenHands-Observability-Tags": "header_tag",
+                "X-Handprint-Observability-Span-Name": "header.span",
+                "X-Handprint-Observability-Tags": "header_tag",
             },
         )
 
@@ -705,7 +705,7 @@ def _launched_agent(request: StartConversationRequest) -> AgentBase:
     ).agent
 
 
-def test_start_conversation_accepts_openhands_agent_settings(
+def test_start_conversation_accepts_handprint_agent_settings(
     client, mock_conversation_service
 ):
     now = utc_now()
@@ -1881,10 +1881,10 @@ def test_start_conversation_with_tool_module_qualnames(
             },
             "workspace": {"working_dir": "/tmp/test"},
             "tool_module_qualnames": {
-                "glob": "openhands.tools.glob.definition",
-                "grep": "openhands.tools.grep.definition",
+                "glob": "handprint.tools.glob.definition",
+                "grep": "handprint.tools.grep.definition",
                 "planning_file_editor": (
-                    "openhands.tools.planning_file_editor.definition"
+                    "handprint.tools.planning_file_editor.definition"
                 ),
             },
         }
@@ -1901,9 +1901,9 @@ def test_start_conversation_with_tool_module_qualnames(
         request_arg = call_args[0][0]
         assert hasattr(request_arg, "tool_module_qualnames")
         assert request_arg.tool_module_qualnames == {
-            "glob": "openhands.tools.glob.definition",
-            "grep": "openhands.tools.grep.definition",
-            "planning_file_editor": ("openhands.tools.planning_file_editor.definition"),
+            "glob": "handprint.tools.glob.definition",
+            "grep": "handprint.tools.grep.definition",
+            "planning_file_editor": ("handprint.tools.planning_file_editor.definition"),
         }
     finally:
         client.app.dependency_overrides.clear()
@@ -2518,7 +2518,7 @@ def test_switch_conversation_llm_decrypts_encrypted_api_key(
     """
     from base64 import urlsafe_b64encode
 
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
     secret_key = urlsafe_b64encode(b"a" * 32).decode("ascii")
     cipher = Cipher(secret_key)
@@ -2637,13 +2637,13 @@ def test_switch_conversation_llm_resolves_provider_connection(
     client, mock_conversation_service, mock_event_service, sample_conversation_id
 ):
     """A provider_connection_id is resolved into the connection's api_key /
-    base_url before the LLM is installed — regression for OpenHands/OpenHands#17206
+    base_url before the LLM is installed — regression for Handprint/Handprint#17206
     (switching to a linked OpenRouter profile lost credentials)."""
     import tempfile
     from pathlib import Path
 
-    from openhands.agent_server.persistence import store as store_module
-    from openhands.sdk.llm.provider_connection_store import ProviderConnectionStore
+    from handprint.agent_server.persistence import store as store_module
+    from handprint.sdk.llm.provider_connection_store import ProviderConnectionStore
 
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
@@ -2698,9 +2698,9 @@ def test_switch_conversation_llm_resolves_encrypted_provider_connection(
     from base64 import urlsafe_b64encode
     from pathlib import Path
 
-    from openhands.agent_server.persistence import store as store_module
-    from openhands.sdk.llm.provider_connection_store import ProviderConnectionStore
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.agent_server.persistence import store as store_module
+    from handprint.sdk.llm.provider_connection_store import ProviderConnectionStore
+    from handprint.sdk.utils.cipher import Cipher
 
     secret_key = urlsafe_b64encode(b"a" * 32).decode("ascii")
     cipher = Cipher(secret_key)
@@ -2796,8 +2796,8 @@ def test_switch_conversation_llm_missing_provider_connection_rejects_before_swit
     import tempfile
     from pathlib import Path
 
-    from openhands.agent_server.persistence import store as store_module
-    from openhands.sdk.llm.provider_connection_store import ProviderConnectionStore
+    from handprint.agent_server.persistence import store as store_module
+    from handprint.sdk.llm.provider_connection_store import ProviderConnectionStore
 
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
@@ -2836,7 +2836,7 @@ def test_switch_conversation_llm_missing_provider_connection_rejects_before_swit
 
 
 def _provider_connection(connection_id: str, *, api_key: str, base_url: str | None):
-    from openhands.sdk.llm.provider_connection_store import ProviderConnection
+    from handprint.sdk.llm.provider_connection_store import ProviderConnection
 
     now = int(time.time())
     return ProviderConnection(
@@ -3022,7 +3022,7 @@ def test_start_conversation_client_tool_registration_error_returns_422(
     client, mock_conversation_service
 ):
     """Client tool registration input errors yield 422, not 500."""
-    from openhands.sdk.tool.client_tool import ClientToolRegistrationError
+    from handprint.sdk.tool.client_tool import ClientToolRegistrationError
 
     mock_conversation_service.start_conversation.side_effect = (
         ClientToolRegistrationError(

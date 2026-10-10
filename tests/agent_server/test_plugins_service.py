@@ -1,7 +1,7 @@
 """Tests for the plugins-only marketplace catalog (plugins_service / plugins_router).
 
 The service runs the real filter + resolve logic against a controlled
-marketplace; only the network-bound ``update_skills_repository`` is stubbed.
+marketplace; only the network-bound ``update_tracks_repository`` is stubbed.
 """
 
 import json
@@ -11,13 +11,13 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from openhands.agent_server import plugins_service
-from openhands.agent_server.plugins_router import plugins_router
-from openhands.agent_server.plugins_service import (
+from handprint.agent_server import plugins_service
+from handprint.agent_server.plugins_router import plugins_router
+from handprint.agent_server.plugins_service import (
     MarketplacePluginInfo,
     service_get_plugins_marketplace_catalog,
 )
-from openhands.sdk.plugin import install_plugin
+from handprint.sdk.plugin import install_plugin
 
 
 @pytest.fixture(autouse=True)
@@ -41,7 +41,7 @@ def _write_marketplace(repo_dir: Path, plugins: list[dict]) -> Path:
 def _write_manifest_marketplace(repo_dir: Path, plugins: list[dict]) -> Path:
     """Write the catalog as a ``.plugin/marketplace.json`` manifest.
 
-    Mirrors the real OpenHands/extensions layout, where the catalog is
+    Mirrors the real Handprint/extensions layout, where the catalog is
     discovered via ``Marketplace.load`` (``.plugin/marketplace.json``) and
     ``marketplaces/default.json`` is absent.
     """
@@ -64,17 +64,17 @@ def _make_installable_plugin(plugin_dir: Path, name: str) -> Path:
 
 
 def test_catalog_returns_only_true_plugins(tmp_path: Path, monkeypatch):
-    # Arrange: a marketplace mixing a true plugin (./plugins/) and a skill
-    # (./skills/), as the real OpenHands marketplace does.
+    # Arrange: a marketplace mixing a true plugin (./plugins/) and a track
+    # (./tracks/), as the real Handprint marketplace does.
     repo = _write_marketplace(
         tmp_path / "ext",
         [
             {"name": "local-plugin", "source": "./plugins/local-plugin"},
-            {"name": "a-skill", "source": "./skills/a-skill"},
+            {"name": "a-track", "source": "./tracks/a-track"},
         ],
     )
     monkeypatch.setattr(
-        plugins_service, "update_skills_repository", lambda *a, **k: repo
+        plugins_service, "update_tracks_repository", lambda *a, **k: repo
     )
     installed = tmp_path / "installed"
     installed.mkdir()
@@ -98,12 +98,12 @@ def test_catalog_loads_from_plugin_manifest_layout(tmp_path: Path, monkeypatch):
         tmp_path / "ext",
         [
             {"name": "city-weather", "source": "./plugins/city-weather"},
-            {"name": "a-skill", "source": "./skills/a-skill"},
+            {"name": "a-track", "source": "./tracks/a-track"},
         ],
     )
     assert not (repo / "marketplaces" / "default.json").exists()
     monkeypatch.setattr(
-        plugins_service, "update_skills_repository", lambda *a, **k: repo
+        plugins_service, "update_tracks_repository", lambda *a, **k: repo
     )
     installed = tmp_path / "installed"
     installed.mkdir()
@@ -111,15 +111,15 @@ def test_catalog_loads_from_plugin_manifest_layout(tmp_path: Path, monkeypatch):
     # Act
     catalog = service_get_plugins_marketplace_catalog(installed_dir=installed)
 
-    # Assert: the true plugin is returned (not an empty catalog), skill excluded.
+    # Assert: the true plugin is returned (not an empty catalog), track excluded.
     assert [p.name for p in catalog] == ["city-weather"]
     assert catalog[0].source.endswith("plugins/city-weather")
 
 
-def test_catalog_resolves_structured_source_and_excludes_structured_skills(
+def test_catalog_resolves_structured_source_and_excludes_structured_tracks(
     tmp_path: Path, monkeypatch
 ):
-    # Arrange: structured (github) sources — one under plugins/, one under skills/.
+    # Arrange: structured (github) sources — one under plugins/, one under tracks/.
     repo = _write_marketplace(
         tmp_path / "ext",
         [
@@ -133,17 +133,17 @@ def test_catalog_resolves_structured_source_and_excludes_structured_skills(
                 },
             },
             {
-                "name": "gh-skill",
+                "name": "gh-track",
                 "source": {
                     "source": "github",
                     "repo": "owner/repo",
-                    "path": "skills/gh-skill",
+                    "path": "tracks/gh-track",
                 },
             },
         ],
     )
     monkeypatch.setattr(
-        plugins_service, "update_skills_repository", lambda *a, **k: repo
+        plugins_service, "update_tracks_repository", lambda *a, **k: repo
     )
     installed = tmp_path / "installed"
     installed.mkdir()
@@ -151,7 +151,7 @@ def test_catalog_resolves_structured_source_and_excludes_structured_skills(
     # Act
     catalog = service_get_plugins_marketplace_catalog(installed_dir=installed)
 
-    # Assert: the structured skill is excluded; the plugin keeps its coordinates.
+    # Assert: the structured track is excluded; the plugin keeps its coordinates.
     assert [p.name for p in catalog] == ["gh-plugin"]
     assert catalog[0].source == "github:owner/repo"
     assert catalog[0].ref == "v1.0.0"
@@ -168,7 +168,7 @@ def test_catalog_marks_installed_plugins(tmp_path: Path, monkeypatch):
         ],
     )
     monkeypatch.setattr(
-        plugins_service, "update_skills_repository", lambda *a, **k: repo
+        plugins_service, "update_tracks_repository", lambda *a, **k: repo
     )
     store = tmp_path / "installed"
     store.mkdir()
@@ -190,7 +190,7 @@ def test_catalog_enriches_local_plugin_entries_with_contents(
     tmp_path: Path, monkeypatch
 ):
     # Arrange: the catalog entry's ./plugins/ source exists inside the repo
-    # clone, with a bundled skill and a docs file.
+    # clone, with a bundled track and a docs file.
     repo = _write_marketplace(
         tmp_path / "ext",
         [{"name": "local-plugin", "source": "./plugins/local-plugin"}],
@@ -198,14 +198,14 @@ def test_catalog_enriches_local_plugin_entries_with_contents(
     plugin_dir = _make_installable_plugin(
         repo / "plugins" / "local-plugin", "local-plugin"
     )
-    skill_dir = plugin_dir / "skills" / "hello"
-    skill_dir.mkdir(parents=True)
-    (skill_dir / "SKILL.md").write_text(
+    track_dir = plugin_dir / "tracks" / "hello"
+    track_dir.mkdir(parents=True)
+    (track_dir / "TRACK.md").write_text(
         "---\nname: hello\ndescription: Say hello politely\n---\nGreet the user."
     )
     (plugin_dir / "README.md").write_text("# Local plugin")
     monkeypatch.setattr(
-        plugins_service, "update_skills_repository", lambda *a, **k: repo
+        plugins_service, "update_tracks_repository", lambda *a, **k: repo
     )
     installed = tmp_path / "installed"
     installed.mkdir()
@@ -217,13 +217,13 @@ def test_catalog_enriches_local_plugin_entries_with_contents(
     entry = catalog[0]
     assert entry.path is not None
     assert entry.path.endswith("plugins/local-plugin")
-    assert [(s.name, s.description) for s in entry.skills or []] == [
+    assert [(s.name, s.description) for s in entry.tracks or []] == [
         ("hello", "Say hello politely")
     ]
     assert entry.files == [
         ".plugin/plugin.json",
         "README.md",
-        "skills/hello/SKILL.md",
+        "tracks/hello/TRACK.md",
     ]
 
 
@@ -245,7 +245,7 @@ def test_catalog_leaves_contents_unset_for_remote_sources(tmp_path: Path, monkey
         ],
     )
     monkeypatch.setattr(
-        plugins_service, "update_skills_repository", lambda *a, **k: repo
+        plugins_service, "update_tracks_repository", lambda *a, **k: repo
     )
     installed = tmp_path / "installed"
     installed.mkdir()
@@ -255,7 +255,7 @@ def test_catalog_leaves_contents_unset_for_remote_sources(tmp_path: Path, monkey
 
     # Assert
     assert catalog[0].path is None
-    assert catalog[0].skills is None
+    assert catalog[0].tracks is None
     assert catalog[0].files is None
 
 
@@ -273,7 +273,7 @@ class TestPluginsMarketplaceRoute:
             )
         ]
         monkeypatch.setattr(
-            "openhands.agent_server.plugins_router."
+            "handprint.agent_server.plugins_router."
             "service_get_plugins_marketplace_catalog",
             lambda: sample,
         )
@@ -296,7 +296,7 @@ class TestPluginsMarketplaceRoute:
                     "repo_path": "plugins/p",
                     "installed": True,
                     "path": None,
-                    "skills": None,
+                    "tracks": None,
                     "files": None,
                 }
             ]

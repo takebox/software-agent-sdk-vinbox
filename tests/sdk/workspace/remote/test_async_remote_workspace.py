@@ -7,43 +7,43 @@ from unittest.mock import AsyncMock, Mock, patch
 import httpx
 import pytest
 
-from openhands.sdk.workspace.models import CommandResult, FileOperationResult
-from openhands.sdk.workspace.remote.async_remote_workspace import AsyncRemoteWorkspace
+from handprint.sdk.workspace.models import CommandResult, FileOperationResult
+from handprint.sdk.workspace.remote.async_remote_workspace import AsyncRemoteWorkspace
 
 
 def test_async_remote_workspace_initialization():
     """Test AsyncRemoteWorkspace can be initialized with required parameters."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", api_key="test-key", working_dir="workspace"
+        host="http://localhost:9000", api_key="test-key", working_dir="workspace"
     )
 
-    assert workspace.host == "http://localhost:8000"
+    assert workspace.host == "http://localhost:9000"
     assert workspace.api_key == "test-key"
 
 
 def test_async_remote_workspace_initialization_without_api_key():
     """Test AsyncRemoteWorkspace can be initialized without API key."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
-    assert workspace.host == "http://localhost:8000"
+    assert workspace.host == "http://localhost:9000"
     assert workspace.api_key is None
 
 
 def test_async_remote_workspace_host_normalization():
     """Test that host URL is normalized by removing trailing slash."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000/", working_dir="workspace"
+        host="http://localhost:9000/", working_dir="workspace"
     )
 
-    assert workspace.host == "http://localhost:8000"
+    assert workspace.host == "http://localhost:9000"
 
 
 def test_async_client_property_lazy_initialization():
     """Test that client property creates httpx.AsyncClient lazily."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     # Client should be None initially
@@ -61,7 +61,7 @@ def test_async_client_property_lazy_initialization():
 def test_async_headers_property_with_api_key():
     """Test _headers property includes API key when present."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", api_key="test-key", working_dir="workspace"
+        host="http://localhost:9000", api_key="test-key", working_dir="workspace"
     )
 
     headers = workspace._headers
@@ -71,7 +71,7 @@ def test_async_headers_property_with_api_key():
 def test_async_headers_property_without_api_key():
     """Test _headers property is empty when no API key."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     headers = workspace._headers
@@ -82,7 +82,7 @@ def test_async_headers_property_without_api_key():
 async def test_async_execute_method():
     """Test _execute method handles async generator protocol correctly."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     # Mock async client
@@ -104,12 +104,12 @@ async def test_async_execute_method():
 
 @pytest.mark.asyncio
 @patch(
-    "openhands.sdk.workspace.remote.async_remote_workspace.AsyncRemoteWorkspace._execute"
+    "handprint.sdk.workspace.remote.async_remote_workspace.AsyncRemoteWorkspace._execute"
 )
 async def test_async_execute_command(mock_execute):
     """Test execute_command method calls _execute with correct generator."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     expected_result = CommandResult(
@@ -133,12 +133,12 @@ async def test_async_execute_command(mock_execute):
 
 @pytest.mark.asyncio
 @patch(
-    "openhands.sdk.workspace.remote.async_remote_workspace.AsyncRemoteWorkspace._execute"
+    "handprint.sdk.workspace.remote.async_remote_workspace.AsyncRemoteWorkspace._execute"
 )
 async def test_async_file_upload(mock_execute):
     """Test file_upload method calls _execute with correct generator."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     expected_result = FileOperationResult(
@@ -161,12 +161,12 @@ async def test_async_file_upload(mock_execute):
 
 @pytest.mark.asyncio
 @patch(
-    "openhands.sdk.workspace.remote.async_remote_workspace.AsyncRemoteWorkspace._execute"
+    "handprint.sdk.workspace.remote.async_remote_workspace.AsyncRemoteWorkspace._execute"
 )
 async def test_async_file_download(mock_execute):
     """Test file_download method calls _execute with correct generator."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     expected_result = FileOperationResult(
@@ -191,7 +191,7 @@ async def test_async_file_download(mock_execute):
 async def test_async_execute_command_with_path_objects():
     """Test execute_command works with Path objects for cwd."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     with patch.object(workspace, "_execute") as mock_execute:
@@ -214,7 +214,7 @@ async def test_async_execute_command_with_path_objects():
 async def test_async_file_operations_with_path_objects():
     """Test file operations work with Path objects."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     with patch.object(workspace, "_execute") as mock_execute:
@@ -241,12 +241,12 @@ async def test_async_file_operations_with_path_objects():
 
 def test_async_inheritance():
     """Test AsyncRemoteWorkspace inherits from correct base classes."""
-    from openhands.sdk.workspace.remote.remote_workspace_mixin import (
+    from handprint.sdk.workspace.remote.remote_workspace_mixin import (
         RemoteWorkspaceMixin,
     )
 
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     assert isinstance(workspace, RemoteWorkspaceMixin)
@@ -256,7 +256,7 @@ def test_async_inheritance():
 async def test_async_execute_with_exception_handling():
     """Test _execute method handles exceptions in generator correctly."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     # Mock async client to raise an exception
@@ -279,7 +279,7 @@ async def test_async_execute_with_exception_handling():
 async def test_async_execute_generator_completion():
     """Test _execute method properly handles StopIteration to get return value."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     # Mock async client
@@ -308,7 +308,7 @@ async def test_async_execute_generator_completion():
 async def test_async_execute_multiple_yields():
     """Test _execute method handles multiple yields correctly."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     # Mock async client
@@ -337,7 +337,7 @@ async def test_async_execute_multiple_yields():
 async def test_async_concurrent_operations():
     """Test that multiple async operations can run concurrently."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     with patch.object(workspace, "_execute") as mock_execute:
@@ -392,11 +392,11 @@ class MockHTTPResponse:
         pass
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_returns_true_on_successful_health_check(mock_urlopen):
     """Test alive property returns True when health endpoint returns 2xx status."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     mock_urlopen.return_value = MockHTTPResponse(status=200)
@@ -404,14 +404,14 @@ def test_async_alive_returns_true_on_successful_health_check(mock_urlopen):
     result = workspace.alive
 
     assert result is True
-    mock_urlopen.assert_called_once_with("http://localhost:8000/health", timeout=5.0)
+    mock_urlopen.assert_called_once_with("http://localhost:9000/health", timeout=5.0)
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_returns_true_on_204_status(mock_urlopen):
     """Test alive property returns True when health endpoint returns 204 No Content."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     mock_urlopen.return_value = MockHTTPResponse(status=204)
@@ -421,11 +421,11 @@ def test_async_alive_returns_true_on_204_status(mock_urlopen):
     assert result is True
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_returns_false_on_server_error(mock_urlopen):
     """Test alive property returns False when health endpoint returns 5xx status."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     mock_urlopen.return_value = MockHTTPResponse(status=500)
@@ -435,11 +435,11 @@ def test_async_alive_returns_false_on_server_error(mock_urlopen):
     assert result is False
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_returns_false_on_client_error(mock_urlopen):
     """Test alive property returns False when health endpoint returns 4xx status."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     mock_urlopen.return_value = MockHTTPResponse(status=404)
@@ -449,11 +449,11 @@ def test_async_alive_returns_false_on_client_error(mock_urlopen):
     assert result is False
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_returns_false_on_connection_error(mock_urlopen):
     """Test alive property returns False when connection fails."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     mock_urlopen.side_effect = Exception("Connection refused")
@@ -463,11 +463,11 @@ def test_async_alive_returns_false_on_connection_error(mock_urlopen):
     assert result is False
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_returns_false_on_timeout(mock_urlopen):
     """Test alive property returns False when request times out."""
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000", working_dir="workspace"
+        host="http://localhost:9000", working_dir="workspace"
     )
 
     from urllib.error import URLError
@@ -479,7 +479,7 @@ def test_async_alive_returns_false_on_timeout(mock_urlopen):
     assert result is False
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_constructs_correct_health_url(mock_urlopen):
     """Test alive property constructs correct health URL from host."""
     workspace = AsyncRemoteWorkspace(
@@ -495,12 +495,12 @@ def test_async_alive_constructs_correct_health_url(mock_urlopen):
     )
 
 
-@patch("openhands.sdk.workspace.remote.async_remote_workspace.urlopen")
+@patch("handprint.sdk.workspace.remote.async_remote_workspace.urlopen")
 def test_async_alive_with_normalized_host(mock_urlopen):
     """Test alive property works correctly when host was normalized."""
     # Host with trailing slash gets normalized in model_post_init
     workspace = AsyncRemoteWorkspace(
-        host="http://localhost:8000/", working_dir="workspace"
+        host="http://localhost:9000/", working_dir="workspace"
     )
 
     mock_urlopen.return_value = MockHTTPResponse(status=200)
@@ -509,7 +509,7 @@ def test_async_alive_with_normalized_host(mock_urlopen):
 
     assert result is True
     # Should not have double slash
-    mock_urlopen.assert_called_once_with("http://localhost:8000/health", timeout=5.0)
+    mock_urlopen.assert_called_once_with("http://localhost:9000/health", timeout=5.0)
 
 
 def test_async_alive_is_property():

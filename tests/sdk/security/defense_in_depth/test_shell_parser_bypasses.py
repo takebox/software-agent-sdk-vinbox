@@ -55,10 +55,10 @@ import json
 
 import pytest
 
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.security.defense_in_depth.pattern import PatternSecurityAnalyzer
-from openhands.sdk.security.risk import SecurityRisk
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.security.defense_in_depth.pattern import PatternSecurityAnalyzer
+from handprint.sdk.security.risk import SecurityRisk
 
 
 def make_action(command: str, tool_name: str = "bash") -> ActionEvent:

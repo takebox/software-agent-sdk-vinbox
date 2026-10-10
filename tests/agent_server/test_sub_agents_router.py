@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_get_sub_agents_exposes_full_frontmatter(client, tmp_path: Path):
         "model: inherit\n"
         "color: purple\n"
         "tools:\n  - TerminalTool\n"
-        "skills:\n  - some-skill\n"
+        "tracks:\n  - some-track\n"
         "permission_mode: confirm_risky\n"
         "max_iteration_per_run: 7\n"
         "max_budget_per_run: 1.5\n"
@@ -110,7 +110,7 @@ def test_get_sub_agents_exposes_full_frontmatter(client, tmp_path: Path):
     assert response.status_code == 200
     agent = {a["name"]: a for a in response.json()["agents"]}["full"]
 
-    assert agent["skills"] == ["some-skill"]
+    assert agent["tracks"] == ["some-track"]
     assert agent["permission_mode"] == "confirm_risky"
     assert agent["max_iteration_per_run"] == 7
     assert agent["max_budget_per_run"] == 1.5

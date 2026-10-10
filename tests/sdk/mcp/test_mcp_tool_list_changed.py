@@ -2,7 +2,7 @@
 
 Some MCP servers (e.g. Datadog's hosted MCP server) use progressive
 disclosure: they expose a small gateway toolset at connect time and register
-additional tools only after a skill-loading tool is invoked, signalling the
+additional tools only after a track-loading tool is invoked, signalling the
 change with ``notifications/tools/list_changed``. These tests verify that
 ``create_mcp_tools`` subscribes to that notification, re-lists tools, and
 invokes the ``on_tools_changed`` callback with the newly added tools.
@@ -27,13 +27,13 @@ from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_context
 from pydantic import SecretStr, ValidationError
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.agent.base import AgentBase
-from openhands.sdk.llm import LLM, TextContent
-from openhands.sdk.mcp import MCPClient, create_mcp_tools
-from openhands.sdk.mcp.config import coerce_mcp_config
-from openhands.sdk.mcp.tool import MCPToolDefinition
-from openhands.sdk.mcp.utils import (
+from handprint.sdk.agent import Agent
+from handprint.sdk.agent.base import AgentBase
+from handprint.sdk.llm import LLM, TextContent
+from handprint.sdk.mcp import MCPClient, create_mcp_tools
+from handprint.sdk.mcp.config import coerce_mcp_config
+from handprint.sdk.mcp.tool import MCPToolDefinition
+from handprint.sdk.mcp.utils import (
     _refresh_tools,
     _ToolListChangedHandler,
 )
@@ -348,7 +348,7 @@ def test_default_provider_wires_on_tools_reconciled_before_connect(
     of being set on the client after create_tools() already returned (which
     would drop any notification that arrives during the initial connect).
     """
-    from openhands.sdk.mcp.utils import DefaultMCPToolProvider
+    from handprint.sdk.mcp.utils import DefaultMCPToolProvider
 
     port = progressive_server
     config = _native_config(

@@ -1,6 +1,6 @@
 """Content-policy blocks recover softly instead of hard-erroring.
 
-See https://github.com/OpenHands/software-agent-sdk/issues/3798. An Anthropic
+See https://github.com/OpenHands/software-agent-sdk/issues/3798. An Juglow
 output content-policy block surfaces as ``LLMContentPolicyViolationError``. The
 agent should emit a non-fatal user nudge and return so the run loop continues,
 rather than letting it escape ``step``/``astep`` and become a fatal
@@ -10,12 +10,12 @@ rather than letting it escape ``step``/``astep`` and become a fatal
 import pytest
 from pydantic import PrivateAttr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.event import MessageEvent
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.llm import LLM
-from openhands.sdk.llm.exceptions import LLMContentPolicyViolationError
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.event import MessageEvent
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.llm import LLM
+from handprint.sdk.llm.exceptions import LLMContentPolicyViolationError
 
 
 class ContentPolicyRaisingLLM(LLM):

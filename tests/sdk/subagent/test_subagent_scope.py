@@ -1,10 +1,10 @@
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, Tool
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.subagent import AgentDefinition, SubAgentScope
-from openhands.sdk.subagent.scope import scope_delegation_tools
+from handprint.sdk import LLM, Agent, Tool
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.subagent import AgentDefinition, SubAgentScope
+from handprint.sdk.subagent.scope import scope_delegation_tools
 
 
 def _agent(*tools: str, mcp: tuple[str, ...] = (), **kwargs) -> Agent:
@@ -113,4 +113,4 @@ def test_an_unrestricted_scope_marks_nothing() -> None:
 
 def test_a_scope_rejects_unknown_axes() -> None:
     with pytest.raises(ValueError):
-        SubAgentScope.model_validate({"skills": True})
+        SubAgentScope.model_validate({"tracks": True})

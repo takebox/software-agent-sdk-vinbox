@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-import openhands.agent_server
+import handprint.agent_server
 
 
-PACKAGE_ROOT = Path(openhands.agent_server.__file__).parent
+PACKAGE_ROOT = Path(handprint.agent_server.__file__).parent
 LAUNCH_MODULE = PACKAGE_ROOT / "launch.py"
 AGENT_CLASSES = {"Agent", "ACPAgent"}
 AGENT_SOURCES = {"agent", "agent_settings", "agent_profile_id"}

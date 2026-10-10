@@ -1,4 +1,4 @@
-name: Update Documentation (by OpenHands)
+name: Update Documentation (by Handprint)
 
 on:
   schedule:
@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update Documentation with OpenHands
-        uses: All-Hands-AI/openhands-github-action@v1
+      - name: Update Documentation with Handprint
+        uses: All-Hands-AI/handprint-github-action@v1
         with:
           prompt: .github/prompts/update-documentation.md
           repository: ${{ github.repository }}
@@ -27,4 +27,4 @@ jobs:
           timeout-seconds: 1800
           poll-interval-seconds: 30
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          openhands-api-key: ${{ secrets.OPENHANDS_API_KEY }}
+          handprint-api-key: ${{ secrets.HANDPRINT_API_KEY }}

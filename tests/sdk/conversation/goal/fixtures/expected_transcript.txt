@@ -3,7 +3,7 @@ assistant: <think>Let me analyze the task. I need to:
 1. Build the session URL
 2. Extract PR info from the event payload
 3. Post a progress comment and save the comment ID
-4. Review the PR using the code-review and github-pr-review skills
+4. Review the PR using the code-review and github-pr-review tracks
 5. Update the progress comment when done
 
 Let me start by executing Steps 1 and 2.

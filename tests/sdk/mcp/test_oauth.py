@@ -10,7 +10,7 @@ import httpx
 import pytest
 from key_value.aio.stores.memory import MemoryStore
 
-from openhands.sdk.mcp.oauth import MCPOAuth
+from handprint.sdk.mcp.oauth import MCPOAuth
 
 
 pytestmark = pytest.mark.filterwarnings("ignore:Using in-memory token storage")

@@ -5,9 +5,9 @@ from typing import cast
 import pytest
 from pydantic import PrivateAttr
 
-from openhands.sdk.conversation.goal import GoalVerdict, judge_goal
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.testing import TestLLM
+from handprint.sdk.conversation.goal import GoalVerdict, judge_goal
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.testing import TestLLM
 
 
 def _judge(text: str) -> TestLLM:

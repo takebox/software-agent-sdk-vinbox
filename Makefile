@@ -32,7 +32,7 @@ check-uv-version:
 	$(ECHO) "$(GREEN)uv version $$UV_VERSION meets requirements$(RESET)"
 
 build: check-uv-version
-	@$(ECHO) "$(CYAN)Setting up OpenHands V1 development environment...$(RESET)"
+	@$(ECHO) "$(CYAN)Setting up Handprint V1 development environment...$(RESET)"
 	@$(ECHO) "$(YELLOW)Installing dependencies with uv sync --dev...$(RESET)"
 	@uv sync --dev
 	@$(ECHO) "$(GREEN)Dependencies installed successfully.$(RESET)"
@@ -66,7 +66,7 @@ clean:
 
 # Show help
 help:
-	@$(ECHO) "$(CYAN)OpenHands V1 Makefile$(RESET)"
+	@$(ECHO) "$(CYAN)Handprint V1 Makefile$(RESET)"
 	@$(ECHO) ""
 	@$(ECHO) "$(UNDERLINE)Usage:$(RESET) make <COMMAND>"
 	@$(ECHO) ""
@@ -82,17 +82,17 @@ help:
 
 build-server: check-uv-version
 	@$(ECHO) "$(CYAN)Building agent-server executable...$(RESET)"
-	@uv run pyinstaller openhands-agent-server/openhands/agent_server/agent-server.spec
+	@uv run pyinstaller openhands-agent-server/handprint/agent_server/agent-server.spec
 	@$(ECHO) "$(GREEN)Build complete! Executable is in dist/agent-server/$(RESET)"
 
 test-server-schema: check-uv-version
 	@set -euo pipefail; \
 		OPENAPI_TMP_DIR="$$(mktemp -d)"; \
 		trap 'rm -r "$$OPENAPI_TMP_DIR"' EXIT; \
-		OPENHANDS_SUPPRESS_BANNER=1 uv run python \
+		HANDPRINT_SUPPRESS_BANNER=1 uv run python \
 			.github/scripts/export_agent_server_openapi.py \
 			--output "$$OPENAPI_TMP_DIR/openapi.json"; \
-		OPENHANDS_SUPPRESS_BANNER=1 uv run python \
+		HANDPRINT_SUPPRESS_BANNER=1 uv run python \
 			.github/scripts/export_agent_server_openapi.py \
 			--output "$$OPENAPI_TMP_DIR/openapi-second.json"; \
 		cmp "$$OPENAPI_TMP_DIR/openapi.json" \

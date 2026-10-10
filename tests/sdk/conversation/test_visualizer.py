@@ -12,11 +12,11 @@ from pydantic import Field
 from rich.console import Group
 from rich.text import Text
 
-from openhands.sdk.conversation.conversation_stats import ConversationStats
-from openhands.sdk.conversation.visualizer import (
+from handprint.sdk.conversation.conversation_stats import ConversationStats
+from handprint.sdk.conversation.visualizer import (
     DefaultConversationVisualizer,
 )
-from openhands.sdk.event import (
+from handprint.sdk.event import (
     ActionEvent,
     AgentErrorEvent,
     CondensationRequest,
@@ -27,20 +27,20 @@ from openhands.sdk.event import (
     SystemPromptEvent,
     UserRejectObservation,
 )
-from openhands.sdk.event.base import Event
-from openhands.sdk.event.types import SourceType
-from openhands.sdk.llm import (
+from handprint.sdk.event.base import Event
+from handprint.sdk.event.types import SourceType
+from handprint.sdk.llm import (
     Message,
     MessageToolCall,
     ReasoningItemModel,
     TextContent,
 )
-from openhands.sdk.llm.utils.metrics import Metrics
-from openhands.sdk.tool import Action, Observation, ToolDefinition, ToolExecutor
+from handprint.sdk.llm.utils.metrics import Metrics
+from handprint.sdk.tool import Action, Observation, ToolDefinition, ToolExecutor
 
 
 if TYPE_CHECKING:
-    from openhands.sdk.conversation.impl.local_conversation import LocalConversation
+    from handprint.sdk.conversation.impl.local_conversation import LocalConversation
 
 
 class _UnknownEventForVisualizerTest(Event):
@@ -311,7 +311,7 @@ def test_message_event_visualize():
     event = MessageEvent(
         source="user",
         llm_message=message,
-        activated_skills=["helper", "analyzer"],
+        activated_tracks=["helper", "analyzer"],
         extended_content=[TextContent(text="Additional context")],
     )
 
@@ -320,7 +320,7 @@ def test_message_event_visualize():
 
     text_content = result.plain
     assert "Hello, how can you help me?" in text_content
-    assert "Activated Skills: helper, analyzer" in text_content
+    assert "Activated Tracks: helper, analyzer" in text_content
     assert "Prompt Extension based on Agent Context:" in text_content
     assert "Additional context" in text_content
 
@@ -554,8 +554,8 @@ def test_metrics_formatting():
     """Test metrics subtitle formatting."""
     from unittest.mock import MagicMock
 
-    from openhands.sdk.conversation.conversation_stats import ConversationStats
-    from openhands.sdk.llm.utils.metrics import Metrics
+    from handprint.sdk.conversation.conversation_stats import ConversationStats
+    from handprint.sdk.llm.utils.metrics import Metrics
 
     # Create conversation stats with metrics
     conversation_stats = ConversationStats()
@@ -628,8 +628,8 @@ def test_metrics_abbreviation_formatting():
     """Test number abbreviation with various edge cases."""
     from unittest.mock import MagicMock
 
-    from openhands.sdk.conversation.conversation_stats import ConversationStats
-    from openhands.sdk.llm.utils.metrics import Metrics
+    from handprint.sdk.conversation.conversation_stats import ConversationStats
+    from handprint.sdk.llm.utils.metrics import Metrics
 
     test_cases = [
         # (input_tokens, expected_abbr)
@@ -1017,7 +1017,7 @@ def test_event_base_fallback_visualize():
 
 def test_conversation_error_event_visualize():
     """Test that ConversationErrorEvent provides a specific visualization."""
-    from openhands.sdk.event.conversation_error import ConversationErrorEvent
+    from handprint.sdk.event.conversation_error import ConversationErrorEvent
 
     event = ConversationErrorEvent(
         source="environment",

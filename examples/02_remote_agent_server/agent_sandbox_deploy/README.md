@@ -8,7 +8,7 @@ cluster such as GKE. Only the cluster-creation step differs.
 ## 1. Create a cluster
 
 ```bash
-kind create cluster --name openhands
+kind create cluster --name handprint
 ```
 
 ## 2. Install the agent-sandbox controller + extensions
@@ -68,4 +68,4 @@ agent editing files, then a **pause** (pod suspended, PVC retained) and **resume
 - **Strong isolation.** Uncomment `runtimeClassName: gvisor` in `sandboxtemplate.yaml`
   (requires a gVisor-enabled node pool) to sandbox untrusted agent code at the kernel
   boundary.
-- **Cleanup.** `kind delete cluster --name openhands`.
+- **Cleanup.** `kind delete cluster --name handprint`.

@@ -5,19 +5,19 @@ This module consolidates common event creation helpers used across the view test
 
 from collections.abc import Sequence
 
-from openhands.sdk.event.llm_convertible import (
+from handprint.sdk.event.llm_convertible import (
     ActionEvent,
     MessageEvent,
     ObservationEvent,
 )
-from openhands.sdk.llm import (
+from handprint.sdk.llm import (
     Message,
     MessageToolCall,
     RedactedThinkingBlock,
     TextContent,
     ThinkingBlock,
 )
-from openhands.sdk.mcp.definition import MCPToolAction, MCPToolObservation
+from handprint.sdk.mcp.definition import MCPToolAction, MCPToolObservation
 
 
 def message_event(content: str) -> MessageEvent:

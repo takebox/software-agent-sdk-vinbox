@@ -14,7 +14,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 const CONVERSATION_INFO = {
   execution_status: 'running',
   confirmation_policy: { kind: 'NeverConfirm' },
-  activated_knowledge_skills: ['skill-a', 'skill-b'],
+  activated_knowledge_tracks: ['track-a', 'track-b'],
   agent: { kind: 'Agent', name: 'test-agent' },
   workspace: { kind: 'LocalWorkspace' },
   persistence_dir: '/data/conversations/abc',
@@ -38,7 +38,7 @@ describe('RemoteState full_state normalization', () => {
 
     await expect(state.getExecutionStatus()).resolves.toBe('running');
     await expect(state.getConfirmationPolicy()).resolves.toEqual({ kind: 'NeverConfirm' });
-    await expect(state.getActivatedKnowledgeSkills()).resolves.toEqual(['skill-a', 'skill-b']);
+    await expect(state.getActivatedKnowledgeTracks()).resolves.toEqual(['track-a', 'track-b']);
     await expect(state.getAgent()).resolves.toEqual({ kind: 'Agent', name: 'test-agent' });
     await expect(state.getWorkspace()).resolves.toEqual({ kind: 'LocalWorkspace' });
     await expect(state.getPersistenceDir()).resolves.toBe('/data/conversations/abc');
@@ -52,7 +52,7 @@ describe('RemoteState full_state normalization', () => {
 
     await expect(state.getExecutionStatus()).resolves.toBe('running');
     await expect(state.getConfirmationPolicy()).resolves.toEqual({ kind: 'NeverConfirm' });
-    await expect(state.getActivatedKnowledgeSkills()).resolves.toEqual(['skill-a', 'skill-b']);
+    await expect(state.getActivatedKnowledgeTracks()).resolves.toEqual(['track-a', 'track-b']);
     await expect(state.getAgent()).resolves.toEqual({ kind: 'Agent', name: 'test-agent' });
     await expect(state.getWorkspace()).resolves.toEqual({ kind: 'LocalWorkspace' });
     await expect(state.getPersistenceDir()).resolves.toBe('/data/conversations/abc');

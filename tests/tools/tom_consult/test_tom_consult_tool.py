@@ -2,8 +2,8 @@
 
 import pytest
 
-from openhands.sdk.tool import DeclaredResources
-from openhands.tools.tom_consult.definition import (
+from handprint.sdk.tool import DeclaredResources
+from handprint.tools.tom_consult.definition import (
     ConsultTomAction,
     ConsultTomObservation,
     TomConsultTool,

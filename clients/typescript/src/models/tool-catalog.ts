@@ -1,4 +1,4 @@
-/** One entry of `GET /api/tools/catalog`; mirrors `openhands.sdk.tool.registry.ToolCatalogEntry`. */
+/** One entry of `GET /api/tools/catalog`; mirrors `handprint.sdk.tool.registry.ToolCatalogEntry`. */
 export interface ToolCatalogEntry {
   name: string;
   user_selectable: boolean;

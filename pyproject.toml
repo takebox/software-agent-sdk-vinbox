@@ -87,7 +87,7 @@ extend-immutable-calls = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["openhands"]
+known-first-party = ["handprint"]
 combine-as-imports = true
 force-single-line = false
 lines-after-imports = 2

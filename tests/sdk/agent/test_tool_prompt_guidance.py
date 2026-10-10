@@ -2,16 +2,16 @@ from collections.abc import Sequence
 from typing import ClassVar
 from uuid import uuid4
 
-from openhands.sdk import LLM
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.event import Event, SystemPromptEvent
-from openhands.sdk.llm.message import ImageContent, TextContent
-from openhands.sdk.tool import ToolDefinition
-from openhands.sdk.tool.registry import register_tool
-from openhands.sdk.tool.spec import Tool
-from openhands.sdk.tool.tool import Action, Observation, ToolExecutor
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk import LLM
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.event import Event, SystemPromptEvent
+from handprint.sdk.llm.message import ImageContent, TextContent
+from handprint.sdk.tool import ToolDefinition
+from handprint.sdk.tool.registry import register_tool
+from handprint.sdk.tool.spec import Tool
+from handprint.sdk.tool.tool import Action, Observation, ToolExecutor
+from handprint.sdk.workspace import LocalWorkspace
 
 
 SHARED = "<SHARED_GUIDANCE>\n* shared rule\n</SHARED_GUIDANCE>"

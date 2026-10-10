@@ -21,10 +21,10 @@ from acp.exceptions import RequestError as ACPRequestError
 from acp.schema import NewSessionResponse, PromptResponse
 from pydantic import SecretStr
 
-import openhands.sdk.agent.acp_agent as acp_agent_module
-import openhands.sdk.agent.acp_file_credentials as acp_file_credentials_module
-import openhands.sdk.utils.files as files_module
-from openhands.sdk.agent.acp_agent import (
+import handprint.sdk.agent.acp_agent as acp_agent_module
+import handprint.sdk.agent.acp_file_credentials as acp_file_credentials_module
+import handprint.sdk.utils.files as files_module
+from handprint.sdk.agent.acp_agent import (
     ACPAgent,
     _acp_error_detail,
     _acp_error_indicates_auth,
@@ -43,7 +43,7 @@ from openhands.sdk.agent.acp_agent import (
     _maybe_set_session_model,
     _mcp_config_to_acp_servers,
     _npx_packages,
-    _OpenHandsACPBridge,
+    _HandprintACPBridge,
     _preconfigured_credentials,
     _reapply_session_model_on_resume,
     _select_auth_method,
@@ -53,45 +53,45 @@ from openhands.sdk.agent.acp_agent import (
     _warn_auth_selection_failure,
     _with_codex_base_url,
 )
-from openhands.sdk.agent.acp_file_credentials import (
+from handprint.sdk.agent.acp_file_credentials import (
     ACPFileCredentialNeedsReauthError,
     ACPFileCredentialSyncError,
     codex_auth_file,
 )
-from openhands.sdk.agent.acp_models import ACPModelInfo
-from openhands.sdk.agent.base import AgentBase
-from openhands.sdk.agent.stream_context import (
+from handprint.sdk.agent.acp_models import ACPModelInfo
+from handprint.sdk.agent.base import AgentBase
+from handprint.sdk.agent.stream_context import (
     StreamAborted,
     StreamDelta,
     StreamStarted,
 )
-from openhands.sdk.context import AgentContext
-from openhands.sdk.conversation.secret_registry import SecretRegistry
-from openhands.sdk.conversation.state import (
+from handprint.sdk.context import AgentContext
+from handprint.sdk.conversation.secret_registry import SecretRegistry
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.credential import CredentialSyncError, ResolvedCredential
-from openhands.sdk.event import (
+from handprint.sdk.credential import CredentialSyncError, ResolvedCredential
+from handprint.sdk.event import (
     ACPToolCallEvent,
     ActionEvent,
     MessageEvent,
     SystemPromptEvent,
 )
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.llm import ImageContent, Message, TextContent
-from openhands.sdk.mcp.config import coerce_mcp_config
-from openhands.sdk.secret import SecretSource
-from openhands.sdk.settings.acp_install_catalog import (
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.llm import ImageContent, Message, TextContent
+from handprint.sdk.mcp.config import coerce_mcp_config
+from handprint.sdk.secret import SecretSource
+from handprint.sdk.settings.acp_install_catalog import (
     ACPInstallSpec,
     ACPPackagePin,
 )
-from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
-from openhands.sdk.skills import KeywordTrigger, Skill
-from openhands.sdk.tool.builtins.finish import FinishAction
-from openhands.sdk.utils.cipher import Cipher
-from openhands.sdk.utils.pydantic_secrets import REDACTED_SECRET_VALUE
-from openhands.sdk.workspace.local import LocalWorkspace
+from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
+from handprint.sdk.tracks import KeywordTrigger, Track
+from handprint.sdk.tool.builtins.finish import FinishAction
+from handprint.sdk.utils.cipher import Cipher
+from handprint.sdk.utils.pydantic_secrets import REDACTED_SECRET_VALUE
+from handprint.sdk.workspace.local import LocalWorkspace
 
 
 # ---------------------------------------------------------------------------
@@ -234,7 +234,7 @@ async def test_warm_npx_cache_passes_every_pinned_package(tmp_path):
     process.wait = AsyncMock(return_value=0)
 
     with patch(
-        "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+        "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
         new=AsyncMock(return_value=process),
     ) as create_process:
         await agent._warm_npx_cache(
@@ -265,7 +265,7 @@ async def test_warm_npx_cache_uses_prefer_offline_and_durable_env(tmp_path):
     env = {"npm_config_cache": str(tmp_path / "npm-cache")}
 
     with patch(
-        "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+        "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
         new=AsyncMock(return_value=process),
     ) as create_process:
         await agent._warm_npx_cache(
@@ -367,8 +367,8 @@ class TestACPAgentInstantiation:
             ACPAgent()  # type: ignore[call-arg]
 
     def test_acp_command_stored(self):
-        agent = ACPAgent(acp_command=["npx", "-y", "claude-agent-acp"])
-        assert agent.acp_command == ["npx", "-y", "claude-agent-acp"]
+        agent = ACPAgent(acp_command=["npx", "-y", "haijun-agent-acp"])
+        assert agent.acp_command == ["npx", "-y", "haijun-agent-acp"]
 
     def test_acp_args_default_empty(self):
         agent = _make_agent()
@@ -397,8 +397,8 @@ class TestACPAgentInstantiation:
     def test_acp_model_propagated_to_llm_model(self):
         """acp_model overrides the sentinel model name so logs/state show
         the real model. The ACP-sentinel marker lives on usage_id."""
-        agent = _make_agent(acp_model="claude-opus-4-6")
-        assert agent.llm.model == "claude-opus-4-6"
+        agent = _make_agent(acp_model="haijun-kamsa")
+        assert agent.llm.model == "haijun-kamsa"
         assert agent.llm.usage_id == "acp-managed"
 
     def test_sentinel_usage_id_without_acp_model(self):
@@ -413,9 +413,9 @@ class TestACPAgentInstantiation:
 
     def test_acp_model_used_in_cost_entries(self):
         """Cost entries should use the actual model name, not the sentinel."""
-        agent = _make_agent(acp_model="claude-opus-4-6")
+        agent = _make_agent(acp_model="haijun-kamsa")
         agent.llm.metrics.add_cost(0.05)
-        assert agent.llm.metrics.costs[0].model == "claude-opus-4-6"
+        assert agent.llm.metrics.costs[0].model == "haijun-kamsa"
 
 
 # ---------------------------------------------------------------------------
@@ -431,7 +431,7 @@ class TestACPAgentSerialization:
 
     def test_roundtrip_serialization(self):
         agent = ACPAgent(
-            acp_command=["npx", "-y", "claude-agent-acp"],
+            acp_command=["npx", "-y", "haijun-agent-acp"],
             acp_args=["--verbose"],
         )
         dumped = agent.model_dump_json()
@@ -463,9 +463,9 @@ class TestACPAgentValidation:
         state = _make_state(tmp_path)
         events = []
         with (
-            patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"),
+            patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"),
             patch(
-                "openhands.sdk.utils.async_executor.AsyncExecutor",
+                "handprint.sdk.utils.async_executor.AsyncExecutor",
                 return_value=MagicMock(),
             ),
         ):
@@ -483,16 +483,16 @@ class TestACPAgentValidation:
             mcp_config=coerce_mcp_config({"test": {"command": "echo"}}),
         )
         # Should not raise; ACP receives MCP servers at session creation instead
-        # of OpenHands creating in-process runtime MCP tools.
+        # of Handprint creating in-process runtime MCP tools.
         self._init_with_patches(agent, tmp_path)
-        assert agent.supports_openhands_tools is False
+        assert agent.supports_handprint_tools is False
 
     def test_allows_agent_context_for_prompt_extensions(self, tmp_path):
         agent = ACPAgent(
             acp_command=["echo"],
             agent_context=AgentContext(
-                skills=[
-                    Skill(
+                tracks=[
+                    Track(
                         name="review",
                         content="Review instructions",
                         trigger=KeywordTrigger(keywords=["/review"]),
@@ -515,8 +515,8 @@ class TestACPAgentValidation:
 
     def test_agent_context_to_acp_prompt_context(self):
         context = AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="review",
                     content="Full review instructions",
                     trigger=KeywordTrigger(keywords=["/review"]),
@@ -544,12 +544,12 @@ class TestACPAgentValidation:
         assert "Prefer concise responses." not in prompt
 
     def test_agent_context_to_acp_prompt_context_returns_none_when_empty(self):
-        context = AgentContext(skills=[], current_datetime=None)
+        context = AgentContext(tracks=[], current_datetime=None)
 
         assert context.to_acp_prompt_context() is None
 
     def test_agent_context_to_acp_prompt_context_emits_datetime_by_default(self):
-        context = AgentContext(skills=[])
+        context = AgentContext(tracks=[])
 
         prompt = context.to_acp_prompt_context()
         assert prompt is not None
@@ -560,7 +560,7 @@ class TestACPAgentValidation:
         ACP subprocess knows which environment variables are available."""
         from pydantic import SecretStr
 
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         context = AgentContext(
             secrets={
@@ -581,19 +581,19 @@ class TestACPAgentValidation:
         assert "GitHub authentication token" in prompt
         assert "$MY_API_KEY" in prompt
 
-    def test_agent_context_to_acp_prompt_context_includes_legacy_repo_skills(self):
+    def test_agent_context_to_acp_prompt_context_includes_legacy_repo_tracks(self):
         context = AgentContext(
-            skills=[
-                Skill(
-                    name="claude",
+            tracks=[
+                Track(
+                    name="haijun",
                     content="Always follow the repository review checklist.",
                     trigger=None,
                 ),
-                Skill(
-                    name="repo-skill",
-                    content="Full AgentSkills instructions should stay out.",
+                Track(
+                    name="repo-track",
+                    content="Full AgentTracks instructions should stay out.",
                     description="Use repo-specific tools.",
-                    is_agentskills_format=True,
+                    is_agenttracks_format=True,
                 ),
             ],
             current_datetime=None,
@@ -603,17 +603,17 @@ class TestACPAgentValidation:
 
         assert prompt is not None
         assert "<REPO_CONTEXT>" in prompt
-        assert "[BEGIN context from [claude]]" in prompt
+        assert "[BEGIN context from [haijun]]" in prompt
         assert "Always follow the repository review checklist." in prompt
-        assert "<name>repo-skill</name>" in prompt
+        assert "<name>repo-track</name>" in prompt
         assert "<description>Use repo-specific tools.</description>" in prompt
-        assert "Full AgentSkills instructions should stay out." not in prompt
-        assert "<name>claude</name>" not in prompt
+        assert "Full AgentTracks instructions should stay out." not in prompt
+        assert "<name>haijun</name>" not in prompt
 
-    def test_agent_context_to_acp_prompt_context_lists_legacy_triggered_skills(self):
+    def test_agent_context_to_acp_prompt_context_lists_legacy_triggered_tracks(self):
         context = AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="roasted-review",
                     content="Use a stricter review tone.",
                     trigger=KeywordTrigger(keywords=["/roasted"]),
@@ -739,7 +739,7 @@ class TestACPAgentInitState:
         events: list = []
 
         with (
-            patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"),
+            patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"),
         ):
             agent.init_state(state, on_event=events.append)
 
@@ -753,7 +753,7 @@ class TestACPAgentInitState:
         state = _make_state(tmp_path)
         events: list = []
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=events.append)
 
         assert events[0].dynamic_context is None
@@ -765,7 +765,7 @@ class TestACPAgentInitState:
         state = _make_state(tmp_path)
         events: list = []
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=events.append)
 
         assert events[0].dynamic_context is not None
@@ -777,7 +777,7 @@ class TestACPAgentInitState:
         )
         state = _make_state(tmp_path)
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=lambda _: None)
 
         assert agent._suffix_install_state == "pending_first_prompt"
@@ -796,7 +796,7 @@ class TestACPAgentInitState:
             "acp_suffix_installed": True,
         }
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=lambda _: None)
 
         assert agent._suffix_install_state == "installed"
@@ -815,7 +815,7 @@ class TestACPAgentInitState:
         state = _make_state(tmp_path)
         state.agent_state = {"acp_session_id": "prior-session-id"}
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=lambda _: None)
 
         assert agent._suffix_install_state == "pending_first_prompt"
@@ -823,7 +823,7 @@ class TestACPAgentInitState:
     def test_init_state_includes_registry_secrets_in_suffix(self, tmp_path):
         from pydantic import SecretStr
 
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(agent_context=AgentContext(current_datetime=None))
         state = _make_state(tmp_path)
@@ -836,7 +836,7 @@ class TestACPAgentInitState:
         )
         events: list = []
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=events.append)
 
         assert events[0].dynamic_context is not None
@@ -855,7 +855,7 @@ class TestACPAgentInitState:
         """
         from pydantic import SecretStr
 
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()  # no agent_context
         state = _make_state(tmp_path)
@@ -868,7 +868,7 @@ class TestACPAgentInitState:
         )
         events: list = []
 
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=events.append)
 
         assert events[0].dynamic_context is not None
@@ -886,7 +886,7 @@ class TestACPAgentInitState:
         state = _make_state(tmp_path)
         events: list = []
         with patch(
-            "openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server",
+            "handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server",
             side_effect=exc,
         ):
             with pytest.raises(type(exc)) as excinfo:
@@ -912,7 +912,7 @@ class TestACPAgentInitState:
         """A missing/unexecutable CLI binary (FileNotFoundError /
         PermissionError from create_subprocess_exec) becomes ACPSpawnError."""
         for exc in (
-            FileNotFoundError("no such file: claude-agent-acp"),
+            FileNotFoundError("no such file: haijun-agent-acp"),
             PermissionError("permission denied"),
         ):
             state, events = self._init_state_failure(tmp_path, exc)
@@ -964,7 +964,7 @@ class TestACPAgentInitState:
             raise ValueError("on_event is broken")
 
         with patch(
-            "openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server",
+            "handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server",
             side_effect=exc,
         ):
             with pytest.raises(RuntimeError, match="boom") as excinfo:
@@ -1049,7 +1049,7 @@ class TestStringifyACPErrorData:
         assert out == "model not found (gpt-9)"
 
     def test_dict_details_key(self):
-        # the claude SDK catch-all wraps non-RequestError exceptions as {"details"}.
+        # the haijun SDK catch-all wraps non-RequestError exceptions as {"details"}.
         assert _stringify_acp_error_data({"details": "boom"}) == "boom"
 
     def test_opaque_dict_falls_back_to_json(self):
@@ -1200,13 +1200,13 @@ class TestACPErrorDetail:
 
 
 # ---------------------------------------------------------------------------
-# _OpenHandsACPBridge
+# _HandprintACPBridge
 # ---------------------------------------------------------------------------
 
 
-class TestOpenHandsACPClient:
+class TestHandprintACPClient:
     def test_reset_clears_state(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.accumulated_text.append("hello")
         client.accumulated_thoughts.append("thinking")
         client.on_token = lambda _: None
@@ -1219,20 +1219,20 @@ class TestOpenHandsACPClient:
 
     @pytest.mark.asyncio
     async def test_session_update_accumulates_text(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.accumulated_text.append("Hello")
         client.accumulated_text.append(" World")
         assert "".join(client.accumulated_text) == "Hello World"
 
     @pytest.mark.asyncio
     async def test_session_update_accumulates_thoughts(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.accumulated_thoughts.append("Let me think")
         client.accumulated_thoughts.append(" about this")
         assert "".join(client.accumulated_thoughts) == "Let me think about this"
 
     def test_on_token_callback(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         tokens: list[str] = []
         client.on_token = tokens.append
 
@@ -1246,7 +1246,7 @@ class TestOpenHandsACPClient:
 
     @pytest.mark.asyncio
     async def test_fs_methods_raise(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         with pytest.raises(NotImplementedError):
             await client.write_text_file("c", "/f", "s1")
         with pytest.raises(NotImplementedError):
@@ -1254,7 +1254,7 @@ class TestOpenHandsACPClient:
 
     @pytest.mark.asyncio
     async def test_terminal_methods_raise(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         with pytest.raises(NotImplementedError):
             await client.create_terminal("bash", "s1")
         with pytest.raises(NotImplementedError):
@@ -1268,13 +1268,13 @@ class TestOpenHandsACPClient:
 
     @pytest.mark.asyncio
     async def test_ext_method_returns_empty_dict(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         result = await client.ext_method("test", {})
         assert result == {}
 
     @pytest.mark.asyncio
     async def test_ext_notification_is_noop(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         await client.ext_notification("test", {})  # Should not raise
 
 
@@ -1342,7 +1342,7 @@ class TestACPToolCallProgressCollapse:
 
     @pytest.mark.asyncio
     async def test_tool_call_start_emits_started_event(self) -> None:
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
 
@@ -1356,7 +1356,7 @@ class TestACPToolCallProgressCollapse:
 
     @pytest.mark.asyncio
     async def test_intermediate_progress_frames_are_not_emitted(self) -> None:
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
 
@@ -1374,7 +1374,7 @@ class TestACPToolCallProgressCollapse:
 
     @pytest.mark.asyncio
     async def test_full_lifecycle_emits_exactly_two_events(self) -> None:
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
 
@@ -1396,7 +1396,7 @@ class TestACPToolCallProgressCollapse:
 
     @pytest.mark.asyncio
     async def test_failed_terminal_sets_is_error(self) -> None:
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
 
@@ -1412,7 +1412,7 @@ class TestACPToolCallProgressCollapse:
     @pytest.mark.asyncio
     async def test_single_shot_completed_start_emits_once(self) -> None:
         """A ToolCallStart that is already terminal is the only event."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
 
@@ -1426,7 +1426,7 @@ class TestACPToolCallProgressCollapse:
     @pytest.mark.asyncio
     async def test_redundant_terminal_progress_does_not_double_emit(self) -> None:
         """Only the first transition into a terminal status emits."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
 
@@ -1441,7 +1441,7 @@ class TestACPToolCallProgressCollapse:
     def test_finalize_flush_completes_orphaned_tool_calls(self) -> None:
         """A card the server opened but never closed is flushed to completed."""
         agent = _make_agent()
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list[Any] = []
         client.on_event = events.append
         agent._client = client
@@ -1488,28 +1488,28 @@ class TestACPToolCallProgressCollapse:
 
 
 class TestACPActivityHeartbeat:
-    """Tests for the on_activity heartbeat in _OpenHandsACPBridge."""
+    """Tests for the on_activity heartbeat in _HandprintACPBridge."""
 
     def test_reset_clears_on_activity(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.on_activity = lambda: None
         client.reset()
         assert client.on_activity is None
 
     def test_reset_preserves_last_activity_signal(self):
         """_last_activity_signal persists across resets (like telemetry state)."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client._last_activity_signal = 999.0
         client.reset()
         assert client._last_activity_signal == 999.0
 
     def test_idle_clock_unarmed_reports_infinite_idle(self):
         """Before arming, the idle clock reports an unbounded gap."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         assert client.seconds_since_last_activity() == float("inf")
 
     def test_arm_activity_clock_resets_idle(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.arm_activity_clock()
         # Just armed → effectively zero seconds since activity.
         assert client.seconds_since_last_activity() < 1.0
@@ -1525,7 +1525,7 @@ class TestACPActivityHeartbeat:
         """
         from acp.schema import AgentThoughtChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client._last_activity_monotonic = float("-inf")
 
         # A thought chunk does not fire the on_activity heartbeat at all, but
@@ -1541,7 +1541,7 @@ class TestACPActivityHeartbeat:
     async def test_tool_call_start_signals_activity(self):
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         signals: list[bool] = []
         client.on_activity = lambda: signals.append(True)
 
@@ -1561,7 +1561,7 @@ class TestACPActivityHeartbeat:
     async def test_tool_call_progress_signals_activity(self):
         from acp.schema import ToolCallProgress, ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         signals: list[bool] = []
         client.on_activity = lambda: signals.append(True)
 
@@ -1595,7 +1595,7 @@ class TestACPActivityHeartbeat:
     async def test_agent_message_chunk_signals_activity(self):
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         signals: list[bool] = []
         client.on_activity = lambda: signals.append(True)
 
@@ -1611,7 +1611,7 @@ class TestACPActivityHeartbeat:
         """Signals should be throttled to at most one per interval."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         signals: list[bool] = []
         client.on_activity = lambda: signals.append(True)
 
@@ -1634,7 +1634,7 @@ class TestACPActivityHeartbeat:
         """No error when on_activity is None."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         assert client.on_activity is None
 
         start = MagicMock(spec=ToolCallStart)
@@ -1653,7 +1653,7 @@ class TestACPActivityHeartbeat:
         """Errors in on_activity must not break session_update."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.on_activity = MagicMock(side_effect=RuntimeError("boom"))
 
         start = MagicMock(spec=ToolCallStart)
@@ -1692,7 +1692,7 @@ class TestACPActivityHeartbeat:
         agent._on_activity = activity_fn
 
         # Mock the internals so step() doesn't actually call the ACP server
-        agent._client = _OpenHandsACPBridge()
+        agent._client = _HandprintACPBridge()
 
         # Capture on_activity while prompt() is still "running" — step()
         # unwires the bridge callbacks in its finally block once the turn
@@ -1729,7 +1729,7 @@ class TestACPActivityHeartbeat:
 class TestACPPromptIdleTimeout:
     """The prompt deadline is an idle timeout: ACP activity resets it.
 
-    Regression coverage for agent-canvas#1245 — long-running ACP prompts must
+    Regression coverage for agent-viczin#1245 — long-running ACP prompts must
     keep working as long as the agent makes progress, rather than dying at a
     hard wall-clock deadline.
     """
@@ -1745,7 +1745,7 @@ class TestACPPromptIdleTimeout:
         from acp.schema import AgentMessageChunk, TextContentBlock
 
         agent = _make_agent(acp_prompt_timeout=0.3)
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         agent._client = client
         client.arm_activity_clock()
 
@@ -1771,7 +1771,7 @@ class TestACPPromptIdleTimeout:
     async def test_silent_prompt_times_out_after_idle_window(self):
         """A prompt that produces no activity is aborted after the idle window."""
         agent = _make_agent(acp_prompt_timeout=0.1)
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         agent._client = client
         client.arm_activity_clock()
 
@@ -1797,7 +1797,7 @@ class TestACPPromptIdleTimeout:
         from acp.schema import AgentMessageChunk, TextContentBlock
 
         agent = _make_agent(acp_prompt_timeout=0.15)
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         agent._client = client
         client.arm_activity_clock()
 
@@ -1852,7 +1852,7 @@ class TestACPAgentStep:
 
         # Set up mocked runtime state — populate text *after* reset
         # (step() calls client.reset() then run_async which populates text)
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -1876,7 +1876,7 @@ class TestACPAgentStep:
     @staticmethod
     def _wire_passthrough_mocks(agent: ACPAgent) -> None:
         """Wire mock ACP internals that relay prompt() calls through asyncio."""
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -1890,11 +1890,11 @@ class TestACPAgentStep:
         mock_executor.run_async = _fake_run_async
         agent._executor = mock_executor
 
-    def test_step_sends_skill_catalog_to_acp_server(self, tmp_path):
+    def test_step_sends_track_catalog_to_acp_server(self, tmp_path):
         agent = _make_agent(
             agent_context=AgentContext(
-                skills=[
-                    Skill(
+                tracks=[
+                    Track(
                         name="review",
                         content="Full review instructions that ACP should not receive.",
                         trigger=KeywordTrigger(keywords=["/review"]),
@@ -1913,7 +1913,7 @@ class TestACPAgentStep:
                 ),
                 extended_content=[
                     TextContent(
-                        text="<skill_context>Use strict review.</skill_context>"
+                        text="<track_context>Use strict review.</track_context>"
                     )
                 ],
             )
@@ -1935,7 +1935,7 @@ class TestACPAgentStep:
         assert "Review this PR." in prompt_text
         assert "<name>review</name>" in prompt_text
         assert "<description>Review pull requests.</description>" in prompt_text
-        assert "<skill_context>Use strict review.</skill_context>" in prompt_text
+        assert "<track_context>Use strict review.</track_context>" in prompt_text
         assert (
             "Full review instructions that ACP should not receive." not in prompt_text
         )
@@ -1943,17 +1943,17 @@ class TestACPAgentStep:
     def test_step_sends_legacy_repo_context_to_acp_server(self, tmp_path):
         agent = _make_agent(
             agent_context=AgentContext(
-                skills=[
-                    Skill(
-                        name="claude",
+                tracks=[
+                    Track(
+                        name="haijun",
                         content="Always follow repository-specific review rules.",
                         trigger=None,
                     ),
-                    Skill(
-                        name="agent-skill",
-                        content="AgentSkills full instructions should not be sent.",
-                        is_agentskills_format=True,
-                        description="Use the agent skill catalog entry.",
+                    Track(
+                        name="agent-track",
+                        content="AgentTracks full instructions should not be sent.",
+                        is_agenttracks_format=True,
+                        description="Use the agent track catalog entry.",
                     ),
                 ],
                 current_datetime=None,
@@ -1987,28 +1987,28 @@ class TestACPAgentStep:
         assert "Review this PR." in prompt_text
         assert "<REPO_CONTEXT>" in prompt_text
         assert "Always follow repository-specific review rules." in prompt_text
-        assert "<name>agent-skill</name>" in prompt_text
+        assert "<name>agent-track</name>" in prompt_text
         assert (
-            "<description>Use the agent skill catalog entry.</description>"
+            "<description>Use the agent track catalog entry.</description>"
             in prompt_text
         )
-        assert "AgentSkills full instructions should not be sent." not in prompt_text
+        assert "AgentTracks full instructions should not be sent." not in prompt_text
 
-    def test_step_sends_triggered_skill_content_to_acp_server(self, tmp_path):
+    def test_step_sends_triggered_track_content_to_acp_server(self, tmp_path):
         agent = _make_agent(
             agent_context=AgentContext(
-                skills=[
-                    Skill(
+                tracks=[
+                    Track(
                         name="legacy-review",
                         content="Legacy triggered review instructions.",
                         trigger=KeywordTrigger(keywords=["/review"]),
                     ),
-                    Skill(
-                        name="agentskill-review",
-                        content="AgentSkills triggered review instructions.",
+                    Track(
+                        name="agenttrack-review",
+                        content="AgentTracks triggered review instructions.",
                         trigger=KeywordTrigger(keywords=["/review"]),
-                        is_agentskills_format=True,
-                        description="AgentSkills review catalog.",
+                        is_agenttracks_format=True,
+                        description="AgentTracks review catalog.",
                     ),
                 ],
                 current_datetime=None,
@@ -2024,7 +2024,7 @@ class TestACPAgentStep:
                 ),
                 extended_content=[
                     TextContent(text="Legacy triggered review instructions."),
-                    TextContent(text="AgentSkills triggered review instructions."),
+                    TextContent(text="AgentTracks triggered review instructions."),
                 ],
             )
         )
@@ -2044,9 +2044,9 @@ class TestACPAgentStep:
             b.text for b in prompt_call.kwargs["prompt"] if hasattr(b, "text")
         )
         assert "Legacy triggered review instructions." in prompt_text
-        assert "AgentSkills triggered review instructions." in prompt_text
-        assert "<name>agentskill-review</name>" in prompt_text
-        assert "<description>AgentSkills review catalog.</description>" in prompt_text
+        assert "AgentTracks triggered review instructions." in prompt_text
+        assert "<name>agenttrack-review</name>" in prompt_text
+        assert "<description>AgentTracks review catalog.</description>" in prompt_text
 
     def test_step_does_not_re_inject_suffix_on_second_turn(self, tmp_path):
         """Suffix must not appear in subsequent turns after the first injection."""
@@ -2114,7 +2114,7 @@ class TestACPAgentStep:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -2138,7 +2138,7 @@ class TestACPAgentStep:
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -2164,7 +2164,7 @@ class TestACPAgentStep:
         conversation = MagicMock()
         conversation.state = state
 
-        agent._client = _OpenHandsACPBridge()
+        agent._client = _HandprintACPBridge()
 
         agent.step(conversation, on_event=lambda _: None)
 
@@ -2175,7 +2175,7 @@ class TestACPAgentStep:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -2198,7 +2198,7 @@ class TestACPAgentStep:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         # accumulated_text stays empty — run_async is a no-op
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2218,7 +2218,7 @@ class TestACPAgentStep:
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -2259,7 +2259,7 @@ class TestACPAgentStep:
         frames: list = []
         conversation.on_stream = frames.append
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -2356,7 +2356,7 @@ class TestACPAgentAstep:
         default), callbacks and final state updates run outside the async
         run task's serialization model — see #3348.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
@@ -2365,7 +2365,7 @@ class TestACPAgentAstep:
         prompt_thread_id: list[int] = []
         on_event_thread_ids: list[int] = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2413,13 +2413,13 @@ class TestACPAgentAstep:
         agent-server can serve those loopback HTTP requests instead of waiting
         for each secret lookup to time out.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
         emitted: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2480,17 +2480,17 @@ class TestACPAgentAstep:
         Exercises the full concurrency model — the prompt runs on the portal
         loop while the idle watchdog polls on the caller loop, and each
         bridge ``session_update`` (fired across the loop boundary) resets the
-        deadline. Regression coverage for agent-canvas#1245.
+        deadline. Regression coverage for agent-viczin#1245.
         """
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent(acp_prompt_timeout=0.3)
         conversation = self._make_conversation_with_message(tmp_path)
         emitted: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2537,14 +2537,14 @@ class TestACPAgentAstep:
         loop and the failure would be invisible to ``RemoteConversation``.
         Mirrors the contract that sync ``step()`` already enforces.
         """
-        from openhands.sdk.event.conversation_error import ConversationErrorEvent
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.event.conversation_error import ConversationErrorEvent
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
         emitted: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2604,7 +2604,7 @@ class TestACPAgentAstep:
         emitted: list = []
         cancel_called = threading.Event()
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2638,7 +2638,7 @@ class TestACPAgentAstep:
         mock_executor.portal = _FakePortal()
         agent._executor = mock_executor
 
-        with patch("openhands.sdk.agent.acp_agent._ACP_CANCEL_DRAIN_TIMEOUT", 0.01):
+        with patch("handprint.sdk.agent.acp_agent._ACP_CANCEL_DRAIN_TIMEOUT", 0.01):
             asyncio.run(agent.astep(conversation, on_event=emitted.append))
 
         assert cancel_called.is_set()
@@ -2678,13 +2678,13 @@ class TestACPAgentAstep:
         (``LocalConversation._emit_orphaned_action_errors`` only patches
         ``ActionEvent``s, not ``ACPToolCallEvent``s).
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
         emitted: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2740,7 +2740,7 @@ class TestACPAgentAstep:
             try:
                 with pytest.raises(asyncio.CancelledError):
                     with patch(
-                        "openhands.sdk.agent.acp_agent._ACP_CANCEL_DRAIN_TIMEOUT",
+                        "handprint.sdk.agent.acp_agent._ACP_CANCEL_DRAIN_TIMEOUT",
                         0.01,
                     ):
                         await task
@@ -2772,20 +2772,20 @@ class TestACPAgentAstep:
 
         The ACP server may finish the prompt while ``session/cancel`` is being
         delivered. In that case the remote session has accepted the assistant
-        turn, so OpenHands must finalize the same turn locally instead of
+        turn, so Handprint must finalize the same turn locally instead of
         discarding the response and later resuming from diverged session history.
         The original cancellation still propagates so explicit user stop intent
         wins at the conversation layer.
         """
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
         emitted: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2858,13 +2858,13 @@ class TestACPAgentAstep:
 
     def test_astep_cancelled_prompt_error_pauses_without_turn_error(self, tmp_path):
         """Explicit cancellation should not emit stale prompt errors."""
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
         emitted: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2921,12 +2921,12 @@ class TestACPAgentAstep:
 
     def test_astep_double_cancel_during_drain_restarts_next_turn(self, tmp_path):
         """A second cancellation during drain should quarantine the live prompt."""
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -2982,12 +2982,12 @@ class TestACPAgentAstep:
 
     def test_astep_double_cancel_during_cancel_send_restarts_next_turn(self, tmp_path):
         """A second cancellation during session/cancel should quarantine prompt."""
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -3039,7 +3039,7 @@ class TestACPAgentAstep:
         """A completed prompt should be finalized if cleanup is cancelled."""
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._session_id = "test-session"
@@ -3068,7 +3068,7 @@ class TestACPAgentAstep:
     ):
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.get_turn_usage_update = MagicMock(return_value=object())
         emitted = []
         client.on_event = emitted.append
@@ -3121,7 +3121,7 @@ class TestACPAgentAstep:
         the install state is only committed via
         ``_finalize_successful_turn`` → ``_commit_suffix_installation``.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -3132,7 +3132,7 @@ class TestACPAgentAstep:
         agent._installed_suffix = agent.agent_context.to_acp_prompt_context()  # type: ignore[union-attr]
         agent._suffix_install_state = "pending_first_prompt"
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -3165,7 +3165,7 @@ class TestACPAgentAstep:
             try:
                 with pytest.raises(asyncio.CancelledError):
                     with patch(
-                        "openhands.sdk.agent.acp_agent._ACP_CANCEL_DRAIN_TIMEOUT",
+                        "handprint.sdk.agent.acp_agent._ACP_CANCEL_DRAIN_TIMEOUT",
                         0.01,
                     ):
                         await task
@@ -3203,13 +3203,13 @@ class TestACPAgentAstep:
         same thread as the lock owner — FIFOLock's reentrancy lets it
         through. Without the override, this hangs.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
         state = conversation.state
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client.get_turn_usage_update = MagicMock(return_value=object())
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -3403,7 +3403,7 @@ class TestACPAgentCleanup:
         binding.replace.assert_not_awaited()
 
     def test_failed_credential_materialization_can_retry(self, tmp_path):
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -3595,7 +3595,7 @@ class TestACPAgentCleanup:
     def test_turn_error_survives_credential_tracking_failure(self, tmp_path):
         agent = _make_agent()
         state = _make_state(tmp_path)
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list = []
         client.on_event = events.append
         client.accumulated_tool_calls.append(
@@ -3640,7 +3640,7 @@ class TestACPAgentCleanup:
 class TestFilterJsonrpcLines:
     @pytest.mark.asyncio
     async def test_passes_jsonrpc_lines(self):
-        from openhands.sdk.agent.acp_agent import _filter_jsonrpc_lines
+        from handprint.sdk.agent.acp_agent import _filter_jsonrpc_lines
 
         source = asyncio.StreamReader()
         dest = asyncio.StreamReader()
@@ -3656,7 +3656,7 @@ class TestFilterJsonrpcLines:
 
     @pytest.mark.asyncio
     async def test_filters_non_jsonrpc_lines(self):
-        from openhands.sdk.agent.acp_agent import _filter_jsonrpc_lines
+        from handprint.sdk.agent.acp_agent import _filter_jsonrpc_lines
 
         source = asyncio.StreamReader()
         dest = asyncio.StreamReader()
@@ -3703,7 +3703,7 @@ class TestFilterJsonrpcLines:
         else once started; _shutdown_runtime must cancel and clear them so
         nothing keeps draining a closed subprocess's pipes indefinitely.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         agent._executor = AsyncExecutor()
@@ -3731,7 +3731,7 @@ class TestFilterJsonrpcLines:
 
     @pytest.mark.asyncio
     async def test_filters_pretty_printed_json(self):
-        from openhands.sdk.agent.acp_agent import _filter_jsonrpc_lines
+        from handprint.sdk.agent.acp_agent import _filter_jsonrpc_lines
 
         source = asyncio.StreamReader()
         dest = asyncio.StreamReader()
@@ -3790,7 +3790,7 @@ class TestACPAgentTelemetry:
             agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = agent._client or _OpenHandsACPBridge()
+        mock_client = agent._client or _HandprintACPBridge()
         mock_client._context_window = 200000
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -3917,7 +3917,7 @@ class TestACPAgentTelemetry:
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         # A bearer-secret-looking id so the log-hygiene assertion below is
@@ -3955,7 +3955,7 @@ class TestACPAgentTelemetry:
             raise TimeoutError
 
         with patch(
-            "openhands.sdk.agent.acp_agent.asyncio.wait_for",
+            "handprint.sdk.agent.acp_agent.asyncio.wait_for",
             new=AsyncMock(side_effect=_raise_timeout),
         ):
             agent.step(conversation, on_event=lambda _: None)
@@ -3982,7 +3982,7 @@ class TestACPAgentTelemetry:
         """session_update() stores UsageUpdate for step() to process later."""
         from acp.schema import UsageUpdate
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         usage_event = client.prepare_usage_sync("sess-1")
 
         update = MagicMock(spec=UsageUpdate)
@@ -4002,7 +4002,7 @@ class TestACPAgentTelemetry:
         """UsageUpdate.size updates the client's _context_window."""
         from acp.schema import UsageUpdate
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
 
         update = MagicMock(spec=UsageUpdate)
         update.size = 200000
@@ -4028,10 +4028,10 @@ class TestACPAgentTelemetry:
         """init_state() keeps the bridge instance installed by _start_acp_server."""
         agent = _make_agent()
         state = _make_state(tmp_path)
-        expected_client = _OpenHandsACPBridge()
+        expected_client = _HandprintACPBridge()
 
         with patch(
-            "openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"
+            "handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"
         ) as mock_start:
 
             def fake_start(_state):
@@ -4044,7 +4044,7 @@ class TestACPAgentTelemetry:
 
     def test_reset_preserves_telemetry_state(self):
         """reset() clears per-turn buffers but preserves cumulative telemetry."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client._last_cost = 1.23
         client._last_cost_by_session["sess-1"] = 1.23
         client._context_window = 128000
@@ -4079,7 +4079,7 @@ class TestACPToolCallAccumulation:
         """ToolCallStart creates an entry in accumulated_tool_calls."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
 
         start = MagicMock(spec=ToolCallStart)
         start.tool_call_id = "tc-1"
@@ -4107,7 +4107,7 @@ class TestACPToolCallAccumulation:
         """ToolCallProgress merges updates into the existing tool call entry."""
         from acp.schema import ToolCallProgress, ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
 
         # Start
         start = MagicMock(spec=ToolCallStart)
@@ -4145,7 +4145,7 @@ class TestACPToolCallAccumulation:
         """Multiple ToolCallStart events create separate entries."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
 
         for i in range(3):
             start = MagicMock(spec=ToolCallStart)
@@ -4167,7 +4167,7 @@ class TestACPToolCallAccumulation:
 
     def test_reset_clears_accumulated_tool_calls(self):
         """reset() clears accumulated_tool_calls."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.accumulated_tool_calls.append(
             {
                 "tool_call_id": "tc-1",
@@ -4197,7 +4197,7 @@ class TestACPToolCallLiveEmission:
         """Each ToolCallStart/Progress triggers an immediate on_event call."""
         from acp.schema import ToolCallProgress, ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         events: list = []
         client.on_event = events.append
 
@@ -4253,7 +4253,7 @@ class TestACPToolCallLiveEmission:
             ToolCallStart,
         )
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         # Single timeline of callback arrivals, tagged by source.
         observed: list[tuple[str, Any]] = []
         client.on_event = lambda e: observed.append(("event", e))
@@ -4335,7 +4335,7 @@ class TestACPToolCallLiveEmission:
         """When on_event is None (no active step), session_update is a no-op emit."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         assert client.on_event is None
 
         start = MagicMock(spec=ToolCallStart)
@@ -4357,7 +4357,7 @@ class TestACPToolCallLiveEmission:
         """A raising on_event must not break the session_update pipeline."""
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.on_event = MagicMock(side_effect=RuntimeError("boom"))
 
         start = MagicMock(spec=ToolCallStart)
@@ -4374,7 +4374,7 @@ class TestACPToolCallLiveEmission:
 
     def test_reset_clears_on_event(self):
         """reset() clears on_event so the next step wires a fresh callback."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.on_event = lambda _: None
         client.reset()
         assert client.on_event is None
@@ -4392,7 +4392,7 @@ class TestACPCancelInflightToolCalls:
 
     @staticmethod
     def _push_entry(
-        client: _OpenHandsACPBridge, tool_call_id: str, status: str
+        client: _HandprintACPBridge, tool_call_id: str, status: str
     ) -> None:
         client.accumulated_tool_calls.append(
             {
@@ -4409,7 +4409,7 @@ class TestACPCancelInflightToolCalls:
     def test_emits_failed_event_for_pending_entries(self, tmp_path):
         """Pending / in_progress entries get a terminal failed ACPToolCallEvent."""
         agent = _make_agent()
-        agent._client = _OpenHandsACPBridge()
+        agent._client = _HandprintACPBridge()
         emitted: list = []
         agent._client.on_event = emitted.append
         self._push_entry(agent._client, "tc-1", "pending")
@@ -4425,7 +4425,7 @@ class TestACPCancelInflightToolCalls:
     def test_skips_already_terminal_entries(self, tmp_path):
         """completed / failed entries are left alone — they already closed."""
         agent = _make_agent()
-        agent._client = _OpenHandsACPBridge()
+        agent._client = _HandprintACPBridge()
         emitted: list = []
         agent._client.on_event = emitted.append
         self._push_entry(agent._client, "tc-done", "completed")
@@ -4440,7 +4440,7 @@ class TestACPCancelInflightToolCalls:
     def test_callback_errors_are_swallowed(self):
         """A raising on_event during cancellation must not break the retry path."""
         agent = _make_agent()
-        agent._client = _OpenHandsACPBridge()
+        agent._client = _HandprintACPBridge()
         self._push_entry(agent._client, "tc-1", "pending")
         self._push_entry(agent._client, "tc-2", "pending")
 
@@ -4458,7 +4458,7 @@ class TestACPCancelInflightToolCalls:
     def test_noop_when_on_event_unset(self):
         """If no on_event is wired, cancellation quietly does nothing."""
         agent = _make_agent()
-        agent._client = _OpenHandsACPBridge()
+        agent._client = _HandprintACPBridge()
         self._push_entry(agent._client, "tc-1", "pending")
 
         # on_event default is None — must not raise, must not iterate
@@ -4487,7 +4487,7 @@ class TestACPCancelInflightToolCalls:
         conversation = MagicMock()
         conversation.state = state
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -4527,7 +4527,7 @@ class TestACPCancelInflightToolCalls:
         mock_executor.run_async = _fake_run_async
         agent._executor = mock_executor
 
-        with patch("openhands.sdk.agent.acp_agent.time.sleep"):
+        with patch("handprint.sdk.agent.acp_agent.time.sleep"):
             agent.step(conversation, on_event=events.append)
 
         assert call_count == 2
@@ -4591,7 +4591,7 @@ class TestACPToolCallEmission:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -4662,7 +4662,7 @@ class TestACPToolCallEmission:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -4699,7 +4699,7 @@ class TestACPToolCallEmission:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -4724,7 +4724,7 @@ class TestACPToolCallEmission:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -4745,7 +4745,7 @@ class TestACPToolCallEmission:
     def test_tool_call_events_cleared_between_turns(self, tmp_path):
         """accumulated_tool_calls are cleared on reset() between turns."""
         agent = _make_agent()
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -4807,7 +4807,7 @@ class TestACPAgentAskAgent:
     def test_ask_agent_forks_and_prompts(self):
         """ask_agent() forks the session, prompts, and returns the response."""
         agent = _make_agent()
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "main-session"
@@ -4849,7 +4849,7 @@ class TestACPAgentAskAgent:
     def test_ask_agent_records_token_usage(self):
         """ask_agent() records token usage from the PromptResponse."""
         agent = _make_agent()
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         mock_client._context_window = 200000
         agent._client = mock_client
         agent._conn = MagicMock()
@@ -4903,7 +4903,7 @@ class TestACPAgentAskAgent:
     def test_ask_agent_cleans_up_fork_state(self):
         """ask_agent() cleans up fork state even on success."""
         agent = _make_agent()
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "main-session"
@@ -4952,7 +4952,7 @@ class TestClientForkTextRouting:
         """When _fork_session_id is set, matching text goes to fork accumulator."""
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client._fork_session_id = "fork-sess"
         client._fork_accumulated_text = []
 
@@ -4971,7 +4971,7 @@ class TestClientForkTextRouting:
         """Main session text routes to accumulated_text even when fork is active."""
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client._fork_session_id = "fork-sess"
         client._fork_accumulated_text = []
 
@@ -4989,7 +4989,7 @@ class TestClientForkTextRouting:
         """When _fork_session_id is None, all text goes to main accumulator."""
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         assert client._fork_session_id is None
 
         update = MagicMock(spec=AgentMessageChunk)
@@ -5047,7 +5047,7 @@ class TestSelectAuthMethod:
         (auth_dir / "auth.json").write_text(_CHATGPT_AUTH_JSON, encoding="utf-8")
 
         env = {"OPENAI_API_KEY": "sk-test"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "chat-gpt"
 
     def test_api_key_fallback_when_no_chatgpt_file(self, tmp_path):
@@ -5057,7 +5057,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("api-key"),
         ]
         env = {"OPENAI_API_KEY": "sk-test"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "api-key"
 
     def test_no_matching_credentials(self, tmp_path):
@@ -5066,7 +5066,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("api-key"),
         ]
         env = {"UNRELATED": "value"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) is None
 
     def test_missing_codex_auth_reason(self, tmp_path, caplog):
@@ -5075,7 +5075,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("api-key"),
         ]
         with (
-            patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path),
+            patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path),
             caplog.at_level("WARNING"),
         ):
             _warn_auth_selection_failure(methods, {})
@@ -5095,7 +5095,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("chat-gpt"),
             self._make_auth_method("api-key"),
         ]
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             reason = _auth_selection_failure_reason(methods, {})
 
         assert f"Codex auth file {auth_path} is not valid ChatGPT auth" in reason
@@ -5107,7 +5107,7 @@ class TestSelectAuthMethod:
         auth_dir.mkdir()
         (auth_dir / "auth.json").write_text(_CHATGPT_AUTH_JSON, encoding="utf-8")
 
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, {}) == "chat-gpt"
 
     def test_gemini_oauth_personal_when_creds_file_present(self, tmp_path):
@@ -5121,7 +5121,7 @@ class TestSelectAuthMethod:
         gem_dir.mkdir()
         (gem_dir / "oauth_creds.json").write_text("{}", encoding="utf-8")
 
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, {}) == "oauth-personal"
 
     def test_gemini_oauth_preferred_over_api_key(self, tmp_path):
@@ -5135,7 +5135,7 @@ class TestSelectAuthMethod:
         (gem_dir / "oauth_creds.json").write_text("{}", encoding="utf-8")
 
         env = {"GEMINI_API_KEY": "g-test"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "oauth-personal"
 
     def test_gemini_api_key_fallback_when_no_oauth_file(self, tmp_path):
@@ -5146,7 +5146,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("gemini-api-key"),
         ]
         env = {"GEMINI_API_KEY": "g-test"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "gemini-api-key"
 
     def test_gemini_oauth_offered_but_no_creds_no_key(self, tmp_path):
@@ -5155,7 +5155,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("oauth-personal"),
             self._make_auth_method("gemini-api-key"),
         ]
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, {}) is None
 
     def test_empty_auth_methods(self):
@@ -5165,7 +5165,7 @@ class TestSelectAuthMethod:
         """Even if env var is set, method must be offered by server."""
         methods = [self._make_auth_method("chat-gpt")]
         env = {"OPENAI_API_KEY": "sk-test"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) is None
 
     # -- CODEX_HOME-aware chatgpt detection (issue #1020) ------------------
@@ -5179,7 +5179,7 @@ class TestSelectAuthMethod:
         methods = [self._make_auth_method("chat-gpt")]
         empty_home = tmp_path / "home"
         empty_home.mkdir()
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=empty_home):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=empty_home):
             assert (
                 _select_auth_method(methods, {"CODEX_HOME": str(codex_home)})
                 == "chat-gpt"
@@ -5197,7 +5197,7 @@ class TestSelectAuthMethod:
         env = {"CODEX_HOME": str(codex_home), "OPENAI_API_KEY": "sk-test"}
         empty_home = tmp_path / "home"
         empty_home.mkdir()
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=empty_home):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=empty_home):
             assert _select_auth_method(methods, env) == "api-key"
 
     def test_codex_auth_file_honors_codex_home(self, tmp_path):
@@ -5230,7 +5230,7 @@ class TestSelectAuthMethod:
         env = {"CODEX_HOME": str(codex_home), "OPENAI_API_KEY": "sk-test"}
         empty_home = tmp_path / "home"
         empty_home.mkdir()
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=empty_home):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=empty_home):
             assert _select_auth_method(methods, env) == "api-key"
 
     def test_malformed_auth_file_falls_back_to_api_key(self, tmp_path):
@@ -5245,7 +5245,7 @@ class TestSelectAuthMethod:
         env = {"CODEX_HOME": str(codex_home), "OPENAI_API_KEY": "sk-test"}
         empty_home = tmp_path / "home"
         empty_home.mkdir()
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=empty_home):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=empty_home):
             assert _select_auth_method(methods, env) == "api-key"
 
     # -- Gemini Vertex AI service-account detection (issue #1020) ----------
@@ -5261,7 +5261,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("gemini-api-key"),
         ]
         env = {"GOOGLE_APPLICATION_CREDENTIALS": str(sa), "GEMINI_API_KEY": "g"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "vertex-ai"
 
     def test_vertex_ai_preferred_over_personal_oauth(self, tmp_path):
@@ -5277,7 +5277,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("oauth-personal"),
         ]
         env = {"GOOGLE_APPLICATION_CREDENTIALS": str(sa)}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "vertex-ai"
 
     def test_vertex_ai_offered_but_no_credentials_file(self, tmp_path):
@@ -5288,7 +5288,7 @@ class TestSelectAuthMethod:
             self._make_auth_method("gemini-api-key"),
         ]
         env = {"GEMINI_API_KEY": "g"}
-        with patch("openhands.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
+        with patch("handprint.sdk.agent.acp_agent.Path.home", return_value=tmp_path):
             assert _select_auth_method(methods, env) == "gemini-api-key"
 
 
@@ -5364,7 +5364,7 @@ class TestWithCodexBaseUrl:
 
     def test_noop_for_non_codex(self):
         env = {"OPENAI_BASE_URL": "https://p"}
-        assert _with_codex_base_url("claude-agent-acp", [], env) == env
+        assert _with_codex_base_url("haijun-agent-acp", [], env) == env
 
     def test_noop_when_no_base_url(self):
         env: dict[str, str] = {}
@@ -5423,12 +5423,12 @@ class TestMaybeSetSessionModel:
 
     @pytest.mark.asyncio
     async def test_set_config_option_mechanism(self):
-        # ``via_config_option=True`` (codex-acp and claude-agent-acp)
+        # ``via_config_option=True`` (codex-acp and haijun-agent-acp)
         # applies the model via ``set_config_option(configId="model")``.
         conn = AsyncMock()
         applied = await _maybe_set_session_model(
             conn,
-            "claude-agent-acp",
+            "haijun-agent-acp",
             "session-1",
             "opus[1m]",
             via_config_option=True,
@@ -5443,7 +5443,7 @@ class TestMaybeSetSessionModel:
 
     @pytest.mark.asyncio
     async def test_codex_config_option_splits_reasoning_effort(self):
-        # Canvas may persist Codex ids as ``model/effort``; codex-acp exposes
+        # Viczin may persist Codex ids as ``model/effort``; codex-acp exposes
         # effort as its own config option.
         conn = AsyncMock()
         applied = await _maybe_set_session_model(
@@ -5471,12 +5471,12 @@ class TestMaybeSetSessionModel:
             conn,
             "pi-acp",
             "session-1",
-            "anthropic/claude-sonnet-4-6",
+            "juglow/haijun-codtral",
             via_config_option=True,
         )
         conn.set_config_option.assert_awaited_once_with(
             config_id="model",
-            value="anthropic/claude-sonnet-4-6",
+            value="juglow/haijun-codtral",
             session_id="session-1",
         )
         assert applied is True
@@ -5531,7 +5531,7 @@ class TestMaybeSetSessionModel:
 
     @pytest.mark.asyncio
     async def test_known_provider_apply_rejection_is_tolerated(self):
-        # claude-agent-acp's ``model`` select is dynamic/account-dependent and
+        # haijun-agent-acp's ``model`` select is dynamic/account-dependent and
         # rejects an absent curated id (e.g. ``sonnet`` on accounts without it,
         # dressed as -32603). A rejected *initial* model must not fail session
         # creation — it degrades to the server default (applied=False) like the
@@ -5542,7 +5542,7 @@ class TestMaybeSetSessionModel:
             code=-32603, message="Invalid value for config option model: sonnet"
         )
         applied = await _maybe_set_session_model(
-            conn, "claude-agent-acp", "session-1", "sonnet", via_config_option=True
+            conn, "haijun-agent-acp", "session-1", "sonnet", via_config_option=True
         )
         conn.set_config_option.assert_awaited_once()
         conn.set_session_model.assert_not_called()
@@ -5556,24 +5556,24 @@ class TestReapplySessionModelOnResume:
     async def test_reapply_via_set_session_model_mechanism(self):
         # load_session() carries no model selection, so on resume the persisted
         # model must be reapplied via the runtime-switch gate. Servers with the
-        # ``models`` capability (gemini-cli, older codex/claude) use
+        # ``models`` capability (gemini-cli, older codex/haijun) use
         # ``set_session_model``.
         conn = AsyncMock()
         applied = await _reapply_session_model_on_resume(
             conn,
-            "claude-agent-acp",
+            "haijun-agent-acp",
             "sess-1",
-            "claude-haiku-4-5-20251001",
+            "haijun-minix",
             via_config_option=False,
         )
         conn.set_session_model.assert_awaited_once_with(
-            model_id="claude-haiku-4-5-20251001", session_id="sess-1"
+            model_id="haijun-minix", session_id="sess-1"
         )
         assert applied is True
 
     @pytest.mark.asyncio
     async def test_reapply_via_set_config_option_mechanism(self):
-        # codex-acp/claude-agent-acp 0.44+ reapply via
+        # codex-acp/haijun-agent-acp 0.44+ reapply via
         # ``set_config_option(configId="model")`` with the bare preset id.
         conn = AsyncMock()
         applied = await _reapply_session_model_on_resume(
@@ -5609,7 +5609,7 @@ class TestReapplySessionModelOnResume:
     async def test_missing_model_skips_reapply(self):
         conn = AsyncMock()
         applied = await _reapply_session_model_on_resume(
-            conn, "claude-agent-acp", "sess-1", None, via_config_option=True
+            conn, "haijun-agent-acp", "sess-1", None, via_config_option=True
         )
         conn.set_session_model.assert_not_called()
         conn.set_config_option.assert_not_called()
@@ -5633,7 +5633,7 @@ class TestReapplySessionModelOnResume:
 
     @pytest.mark.asyncio
     async def test_known_unsupported_provider_skips_reapply(self):
-        from openhands.sdk.settings.acp_providers import ACPProviderInfo
+        from handprint.sdk.settings.acp_providers import ACPProviderInfo
 
         unsupported = ACPProviderInfo(
             key="legacy",
@@ -5649,7 +5649,7 @@ class TestReapplySessionModelOnResume:
         )
         conn = AsyncMock()
         with patch(
-            "openhands.sdk.agent.acp_agent.detect_acp_provider_by_agent_name",
+            "handprint.sdk.agent.acp_agent.detect_acp_provider_by_agent_name",
             return_value=unsupported,
         ):
             applied = await _reapply_session_model_on_resume(
@@ -5805,9 +5805,9 @@ class TestSetACPModel:
         assert agent.llm.model == "gpt-5.5/high"
         assert agent._current_model_id == "gpt-5.5/high"
 
-    def test_switches_claude_via_config_option_single_call(self):
+    def test_switches_haijun_via_config_option_single_call(self):
         # A bare id (no `/`) applies as a single `model` selection — no effort.
-        agent = self._wire(_make_agent(), "claude-agent-acp", via_config_option=True)
+        agent = self._wire(_make_agent(), "haijun-agent-acp", via_config_option=True)
         agent.set_acp_model("sonnet")
         _agent_conn(agent).set_config_option.assert_awaited_once_with(
             config_id="model", value="sonnet", session_id="sess-1"
@@ -5840,11 +5840,11 @@ class TestSetACPModel:
             agent.set_acp_model("nonsense")
         agent._executor.run_async.assert_called_once()
 
-    def test_claude_provider_supports_runtime_switch(self):
-        agent = self._wire(_make_agent(), "claude-agent-acp")
-        agent.set_acp_model("claude-haiku-4-5-20251001")
+    def test_haijun_provider_supports_runtime_switch(self):
+        agent = self._wire(_make_agent(), "haijun-agent-acp")
+        agent.set_acp_model("haijun-minix")
         _agent_conn(agent).set_session_model.assert_called_once_with(
-            model_id="claude-haiku-4-5-20251001", session_id="sess-1"
+            model_id="haijun-minix", session_id="sess-1"
         )
 
     def test_unknown_provider_still_attempts_switch(self):
@@ -5866,7 +5866,7 @@ class TestSetACPModel:
             agent.set_acp_model("gpt-5.4")
 
     def test_raises_for_provider_without_protocol_support(self):
-        from openhands.sdk.settings.acp_providers import ACPProviderInfo
+        from handprint.sdk.settings.acp_providers import ACPProviderInfo
 
         unsupported = ACPProviderInfo(
             key="legacy",
@@ -5882,7 +5882,7 @@ class TestSetACPModel:
         )
         agent = self._wire(_make_agent(), "legacy-acp")
         with patch(
-            "openhands.sdk.agent.acp_agent.detect_acp_provider_by_agent_name",
+            "handprint.sdk.agent.acp_agent.detect_acp_provider_by_agent_name",
             return_value=unsupported,
         ):
             with pytest.raises(ValueError, match="does not support runtime"):
@@ -5987,7 +5987,7 @@ class TestACPPromptRetry:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6006,7 +6006,7 @@ class TestACPPromptRetry:
         mock_executor.run_async = _fake_run_async
         agent._executor = mock_executor
 
-        with patch("openhands.sdk.agent.acp_agent.time.sleep"):
+        with patch("handprint.sdk.agent.acp_agent.time.sleep"):
             agent.step(conversation, on_event=events.append)
 
         assert call_count == 2
@@ -6024,7 +6024,7 @@ class TestACPPromptRetry:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6051,7 +6051,7 @@ class TestACPPromptRetry:
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6078,7 +6078,7 @@ class TestACPPromptRetry:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6094,7 +6094,7 @@ class TestACPPromptRetry:
         mock_executor.run_async = _fake_run_async
         agent._executor = mock_executor
 
-        with patch("openhands.sdk.agent.acp_agent.time.sleep"):
+        with patch("handprint.sdk.agent.acp_agent.time.sleep"):
             with pytest.raises(ConnectionError, match="Persistent connection failure"):
                 agent.step(conversation, on_event=events.append)
 
@@ -6109,7 +6109,7 @@ class TestACPPromptRetry:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6128,7 +6128,7 @@ class TestACPPromptRetry:
         mock_executor.run_async = _fake_run_async
         agent._executor = mock_executor
 
-        with patch("openhands.sdk.agent.acp_agent.time.sleep"):
+        with patch("handprint.sdk.agent.acp_agent.time.sleep"):
             agent.step(conversation, on_event=events.append)
 
         assert call_count == 2
@@ -6147,7 +6147,7 @@ class TestACPPromptRetry:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6177,7 +6177,7 @@ class TestACPPromptRetry:
         conversation = self._make_conversation_with_message(tmp_path)
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -6193,7 +6193,7 @@ class TestACPPromptRetry:
         mock_executor.run_async = _fake_run_async
         agent._executor = mock_executor
 
-        with patch("openhands.sdk.agent.acp_agent.time.sleep"):
+        with patch("handprint.sdk.agent.acp_agent.time.sleep"):
             with pytest.raises(ACPRequestError, match="Internal Server Error"):
                 agent.step(conversation, on_event=events.append)
 
@@ -6229,7 +6229,7 @@ class TestGeminiSessionModel:
 
 class TestExtractTokenUsage:
     def test_from_response_usage(self):
-        """claude-agent-acp, codex-acp: standard response.usage field."""
+        """haijun-agent-acp, codex-acp: standard response.usage field."""
         response = MagicMock()
         response.usage.input_tokens = 100
         response.usage.output_tokens = 50
@@ -6374,25 +6374,25 @@ class TestACPSessionIdPersistence:
         stack = ExitStack()
         stack.enter_context(
             patch(
-                "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+                "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
                 new=_fake_create_subprocess_exec,
             )
         )
         stack.enter_context(
             patch(
-                "openhands.sdk.agent.acp_agent.ClientSideConnection",
+                "handprint.sdk.agent.acp_agent.ClientSideConnection",
                 return_value=conn,
             )
         )
         stack.enter_context(
             patch(
-                "openhands.sdk.agent.acp_agent._filter_jsonrpc_lines",
+                "handprint.sdk.agent.acp_agent._filter_jsonrpc_lines",
                 new=_fake_filter,
             )
         )
         stack.enter_context(
             patch(
-                "openhands.sdk.agent.acp_agent.asyncio.StreamReader",
+                "handprint.sdk.agent.acp_agent.asyncio.StreamReader",
                 return_value=MagicMock(),
             )
         )
@@ -6401,7 +6401,7 @@ class TestACPSessionIdPersistence:
     @staticmethod
     def _patched_start_acp_server(agent, state, *, conn):
         """Invoke the real _start_acp_server with ACP transport layers mocked."""
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent._executor = AsyncExecutor()
         with TestACPSessionIdPersistence._transport_patches(conn):
@@ -6417,7 +6417,7 @@ class TestACPSessionIdPersistence:
 
         init_response = MagicMock()
         init_response.agent_info = MagicMock()
-        init_response.agent_info.name = "claude-agent-acp"
+        init_response.agent_info.name = "haijun-agent-acp"
         init_response.agent_info.version = "1.0"
         init_response.auth_methods = []
         conn.initialize = AsyncMock(return_value=init_response)
@@ -6479,14 +6479,14 @@ class TestACPSessionIdPersistence:
         # populated the runtime attrs that init_state reads afterwards.
         def _fake_start(self, _state):
             self._session_id = "end-to-end-sess"
-            self._agent_name = "claude-agent-acp"
+            self._agent_name = "haijun-agent-acp"
             self._agent_version = "1.0"
 
         with patch.object(ACPAgent, "_start_acp_server", _fake_start):
             agent.init_state(state, on_event=lambda _: None)
 
         assert state.agent_state["acp_session_id"] == "end-to-end-sess"
-        assert state.agent_state["acp_agent_name"] == "claude-agent-acp"
+        assert state.agent_state["acp_agent_name"] == "haijun-agent-acp"
         assert state.agent_state["acp_agent_version"] == "1.0"
 
     def test_resume_reads_session_id_from_agent_state(self, tmp_path):
@@ -6696,7 +6696,7 @@ class TestACPSessionIdPersistence:
 
     def test_fingerprint_session_id_helper(self):
         """``_fingerprint_session_id`` returns a last-8 suffix, never the full id."""
-        from openhands.sdk.agent.acp_agent import _fingerprint_session_id
+        from handprint.sdk.agent.acp_agent import _fingerprint_session_id
 
         assert _fingerprint_session_id(None) == "<none>"
         assert _fingerprint_session_id("short") == "<short>"
@@ -6788,7 +6788,7 @@ class TestACPSessionIdPersistence:
 
         def _fake_start(self, _state):
             self._session_id = "sess-123"
-            self._agent_name = "claude-agent-acp"
+            self._agent_name = "haijun-agent-acp"
             self._agent_version = "1.0"
             self._working_dir = str(tmp_path)
 
@@ -6851,7 +6851,7 @@ class TestACPSessionIdPersistence:
         every resume. The contract is: only update model state when we
         actually learned something new.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -6859,10 +6859,10 @@ class TestACPSessionIdPersistence:
             **state.agent_state,
             "acp_session_id": "resumable-sess",
             "acp_session_cwd": str(tmp_path),
-            "acp_current_model_id": "claude-opus-4-1",
+            "acp_current_model_id": "haijun-kamsa",
             "acp_available_models": [
                 {
-                    "model_id": "claude-opus-4-1",
+                    "model_id": "haijun-kamsa",
                     "name": "Opus 4.1",
                     "description": None,
                 }
@@ -6881,9 +6881,9 @@ class TestACPSessionIdPersistence:
 
         # Persisted values survive the resume even though load_session
         # didn't re-report them.
-        assert state.agent_state["acp_current_model_id"] == "claude-opus-4-1"
+        assert state.agent_state["acp_current_model_id"] == "haijun-kamsa"
         assert state.agent_state["acp_available_models"] == [
-            {"model_id": "claude-opus-4-1", "name": "Opus 4.1", "description": None}
+            {"model_id": "haijun-kamsa", "name": "Opus 4.1", "description": None}
         ]
 
     def test_resume_with_forced_model_preserves_persisted_available_models(
@@ -6899,7 +6899,7 @@ class TestACPSessionIdPersistence:
         ``current_model_id`` being set — otherwise the picker payload is wiped
         on every resume of a switched conversation.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         # A prior runtime switch made ``model-b`` the authoritative model.
         agent = _make_agent(acp_model="model-b")
@@ -6940,7 +6940,7 @@ class TestACPSessionIdPersistence:
         picker options after resume. The ``None`` (absent) vs ``[]`` (reported
         empty) distinction from ``_extract_session_models`` fixes this.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -6984,7 +6984,7 @@ class TestACPSessionIdPersistence:
         The current id must follow the list's "reported" signal, not silently
         keep a stale value the server no longer claims.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -7034,7 +7034,7 @@ class TestACPSessionIdPersistence:
         it (``_model_override_applied`` is False). The persisted id named that
         rejected override, so it no longer reflects the live session.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         # ``model-x`` was the authoritative model last launch (applied + persisted).
         agent = _make_agent(acp_model="model-x")
@@ -7080,7 +7080,7 @@ class TestACPSessionIdPersistence:
         the model fields still describe the dead one — ``ConversationInfo``
         renders the wrong chip.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -7088,9 +7088,9 @@ class TestACPSessionIdPersistence:
             **state.agent_state,
             "acp_session_id": "stale-sess",
             "acp_session_cwd": str(tmp_path),
-            "acp_current_model_id": "claude-opus-4-1",
+            "acp_current_model_id": "haijun-kamsa",
             "acp_available_models": [
-                {"model_id": "claude-opus-4-1", "name": "Opus 4.1"}
+                {"model_id": "haijun-kamsa", "name": "Opus 4.1"}
             ],
         }
         # load_session fails → new_session runs; its response has no .models.
@@ -7117,7 +7117,7 @@ class TestACPSessionIdPersistence:
         the cwd-mismatch branch in ``_start_acp_server`` (which sets
         ``prior_session_id = None`` before falling through to new_session).
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -7125,9 +7125,9 @@ class TestACPSessionIdPersistence:
             **state.agent_state,
             "acp_session_id": "old-sess",
             "acp_session_cwd": "/some/other/place",
-            "acp_current_model_id": "claude-opus-4-1",
+            "acp_current_model_id": "haijun-kamsa",
             "acp_available_models": [
-                {"model_id": "claude-opus-4-1", "name": "Opus 4.1"}
+                {"model_id": "haijun-kamsa", "name": "Opus 4.1"}
             ],
         }
         new_session_response = MagicMock(spec=["session_id"])
@@ -7150,7 +7150,7 @@ class TestACPSessionIdPersistence:
         overwrite state.agent_state['acp_session_id'] with the new id so
         the next restart doesn't keep trying to resume the stale one.
         """
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         agent = _make_agent()
         state = _make_state(tmp_path)
@@ -7207,7 +7207,7 @@ class TestACPSessionIdPersistence:
         set_session_mode calls as new_session, so a resumed session honours
         acp_model overrides and the bypass-permissions mode.
         """
-        agent = _make_agent(acp_model="claude-opus-4-6")
+        agent = _make_agent(acp_model="haijun-kamsa")
         state = _make_state(tmp_path)
         state.agent_state = {
             **state.agent_state,
@@ -7225,7 +7225,7 @@ class TestACPSessionIdPersistence:
         conn.load_session.assert_awaited_once()
         conn.new_session.assert_not_awaited()
         conn.set_session_model.assert_awaited_once_with(
-            model_id="claude-opus-4-6",
+            model_id="haijun-kamsa",
             session_id="stored-sess",
         )
         conn.set_session_mode.assert_awaited_once_with(
@@ -7337,8 +7337,8 @@ class TestACPSessionIdPersistence:
         """
         import uuid as _uuid
 
-        from openhands.sdk.conversation import Conversation
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.conversation import Conversation
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         persistence_dir = tmp_path / "persist"
         conv_id = _uuid.uuid4()
@@ -7438,7 +7438,7 @@ class TestACPSecretsEnvInjection:
     """Tests for secret injection into the ACP subprocess environment.
 
     Secrets passed via ``agent_context.secrets`` must land in the subprocess
-    env so the ACP server (Claude Code, Codex CLI, etc.) can use them. They
+    env so the ACP server (Haijun Code, Codex CLI, etc.) can use them. They
     reach the subprocess through ``state.secret_registry``: ``LocalConversation``
     seeds ``agent_context.secrets`` into the registry at init (covering
     callers that never lift them into ``request.secrets``), and
@@ -7450,7 +7450,7 @@ class TestACPSecretsEnvInjection:
         conn = MagicMock()
         init_response = MagicMock()
         init_response.agent_info = MagicMock()
-        init_response.agent_info.name = "claude-agent-acp"
+        init_response.agent_info.name = "haijun-agent-acp"
         init_response.agent_info.version = "1.0"
         init_response.auth_methods = []
         conn.initialize = AsyncMock(return_value=init_response)
@@ -7474,7 +7474,7 @@ class TestACPSecretsEnvInjection:
         """
         from contextlib import ExitStack
 
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         captured: dict = {}
         conn = TestACPSecretsEnvInjection._make_conn()
@@ -7499,31 +7499,31 @@ class TestACPSecretsEnvInjection:
 
         with ExitStack() as stack:
             # Hermetic: exclude the runner's ambient env (e.g. a real
-            # GITHUB_TOKEN / ANTHROPIC_API_KEY) so it can't shadow the
+            # GITHUB_TOKEN / JUGLOW_API_KEY) so it can't shadow the
             # registry values under test — env.update(os.environ) runs
             # before the fill-if-absent registry tier in _start_acp_server.
             stack.enter_context(patch.dict("os.environ", {}, clear=True))
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+                    "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
                     new=_fake_create_subprocess_exec,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.ClientSideConnection",
+                    "handprint.sdk.agent.acp_agent.ClientSideConnection",
                     return_value=conn,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent._filter_jsonrpc_lines",
+                    "handprint.sdk.agent.acp_agent._filter_jsonrpc_lines",
                     new=_fake_filter,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.StreamReader",
+                    "handprint.sdk.agent.acp_agent.asyncio.StreamReader",
                     return_value=MagicMock(),
                 )
             )
@@ -7538,14 +7538,14 @@ class TestACPSecretsEnvInjection:
         ``state.secret_registry`` at init, and ``_start_acp_server`` injects the
         registry — the path that delivers ``agent_context.secrets`` to the CLI
         for callers that don't lift them into ``request.secrets`` via
-        ``create_request`` (e.g. canvas-local).
+        ``create_request`` (e.g. viczin-local).
         """
         from pydantic import SecretStr
 
-        from openhands.sdk.conversation.impl.local_conversation import (
+        from handprint.sdk.conversation.impl.local_conversation import (
             LocalConversation,
         )
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -7566,7 +7566,7 @@ class TestACPSecretsEnvInjection:
 
     def test_none_value_secret_not_injected(self, tmp_path):
         """A StaticSecret with value=None is not added to the subprocess env."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -7580,7 +7580,7 @@ class TestACPSecretsEnvInjection:
         """Empty string secrets are not injected into the subprocess env."""
         from pydantic import SecretStr
 
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -7604,7 +7604,7 @@ class TestACPSecretRegistryEnvInjection:
 
     Secrets registered via ``Conversation.update_secrets()`` — or the
     equivalent ``payload.secrets`` channel that app-server callers
-    (agent-canvas, the OpenHands cloud app server) use — must land in the
+    (agent-viczin, the Handprint cloud app server) use — must land in the
     ACP subprocess env. ``agent_context.secrets`` are seeded into the same
     registry at ``LocalConversation.__init__`` (below ``request.secrets``), so
     the registry is the single channel ``_start_acp_server`` injects from.
@@ -7632,7 +7632,7 @@ class TestACPSecretRegistryEnvInjection:
 
         from contextlib import ExitStack
 
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         captured: dict = {}
         conn = TestACPSecretsEnvInjection._make_conn()
@@ -7662,25 +7662,25 @@ class TestACPSecretRegistryEnvInjection:
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+                    "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
                     new=_fake_create_subprocess_exec,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.ClientSideConnection",
+                    "handprint.sdk.agent.acp_agent.ClientSideConnection",
                     return_value=conn,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent._filter_jsonrpc_lines",
+                    "handprint.sdk.agent.acp_agent._filter_jsonrpc_lines",
                     new=_fake_filter,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.StreamReader",
+                    "handprint.sdk.agent.acp_agent.asyncio.StreamReader",
                     return_value=MagicMock(),
                 )
             )
@@ -7691,7 +7691,7 @@ class TestACPSecretRegistryEnvInjection:
     def test_registry_string_secret_injected_into_subprocess_env(self, tmp_path):
         """A string secret in secret_registry lands in the subprocess env.
 
-        The canvas / OpenHands ``payload.secrets`` channel ends up here
+        The viczin / Handprint ``payload.secrets`` channel ends up here
         via ``Conversation.update_secrets()`` → ``SecretRegistry.update_secrets``;
         without this injection the secret is invisible to the ACP CLI.
         """
@@ -7699,14 +7699,14 @@ class TestACPSecretRegistryEnvInjection:
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
-            registry_secrets={"ANTHROPIC_API_KEY": "sk-from-registry"},
+            registry_secrets={"JUGLOW_API_KEY": "sk-from-registry"},
         )
-        assert env.get("ANTHROPIC_API_KEY") == "sk-from-registry"
+        assert env.get("JUGLOW_API_KEY") == "sk-from-registry"
 
     def test_registry_lookup_secret_injected_into_subprocess_env(self, tmp_path):
         """A LookupSecret (callable) in secret_registry resolves and injects.
 
-        This is the wire shape canvas actually sends: a ``LookupSecret``
+        This is the wire shape viczin actually sends: a ``LookupSecret``
         whose ``get_value()`` fetches over HTTP from the agent-server's
         ``/api/settings/secrets/{name}`` endpoint.
         """
@@ -7733,10 +7733,10 @@ class TestACPSecretRegistryEnvInjection:
         """
         from pydantic import SecretStr
 
-        from openhands.sdk.conversation.impl.local_conversation import (
+        from handprint.sdk.conversation.impl.local_conversation import (
             LocalConversation,
         )
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -7793,10 +7793,10 @@ class TestACPSecretRegistryEnvInjection:
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
-            registry_secrets={"ANTHROPIC_API_KEY": "from-registry"},
-            extra_os_env={"ANTHROPIC_API_KEY": "ambient-should-lose"},
+            registry_secrets={"JUGLOW_API_KEY": "from-registry"},
+            extra_os_env={"JUGLOW_API_KEY": "ambient-should-lose"},
         )
-        assert env.get("ANTHROPIC_API_KEY") == "from-registry"
+        assert env.get("JUGLOW_API_KEY") == "from-registry"
 
     def test_agent_context_secret_overrides_ambient_os_environ(self, tmp_path):
         """An agent_context secret (seeded into the registry) beats ambient os.environ.
@@ -7807,10 +7807,10 @@ class TestACPSecretRegistryEnvInjection:
         """
         from pydantic import SecretStr
 
-        from openhands.sdk.conversation.impl.local_conversation import (
+        from handprint.sdk.conversation.impl.local_conversation import (
             LocalConversation,
         )
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -7831,16 +7831,16 @@ class TestACPSecretRegistryEnvInjection:
 
 
 class TestACPEnvConflictSuppression:
-    """An active CLAUDE_CODE_OAUTH_TOKEN must not coexist with API-key env vars.
+    """An active HAIJUN_CODE_OAUTH_TOKEN must not coexist with API-key env vars.
 
-    When CLAUDE_CODE_OAUTH_TOKEN is present the subprocess authenticates with
-    that bearer against api.anthropic.com.  A co-present ANTHROPIC_API_KEY would
-    take precedence (bypassing the subscription) and an ANTHROPIC_BASE_URL would
+    When HAIJUN_CODE_OAUTH_TOKEN is present the subprocess authenticates with
+    that bearer against platform.juglow.my.id.  A co-present JUGLOW_API_KEY would
+    take precedence (bypassing the subscription) and an JUGLOW_BASE_URL would
     route the bearer to a proxy that rejects it, breaking auth silently.
 
     _start_acp_server must strip the conflicting vars regardless of where they
     came from: os.environ, secret_registry, or agent_context.secrets.
-    The strip is keyed on the token, not on CLAUDE_CONFIG_DIR (#3588).
+    The strip is keyed on the token, not on HAIJUN_CONFIG_DIR (#3588).
     """
 
     @staticmethod
@@ -7848,7 +7848,7 @@ class TestACPEnvConflictSuppression:
         conn = MagicMock()
         init_response = MagicMock()
         init_response.agent_info = MagicMock()
-        init_response.agent_info.name = "claude-agent-acp"
+        init_response.agent_info.name = "haijun-agent-acp"
         init_response.agent_info.version = "1.0"
         init_response.auth_methods = []
         conn.initialize = AsyncMock(return_value=init_response)
@@ -7868,7 +7868,7 @@ class TestACPEnvConflictSuppression:
     ) -> dict:
         from contextlib import ExitStack
 
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         captured: dict = {}
         conn = TestACPEnvConflictSuppression._make_conn()
@@ -7895,31 +7895,31 @@ class TestACPEnvConflictSuppression:
         with ExitStack() as stack:
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+                    "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
                     new=_fake_create_subprocess_exec,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.ClientSideConnection",
+                    "handprint.sdk.agent.acp_agent.ClientSideConnection",
                     return_value=conn,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent._filter_jsonrpc_lines",
+                    "handprint.sdk.agent.acp_agent._filter_jsonrpc_lines",
                     new=_fake_filter,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.StreamReader",
+                    "handprint.sdk.agent.acp_agent.asyncio.StreamReader",
                     return_value=MagicMock(),
                 )
             )
             # Hermetic: clear the runner's ambient env so it can't shadow the
             # values under test; extra_os_env is the only os.environ content
-            # (used by the test that injects ANTHROPIC_API_KEY via os.environ).
+            # (used by the test that injects JUGLOW_API_KEY via os.environ).
             stack.enter_context(
                 patch.dict("os.environ", extra_os_env or {}, clear=True)
             )
@@ -7928,21 +7928,21 @@ class TestACPEnvConflictSuppression:
         return captured
 
     def test_oauth_token_suppresses_api_key_from_os_environ(self, tmp_path):
-        """ANTHROPIC_API_KEY leaking in from os.environ is stripped too."""
+        """JUGLOW_API_KEY leaking in from os.environ is stripped too."""
         agent = _make_agent()
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
-            registry_secrets={"CLAUDE_CODE_OAUTH_TOKEN": "oauth-tok"},
+            registry_secrets={"HAIJUN_CODE_OAUTH_TOKEN": "oauth-tok"},
             extra_os_env={
-                "ANTHROPIC_API_KEY": "sk-leaked",
-                "ANTHROPIC_BASE_URL": "https://proxy.example.com",
+                "JUGLOW_API_KEY": "sk-leaked",
+                "JUGLOW_BASE_URL": "https://proxy.example.com",
             },
         )
 
-        assert "CLAUDE_CODE_OAUTH_TOKEN" in env
-        assert "ANTHROPIC_API_KEY" not in env
-        assert "ANTHROPIC_BASE_URL" not in env
+        assert "HAIJUN_CODE_OAUTH_TOKEN" in env
+        assert "JUGLOW_API_KEY" not in env
+        assert "JUGLOW_BASE_URL" not in env
 
     def test_oauth_token_suppresses_api_key_from_registry(self, tmp_path):
         """The token + conflicting vars all injected via secret_registry.
@@ -7956,34 +7956,34 @@ class TestACPEnvConflictSuppression:
             agent,
             tmp_path,
             registry_secrets={
-                "CLAUDE_CODE_OAUTH_TOKEN": "oauth-from-registry",
-                "ANTHROPIC_API_KEY": "sk-from-registry",
-                "ANTHROPIC_BASE_URL": "https://proxy.example.com",
+                "HAIJUN_CODE_OAUTH_TOKEN": "oauth-from-registry",
+                "JUGLOW_API_KEY": "sk-from-registry",
+                "JUGLOW_BASE_URL": "https://proxy.example.com",
             },
         )
 
-        assert env["CLAUDE_CODE_OAUTH_TOKEN"] == "oauth-from-registry"
-        assert "ANTHROPIC_API_KEY" not in env
-        assert "ANTHROPIC_BASE_URL" not in env
+        assert env["HAIJUN_CODE_OAUTH_TOKEN"] == "oauth-from-registry"
+        assert "JUGLOW_API_KEY" not in env
+        assert "JUGLOW_BASE_URL" not in env
 
     def test_oauth_token_suppresses_api_key_from_secrets(self, tmp_path):
         """Conflicting vars drained from agent_context.secrets are stripped too.
 
-        Covers the canvas-local channel: provider creds folded into
+        Covers the viczin-local channel: provider creds folded into
         ``agent_context.secrets`` reach env via the drain, and must still be
         stripped when the OAuth token is active.
         """
         from pydantic import SecretStr
 
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
                 secrets={
-                    "ANTHROPIC_API_KEY": StaticSecret(
+                    "JUGLOW_API_KEY": StaticSecret(
                         value=SecretStr("sk-from-secret")
                     ),
-                    "ANTHROPIC_BASE_URL": StaticSecret(
+                    "JUGLOW_BASE_URL": StaticSecret(
                         value=SecretStr("https://proxy.example.com")
                     ),
                 }
@@ -7992,28 +7992,28 @@ class TestACPEnvConflictSuppression:
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
-            registry_secrets={"CLAUDE_CODE_OAUTH_TOKEN": "oauth-tok"},
+            registry_secrets={"HAIJUN_CODE_OAUTH_TOKEN": "oauth-tok"},
         )
 
-        assert "CLAUDE_CODE_OAUTH_TOKEN" in env
-        assert "ANTHROPIC_API_KEY" not in env
-        assert "ANTHROPIC_BASE_URL" not in env
+        assert "HAIJUN_CODE_OAUTH_TOKEN" in env
+        assert "JUGLOW_API_KEY" not in env
+        assert "JUGLOW_BASE_URL" not in env
 
     def test_no_suppression_without_oauth_token(self, tmp_path):
-        """Without the OAuth token, ANTHROPIC_API_KEY passes through unchanged."""
+        """Without the OAuth token, JUGLOW_API_KEY passes through unchanged."""
         agent = _make_agent()
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
-            registry_secrets={"ANTHROPIC_API_KEY": "sk-valid"},
+            registry_secrets={"JUGLOW_API_KEY": "sk-valid"},
         )
 
-        assert env.get("ANTHROPIC_API_KEY") == "sk-valid"
-        assert "CLAUDE_CODE_OAUTH_TOKEN" not in env
+        assert env.get("JUGLOW_API_KEY") == "sk-valid"
+        assert "HAIJUN_CODE_OAUTH_TOKEN" not in env
 
     def test_config_dir_alone_does_not_suppress_api_key(self, tmp_path):
-        """Regression (#3588): CLAUDE_CONFIG_DIR without the OAuth token must NOT
-        strip ANTHROPIC_API_KEY. The config dir is a location lever (data-dir
+        """Regression (#3588): HAIJUN_CONFIG_DIR without the OAuth token must NOT
+        strip JUGLOW_API_KEY. The config dir is a location lever (data-dir
         isolation), orthogonal to auth mode — keying the strip on it used to
         delete a working API key during isolation."""
         agent = _make_agent()
@@ -8021,47 +8021,47 @@ class TestACPEnvConflictSuppression:
             agent,
             tmp_path,
             registry_secrets={
-                "CLAUDE_CONFIG_DIR": "/tmp/claude-isolated",
-                "ANTHROPIC_API_KEY": "sk-valid",
+                "HAIJUN_CONFIG_DIR": "/tmp/haijun-isolated",
+                "JUGLOW_API_KEY": "sk-valid",
             },
         )
 
-        assert env["CLAUDE_CONFIG_DIR"] == "/tmp/claude-isolated"
-        assert env.get("ANTHROPIC_API_KEY") == "sk-valid"
+        assert env["HAIJUN_CONFIG_DIR"] == "/tmp/haijun-isolated"
+        assert env.get("JUGLOW_API_KEY") == "sk-valid"
 
     def test_rule_does_not_reach_another_provider(self, tmp_path):
         """A provider that did not declare the conflict keeps the variable.
 
-        The rule belongs to claude-code, but the loop used to run for every
-        provider — so an ambient Claude subscription token deleted
-        ANTHROPIC_API_KEY out of any ACP subprocess. For a provider whose own
-        ``api_key_env_var`` is ANTHROPIC_API_KEY that is its only credential.
+        The rule belongs to haijun-code, but the loop used to run for every
+        provider — so an ambient Haijun subscription token deleted
+        JUGLOW_API_KEY out of any ACP subprocess. For a provider whose own
+        ``api_key_env_var`` is JUGLOW_API_KEY that is its only credential.
         """
         agent = _make_agent(acp_server="gemini-cli")
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
             registry_secrets={
-                "CLAUDE_CODE_OAUTH_TOKEN": "oauth-tok",
-                "ANTHROPIC_API_KEY": "sk-this-providers-credential",
+                "HAIJUN_CODE_OAUTH_TOKEN": "oauth-tok",
+                "JUGLOW_API_KEY": "sk-this-providers-credential",
             },
         )
 
-        assert env.get("ANTHROPIC_API_KEY") == "sk-this-providers-credential"
+        assert env.get("JUGLOW_API_KEY") == "sk-this-providers-credential"
 
-    def test_claude_code_key_still_applies_the_rule(self, tmp_path):
+    def test_haijun_code_key_still_applies_the_rule(self, tmp_path):
         """The declaring provider is unaffected by the scoping."""
-        agent = _make_agent(acp_server="claude-code")
+        agent = _make_agent(acp_server="haijun-code")
         env = self._run_start_capturing_env(
             agent,
             tmp_path,
             registry_secrets={
-                "CLAUDE_CODE_OAUTH_TOKEN": "oauth-tok",
-                "ANTHROPIC_API_KEY": "sk-leaked",
+                "HAIJUN_CODE_OAUTH_TOKEN": "oauth-tok",
+                "JUGLOW_API_KEY": "sk-leaked",
             },
         )
 
-        assert "ANTHROPIC_API_KEY" not in env
+        assert "JUGLOW_API_KEY" not in env
 
 
 class TestACPAgentCurrentModelIdProperty:
@@ -8069,7 +8069,7 @@ class TestACPAgentCurrentModelIdProperty:
 
     ``AgentBase`` is frozen so the value can't live on the agent as a
     regular Pydantic field; it doesn't round-trip through ``model_dump``
-    either.  Cross-process consumers (the OpenHands app_server) should
+    either.  Cross-process consumers (the Handprint app_server) should
     read it off ``ConversationInfo`` instead — the agent-server lifts the
     value off the agent into the API response.
     """
@@ -8082,8 +8082,8 @@ class TestACPAgentCurrentModelIdProperty:
         # ``_init`` writes the resolved model into ``_current_model_id``
         # after consulting the server response + the caller override.
         agent = _make_agent()
-        agent._current_model_id = "claude-sonnet-4-5"
-        assert agent.current_model_id == "claude-sonnet-4-5"
+        agent._current_model_id = "haijun-codtral"
+        assert agent.current_model_id == "haijun-codtral"
 
     def test_acp_model_override_wins_over_server_report(self):
         """When ``acp_model`` is set, ``current_model_id`` reflects the override.
@@ -8100,7 +8100,7 @@ class TestACPAgentCurrentModelIdProperty:
         # Locks in the deliberate design choice: PrivateAttr → not serialized.
         # Cross-process consumers must read from ``ConversationInfo``.
         agent = _make_agent()
-        agent._current_model_id = "claude-opus-4-1"
+        agent._current_model_id = "haijun-kamsa"
         clone = ACPAgent.model_validate_json(agent.model_dump_json())
         assert clone.current_model_id is None
 
@@ -8232,7 +8232,7 @@ class TestExtractSessionModelsNormalization:
 class TestConfigOptionModelMechanism:
     """Model selection via the ``model`` ``configOptions`` select.
 
-    Current codex-acp and claude-agent-acp expose a ``model`` config-option
+    Current codex-acp and haijun-agent-acp expose a ``model`` config-option
     select driven by ``session/set_config_option``. ``_extract_session_models``
     reads that select and reports the apply mechanism as its third return value
     (``via_config_option``) in the same scan.
@@ -8251,7 +8251,7 @@ class TestConfigOptionModelMechanism:
         return SimpleNamespace(models=models, config_options=config_options)
 
     def test_extracts_model_state_from_config_option(self):
-        # claude-agent-acp 0.44: model select with short aliases.
+        # haijun-agent-acp 0.44: model select with short aliases.
         response = self._response(
             config_options=[
                 self._select(
@@ -8397,8 +8397,8 @@ def _select_dict(opt_id, current, values, category=None):
     }
 
 
-_CLAUDE_046_SESSION = {
-    "sessionId": "sess-claude",
+_HAIJUN_046_SESSION = {
+    "sessionId": "sess-haijun",
     "models": None,
     "configOptions": [
         _select_dict("mode", "default", ["default", "acceptEdits"]),
@@ -8470,8 +8470,8 @@ class TestDetectionAgainstRealSessionResponses:
         # field on the schema.
         assert "config_options" in NewSessionResponse.model_fields
 
-    def test_claude_046_uses_config_option(self):
-        resp = NewSessionResponse.model_validate(_CLAUDE_046_SESSION)
+    def test_haijun_046_uses_config_option(self):
+        resp = NewSessionResponse.model_validate(_HAIJUN_046_SESSION)
         cur, avail, via = _extract_session_models(resp)
         assert via is True
         assert cur == "opus[1m]"
@@ -8650,7 +8650,7 @@ class TestACPAgentSupportsRuntimeModelSwitch:
 
     def test_false_for_known_unsupported_provider(self, monkeypatch):
         # A known provider that declares no support is the one case we refuse.
-        import openhands.sdk.agent.acp_agent as acp_agent_module
+        import handprint.sdk.agent.acp_agent as acp_agent_module
 
         unsupported = MagicMock()
         unsupported.supports_runtime_model_switch = False
@@ -8934,7 +8934,7 @@ class TestACPFileSecretMaterialisation:
         dict handed to the subprocess."""
         from contextlib import ExitStack
 
-        from openhands.sdk.utils.async_executor import AsyncExecutor
+        from handprint.sdk.utils.async_executor import AsyncExecutor
 
         captured: dict[str, Any] = {}
         mock_process = MagicMock(spec=asyncio.subprocess.Process)
@@ -8955,25 +8955,25 @@ class TestACPFileSecretMaterialisation:
         with ExitStack() as stack:
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
+                    "handprint.sdk.agent.acp_agent.asyncio.create_subprocess_exec",
                     new=_fake_exec,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.ClientSideConnection",
+                    "handprint.sdk.agent.acp_agent.ClientSideConnection",
                     return_value=conn,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent._filter_jsonrpc_lines",
+                    "handprint.sdk.agent.acp_agent._filter_jsonrpc_lines",
                     new=_fake_filter,
                 )
             )
             stack.enter_context(
                 patch(
-                    "openhands.sdk.agent.acp_agent.asyncio.StreamReader",
+                    "handprint.sdk.agent.acp_agent.asyncio.StreamReader",
                     return_value=MagicMock(),
                 )
             )
@@ -8982,7 +8982,7 @@ class TestACPFileSecretMaterialisation:
 
     @staticmethod
     def _state(tmp_path, *, persisted: bool = True):
-        from openhands.sdk.agent.acp_agent import ACPAgent
+        from handprint.sdk.agent.acp_agent import ACPAgent
 
         agent = ACPAgent(acp_command=["codex-acp"])
         workspace = LocalWorkspace(working_dir=str(tmp_path / "ws"))
@@ -8999,7 +8999,7 @@ class TestACPFileSecretMaterialisation:
         return state
 
     def test_codex_auth_json_materialises_to_conversation_root(self, tmp_path):
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9047,7 +9047,7 @@ class TestACPFileSecretMaterialisation:
         assert path.read_text(encoding="utf-8") == "credential"
 
     def test_gemini_vertex_sa_materialises_and_points_at_file(self, tmp_path):
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9074,7 +9074,7 @@ class TestACPFileSecretMaterialisation:
 
     def test_pi_auth_json_materialises_into_the_agent_config_dir(self, tmp_path):
         """PI_AUTH_JSON lands as auth.json with PI_CODING_AGENT_DIR on the dir."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9083,7 +9083,7 @@ class TestACPFileSecretMaterialisation:
         state.secret_registry.update_secrets(
             {
                 "PI_AUTH_JSON": StaticSecret(
-                    value=SecretStr('{"anthropic": {"type": "api_key", "key": "k"}}')
+                    value=SecretStr('{"juglow": {"type": "api_key", "key": "k"}}')
                 )
             }
         )
@@ -9102,7 +9102,7 @@ class TestACPFileSecretMaterialisation:
         assert Path(env["PI_CODING_AGENT_DIR"]) == Path(persist) / "acp" / "pi"
         assert (
             auth_file.read_text(encoding="utf-8")
-            == '{"anthropic": {"type": "api_key", "key": "k"}}'
+            == '{"juglow": {"type": "api_key", "key": "k"}}'
         )
         assert auth_file.stat().st_mode & 0o777 == 0o600
         assert "PI_AUTH_JSON" not in env
@@ -9110,12 +9110,12 @@ class TestACPFileSecretMaterialisation:
     def test_terminal_only_auth_with_seeded_file_does_not_warn(self, tmp_path):
         """pi-acp offers only an interactive login; a seeded auth.json is the
         credential, so startup must not call authenticate() or warn."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
         state.secret_registry.update_secrets(
-            {"PI_AUTH_JSON": StaticSecret(value=SecretStr('{"anthropic": {}}'))}
+            {"PI_AUTH_JSON": StaticSecret(value=SecretStr('{"juglow": {}}'))}
         )
         conn = self._make_conn(
             agent_name="pi-acp",
@@ -9124,7 +9124,7 @@ class TestACPFileSecretMaterialisation:
         )
 
         with patch(
-            "openhands.sdk.agent.acp_agent._warn_auth_selection_failure"
+            "handprint.sdk.agent.acp_agent._warn_auth_selection_failure"
         ) as mock_warn:
             self._run_start(agent, state, conn=conn)
 
@@ -9133,15 +9133,15 @@ class TestACPFileSecretMaterialisation:
         conn.new_session.assert_called_once()
 
     def test_terminal_only_auth_with_the_provider_api_key_does_not_warn(self, tmp_path):
-        """pi authenticates from ANTHROPIC_API_KEY in its own environment even
+        """pi authenticates from JUGLOW_API_KEY in its own environment even
         though the server advertises only an interactive login, so the
         no-credential warning would fire on a working configuration."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
         state.secret_registry.update_secrets(
-            {"ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-ant-test"))}
+            {"JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-ant-test"))}
         )
         conn = self._make_conn(
             agent_name="pi-acp",
@@ -9150,11 +9150,11 @@ class TestACPFileSecretMaterialisation:
         )
 
         with patch(
-            "openhands.sdk.agent.acp_agent._warn_auth_selection_failure"
+            "handprint.sdk.agent.acp_agent._warn_auth_selection_failure"
         ) as mock_warn:
             env = self._run_start(agent, state, conn=conn)
 
-        assert env["ANTHROPIC_API_KEY"] == "sk-ant-test"
+        assert env["JUGLOW_API_KEY"] == "sk-ant-test"
         conn.authenticate.assert_not_called()
         mock_warn.assert_not_called()
         conn.new_session.assert_called_once()
@@ -9169,7 +9169,7 @@ class TestACPFileSecretMaterialisation:
         )
 
         with patch(
-            "openhands.sdk.agent.acp_agent._warn_auth_selection_failure"
+            "handprint.sdk.agent.acp_agent._warn_auth_selection_failure"
         ) as mock_warn:
             self._run_start(agent, state, conn=conn)
 
@@ -9179,7 +9179,7 @@ class TestACPFileSecretMaterialisation:
     def test_non_terminal_auth_still_warns_with_a_seeded_file(self, tmp_path):
         """The suppression is scoped to terminal-only servers: codex with an
         auth.json that isn't ChatGPT auth must keep warning."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9189,7 +9189,7 @@ class TestACPFileSecretMaterialisation:
         conn = self._make_conn(agent_name="codex-acp", auth_method="chat-gpt")
 
         with patch(
-            "openhands.sdk.agent.acp_agent._warn_auth_selection_failure"
+            "handprint.sdk.agent.acp_agent._warn_auth_selection_failure"
         ) as mock_warn:
             self._run_start(agent, state, conn=conn)
 
@@ -9212,7 +9212,7 @@ class TestACPFileSecretMaterialisation:
     def test_seed_if_absent_does_not_clobber_existing_file(self, tmp_path):
         """A non-empty existing credential file (e.g. a token the CLI refreshed)
         is preserved; the stale pasted blob does not overwrite it."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9238,7 +9238,7 @@ class TestACPFileSecretMaterialisation:
         assert refreshed.stat().st_mode & 0o777 == 0o600
 
     def test_updated_credential_replaces_existing_file_once(self, tmp_path):
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9275,12 +9275,12 @@ class TestACPFileSecretMaterialisation:
         assert auth_file.read_text(encoding="utf-8") == '{"refreshed": true}'
 
     def test_reads_reserved_secret_seeded_from_agent_context(self, tmp_path):
-        """A reserved file secret supplied via agent_context.secrets (canvas-local
+        """A reserved file secret supplied via agent_context.secrets (viczin-local
         path) is seeded into the registry at conversation init and materialised."""
-        from openhands.sdk.conversation.impl.local_conversation import (
+        from handprint.sdk.conversation.impl.local_conversation import (
             LocalConversation,
         )
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(
@@ -9305,7 +9305,7 @@ class TestACPFileSecretMaterialisation:
     def test_fallback_root_when_not_persisted(self, tmp_path):
         """With no persistence_dir, the file lands under the workspace tree —
         still seed-if-absent, no TemporaryDirectory."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path, persisted=False)
@@ -9315,7 +9315,7 @@ class TestACPFileSecretMaterialisation:
         )
         env = self._run_start(agent, state, conn=self._make_conn())
 
-        expected = Path(state.workspace.working_dir) / ".openhands" / "acp" / "codex"
+        expected = Path(state.workspace.working_dir) / ".handprint" / "acp" / "codex"
         assert Path(env["CODEX_HOME"]) == expected
         assert (expected / "auth.json").is_file()
 
@@ -9332,7 +9332,7 @@ class TestACPFileSecretMaterialisation:
         propagates out of _start_acp_server (so init_state surfaces a typed
         ConversationErrorEvent) instead of being swallowed and leaving the CLI
         to fail at auth time with no SDK breadcrumb."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9340,14 +9340,14 @@ class TestACPFileSecretMaterialisation:
             {"CODEX_AUTH_JSON": StaticSecret(value=SecretStr("{}"))}
         )
         with patch(
-            "openhands.sdk.agent.acp_agent.write_secret_file",
+            "handprint.sdk.agent.acp_agent.write_secret_file",
             side_effect=OSError("[Errno 30] Read-only file system"),
         ):
             with pytest.raises(OSError, match="Read-only file system"):
                 self._run_start(agent, state, conn=self._make_conn())
 
     def test_vertex_warns_when_project_unset(self, tmp_path, caplog):
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9359,7 +9359,7 @@ class TestACPFileSecretMaterialisation:
         assert any("GOOGLE_CLOUD_PROJECT" in rec.message for rec in caplog.records)
 
     def test_present_file_secret_names_helper(self, tmp_path):
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent()
         state = self._state(tmp_path)
@@ -9374,7 +9374,7 @@ class TestACPFileSecretMaterialisation:
     def test_blob_excluded_from_custom_secrets_advertisement(self, tmp_path):
         """The <CUSTOM_SECRETS> advertisement lists plain secrets but not the
         file-content blob (it's not an env var the agent can reference)."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(
             agent_context=AgentContext(current_datetime=None),
@@ -9389,7 +9389,7 @@ class TestACPFileSecretMaterialisation:
             }
         )
         events: list = []
-        with patch("openhands.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
+        with patch("handprint.sdk.agent.acp_agent.ACPAgent._start_acp_server"):
             agent.init_state(state, on_event=events.append)
 
         suffix = events[0].dynamic_context
@@ -9400,8 +9400,8 @@ class TestACPFileSecretMaterialisation:
     def test_downstream_can_override_specs_with_custom_provider(self, tmp_path):
         """A downstream app supplies its own ACPFileSecretSpec for a custom CLI;
         the SDK mechanism materialises it without any registry change."""
-        from openhands.sdk import ACPFileSecretSpec
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk import ACPFileSecretSpec
+        from handprint.sdk.secret import StaticSecret
 
         custom = ACPFileSecretSpec(
             secret_name="MYCLI_TOKEN_JSON",
@@ -9430,7 +9430,7 @@ class TestACPFileSecretMaterialisation:
     def test_empty_specs_disables_materialisation(self, tmp_path):
         """With acp_file_secrets=[], a CODEX_AUTH_JSON secret is treated as an
         ordinary env var (no file written, no CODEX_HOME) — downstream opt-out."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(acp_file_secrets=[])
         state = self._state(tmp_path)
@@ -9447,8 +9447,8 @@ class TestACPFileSecretMaterialisation:
     def test_settings_pass_file_secrets_through_create_agent(self):
         """ACPAgentSettings defaults to the built-in specs and forwards them to
         the constructed ACPAgent."""
-        from openhands.sdk.settings.acp_providers import default_acp_file_secrets
-        from openhands.sdk.settings.model import ACPAgentSettings
+        from handprint.sdk.settings.acp_providers import default_acp_file_secrets
+        from handprint.sdk.settings.model import ACPAgentSettings
 
         settings = ACPAgentSettings(acp_server="codex")
         agent = settings.create_agent()
@@ -9475,7 +9475,7 @@ class TestACPFileSecretProviderScoping:
     @pytest.mark.parametrize(
         "acp_server,expected",
         [
-            ("claude-code", set()),
+            ("haijun-code", set()),
             ("codex", {"CODEX_AUTH_JSON"}),
             ("gemini-cli", {"GOOGLE_APPLICATION_CREDENTIALS_JSON"}),
             ("kimi-code", {"KIMI_CODE_CONFIG_TOML"}),
@@ -9490,7 +9490,7 @@ class TestACPFileSecretProviderScoping:
     def test_no_provider_claims_another_providers_reserved_secret(self):
         """The property the scoping exists to hold, asserted over the registry
         so a provider added upstream is covered without editing this test."""
-        from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
+        from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
 
         for key, info in ACP_PROVIDERS.items():
             others = {
@@ -9504,7 +9504,7 @@ class TestACPFileSecretProviderScoping:
     def test_unrecognised_server_keeps_the_union(self):
         """No identity means we cannot tell whose credential a reserved name
         belongs to, so stay conservative — as ``_strip_conflicting_env`` does."""
-        from openhands.sdk.settings.acp_providers import default_acp_file_secrets
+        from handprint.sdk.settings.acp_providers import default_acp_file_secrets
 
         agent = ACPAgent(acp_command=["some-unknown-acp-server"])
         assert self._names(agent) == {
@@ -9518,7 +9518,7 @@ class TestACPFileSecretProviderScoping:
     def test_specs_outside_the_registry_always_apply(self):
         """A downstream CLI's spec is owned by no registered provider, so it is
         never filtered out — whichever harness the conversation runs."""
-        from openhands.sdk import ACPFileSecretSpec
+        from handprint.sdk import ACPFileSecretSpec
 
         custom = ACPFileSecretSpec(
             secret_name="MYCLI_TOKEN_JSON",
@@ -9529,7 +9529,7 @@ class TestACPFileSecretProviderScoping:
         agent = _make_agent(acp_server="codex", acp_file_secrets=[custom])
         assert self._names(agent) == {"MYCLI_TOKEN_JSON"}
 
-        from openhands.sdk.settings.acp_providers import default_acp_file_secrets
+        from handprint.sdk.settings.acp_providers import default_acp_file_secrets
 
         agent = _make_agent(
             acp_server="codex",
@@ -9543,13 +9543,13 @@ class TestACPFileSecretProviderScoping:
         must still scope, which a comparison against today's default could not
         do — the stored list no longer equals it.
         """
-        from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
+        from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
 
         pre_upgrade = [
             *ACP_PROVIDERS["codex"].file_secrets,
             *ACP_PROVIDERS["gemini-cli"].file_secrets,
         ]
-        agent = _make_agent(acp_server="claude-code", acp_file_secrets=pre_upgrade)
+        agent = _make_agent(acp_server="haijun-code", acp_file_secrets=pre_upgrade)
         assert self._names(agent) == set()
 
         agent = _make_agent(acp_server="codex", acp_file_secrets=pre_upgrade)
@@ -9558,7 +9558,7 @@ class TestACPFileSecretProviderScoping:
     def test_a_name_several_providers_share_is_kept(self):
         """``owned_elsewhere`` subtracts the running provider's own names, so a
         spec two providers both claim is not filtered from either."""
-        from openhands.sdk import ACPFileSecretSpec
+        from handprint.sdk import ACPFileSecretSpec
 
         shared = ACPFileSecretSpec(
             secret_name="GOOGLE_APPLICATION_CREDENTIALS_JSON",
@@ -9577,17 +9577,17 @@ class TestACPFileSecretProviderScoping:
         """A resumed conversation must scope too — including one written by an
         older SDK, which ``test_a_list_persisted_before_a_provider_was_added_
         still_scopes`` covers."""
-        agent = _make_agent(acp_server="claude-code")
+        agent = _make_agent(acp_server="haijun-code")
         restored = ACPAgent.model_validate(agent.model_dump())
         assert self._names(restored) == set()
 
     def test_other_providers_blob_stays_a_plain_env_var(self, tmp_path):
-        """End to end through ``_start_acp_server``: on a claude-code
+        """End to end through ``_start_acp_server``: on a haijun-code
         conversation ``PI_AUTH_JSON`` is delivered as an ordinary env var, not
         materialised to disk with ``PI_CODING_AGENT_DIR`` set."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
-        agent = _make_agent(acp_server="claude-code")
+        agent = _make_agent(acp_server="haijun-code")
         state = self._H._state(tmp_path)
         state.secret_registry.update_secrets(
             {"PI_AUTH_JSON": StaticSecret(value=SecretStr("blob"))}
@@ -9595,7 +9595,7 @@ class TestACPFileSecretProviderScoping:
 
         with patch.dict("os.environ", {}, clear=True):
             env = self._H._run_start(
-                agent, state, conn=self._H._make_conn(agent_name="claude-agent-acp")
+                agent, state, conn=self._H._make_conn(agent_name="haijun-agent-acp")
             )
 
         assert env.get("PI_AUTH_JSON") == "blob"
@@ -9605,7 +9605,7 @@ class TestACPFileSecretProviderScoping:
     def test_own_blob_still_materialises(self, tmp_path):
         """The counterpart: on a pi conversation the same secret is written to
         disk and the data-dir var points at it."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = _make_agent(acp_server="pi")
         state = self._H._state(tmp_path)
@@ -9679,7 +9679,7 @@ class TestACPDataDirIsolation:
         with patch.dict("os.environ", {}, clear=True):
             env = self._H._run_start(agent, state, conn=self._H._make_conn())
         assert "CODEX_HOME" not in env
-        assert "CLAUDE_CONFIG_DIR" not in env
+        assert "HAIJUN_CONFIG_DIR" not in env
 
     def test_falls_back_to_workspace_when_not_persisted(self, tmp_path):
         agent = self._agent(["codex-acp"])
@@ -9689,12 +9689,12 @@ class TestACPDataDirIsolation:
             env = self._H._run_start(agent, state, conn=self._H._make_conn())
         assert (
             Path(env["CODEX_HOME"])
-            == Path(state.workspace.working_dir) / ".openhands" / "acp" / "codex"
+            == Path(state.workspace.working_dir) / ".handprint" / "acp" / "codex"
         )
 
     def test_composes_with_materialised_codex_auth(self, tmp_path):
         """Isolation and file-secret materialisation agree on one CODEX_HOME."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = self._agent(["codex-acp"])
         state = self._H._state(tmp_path)
@@ -9741,48 +9741,48 @@ class TestACPDataDirIsolation:
         finally:
             agent.close()
 
-    # --- Claude: isolation applies under either auth mode (#3588) ------------
+    # --- Haijun: isolation applies under either auth mode (#3588) ------------
 
-    def test_claude_isolates_under_api_key(self, tmp_path):
-        from openhands.sdk.secret import StaticSecret
+    def test_haijun_isolates_under_api_key(self, tmp_path):
+        from handprint.sdk.secret import StaticSecret
 
-        agent = self._agent(["npx", "-y", "@agentclientprotocol/claude-agent-acp"])
+        agent = self._agent(["npx", "-y", "@agentclientprotocol/haijun-agent-acp"])
         state = self._H._state(tmp_path)
         persist = state.persistence_dir
         assert persist is not None
         state.secret_registry.update_secrets(
-            {"ANTHROPIC_API_KEY": StaticSecret(value=SecretStr("sk-live"))}
+            {"JUGLOW_API_KEY": StaticSecret(value=SecretStr("sk-live"))}
         )
         with patch.dict("os.environ", {}, clear=True):
             env = self._H._run_start(
-                agent, state, conn=self._H._make_conn(agent_name="claude-agent-acp")
+                agent, state, conn=self._H._make_conn(agent_name="haijun-agent-acp")
             )
-        # #3588: the conflict strip is keyed on CLAUDE_CODE_OAUTH_TOKEN, not on
-        # CLAUDE_CONFIG_DIR, so relocating the data dir no longer strips a working
-        # API key — API-key Claude gets the same per-conversation isolation.
-        assert Path(env["CLAUDE_CONFIG_DIR"]) == Path(persist) / "acp" / "claude-code"
-        assert env["ANTHROPIC_API_KEY"] == "sk-live"
+        # #3588: the conflict strip is keyed on HAIJUN_CODE_OAUTH_TOKEN, not on
+        # HAIJUN_CONFIG_DIR, so relocating the data dir no longer strips a working
+        # API key — API-key Haijun gets the same per-conversation isolation.
+        assert Path(env["HAIJUN_CONFIG_DIR"]) == Path(persist) / "acp" / "haijun-code"
+        assert env["JUGLOW_API_KEY"] == "sk-live"
 
-    def test_claude_isolates_under_oauth_token(self, tmp_path):
-        from openhands.sdk.secret import StaticSecret
+    def test_haijun_isolates_under_oauth_token(self, tmp_path):
+        from handprint.sdk.secret import StaticSecret
 
-        agent = self._agent(["npx", "-y", "@agentclientprotocol/claude-agent-acp"])
+        agent = self._agent(["npx", "-y", "@agentclientprotocol/haijun-agent-acp"])
         state = self._H._state(tmp_path)
         persist = state.persistence_dir
         assert persist is not None
         state.secret_registry.update_secrets(
-            {"CLAUDE_CODE_OAUTH_TOKEN": StaticSecret(value=SecretStr("oauth-xyz"))}
+            {"HAIJUN_CODE_OAUTH_TOKEN": StaticSecret(value=SecretStr("oauth-xyz"))}
         )
         with patch.dict("os.environ", {}, clear=True):
             env = self._H._run_start(
-                agent, state, conn=self._H._make_conn(agent_name="claude-agent-acp")
+                agent, state, conn=self._H._make_conn(agent_name="haijun-agent-acp")
             )
-        assert Path(env["CLAUDE_CONFIG_DIR"]) == Path(persist) / "acp" / "claude-code"
+        assert Path(env["HAIJUN_CONFIG_DIR"]) == Path(persist) / "acp" / "haijun-code"
 
     def test_pi_isolates_data_dir(self, tmp_path):
         """pi-acp's session map follows HOME; pi's own config dir follows
         PI_CODING_AGENT_DIR, which only the file secret sets."""
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         agent = self._agent(["npx", "-y", "pi-acp"])
         state = self._H._state(tmp_path)
@@ -9848,14 +9848,14 @@ class TestMaskJsonValue:
 
 
 class TestACPBridgeMasking:
-    """``_OpenHandsACPBridge`` masks injected secrets before they reach the
+    """``_HandprintACPBridge`` masks injected secrets before they reach the
     ``on_token`` / ``on_event`` sinks (persisted + network-relayed)."""
 
     @pytest.mark.asyncio
     async def test_message_chunk_masked_in_relay_and_accumulation(self):
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
         tokens: list[str] = []
         client.on_token = tokens.append
@@ -9873,7 +9873,7 @@ class TestACPBridgeMasking:
     async def test_thought_chunk_masked(self):
         from acp.schema import AgentThoughtChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
 
         chunk = MagicMock(spec=AgentThoughtChunk)
@@ -9888,7 +9888,7 @@ class TestACPBridgeMasking:
     async def test_tool_call_start_masks_raw_fields(self):
         from acp.schema import ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
         events: list = []
         client.on_event = events.append
@@ -9920,7 +9920,7 @@ class TestACPBridgeMasking:
     async def test_tool_call_progress_masks_terminal_output(self):
         from acp.schema import ToolCallProgress, ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
         events: list = []
         client.on_event = events.append
@@ -9960,7 +9960,7 @@ class TestACPBridgeMasking:
 
         from acp.schema import ToolCallProgress, ToolCallStart
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
 
         start = MagicMock(spec=ToolCallStart)
@@ -10000,7 +10000,7 @@ class TestACPBridgeMasking:
         and never raises."""
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         assert client.mask is None
         tokens: list[str] = []
         client.on_token = tokens.append
@@ -10021,12 +10021,12 @@ class TestACPBridgeMasking:
         def _boom(_text: str) -> str:
             raise RuntimeError("masker exploded")
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _boom
         assert client._mask_value("keep SEKRET") == "keep SEKRET"
 
     def test_mask_value_propagates_credential_errors(self):
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
         client.before_mask = MagicMock(
             side_effect=ACPFileCredentialNeedsReauthError("missing")
@@ -10038,7 +10038,7 @@ class TestACPBridgeMasking:
     def test_reset_preserves_mask(self):
         """mask is conversation-lifetime (bound once in _start_acp_server), so a
         per-turn reset() must NOT clear it — unlike on_token/on_event."""
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
         client.reset()
         assert client.mask is _redacting_mask
@@ -10049,7 +10049,7 @@ class TestACPBridgeMasking:
         caller, so fork-session chunks must be masked too."""
         from acp.schema import AgentMessageChunk, TextContentBlock
 
-        client = _OpenHandsACPBridge()
+        client = _HandprintACPBridge()
         client.mask = _redacting_mask
         client._fork_session_id = "fork-1"
 
@@ -10096,7 +10096,7 @@ class TestACPStepMasksPersistedTurn:
         reg.get_secret_value("TOKEN")
         events: list = []
 
-        mock_client = _OpenHandsACPBridge()
+        mock_client = _HandprintACPBridge()
         agent._client = mock_client
         agent._conn = MagicMock()
         agent._session_id = "test-session"
@@ -10162,7 +10162,7 @@ class TestPreconfiguredCredentials:
         assert _preconfigured_credentials(None, (spec,), env) == []
 
     def test_no_provider_and_no_specs_reports_nothing(self):
-        assert _preconfigured_credentials(None, (), {"ANTHROPIC_API_KEY": "k"}) == []
+        assert _preconfigured_credentials(None, (), {"JUGLOW_API_KEY": "k"}) == []
 
 
 class TestAuthSelectionFailureReason:
@@ -10216,7 +10216,7 @@ class TestUnperformableAuthMethodLogging:
     def _start_with_auth_method(agent, tmp_path, *, method_id: str, registry_secrets):
         from pydantic import SecretStr
 
-        from openhands.sdk.secret import StaticSecret
+        from handprint.sdk.secret import StaticSecret
 
         state = _make_state(tmp_path)
         for name, value in registry_secrets.items():

@@ -9,7 +9,7 @@ which then merges both analyses into a single consolidated report.
 
 import os
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     AgentContext,
@@ -17,11 +17,11 @@ from openhands.sdk import (
     Tool,
     get_logger,
 )
-from openhands.sdk.context import Skill
-from openhands.sdk.subagent import register_agent
-from openhands.tools import register_builtins_agents
-from openhands.tools.delegate import DelegationVisualizer
-from openhands.tools.task import TaskToolSet
+from handprint.sdk.context import Track
+from handprint.sdk.subagent import register_agent
+from handprint.tools import register_builtins_agents
+from handprint.tools.delegate import DelegationVisualizer
+from handprint.tools.task import TaskToolSet
 
 
 logger = get_logger(__name__)
@@ -37,8 +37,8 @@ llm = LLM(
 
 def create_lodging_planner(llm: LLM) -> Agent:
     """Create a lodging planner focused on London stays."""
-    skills = [
-        Skill(
+    tracks = [
+        Track(
             name="lodging_planning",
             content=(
                 "You specialize in finding great places to stay in London. "
@@ -53,7 +53,7 @@ def create_lodging_planner(llm: LLM) -> Agent:
         llm=llm,
         tools=[],
         agent_context=AgentContext(
-            skills=skills,
+            tracks=tracks,
             system_message_suffix="Focus only on London lodging recommendations.",
         ),
     )
@@ -61,8 +61,8 @@ def create_lodging_planner(llm: LLM) -> Agent:
 
 def create_activities_planner(llm: LLM) -> Agent:
     """Create an activities planner focused on London itineraries."""
-    skills = [
-        Skill(
+    tracks = [
+        Track(
             name="activities_planning",
             content=(
                 "You design concise London itineraries. Suggest 2-3 daily "
@@ -77,7 +77,7 @@ def create_activities_planner(llm: LLM) -> Agent:
         llm=llm,
         tools=[],
         agent_context=AgentContext(
-            skills=skills,
+            tracks=tracks,
             system_message_suffix="Plan practical, time-efficient days in London.",
         ),
     )

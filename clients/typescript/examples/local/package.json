@@ -1,7 +1,7 @@
 {
-  "name": "openhands-local-chat",
+  "name": "handprint-local-chat",
   "version": "1.0.0",
-  "description": "Browser-based chat UI for OpenHands with OpenRouter integration",
+  "description": "Browser-based chat UI for Handprint with OpenRouter integration",
   "type": "module",
   "scripts": {
     "dev": "cd ../.. && npm run build && cd - && vite",

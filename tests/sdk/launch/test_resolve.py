@@ -3,25 +3,25 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.launch import (
+from handprint.sdk.launch import (
     AgentLaunchError,
     LaunchStoreError,
     LaunchStores,
     UnresolvedProfileReferences,
     resolve,
 )
-from openhands.sdk.llm.meta_profile_store import MetaProfile, MetaProfileClass
-from openhands.sdk.llm.provider_connection_store import ProviderConnectionNotFound
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles.agent_profile import ACPAgentProfile, OpenHandsAgentProfile
-from openhands.sdk.profiles.resolver import ProfileNotFound
-from openhands.sdk.settings.model import ACPAgentSettings, OpenHandsAgentSettings
-from openhands.sdk.skills import Skill
+from handprint.sdk.llm.meta_profile_store import MetaProfile, MetaProfileClass
+from handprint.sdk.llm.provider_connection_store import ProviderConnectionNotFound
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles.agent_profile import ACPAgentProfile, HandprintAgentProfile
+from handprint.sdk.profiles.resolver import ProfileNotFound
+from handprint.sdk.settings.model import ACPAgentSettings, HandprintAgentSettings
+from handprint.sdk.tracks import Track
 from tests.sdk.launch import fakes
 
 
-def _profile(**kwargs) -> OpenHandsAgentProfile:
-    return OpenHandsAgentProfile(
+def _profile(**kwargs) -> HandprintAgentProfile:
+    return HandprintAgentProfile(
         name=kwargs.pop("name", "p"), llm_profile_ref="default", **kwargs
     )
 
@@ -30,8 +30,8 @@ def _mcp(*names: str) -> dict[str, MCPServer]:
     return {name: MCPServer(command="echo", args=[name]) for name in names}
 
 
-def _openhands(resolved) -> OpenHandsAgentSettings:
-    assert isinstance(resolved.settings, OpenHandsAgentSettings)
+def _handprint(resolved) -> HandprintAgentSettings:
+    assert isinstance(resolved.settings, HandprintAgentSettings)
     return resolved.settings
 
 
@@ -53,7 +53,7 @@ def test_an_unknown_profile_id_is_not_found():
 
 
 def test_every_dangling_reference_is_reported_together():
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="p",
         llm_profile_ref="missing-llm",
         mcp_server_refs=["present", "missing-mcp"],
@@ -76,7 +76,7 @@ def test_the_profile_llm_streams_without_changing_the_stored_llm():
 
     resolved = resolve(_profile(), fakes.stores(llms={"default": stored_llm}))
 
-    settings = _openhands(resolved)
+    settings = _handprint(resolved)
     assert settings.llm.stream is True
     assert stored_llm.stream is False
 
@@ -91,30 +91,30 @@ def test_mcp_server_refs_filter_the_user_servers(refs, expected):
     assert list(resolved.settings.mcp_config) == expected
 
 
-def test_an_openhands_profile_gets_the_catalog_minus_its_deny_list():
-    catalog = [Skill(name="alpha", content="a"), Skill(name="beta", content="b")]
+def test_an_handprint_profile_gets_the_catalog_minus_its_deny_list():
+    catalog = [Track(name="alpha", content="a"), Track(name="beta", content="b")]
 
     resolved = resolve(
-        _profile(disabled_skills=["beta", "absent"]), fakes.stores(skills=catalog)
+        _profile(disabled_tracks=["beta", "absent"]), fakes.stores(tracks=catalog)
     )
 
-    context = _openhands(resolved).agent_context
-    assert [s.name for s in context.skills] == ["alpha"]
-    assert context.disabled_skills == ["beta", "absent"]
-    assert context.load_project_skills is True
+    context = _handprint(resolved).agent_context
+    assert [s.name for s in context.tracks] == ["alpha"]
+    assert context.disabled_tracks == ["beta", "absent"]
+    assert context.load_project_tracks is True
 
 
 def test_an_acp_profile_gets_the_whole_catalog_whatever_the_runtime():
-    catalog = [Skill(name="alpha", content="a")]
+    catalog = [Track(name="alpha", content="a")]
 
-    resolved = resolve(ACPAgentProfile(name="a"), fakes.stores(skills=catalog))
+    resolved = resolve(ACPAgentProfile(name="a"), fakes.stores(tracks=catalog))
 
     assert isinstance(resolved.settings, ACPAgentSettings)
     context = resolved.settings.agent_context
     assert context is not None
-    assert [s.name for s in context.skills] == ["alpha"]
+    assert [s.name for s in context.tracks] == ["alpha"]
     assert context.current_datetime is None
-    assert context.load_project_skills is False
+    assert context.load_project_tracks is False
 
 
 def test_a_meta_profile_and_the_llms_it_routes_to_are_copied_in():
@@ -131,7 +131,7 @@ def test_a_meta_profile_and_the_llms_it_routes_to_are_copied_in():
         enable_classify_and_switch_llm_tool=True, meta_profile_ref="router"
     )
 
-    settings = _openhands(
+    settings = _handprint(
         resolve(profile, fakes.stores(llms=llms, metas={"router": meta}))
     )
 
@@ -170,7 +170,7 @@ def test_direct_routing_copies_every_saved_llm():
         enable_classify_and_switch_llm_tool=True, meta_profile_ref="router"
     )
 
-    settings = _openhands(
+    settings = _handprint(
         resolve(profile, fakes.stores(llms=llms, metas={"router": meta}))
     )
 
@@ -193,16 +193,16 @@ def _direct_routing_stores(llm_profiles, names) -> LaunchStores:
         llm_profiles=llm_profiles,
         llm_profile_names=names,
         mcp_config={},
-        skills=lambda: [],
+        tracks=lambda: [],
         meta_profiles=fakes.MetaProfiles({"router": meta}),
     )
 
 
 def test_an_llm_profile_whose_provider_connection_is_gone_says_so():
     stores = LaunchStores(
-        llm_profiles=_OrphanedLLMs({}), mcp_config={}, skills=lambda: []
+        llm_profiles=_OrphanedLLMs({}), mcp_config={}, tracks=lambda: []
     )
-    profile = OpenHandsAgentProfile(name="p", llm_profile_ref="orphaned")
+    profile = HandprintAgentProfile(name="p", llm_profile_ref="orphaned")
 
     with pytest.raises(AgentLaunchError, match="Provider connection 'gone'"):
         resolve(profile, stores)
@@ -215,7 +215,7 @@ def test_direct_routing_skips_a_saved_llm_it_cannot_load():
         enable_classify_and_switch_llm_tool=True, meta_profile_ref="router"
     )
 
-    settings = _openhands(resolve(profile, stores))
+    settings = _handprint(resolve(profile, stores))
 
     assert set(settings.meta_profile_llms) == {"default", "classifier"}
 
@@ -238,7 +238,7 @@ def test_a_busy_store_listing_the_llm_profiles_is_retryable():
 def test_a_disabled_routing_tool_ignores_its_meta_profile_ref():
     profile = _profile(meta_profile_ref="missing")
 
-    settings = _openhands(resolve(profile, fakes.stores()))
+    settings = _handprint(resolve(profile, fakes.stores()))
 
     assert settings.enable_classify_and_switch_llm_tool is False
     assert settings.meta_profile is None
@@ -254,7 +254,7 @@ def _failing_llm_store(exc: Exception) -> LaunchStores:
     return LaunchStores(
         llm_profiles=Failing(),
         mcp_config=base.mcp_config,
-        skills=base.skills,
+        tracks=base.tracks,
     )
 
 
@@ -269,13 +269,13 @@ def test_a_store_that_cannot_be_read_is_not_a_dangling_reference(exc, retryable)
     assert exc_info.value.retryable is retryable
 
 
-def test_a_failing_skill_discovery_is_a_store_error():
+def test_a_failing_track_discovery_is_a_store_error():
     base = fakes.stores()
 
-    def broken() -> list[Skill]:
+    def broken() -> list[Track]:
         raise RuntimeError("clone failed")
 
-    stores = LaunchStores(llm_profiles=base.llm_profiles, mcp_config={}, skills=broken)
+    stores = LaunchStores(llm_profiles=base.llm_profiles, mcp_config={}, tracks=broken)
     with pytest.raises(LaunchStoreError, match="clone failed"):
         resolve(_profile(), stores)
 

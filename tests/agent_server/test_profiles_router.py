@@ -10,15 +10,15 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-from openhands.agent_server import profiles_router as profiles_router_module
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.persistence import reset_stores
-from openhands.sdk.llm import LLM, Message
-from openhands.sdk.llm.auth.credentials import OAuthCredentials
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.llm.provider_connection_store import ProviderConnectionStore
-from openhands.sdk.profiles import AgentProfileStore, OpenHandsAgentProfile
+from handprint.agent_server import profiles_router as profiles_router_module
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.persistence import reset_stores
+from handprint.sdk.llm import LLM, Message
+from handprint.sdk.llm.auth.credentials import OAuthCredentials
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.llm.provider_connection_store import ProviderConnectionStore
+from handprint.sdk.profiles import AgentProfileStore, HandprintAgentProfile
 
 
 @pytest.fixture
@@ -77,27 +77,27 @@ def client(temp_profiles_dir, temp_agent_profiles_dir, temp_settings_dir, monkey
 
     with (
         patch(
-            "openhands.agent_server.profiles_router.get_llm_profile_store",
+            "handprint.agent_server.profiles_router.get_llm_profile_store",
             make_llm_store,
         ),
         patch(
-            "openhands.agent_server.profiles_router.get_agent_profile_store",
+            "handprint.agent_server.profiles_router.get_agent_profile_store",
             lambda: AgentProfileStore(base_dir=temp_agent_profiles_dir),
         ),
         patch(
-            "openhands.agent_server.profiles_router.get_provider_connections_store",
+            "handprint.agent_server.profiles_router.get_provider_connections_store",
             lambda config=None: provider_store,
         ),
         patch(
-            "openhands.agent_server.settings_router.get_llm_profile_store",
+            "handprint.agent_server.settings_router.get_llm_profile_store",
             make_llm_store,
         ),
         patch(
-            "openhands.agent_server.provider_connections_router.get_llm_profile_store",
+            "handprint.agent_server.provider_connections_router.get_llm_profile_store",
             make_llm_store,
         ),
         patch(
-            "openhands.agent_server.provider_connections_router."
+            "handprint.agent_server.provider_connections_router."
             "get_provider_connections_store",
             lambda config=None: provider_store,
         ),
@@ -126,7 +126,7 @@ def agent_store(temp_agent_profiles_dir):
 def test_delete_referenced_llm_profile_returns_409(client, store, agent_store):
     """Deleting an LLM profile cited by an AgentProfile returns 409 w/ referrers."""
     store.save("base-llm", LLM(model="gpt-4o"))
-    agent_store.save(OpenHandsAgentProfile(name="agent-a", llm_profile_ref="base-llm"))
+    agent_store.save(HandprintAgentProfile(name="agent-a", llm_profile_ref="base-llm"))
 
     response = client.delete("/api/profiles/base-llm")
 
@@ -139,7 +139,7 @@ def test_delete_referenced_llm_profile_returns_409(client, store, agent_store):
 def test_delete_unreferenced_llm_profile_succeeds(client, store, agent_store):
     """An LLM profile no AgentProfile cites deletes normally."""
     store.save("lonely", LLM(model="gpt-4o"))
-    agent_store.save(OpenHandsAgentProfile(name="agent-a", llm_profile_ref="other-llm"))
+    agent_store.save(HandprintAgentProfile(name="agent-a", llm_profile_ref="other-llm"))
 
     response = client.delete("/api/profiles/lonely")
 
@@ -151,7 +151,7 @@ def test_delete_unreferenced_llm_profile_succeeds(client, store, agent_store):
 def test_rename_llm_profile_cascades_to_agent_refs(client, store, agent_store):
     """Renaming an LLM profile repoints citing AgentProfile.llm_profile_ref."""
     store.save("old-llm", LLM(model="gpt-4o"))
-    agent_store.save(OpenHandsAgentProfile(name="agent-a", llm_profile_ref="old-llm"))
+    agent_store.save(HandprintAgentProfile(name="agent-a", llm_profile_ref="old-llm"))
 
     response = client.post("/api/profiles/old-llm/rename", json={"new_name": "new-llm"})
 
@@ -176,7 +176,7 @@ def test_list_profiles_returns_saved_profiles(client, store):
     """GET /api/profiles returns all saved profiles with model info."""
     # Save some profiles directly via store
     llm1 = LLM(model="gpt-4o")
-    llm2 = LLM(model="claude-3-opus", api_key="sk-test-key")
+    llm2 = LLM(model="haijun-kamsa", api_key="sk-test-key")
     store.save("profile-a", llm1)
     store.save("profile-b", llm2, include_secrets=True)
 
@@ -196,7 +196,7 @@ def test_list_profiles_returns_saved_profiles(client, store):
     assert profile_a["api_key_set"] is False
 
     profile_b = next(p for p in profiles if p["name"] == "profile-b")
-    assert profile_b["model"] == "claude-3-opus"
+    assert profile_b["model"] == "haijun-kamsa"
     assert profile_b["api_key_set"] is True
 
 
@@ -208,10 +208,10 @@ def test_provider_connection_key_shared_by_linked_profiles(client):
     connection = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic Work",
-            "provider": "anthropic",
+            "display_name": "Juglow Work",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
-            "base_url": "https://api.anthropic.com",
+            "base_url": "https://platform.juglow.my.id",
         },
     )
     assert connection.status_code == 201
@@ -222,8 +222,8 @@ def test_provider_connection_key_shared_by_linked_profiles(client):
     assert "secret_name" not in connection_body
 
     for name, model in {
-        "sonnet-4": "anthropic/claude-sonnet-4",
-        "sonnet-5": "anthropic/claude-sonnet-5",
+        "sonnet-4": "juglow/haijun-codtral",
+        "sonnet-5": "juglow/haijun-codtral",
     }.items():
         response = client.post(
             f"/api/profiles/{name}",
@@ -253,9 +253,9 @@ def test_provider_connection_key_shared_by_linked_profiles(client):
         "/api/settings", headers={"X-Expose-Secrets": "plaintext"}
     ).json()
     llm = settings["agent_settings"]["llm"]
-    assert llm["model"] == "anthropic/claude-sonnet-4"
+    assert llm["model"] == "juglow/haijun-codtral"
     assert llm["api_key"] == "sk-ant-old"
-    assert llm["base_url"] == "https://api.anthropic.com"
+    assert llm["base_url"] == "https://platform.juglow.my.id"
 
     delete = client.delete(f"/api/llm/provider-connections/{connection_id}")
     assert delete.status_code == 409
@@ -287,7 +287,7 @@ def test_provider_connection_key_shared_by_linked_profiles(client):
         "/api/settings", headers={"X-Expose-Secrets": "plaintext"}
     ).json()
     llm = settings["agent_settings"]["llm"]
-    assert llm["model"] == "anthropic/claude-sonnet-5"
+    assert llm["model"] == "juglow/haijun-codtral"
     assert llm["api_key"] == "sk-ant-new"
 
 
@@ -326,8 +326,8 @@ def test_provider_connection_delete_rejects_active_settings_reference(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic Work",
-            "provider": "anthropic",
+            "display_name": "Juglow Work",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
         },
     ).json()["id"]
@@ -335,7 +335,7 @@ def test_provider_connection_delete_rejects_active_settings_reference(client):
         "/api/profiles/temporary-provider-profile",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "provider_connection_id": connection_id,
             },
             "include_secrets": False,
@@ -361,8 +361,8 @@ def test_provider_connection_delete_ignores_acp_settings(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic Work",
-            "provider": "anthropic",
+            "display_name": "Juglow Work",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
         },
     ).json()["id"]
@@ -384,8 +384,8 @@ def test_provider_connection_rotation_not_copied_into_active_settings(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic Work",
-            "provider": "anthropic",
+            "display_name": "Juglow Work",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
         },
     ).json()["id"]
@@ -393,7 +393,7 @@ def test_provider_connection_rotation_not_copied_into_active_settings(client):
         "/api/profiles/provider-profile",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "provider_connection_id": connection_id,
             },
             "include_secrets": False,
@@ -470,8 +470,8 @@ def test_activate_profile_with_dangling_provider_connection_fails(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic Work",
-            "provider": "anthropic",
+            "display_name": "Juglow Work",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
         },
     ).json()["id"]
@@ -479,7 +479,7 @@ def test_activate_profile_with_dangling_provider_connection_fails(client):
         "/api/profiles/provider-profile",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "provider_connection_id": connection_id,
             },
             "include_secrets": False,
@@ -496,7 +496,7 @@ def test_activate_profile_with_dangling_provider_connection_fails(client):
         "/api/profiles/provider-profile",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "provider_connection_id": connection_id,
             },
             "include_secrets": False,
@@ -591,14 +591,14 @@ def test_save_profile_overwrites_existing(client, store):
     # Overwrite with new config
     response = client.post(
         "/api/profiles/existing",
-        json={"llm": {"model": "claude-3-opus"}},
+        json={"llm": {"model": "haijun-kamsa"}},
     )
 
     assert response.status_code == 201
 
     # Verify overwritten
     loaded = store.load("existing")
-    assert loaded.model == "claude-3-opus"
+    assert loaded.model == "haijun-kamsa"
 
 
 def test_save_profile_without_secrets(client, store):
@@ -737,7 +737,7 @@ def test_rename_profile_not_found(client):
 def test_rename_profile_conflict(client, store):
     """POST /api/profiles/{name}/rename returns 409 if new_name exists."""
     llm1 = LLM(model="gpt-4o")
-    llm2 = LLM(model="claude-3-opus")
+    llm2 = LLM(model="haijun-kamsa")
     store.save("source", llm1)
     store.save("target", llm2)
 
@@ -866,10 +866,10 @@ def test_save_profile_at_limit_overwrite_allowed(client, store, monkeypatch):
 
     response = client.post(
         "/api/profiles/first",
-        json={"llm": {"model": "claude-3-opus"}},
+        json={"llm": {"model": "haijun-kamsa"}},
     )
     assert response.status_code == 201
-    assert store.load("first").model == "claude-3-opus"
+    assert store.load("first").model == "haijun-kamsa"
 
 
 # ── Store Errors → HTTP ────────────────────────────────────────────────────
@@ -1100,11 +1100,11 @@ def client_with_cipher(
 
     with (
         patch(
-            "openhands.agent_server.profiles_router.get_llm_profile_store",
+            "handprint.agent_server.profiles_router.get_llm_profile_store",
             lambda: LLMProfileStore(base_dir=temp_profiles_dir),
         ),
         patch(
-            "openhands.agent_server.profiles_router.get_agent_profile_store",
+            "handprint.agent_server.profiles_router.get_agent_profile_store",
             lambda: AgentProfileStore(base_dir=temp_agent_profiles_dir),
         ),
     ):
@@ -1117,7 +1117,7 @@ def client_with_cipher(
 @pytest.fixture
 def cipher(secret_key):
     """Create a cipher instance for testing."""
-    from openhands.sdk.utils.cipher import Cipher
+    from handprint.sdk.utils.cipher import Cipher
 
     return Cipher(secret_key)
 
@@ -1354,16 +1354,16 @@ def test_activate_profile_updates_active_profile(client, store):
 
 def test_activate_profile_applies_llm_config(client, store):
     """POST /api/profiles/{name}/activate applies the profile's LLM config."""
-    llm = LLM(model="claude-3-opus", temperature=0.8)
-    store.save("claude-profile", llm)
+    llm = LLM(model="haijun-kamsa", temperature=0.8)
+    store.save("haijun-profile", llm)
 
-    client.post("/api/profiles/claude-profile/activate")
+    client.post("/api/profiles/haijun-profile/activate")
 
     # Verify the settings were updated
     settings_response = client.get("/api/settings")
     assert settings_response.status_code == 200
     agent_settings = settings_response.json()["agent_settings"]
-    assert agent_settings["llm"]["model"] == "claude-3-opus"
+    assert agent_settings["llm"]["model"] == "haijun-kamsa"
     assert agent_settings["llm"]["temperature"] == 0.8
 
 
@@ -1507,7 +1507,7 @@ def test_rename_inactive_profile_preserves_active_profile(client, store):
     """Renaming a non-active profile should not change active_profile."""
     # Create two profiles
     llm1 = LLM(model="gpt-4o", api_key=SecretStr("sk-test1"))
-    llm2 = LLM(model="claude-3-opus", api_key=SecretStr("sk-test2"))
+    llm2 = LLM(model="haijun-kamsa", api_key=SecretStr("sk-test2"))
     store.save("profile-a", llm1)
     store.save("profile-b", llm2)
 
@@ -1581,7 +1581,7 @@ def test_list_profiles_no_auto_create_when_no_config(client):
 def test_list_profiles_no_auto_create_when_profiles_exist(client, store):
     """No auto-creation when profiles already exist."""
     # Create a profile first
-    llm = LLM(model="claude-3-opus")
+    llm = LLM(model="haijun-kamsa")
     store.save("existing-profile", llm)
 
     # Configure different LLM in settings with API key
@@ -1628,8 +1628,8 @@ def test_patch_provider_connection_rejects_clearing_api_key(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic",
-            "provider": "anthropic",
+            "display_name": "Juglow",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
         },
     ).json()["id"]
@@ -1646,7 +1646,7 @@ def test_patch_provider_connection_rejects_clearing_api_key(client):
         "/api/profiles/linked",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "provider_connection_id": connection_id,
             },
             "include_secrets": False,
@@ -1665,8 +1665,8 @@ def test_get_profile_maps_corrupted_provider_file(client, temp_profiles_dir):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic",
-            "provider": "anthropic",
+            "display_name": "Juglow",
+            "provider": "juglow",
             "api_key": "sk-ant-old",
         },
     ).json()["id"]
@@ -1674,7 +1674,7 @@ def test_get_profile_maps_corrupted_provider_file(client, temp_profiles_dir):
         "/api/profiles/linked",
         json={
             "llm": {
-                "model": "anthropic/claude-sonnet-4",
+                "model": "juglow/haijun-codtral",
                 "provider_connection_id": connection_id,
             },
             "include_secrets": False,
@@ -1697,8 +1697,8 @@ def test_patch_provider_connection_rejects_null_display_name(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic",
-            "provider": "anthropic",
+            "display_name": "Juglow",
+            "provider": "juglow",
             "api_key": "sk-ant",
         },
     ).json()["id"]
@@ -1711,7 +1711,7 @@ def test_patch_provider_connection_rejects_null_display_name(client):
 
     # The connection must be intact after the rejected PATCH.
     conn = client.get("/api/llm/provider-connections").json()[0]
-    assert conn["display_name"] == "Anthropic"
+    assert conn["display_name"] == "Juglow"
 
 
 def test_patch_provider_connection_rejects_null_provider(client):
@@ -1719,8 +1719,8 @@ def test_patch_provider_connection_rejects_null_provider(client):
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic",
-            "provider": "anthropic",
+            "display_name": "Juglow",
+            "provider": "juglow",
             "api_key": "sk-ant",
         },
     ).json()["id"]
@@ -1737,8 +1737,8 @@ def test_list_provider_connections_maps_corrupted_file(client, temp_profiles_dir
     client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic",
-            "provider": "anthropic",
+            "display_name": "Juglow",
+            "provider": "juglow",
             "api_key": "sk-ant",
         },
     )
@@ -1759,8 +1759,8 @@ def test_patch_provider_connection_maps_corrupted_file(client, temp_profiles_dir
     connection_id = client.post(
         "/api/llm/provider-connections",
         json={
-            "display_name": "Anthropic",
-            "provider": "anthropic",
+            "display_name": "Juglow",
+            "provider": "juglow",
             "api_key": "sk-ant",
         },
     ).json()["id"]
@@ -1787,9 +1787,9 @@ def test_validate_profile_success(client):
     from unittest.mock import MagicMock
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             return_value=MagicMock(),
         ),
     ):
@@ -1815,9 +1815,9 @@ def test_validate_profile_sends_system_first(client):
         return MagicMock()
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             new=fake_acompletion,
         ),
     ):
@@ -1849,10 +1849,10 @@ def test_validate_profile_responses_api(client):
 
     with (
         patch(
-            "openhands.sdk.llm.llm.LLM.uses_responses_api",
+            "handprint.sdk.llm.llm.LLM.uses_responses_api",
             return_value=True,
         ),
-        patch("openhands.sdk.llm.llm.LLM.aresponses", side_effect=fake_append),
+        patch("handprint.sdk.llm.llm.LLM.aresponses", side_effect=fake_append),
     ):
         response = client.post(
             "/api/profiles/responses-profile/validate",
@@ -1874,12 +1874,12 @@ def test_validate_profile_responses_api(client):
 
 def test_validate_profile_invalid_model_returns_error(client):
     """POST /api/profiles/{name}/validate returns valid=False on bad model."""
-    from openhands.sdk.llm.exceptions import LLMBadRequestError
+    from handprint.sdk.llm.exceptions import LLMBadRequestError
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=LLMBadRequestError(
                 "The supported API model names are deepseek-v4-pro or "
                 "deepseek-v4-flash, but you passed deepseek-chat"
@@ -1900,12 +1900,12 @@ def test_validate_profile_invalid_model_returns_error(client):
 
 def test_validate_profile_auth_error_returns_error(client):
     """POST /api/profiles/{name}/validate returns valid=False on bad API key."""
-    from openhands.sdk.llm.exceptions import LLMAuthenticationError
+    from handprint.sdk.llm.exceptions import LLMAuthenticationError
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=LLMAuthenticationError("Invalid or missing API credentials"),
         ),
     ):
@@ -1922,12 +1922,12 @@ def test_validate_profile_auth_error_returns_error(client):
 
 def test_validate_profile_rate_limit_does_not_block(client):
     """POST /api/profiles/{name}/validate returns valid=True on rate limit."""
-    from openhands.sdk.llm.exceptions import LLMRateLimitError
+    from handprint.sdk.llm.exceptions import LLMRateLimitError
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=LLMRateLimitError("Rate limit exceeded"),
         ),
     ):
@@ -1944,12 +1944,12 @@ def test_validate_profile_rate_limit_does_not_block(client):
 
 def test_validate_profile_service_unavailable_blocks(client):
     """POST /api/profiles/{name}/validate returns valid=False on provider 503."""
-    from openhands.sdk.llm.exceptions import LLMServiceUnavailableError
+    from handprint.sdk.llm.exceptions import LLMServiceUnavailableError
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=LLMServiceUnavailableError("Service unavailable"),
         ),
     ):
@@ -1968,9 +1968,9 @@ def test_validate_profile_unknown_error_returns_error(client):
     """POST /api/profiles/{name}/validate catches unexpected exceptions."""
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=RuntimeError("Connection refused"),
         ),
     ):
@@ -2004,14 +2004,14 @@ def test_validate_profile_redacts_api_key_in_error(client):
     sk-proj-…``), the validate endpoint must redact the key before returning it
     in the HTTP response or logging it.
     """
-    from openhands.sdk.llm.exceptions import LLMAuthenticationError
+    from handprint.sdk.llm.exceptions import LLMAuthenticationError
 
     leaked_key = "sk-proj-abc123defGHIjklMNOpqrsTUVwxyz1234567890"
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=LLMAuthenticationError(
                 f"Incorrect API key provided: {leaked_key}"
             ),
@@ -2035,9 +2035,9 @@ def test_validate_profile_redacts_api_key_in_unknown_error(client):
     leaked_key = "sk-proj-abc123defGHIjklMNOpqrsTUVwxyz1234567890"
 
     with (
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
         patch(
-            "openhands.sdk.llm.llm.LLM.acompletion",
+            "handprint.sdk.llm.llm.LLM.acompletion",
             side_effect=RuntimeError(f"Request failed with key {leaked_key}"),
         ),
     ):
@@ -2090,11 +2090,11 @@ def test_validate_profile_subscription_restores_credentials(client):
 
     with (
         patch(
-            "openhands.sdk.llm.auth.credentials.CredentialStore.get",
+            "handprint.sdk.llm.auth.credentials.CredentialStore.get",
             return_value=fake_creds,
         ),
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
-        patch("openhands.sdk.llm.llm.LLM.acompletion", fake_acompletion),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.acompletion", fake_acompletion),
     ):
         response = client.post(
             "/api/profiles/sub-profile/validate",
@@ -2128,10 +2128,10 @@ def test_validate_profile_subscription_missing_credentials(client):
     # → create_subscription_llm_from_config raises ValueError.
     with (
         patch(
-            "openhands.sdk.llm.auth.credentials.CredentialStore.get",
+            "handprint.sdk.llm.auth.credentials.CredentialStore.get",
             return_value=None,
         ),
-        patch("openhands.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
+        patch("handprint.sdk.llm.llm.LLM.uses_responses_api", return_value=False),
     ):
         response = client.post(
             "/api/profiles/sub-profile/validate",

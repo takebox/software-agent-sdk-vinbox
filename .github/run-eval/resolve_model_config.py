@@ -1,6 +1,6 @@
-"""Compatibility shim for model resolution now owned by OpenHands/evaluation.
+"""Compatibility shim for model resolution now owned by Handprint/evaluation.
 
-The model registry was moved to OpenHands/evaluation. This file exists only so
+The model registry was moved to Handprint/evaluation. This file exists only so
 base-branch `pull_request_target` workflows that still import this path can run
 against PR branches while the workflow migration is in flight.
 """
@@ -18,7 +18,7 @@ from types import ModuleType
 from typing import Any
 
 
-_REPO = "https://github.com/OpenHands/evaluation.git"
+_REPO = "https://github.com/Handprint/evaluation.git"
 _RELATIVE_RESOLVER = Path("eval-job/model-config/resolve_model_config.py")
 _FALLBACK_REF = "feat/port-model-resolution"
 

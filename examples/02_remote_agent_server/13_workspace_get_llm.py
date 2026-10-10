@@ -25,9 +25,9 @@ import os
 import httpx
 from scripts.utils import ManagedAPIServer
 
-from openhands.sdk import Conversation, get_logger
-from openhands.sdk.workspace.remote.base import RemoteWorkspace
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk import Conversation, get_logger
+from handprint.sdk.workspace.remote.base import RemoteWorkspace
+from handprint.tools.preset.default import get_default_agent
 
 
 logger = get_logger(__name__)

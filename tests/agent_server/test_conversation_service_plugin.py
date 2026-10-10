@@ -18,27 +18,27 @@ from uuid import uuid4
 
 import pytest
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.models import (
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.models import (
     StartConversationRequest,
     StoredConversation,
 )
-from openhands.sdk import LLM
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import (
+from handprint.sdk import LLM
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher, HookType
-from openhands.sdk.plugin import PluginSource
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.hooks import HookConfig, HookDefinition, HookMatcher, HookType
+from handprint.sdk.plugin import PluginSource
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def create_test_plugin_dir(
     tmp_path: Path,
     *,
-    skills: list[dict] | None = None,
+    tracks: list[dict] | None = None,
     hooks: dict | None = None,
     mcp_config: dict | None = None,
 ) -> Path:
@@ -54,21 +54,21 @@ def create_test_plugin_dir(
     manifest_file = manifest_dir / "plugin.json"
     manifest_file.write_text('{"name": "test-plugin", "version": "1.0.0"}')
 
-    # Create skills
-    if skills:
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir()
-        for skill_data in skills:
-            skill_dir = skills_dir / skill_data["name"]
-            skill_dir.mkdir()
-            skill_md = skill_dir / "SKILL.md"
-            skill_md.write_text(
+    # Create tracks
+    if tracks:
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir()
+        for track_data in tracks:
+            track_dir = tracks_dir / track_data["name"]
+            track_dir.mkdir()
+            track_md = track_dir / "TRACK.md"
+            track_md.write_text(
                 f"""---
-name: {skill_data["name"]}
-description: Test skill
+name: {track_data["name"]}
+description: Test track
 ---
 
-{skill_data.get("content", "Test content")}
+{track_data.get("content", "Test content")}
 """
             )
 
@@ -122,7 +122,7 @@ async def test_start_conversation_without_plugin(conversation_service):
         )
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService"
+            "handprint.agent_server.conversation_service.EventService"
         ) as mock_event_service_class:
             mock_event_service = AsyncMock(spec=EventService)
             mock_event_service_class.return_value = mock_event_service
@@ -155,10 +155,10 @@ async def test_start_conversation_without_plugin(conversation_service):
 @pytest.mark.asyncio
 async def test_start_conversation_with_plugins_list(conversation_service, tmp_path):
     """Test start_conversation passes plugins to StoredConversation for lazy loading."""
-    # Create plugin with hooks and skills
+    # Create plugin with hooks and tracks
     plugin_dir = create_test_plugin_dir(
         tmp_path,
-        skills=[{"name": "test-skill", "content": "Test skill content"}],
+        tracks=[{"name": "test-track", "content": "Test track content"}],
         hooks={
             "hooks": {
                 "PreToolUse": [
@@ -182,7 +182,7 @@ async def test_start_conversation_with_plugins_list(conversation_service, tmp_pa
         )
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService"
+            "handprint.agent_server.conversation_service.EventService"
         ) as mock_event_service_class:
             mock_event_service = AsyncMock(spec=EventService)
             mock_event_service_class.return_value = mock_event_service
@@ -223,11 +223,11 @@ async def test_start_conversation_with_multiple_plugins(conversation_service, tm
     # Create two plugins
     plugin1_dir = create_test_plugin_dir(
         tmp_path / "plugin1",
-        skills=[{"name": "skill-a", "content": "Skill A"}],
+        tracks=[{"name": "track-a", "content": "Track A"}],
     )
     plugin2_dir = create_test_plugin_dir(
         tmp_path / "plugin2",
-        skills=[{"name": "skill-b", "content": "Skill B"}],
+        tracks=[{"name": "track-b", "content": "Track B"}],
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -244,7 +244,7 @@ async def test_start_conversation_with_multiple_plugins(conversation_service, tm
         )
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService"
+            "handprint.agent_server.conversation_service.EventService"
         ) as mock_event_service_class:
             mock_event_service = AsyncMock(spec=EventService)
             mock_event_service_class.return_value = mock_event_service
@@ -282,7 +282,7 @@ async def test_plugins_persisted_in_stored_conversation_for_lazy_loading(
     """Test that plugins ARE persisted for lazy loading by LocalConversation."""
     plugin_dir = create_test_plugin_dir(
         tmp_path,
-        skills=[{"name": "test-skill", "content": "Test"}],
+        tracks=[{"name": "test-track", "content": "Test"}],
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -296,7 +296,7 @@ async def test_plugins_persisted_in_stored_conversation_for_lazy_loading(
         )
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService"
+            "handprint.agent_server.conversation_service.EventService"
         ) as mock_event_service_class:
             mock_event_service = AsyncMock(spec=EventService)
             mock_event_service_class.return_value = mock_event_service
@@ -359,7 +359,7 @@ async def test_start_conversation_with_explicit_hook_config(conversation_service
         )
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService"
+            "handprint.agent_server.conversation_service.EventService"
         ) as mock_event_service_class:
             mock_event_service = AsyncMock(spec=EventService)
             mock_event_service_class.return_value = mock_event_service
@@ -431,7 +431,7 @@ async def test_start_conversation_stores_both_hooks_and_plugins_for_lazy_merge(
         )
 
         with patch(
-            "openhands.agent_server.conversation_service.EventService"
+            "handprint.agent_server.conversation_service.EventService"
         ) as mock_event_service_class:
             mock_event_service = AsyncMock(spec=EventService)
             mock_event_service_class.return_value = mock_event_service

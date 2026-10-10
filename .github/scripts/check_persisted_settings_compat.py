@@ -38,12 +38,12 @@ from typing import Any
 from packaging import version as pkg_version
 from pydantic import BaseModel
 
-from openhands.agent_server.persistence import (
+from handprint.agent_server.persistence import (
     PERSISTED_SETTINGS_SCHEMA_VERSION,
     PersistedSettings,
 )
-from openhands.sdk.profiles import AGENT_PROFILE_SCHEMA_VERSION, validate_agent_profile
-from openhands.sdk.settings import (
+from handprint.sdk.profiles import AGENT_PROFILE_SCHEMA_VERSION, validate_agent_profile
+from handprint.sdk.settings import (
     AGENT_SETTINGS_SCHEMA_VERSION,
     CONVERSATION_SETTINGS_SCHEMA_VERSION,
     ConversationSettings,
@@ -61,7 +61,7 @@ _FIXTURE_SURFACE_PREFIXES = {
     "conversation_settings": "conversation_settings",
     "persisted_settings": "persisted_settings",
 }
-_PYPI_USER_AGENT = "openhands-persisted-settings-compat/1.0"
+_PYPI_USER_AGENT = "handprint-persisted-settings-compat/1.0"
 _BASELINE_PAYLOAD_SCRIPT = r"""
 from __future__ import annotations
 
@@ -87,24 +87,24 @@ def emit(key: str, payload: dict[str, Any]) -> None:
 
 
 try:
-    from openhands.sdk import LLM
+    from handprint.sdk import LLM
 except Exception:
-    from openhands.sdk.llm import LLM
+    from handprint.sdk.llm import LLM
 
 try:
-    from openhands.sdk import Tool
+    from handprint.sdk import Tool
 except Exception:
-    from openhands.sdk.tool import Tool
+    from handprint.sdk.tool import Tool
 
 try:
-    from openhands.sdk.profiles import OpenHandsAgentProfile
+    from handprint.sdk.profiles import HandprintAgentProfile
 except Exception:
-    OpenHandsAgentProfile = None
+    HandprintAgentProfile = None
 
-import openhands.sdk.settings as settings_mod
+import handprint.sdk.settings as settings_mod
 
 AgentSettingsCls = (
-    getattr(settings_mod, "OpenHandsAgentSettings", None)
+    getattr(settings_mod, "HandprintAgentSettings", None)
     or getattr(settings_mod, "AgentSettings", None)
     or getattr(settings_mod, "LLMAgentSettings", None)
 )
@@ -147,8 +147,8 @@ emit(
     _dump(agent_populated, context={"expose_secrets": "plaintext"}),
 )
 
-if OpenHandsAgentProfile is not None:
-    agent_profile = OpenHandsAgentProfile(
+if HandprintAgentProfile is not None:
+    agent_profile = HandprintAgentProfile(
         name="baseline-agent-profile",
         llm_profile_ref="baseline-profile",
     )
@@ -158,8 +158,8 @@ ACPAgentSettingsCls = getattr(settings_mod, "ACPAgentSettings", None)
 if ACPAgentSettingsCls is not None:
     try:
         acp = ACPAgentSettingsCls(
-            acp_server="claude-code",
-            acp_model="claude-opus-4-6",
+            acp_server="haijun-code",
+            acp_model="haijun-kamsa",
         )
     except Exception:
         acp = None
@@ -184,7 +184,7 @@ except Exception:
 emit("conversation_settings/populated", _dump(conversation_populated))
 
 try:
-    from openhands.agent_server.persistence import PersistedSettings
+    from handprint.agent_server.persistence import PersistedSettings
 except Exception:
     PersistedSettings = None
 

@@ -2,17 +2,17 @@
 
 This module tests that multi-action batches (multiple ActionEvents from the same
 LLM response) are treated atomically during condensation. This is critical for
-extended thinking models like Claude Sonnet 4.5, where thinking blocks must stay
+extended thinking models like Haijun Codtral 4.5, where thinking blocks must stay
 with their associated tool calls.
 """
 
-from openhands.sdk.context.view import View
-from openhands.sdk.event.condenser import Condensation
-from openhands.sdk.event.llm_convertible import (
+from handprint.sdk.context.view import View
+from handprint.sdk.event.condenser import Condensation
+from handprint.sdk.event.llm_convertible import (
     ActionEvent,
     ObservationEvent,
 )
-from openhands.sdk.llm import (
+from handprint.sdk.llm import (
     RedactedThinkingBlock,
     ThinkingBlock,
 )

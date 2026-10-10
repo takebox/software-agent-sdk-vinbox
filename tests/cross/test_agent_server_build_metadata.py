@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from openhands.sdk.settings.acp_install_catalog import (
+from handprint.sdk.settings.acp_install_catalog import (
     ACP_INSTALL_CATALOG,
     DEFAULT_PREINSTALLED_ACP_PROVIDERS,
 )
@@ -12,7 +12,7 @@ SERVER_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "server.yml"
 AGENT_SERVER_DOCKERFILE = (
     REPO_ROOT
     / "openhands-agent-server"
-    / "openhands"
+    / "handprint"
     / "agent_server"
     / "docker"
     / "Dockerfile"
@@ -20,14 +20,14 @@ AGENT_SERVER_DOCKERFILE = (
 AGENT_SERVER_SPEC = (
     REPO_ROOT
     / "openhands-agent-server"
-    / "openhands"
+    / "handprint"
     / "agent_server"
     / "agent-server.spec"
 )
 ACP_INSTALL_CATALOG_PY = (
     REPO_ROOT
     / "openhands-sdk"
-    / "openhands"
+    / "handprint"
     / "sdk"
     / "settings"
     / "acp_install_catalog.py"
@@ -38,8 +38,8 @@ def test_server_workflow_passes_git_metadata_build_args() -> None:
     """The published agent-server images should embed git metadata."""
     workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
 
-    assert "OPENHANDS_BUILD_GIT_SHA=${{ env.SDK_SHA }}" in workflow_text
-    assert "OPENHANDS_BUILD_GIT_REF=${{ env.SDK_REF }}" in workflow_text
+    assert "HANDPRINT_BUILD_GIT_SHA=${{ env.SDK_SHA }}" in workflow_text
+    assert "HANDPRINT_BUILD_GIT_REF=${{ env.SDK_REF }}" in workflow_text
 
 
 def test_server_workflow_contains_install_acp_providers_expression() -> None:
@@ -52,7 +52,7 @@ def test_server_workflow_contains_install_acp_providers_expression() -> None:
 
     assert (
         "INSTALL_ACP_PROVIDERS: ${{ github.event_name != 'workflow_dispatch' "
-        "&& 'claude-code,codex,gemini-cli' || inputs.install_acp_providers }}"
+        "&& 'haijun-code,codex,gemini-cli' || inputs.install_acp_providers }}"
     ) in workflow_text
 
 
@@ -86,22 +86,22 @@ def test_and_or_shape_preserves_falsy_last_operand() -> None:
     """
 
     def resolve(is_dispatch: bool, dispatch_value: str) -> str:
-        default = "claude-code,codex,gemini-cli"
+        default = "haijun-code,codex,gemini-cli"
         return (not is_dispatch and default) or dispatch_value
 
     assert (
-        resolve(is_dispatch=False, dispatch_value="") == "claude-code,codex,gemini-cli"
+        resolve(is_dispatch=False, dispatch_value="") == "haijun-code,codex,gemini-cli"
     )
     assert resolve(is_dispatch=True, dispatch_value="") == ""
     assert resolve(is_dispatch=True, dispatch_value="codex") == "codex"
     assert (
-        resolve(is_dispatch=True, dispatch_value="claude-code,codex,gemini-cli")
-        == "claude-code,codex,gemini-cli"
+        resolve(is_dispatch=True, dispatch_value="haijun-code,codex,gemini-cli")
+        == "haijun-code,codex,gemini-cli"
     )
 
 
-def test_agent_server_binary_copies_openhands_distribution_metadata() -> None:
-    """The frozen binary should preserve OpenHands package metadata."""
+def test_agent_server_binary_copies_handprint_distribution_metadata() -> None:
+    """The frozen binary should preserve Handprint package metadata."""
     spec_text = AGENT_SERVER_SPEC.read_text(encoding="utf-8")
 
     for distribution in (
@@ -218,7 +218,7 @@ def test_agent_server_dockerfile_acp_stage_uses_install_catalog() -> None:
     dockerfile_text = AGENT_SERVER_DOCKERFILE.read_text(encoding="utf-8")
 
     assert (
-        "COPY openhands-sdk/openhands/sdk/settings/acp_install_catalog.py "
+        "COPY openhands-sdk/handprint/sdk/settings/acp_install_catalog.py "
         "/tmp/acp_install_catalog.py" in dockerfile_text
     )
     assert "python3 /tmp/acp_install_catalog.py" in dockerfile_text
@@ -236,7 +236,7 @@ def test_default_preinstalled_acp_providers_matches_dockerfile_and_workflow() ->
     drifting apart.
     """
     default_csv = ",".join(DEFAULT_PREINSTALLED_ACP_PROVIDERS)
-    assert default_csv == "claude-code,codex,gemini-cli"
+    assert default_csv == "haijun-code,codex,gemini-cli"
 
     dockerfile_text = AGENT_SERVER_DOCKERFILE.read_text(encoding="utf-8")
     assert f"ARG INSTALL_ACP_PROVIDERS={default_csv}" in dockerfile_text

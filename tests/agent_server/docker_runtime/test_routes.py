@@ -13,22 +13,22 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Match
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.docker_runtime.provisioning import RuntimeProvisioningStore
-from openhands.agent_server.docker_runtime.registry import (
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.docker_runtime.provisioning import RuntimeProvisioningStore
+from handprint.agent_server.docker_runtime.registry import (
     ConversationContainer,
     DockerConversationRegistry,
 )
-from openhands.agent_server.docker_runtime.routers import (
+from handprint.agent_server.docker_runtime.routers import (
     delete_conversation,
     docker_conversation_router,
     proxy_conversation,
 )
-from openhands.agent_server.event_router import event_read_router
-from openhands.agent_server.models import UpdateSecretsRequest
-from openhands.sdk.profiles.agent_profile import LaunchedAgentProfile
-from openhands.sdk.secret import LookupSecret
+from handprint.agent_server.event_router import event_read_router
+from handprint.agent_server.models import UpdateSecretsRequest
+from handprint.sdk.profiles.agent_profile import LaunchedAgentProfile
+from handprint.sdk.secret import LookupSecret
 
 
 def test_docker_mode_replaces_local_conversation_execution_routes(tmp_path):
@@ -124,10 +124,10 @@ def test_root_conversation_proxy_preserves_canonical_path(tmp_path, monkeypatch)
         return Response()
 
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.routers._container", container
+        "handprint.agent_server.docker_runtime.routers._container", container
     )
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.routers.proxy_http", proxy
+        "handprint.agent_server.docker_runtime.routers.proxy_http", proxy
     )
 
     with TestClient(app) as client:
@@ -415,10 +415,10 @@ async def test_secret_updates_are_materialized_and_profile_scoped(
         return Response()
 
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.routers._container", container
+        "handprint.agent_server.docker_runtime.routers._container", container
     )
     monkeypatch.setattr(
-        "openhands.agent_server.docker_runtime.routers.proxy_http", proxy
+        "handprint.agent_server.docker_runtime.routers.proxy_http", proxy
     )
     payload = {
         "secrets": {

@@ -16,12 +16,12 @@ from typing import cast
 
 from pydantic import BaseModel, Field
 
-from openhands.sdk import LLM, Agent, Conversation
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.tool import Tool, register_tool
-from openhands.sdk.tool.builtins.finish import FinishTool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.tool import Tool, register_tool
+from handprint.sdk.tool.builtins.finish import FinishTool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 # --- Structured-output schemas ------------------------------------------------
@@ -52,7 +52,7 @@ register_tool("FinishTool", FinishTool)
 
 
 llm = LLM(
-    model=os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5-20250929"),
+    model=os.getenv("LLM_MODEL", "juglow/haijun-codtral"),
     api_key=os.getenv("LLM_API_KEY"),
     base_url=os.getenv("LLM_BASE_URL", None),
 )

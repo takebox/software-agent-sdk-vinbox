@@ -17,7 +17,7 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -25,9 +25,9 @@ from openhands.sdk import (
     LLMConvertibleEvent,
     get_logger,
 )
-from openhands.sdk.tool import Tool
-from openhands.tools.browser_use import BrowserToolSet
-from openhands.tools.browser_use.definition import (
+from handprint.sdk.tool import Tool
+from handprint.tools.browser_use import BrowserToolSet
+from handprint.tools.browser_use.definition import (
     BROWSER_RECORDING_OUTPUT_DIR,
     BrowserNavigateAction,
 )
@@ -80,7 +80,7 @@ PROMPT = """
 Please complete the following task to demonstrate browser session recording:
 
 1. Use `browser_start_recording` to begin recording.
-2. Navigate to https://docs.openhands.dev/ and:
+2. Navigate to https://docs.handprint.dev/ and:
     - Get the page content
     - Scroll down the page
     - Get the browser state to see interactive elements

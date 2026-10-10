@@ -1,12 +1,12 @@
-"""Tests for async utilities in OpenHands SDK."""
+"""Tests for async utilities in Handprint SDK."""
 
 import asyncio
 import threading
 import time
 
-from openhands.sdk.event import Event
-from openhands.sdk.event.types import SourceType
-from openhands.sdk.utils.async_utils import (
+from handprint.sdk.event import Event
+from handprint.sdk.event.types import SourceType
+from handprint.sdk.utils.async_utils import (
     AsyncCallbackWrapper,
     AsyncConversationCallback,
 )

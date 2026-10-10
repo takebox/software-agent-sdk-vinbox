@@ -8,13 +8,13 @@ import mcp.types as mcp_types
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.mcp.client import MCPClient
-from openhands.sdk.mcp.config import MCPServer, coerce_mcp_config
-from openhands.sdk.mcp.exceptions import MCPError
-from openhands.sdk.mcp.tool import MCPToolDefinition
-from openhands.sdk.mcp.utils import MCPToolProvider
+from handprint.sdk import LLM, Agent
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.mcp.client import MCPClient
+from handprint.sdk.mcp.config import MCPServer, coerce_mcp_config
+from handprint.sdk.mcp.exceptions import MCPError
+from handprint.sdk.mcp.tool import MCPToolDefinition
+from handprint.sdk.mcp.utils import MCPToolProvider
 
 
 class EmptyMCPClient:
@@ -165,7 +165,7 @@ class _KwargsMCPToolProvider:
 
 
 def test_provider_supports_on_tools_reconciled() -> None:
-    from openhands.sdk.mcp.utils import (
+    from handprint.sdk.mcp.utils import (
         DefaultMCPToolProvider,
         provider_supports_on_tools_reconciled,
     )

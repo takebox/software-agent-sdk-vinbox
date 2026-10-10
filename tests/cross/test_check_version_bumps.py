@@ -49,7 +49,7 @@ def _init_repo_with_versions(tmp_path: Path, version: str) -> Path:
     (repo_root / "clients").mkdir()
     (repo_root / "clients" / "typescript").mkdir()
     (repo_root / "clients" / "typescript" / "package.json").write_text(
-        f'{{"name": "@openhands/typescript-client", "version": "{version}"}}\n'
+        f'{{"name": "@takebox-ai/typescript-client", "version": "{version}"}}\n'
     )
 
     subprocess.run(["git", "init", "-b", "main"], cwd=repo_root, check=True)
@@ -173,7 +173,7 @@ def test_validate_package_version_consistency_accepts_matching_versions(tmp_path
 def test_validate_package_version_consistency_rejects_typescript_drift(tmp_path: Path):
     repo_root = _init_repo_with_versions(tmp_path, "1.44.1")
     (repo_root / "clients/typescript/package.json").write_text(
-        '{"name": "@openhands/typescript-client", "version": "1.39.0"}\n'
+        '{"name": "@takebox-ai/typescript-client", "version": "1.39.0"}\n'
     )
 
     assert _prod.validate_package_version_consistency(repo_root) == [

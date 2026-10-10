@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 from pydantic import BaseModel
 
-from openhands.sdk.agent.acp_contracts import (
+from handprint.sdk.agent.acp_contracts import (
     ACPAuthMethod,
     ACPMcpCapabilities,
     ACPRevisionedCredentialBinding,
@@ -18,7 +18,7 @@ from openhands.sdk.agent.acp_contracts import (
     normalize_auth_method,
     normalize_mcp_capabilities,
 )
-from openhands.sdk.agent.acp_models import ACPModelInfo
+from handprint.sdk.agent.acp_models import ACPModelInfo
 
 
 class TestAuthMethodContracts:
@@ -62,15 +62,15 @@ class TestSessionModelContracts:
         opt = SimpleNamespace(
             id="model",
             type="select",
-            current_value="claude-3-5",
-            options=[{"value": "claude-3-5", "name": "Claude 3.5"}],
+            current_value="haijun-kamsa-5",
+            options=[{"value": "haijun-kamsa-5", "name": "Haijun 3.5"}],
         )
         response = SimpleNamespace(config_options=[opt])
         extracted = extract_model_config_option(response)
         assert extracted is not None
         assert extracted.id == "model"
         assert extracted.type == "select"
-        assert extracted.current_value == "claude-3-5"
+        assert extracted.current_value == "haijun-kamsa-5"
         assert len(extracted.options) == 1
 
     def test_extract_model_config_option_rootmodel_wrapped(self):

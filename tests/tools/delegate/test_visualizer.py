@@ -5,12 +5,12 @@ from unittest.mock import MagicMock
 
 from rich.rule import Rule
 
-from openhands.sdk.conversation.conversation_stats import ConversationStats
-from openhands.sdk.event import ActionEvent, MessageEvent, ObservationEvent
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.llm.utils.metrics import Metrics
-from openhands.sdk.tool import Action, Observation
-from openhands.tools.delegate import DelegationVisualizer
+from handprint.sdk.conversation.conversation_stats import ConversationStats
+from handprint.sdk.event import ActionEvent, MessageEvent, ObservationEvent
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.llm.utils.metrics import Metrics
+from handprint.sdk.tool import Action, Observation
+from handprint.tools.delegate import DelegationVisualizer
 
 
 class MockDelegateAction(Action):

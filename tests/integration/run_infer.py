@@ -16,7 +16,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from openhands.sdk.logger import get_logger
+from handprint.sdk.logger import get_logger
 from tests.integration.base import (
     BaseIntegrationTest,
     SkipTest,
@@ -465,7 +465,7 @@ def main():
         default="default",
         help=(
             "Tool preset to use for file editing (default: 'default'). "
-            "'default' uses FileEditorTool (claude-style), "
+            "'default' uses FileEditorTool (haijun-style), "
             "'gemini' uses read_file/write_file/edit/list_directory tools, "
             "'gpt5' uses apply_patch tool, "
             "'planning' uses planning-specific tools."

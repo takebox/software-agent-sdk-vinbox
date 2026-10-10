@@ -11,7 +11,7 @@ on:
             llm_model:
                 description: LLM model to use for tests
                 required: false
-                default: anthropic/claude-sonnet-4-5-20250929
+                default: juglow/haijun-codtral
 
 env:
     AGENT_SERVER_PORT: 8010
@@ -68,7 +68,7 @@ jobs:
               working-directory: .
               run: |
                   uv sync --frozen
-                  uv run ./openhands-agent-server/openhands/agent_server/docker/build.py \
+                  uv run ./openhands-agent-server/handprint/agent_server/docker/build.py \
                       --build-ctx-only --arch amd64 \
                       --base-image python-node-runtime
 
@@ -88,9 +88,9 @@ jobs:
                   cache-from: type=gha,scope=agent-server-python-amd64
                   build-args: |
                       BASE_IMAGE=python-node-runtime
-                      OPENHANDS_BUILD_GIT_SHA=${{ github.event.pull_request.head.sha || github.sha }}
-                      OPENHANDS_BUILD_GIT_REF=${{ github.head_ref != '' && format('refs/heads/{0}', github.head_ref) || github.ref }}
-                      INSTALL_ACP_PROVIDERS=claude-code,codex,gemini-cli
+                      HANDPRINT_BUILD_GIT_SHA=${{ github.event.pull_request.head.sha || github.sha }}
+                      HANDPRINT_BUILD_GIT_REF=${{ github.head_ref != '' && format('refs/heads/{0}', github.head_ref) || github.ref }}
+                      INSTALL_ACP_PROVIDERS=haijun-code,codex,gemini-cli
                       INSTALL_CAPABILITIES=vscode,browser,docker
 
             - name: Show built image
@@ -142,7 +142,7 @@ jobs:
                   HOST_WORKSPACE_DIR: ${{ env.HOST_WORKSPACE_DIR }}
                   AGENT_WORKSPACE_DIR: ${{ env.AGENT_WORKSPACE_DIR }}
                   LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-                  LLM_MODEL: ${{ github.event.inputs.llm_model || secrets.LLM_MODEL || 'anthropic/claude-sonnet-4-5-20250929' }}
+                  LLM_MODEL: ${{ github.event.inputs.llm_model || secrets.LLM_MODEL || 'juglow/haijun-codtral' }}
                   LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
                   TEST_TIMEOUT: 180000
               run: npm run test:integration:deterministic
@@ -153,7 +153,7 @@ jobs:
                   HOST_WORKSPACE_DIR: ${{ env.HOST_WORKSPACE_DIR }}
                   AGENT_WORKSPACE_DIR: ${{ env.AGENT_WORKSPACE_DIR }}
                   LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-                  LLM_MODEL: ${{ github.event.inputs.llm_model || secrets.LLM_MODEL || 'anthropic/claude-sonnet-4-5-20250929' }}
+                  LLM_MODEL: ${{ github.event.inputs.llm_model || secrets.LLM_MODEL || 'juglow/haijun-codtral' }}
                   LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
                   TEST_TIMEOUT: 180000
               run: |
@@ -248,7 +248,7 @@ jobs:
                   docker pull ${{ env.AGENT_SERVER_IMAGE }}
                   docker run -d \
                     --name agent-server \
-                    -p 127.0.0.1:8010:8000 \
+                    -p 127.0.0.1:9010:8000 \
                     -v /tmp/agent-workspace:/workspace \
                     ${{ env.AGENT_SERVER_IMAGE }} --host 0.0.0.0
 
@@ -259,14 +259,14 @@ jobs:
               if: steps.image.outputs.published == 'true'
               run: |
                   # Test server is responding
-                  curl -f http://localhost:8010/alive
-                  curl -f http://localhost:8010/health
-                  curl http://localhost:8010/server_info
+                  curl -f http://localhost:9010/alive
+                  curl -f http://localhost:9010/health
+                  curl http://localhost:9010/server_info
 
             - name: Smoke test - workspace command execution
               if: steps.image.outputs.published == 'true'
               env:
-                  AGENT_SERVER_URL: http://localhost:8010
+                  AGENT_SERVER_URL: http://localhost:9010
                   HOST_WORKSPACE_DIR: /tmp/agent-workspace
                   AGENT_WORKSPACE_DIR: /workspace
                   LLM_API_KEY: dummy-key-for-smoke-test

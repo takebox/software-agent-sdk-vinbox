@@ -23,10 +23,10 @@ import statistics
 import tempfile
 import time
 
-from openhands.sdk.conversation.event_store import EventLog
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.io import LocalFileStore
-from openhands.sdk.llm import Message, TextContent
+from handprint.sdk.conversation.event_store import EventLog
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.io import LocalFileStore
+from handprint.sdk.llm import Message, TextContent
 
 
 # Median persisted event in the SWE-Bench traces is ~1.4KB (see README).
@@ -69,7 +69,7 @@ def measure_append_latencies(n_events: int) -> list[float]:
 def main():
     import logging
 
-    logging.getLogger("openhands").setLevel(logging.ERROR)
+    logging.getLogger("handprint").setLevel(logging.ERROR)
 
     parser = argparse.ArgumentParser(
         description="Benchmark EventLog.append latency vs. conversation length"

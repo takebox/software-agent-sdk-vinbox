@@ -25,7 +25,7 @@ import time
 
 import pytest
 
-from openhands.sdk.utils.async_executor import AsyncExecutor
+from handprint.sdk.utils.async_executor import AsyncExecutor
 
 
 # ── Test 1: AsyncExecutor.close() hangs forever ───────────────────────────

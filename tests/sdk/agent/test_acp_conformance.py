@@ -38,16 +38,16 @@ import pytest
 from acp.client.connection import ClientSideConnection
 from acp.exceptions import RequestError as ACPRequestError
 
-from openhands.sdk.agent.acp_agent import (
+from handprint.sdk.agent.acp_agent import (
     ACPAgent,
     _apply_acp_model,
     _select_auth_method,
 )
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.settings.acp_install_catalog import ACP_INSTALL_CATALOG
-from openhands.sdk.settings.acp_providers import ACP_PROVIDERS
-from openhands.sdk.utils.async_executor import AsyncExecutor
-from openhands.sdk.workspace.local import LocalWorkspace
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.settings.acp_install_catalog import ACP_INSTALL_CATALOG
+from handprint.sdk.settings.acp_providers import ACP_PROVIDERS
+from handprint.sdk.utils.async_executor import AsyncExecutor
+from handprint.sdk.workspace.local import LocalWorkspace
 
 
 def _npm_registry_reachable(timeout: float = 3.0) -> bool:
@@ -124,7 +124,7 @@ def _isolate_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     isolated_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("HOME", str(isolated_home))
     for var in (
-        "ANTHROPIC_API_KEY",
+        "JUGLOW_API_KEY",
         "OPENAI_API_KEY",
         "CODEX_API_KEY",
         "GEMINI_API_KEY",
@@ -146,13 +146,13 @@ def _isolate_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
         monkeypatch.setenv(var, _BOGUS_KEY)
     monkeypatch.setenv("KIMI_MODEL_NAME", "kimi-k2.7-code")
     for var in (
-        "CLAUDE_CODE_OAUTH_TOKEN",
-        "ANTHROPIC_BASE_URL",
+        "HAIJUN_CODE_OAUTH_TOKEN",
+        "JUGLOW_BASE_URL",
         "OPENAI_BASE_URL",
         "GEMINI_BASE_URL",
         "GOOGLE_APPLICATION_CREDENTIALS",
         "CODEX_HOME",
-        "CLAUDE_CONFIG_DIR",
+        "HAIJUN_CONFIG_DIR",
         "KIMI_API_KEY",
         "KIMI_BASE_URL",
         "KIMI_CODE_HOME",
@@ -216,7 +216,7 @@ def test_acp_conformance_probe(
         return picked
 
     monkeypatch.setattr(
-        "openhands.sdk.agent.acp_agent._select_auth_method", _spy_select_auth_method
+        "handprint.sdk.agent.acp_agent._select_auth_method", _spy_select_auth_method
     )
 
     agent = ACPAgent(
@@ -254,7 +254,7 @@ def test_acp_conformance_probe(
         )
 
         # authMethods contains what _select_auth_method picked. Some
-        # providers (claude-code, per #4830's baseline) require no auth
+        # providers (haijun-code, per #4830's baseline) require no auth
         # handshake at all, in which case _select_auth_method is never
         # called — only assert when the server actually offered methods.
         offered_ids = {m.id for m in init_response.auth_methods or []}
@@ -346,7 +346,7 @@ def test_acp_conformance_probe(
         assert not rejected, (
             f"provider={provider.key} rejected curated model id(s) via the "
             f"live protocol call (dead catalog entries — fix _CODEX_MODELS / "
-            f"_GEMINI_MODELS / _CLAUDE_MODELS or default_model in "
+            f"_GEMINI_MODELS / _HAIJUN_MODELS or default_model in "
             f"acp_providers.py): {rejected}"
         )
     finally:

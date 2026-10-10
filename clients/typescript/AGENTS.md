@@ -2,21 +2,21 @@
 
 ## General Purpose
 
-This directory contains the TypeScript client library for the OpenHands Agent Server. It provides a complete, type-safe interface for interacting with the OpenHands Agent Server API, enabling developers to build applications that can create and manage AI agent conversations, workspaces, and real-time event streams.
+This directory contains the TypeScript client library for the Handprint Agent Server. It provides a complete, type-safe interface for interacting with the Handprint Agent Server API, enabling developers to build applications that can create and manage AI agent conversations, workspaces, and real-time event streams.
 
 The client is designed to mirror the structure and functionality of the Python SDK in this monorepo while providing idiomatic TypeScript/JavaScript APIs with full type safety and modern development tooling.
 
 ## Cross-Repository Boundaries
 
-This directory owns the browser-compatible TypeScript client for the OpenHands Agent Server API. The canonical API implementation and behavior live in the Python SDK and Agent Server packages in this repository; [`OpenHands/OpenHands`](https://github.com/OpenHands/OpenHands) consumes this client for Agent Canvas UI; and [`OpenHands/extensions`](https://github.com/OpenHands/extensions) owns reusable skills, plugins, automations, and integrations; [`OpenHands/automation`](https://github.com/OpenHands/automation) owns scheduling, webhooks, run history, and dispatching.
+This directory owns the browser-compatible TypeScript client for the Handprint Agent Server API. The canonical API implementation and behavior live in the Python SDK and Agent Server packages in this repository; [`Handprint/Handprint`](https://github.com/Handprint/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/Handprint/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/Handprint/automation) owns scheduling, webhooks, run history, and dispatching.
 
-The normal flow is SDK/Agent Server → OpenAPI contract → this client → Agent Canvas. Keep backend behavior and endpoints in the Python SDK or Agent Server packages, typed API access in this directory, UI in Agent Canvas, and automation lifecycle behavior in `automation`.
+The normal flow is SDK/Agent Server → OpenAPI contract → this client → Agent Viczin. Keep backend behavior and endpoints in the Python SDK or Agent Server packages, typed API access in this directory, UI in Agent Viczin, and automation lifecycle behavior in `automation`.
 
 All pull requests must follow the repository's contribution and applicable code-review guidance.
 
 ## Key Features
 
-- **Complete API Coverage**: Implements all endpoints from the OpenHands Agent Server OpenAPI specification
+- **Complete API Coverage**: Implements all endpoints from the Handprint Agent Server OpenAPI specification
 - **Type Safety**: Full TypeScript support with comprehensive interfaces and type definitions
 - **Real-time Events**: WebSocket client for streaming conversation events and agent status updates
 - **Workspace Management**: File operations, uploads, downloads, and workspace state management
@@ -53,7 +53,7 @@ This TypeScript client is based on the following source materials:
 
 - **Source**: The `openapi.json` artifact for the exact SDK release pinned by
   `package.json` → `config.agentServerImage`
-- **Purpose**: Defines the complete REST API specification for the OpenHands Agent Server
+- **Purpose**: Defines the complete REST API specification for the Handprint Agent Server
 - **Usage**: Generates `src/generated/agent-server-schema.ts`, whose selected
   operations and components are exposed through stable aliases and checked
   against handwritten client methods
@@ -113,7 +113,7 @@ src/workspace/
 - `gitChanges()` / `gitDiff()` - Git operations
 - `close()` - Cleanup resources
 
-**RemoteWorkspace**: Fully implemented class that connects to a remote OpenHands agent server via HTTP API.
+**RemoteWorkspace**: Fully implemented class that connects to a remote Handprint agent server via HTTP API.
 
 **LocalWorkspace**: Stub implementation that throws descriptive errors directing users to RemoteWorkspace.
 
@@ -122,7 +122,7 @@ src/workspace/
 - `createWorkspace({ type, options })` - Explicit type selection
 - `createWorkspaceAuto(options)` - Auto-detect based on presence of `host` option
 
-**Ergonomic API note**: Keep `Workspace`/`RemoteWorkspace` as the main user-facing entry point for remote execution. Lower-level bash endpoint access should hang off `workspace.bash`, while direct endpoint-specific clients belong in the secondary `@openhands/typescript-client/clients` entrypoint instead of the root SDK surface.
+**Ergonomic API note**: Keep `Workspace`/`RemoteWorkspace` as the main user-facing entry point for remote execution. Lower-level bash endpoint access should hang off `workspace.bash`, while direct endpoint-specific clients belong in the secondary `@takebox-ai/typescript-client/clients` entrypoint instead of the root SDK surface.
 
 ### LLM Architecture
 
@@ -148,11 +148,11 @@ src/llm/
 **Usage Example**:
 
 ```typescript
-import { createOpenRouterLLM } from '@openhands/typescript-client';
+import { createOpenRouterLLM } from '@takebox-ai/typescript-client';
 
 const llm = createOpenRouterLLM({
   apiKey: 'your-openrouter-api-key',
-  defaultModel: 'anthropic/claude-3.5-sonnet',
+  defaultModel: 'juglow/haijun-codtral',
 });
 
 // Simple generation
@@ -193,7 +193,7 @@ src/conversation/
 - `generateTitle()` - Generate a title using LLM
 - `close()` - Cleanup resources
 
-**RemoteConversation**: Fully implemented class that connects to a remote OpenHands agent server via HTTP/WebSocket.
+**RemoteConversation**: Fully implemented class that connects to a remote Handprint agent server via HTTP/WebSocket.
 
 **LocalConversation**: Fully implemented class for local agent execution:
 
@@ -207,13 +207,13 @@ src/conversation/
 **Local Conversation Example**:
 
 ```typescript
-import { LocalWorkspace, LocalConversation, OpenRouterLLM } from '@openhands/typescript-client';
+import { LocalWorkspace, LocalConversation, OpenRouterLLM } from '@takebox-ai/typescript-client';
 
 // Create components
 const workspace = new LocalWorkspace({ workingDir: '/path/to/project' });
 const llm = new OpenRouterLLM({
   apiKey: 'your-key',
-  defaultModel: 'anthropic/claude-3.5-sonnet',
+  defaultModel: 'juglow/haijun-codtral',
 });
 
 // Create and run conversation
@@ -229,7 +229,7 @@ await conversation.close();
 
 **Factory Functions**:
 
-**Ergonomic API note**: Keep `ConversationManager` as the main server-scoped entry point. Server/LLM/settings/skills/tools/VSCode operations should be reachable through manager namespaces such as `manager.server`, `manager.llm`, and `manager.vscode`; ACP-specific operations should be reachable via `manager.acp`.
+**Ergonomic API note**: Keep `ConversationManager` as the main server-scoped entry point. Server/LLM/settings/tracks/tools/VSCode operations should be reachable through manager namespaces such as `manager.server`, `manager.llm`, and `manager.vscode`; ACP-specific operations should be reachable via `manager.acp`.
 
 - `createConversation({ type, agent, workspace, options })` - Explicit type selection
 - `createConversationAuto(agent, workspace, options)` - Auto-detect based on workspace type
@@ -255,7 +255,7 @@ src/hooks/
 **Integration Points:**
 
 - `CreateConversationRequest.hook_config` - Send hooks when creating a conversation
-- `RemoteConversation.loadHooks()` - Load hooks from server's `.openhands/hooks.json`
+- `RemoteConversation.loadHooks()` - Load hooks from server's `.handprint/hooks.json`
 - `RemoteConversation.getHookConfig()` - Get hooks from current conversation info
 - `HookExecutionEvent` - Received via WebSocket when hooks execute server-side
 
@@ -265,7 +265,7 @@ src/hooks/
 
 1. **API Changes**: When the OpenAPI specification is updated, corresponding TypeScript interfaces and client methods should be updated
 2. **Feature Parity**: New features added to the Python SDK should be implemented in this TypeScript client
-3. **Testing**: All functionality should be tested against a running OpenHands Agent Server instance
+3. **Testing**: All functionality should be tested against a running Handprint Agent Server instance
 4. **Documentation**: API changes should be reflected in the README.md and example code
 
 ## Release Process
@@ -356,10 +356,10 @@ Integration tests are in `src/__tests__/integration/` and require a running agen
 ```bash
 # Set up environment
 export LLM_API_KEY="your-api-key"
-export LLM_MODEL="anthropic/claude-sonnet-4-5-20250929"
+export LLM_MODEL="juglow/haijun-codtral"
 
 # Start agent-server in Docker (matching the pinned image in package.json -> config.agentServerImage)
-docker run -d --name agent-server -p 127.0.0.1:8010:8000 \
+docker run -d --name agent-server -p 127.0.0.1:9010:8000 \
   -v /tmp/agent-workspace:/workspace \
   ghcr.io/openhands/agent-server:1.51.0-python --host 0.0.0.0
 
@@ -407,19 +407,19 @@ The agent should focus on code development, testing, and documentation tasks. On
 
 ## Related Repositories
 
-- **[OpenHands/OpenHands](https://github.com/OpenHands/OpenHands)**: Agent Canvas application
-- **[OpenHands/docs](https://github.com/OpenHands/docs)**: User documentation
+- **[Handprint/Handprint](https://github.com/Handprint/Handprint)**: Agent Viczin application
+- **[Handprint/docs](https://github.com/Handprint/docs)**: User documentation
 
 ## Usage Context
 
 This client is intended for developers who want to:
 
-- Build web applications that interact with OpenHands agents
+- Build web applications that interact with Handprint agents
 - Create Node.js services that manage agent conversations
-- Integrate OpenHands capabilities into existing TypeScript/JavaScript applications
-- Develop custom frontends for the OpenHands Agent Server
+- Integrate Handprint capabilities into existing TypeScript/JavaScript applications
+- Develop custom frontends for the Handprint Agent Server
 
-The client abstracts away the complexity of HTTP requests, WebSocket management, and API authentication, providing a clean, type-safe interface for all OpenHands Agent Server functionality.
+The client abstracts away the complexity of HTTP requests, WebSocket management, and API authentication, providing a clean, type-safe interface for all Handprint Agent Server functionality.
 
 ## Example Application
 
@@ -433,4 +433,4 @@ The example application showcases:
 - Import verification of all major SDK classes and enums
 - Modern React development patterns with Vite tooling
 
-This provides developers with a working template for building their own applications using the OpenHands Agent Server TypeScript Client.
+This provides developers with a working template for building their own applications using the Handprint Agent Server TypeScript Client.

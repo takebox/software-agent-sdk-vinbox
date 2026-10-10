@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""API breakage detection for published OpenHands packages using Griffe.
+"""API breakage detection for published Handprint packages using Griffe.
 
 This script compares current workspace packages against the most recent PyPI
 release (or the matching release if the current version is already published)
@@ -14,7 +14,7 @@ It enforces two policies:
 1. **Deprecation runway before removal** – any removed export or removed public
    class member must have been marked deprecated in the *previous* release using
    the canonical deprecation helpers (``@deprecated`` decorator or
-   ``warn_deprecated()`` call from ``openhands.sdk.utils.deprecation``), and the
+   ``warn_deprecated()`` call from ``handprint.sdk.utils.deprecation``), and the
    baseline deprecation metadata must show that the current version has reached a
    scheduled removal target at least **5 minor releases** after
    ``deprecated_in``. For members, the recommended ``warn_deprecated`` feature
@@ -53,7 +53,7 @@ from packaging.requirements import Requirement
 class PackageConfig:
     """Configuration for a single published package."""
 
-    package: str  # dotted module path, e.g. "openhands.sdk"
+    package: str  # dotted module path, e.g. "handprint.sdk"
     distribution: str  # PyPI distribution name, e.g. "openhands-sdk"
     source_dir: str  # repo-relative directory, e.g. "openhands-sdk"
 
@@ -92,17 +92,17 @@ FIELD_DEFAULT_CHANGE_REPORT_ENV = "SDK_API_BREAKAGE_REPORT_PATH"
 
 PACKAGES: tuple[PackageConfig, ...] = (
     PackageConfig(
-        package="openhands.sdk",
+        package="handprint.sdk",
         distribution="openhands-sdk",
         source_dir="openhands-sdk",
     ),
     PackageConfig(
-        package="openhands.workspace",
+        package="handprint.workspace",
         distribution="openhands-workspace",
         source_dir="openhands-workspace",
     ),
     PackageConfig(
-        package="openhands.tools",
+        package="handprint.tools",
         distribution="openhands-tools",
         source_dir="openhands-tools",
     ),
@@ -414,7 +414,7 @@ def get_pypi_baseline_version(pkg: str, current: str | None) -> str | None:
     """
     req = urllib.request.Request(
         url=f"https://pypi.org/pypi/{pkg}/json",
-        headers={"User-Agent": "openhands-sdk-api-check/1.0"},
+        headers={"User-Agent": "handprint-sdk-api-check/1.0"},
         method="GET",
     )
     try:
@@ -827,7 +827,7 @@ def _extract_exported_names(module) -> set[str]:
     """Extract names exported from a module via ``__all__``.
 
     This check is explicitly meant to track the curated public surface. The SDK
-    is expected to define ``__all__`` in ``openhands.sdk``; if it's missing or we
+    is expected to define ``__all__`` in ``handprint.sdk``; if it's missing or we
     can't statically interpret it, we fail fast rather than silently widening the
     surface area (which would make the check noisy and brittle).
     """

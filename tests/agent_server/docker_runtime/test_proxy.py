@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from starlette.websockets import WebSocket
 
-from openhands.agent_server.docker_runtime.proxy import _bridge_websocket_loop
+from handprint.agent_server.docker_runtime.proxy import _bridge_websocket_loop
 
 
 class Upstream:
@@ -68,7 +68,7 @@ async def test_bridge_cancellation_closes_connections_and_child_tasks():
 def request_and_target():
     from starlette.requests import Request
 
-    from openhands.agent_server.docker_runtime.registry import (
+    from handprint.agent_server.docker_runtime.registry import (
         ConversationContainer,
     )
 
@@ -91,7 +91,7 @@ async def test_http_setup_failure_closes_client_and_preserves_cancellation(
     import httpx
     from fastapi import HTTPException
 
-    from openhands.agent_server.docker_runtime import proxy
+    from handprint.agent_server.docker_runtime import proxy
 
     errors = {
         "ReadTimeout": httpx.ReadTimeout,
@@ -117,7 +117,7 @@ async def test_http_setup_failure_closes_client_and_preserves_cancellation(
 async def test_http_client_lives_until_the_stream_is_consumed(monkeypatch):
     import httpx
 
-    from openhands.agent_server.docker_runtime import proxy
+    from handprint.agent_server.docker_runtime import proxy
 
     class Body(httpx.AsyncByteStream):
         async def __aiter__(self):
@@ -143,12 +143,12 @@ async def test_long_lived_proxied_stream_holds_a_session_until_consumed(
     import httpx
     from pydantic import SecretStr
 
-    from openhands.agent_server.config import Config
-    from openhands.agent_server.docker_runtime import proxy
-    from openhands.agent_server.docker_runtime.registry import (
+    from handprint.agent_server.config import Config
+    from handprint.agent_server.docker_runtime import proxy
+    from handprint.agent_server.docker_runtime.registry import (
         DockerConversationRegistry,
     )
-    from openhands.agent_server.docker_runtime.routers import _proxy_with_session
+    from handprint.agent_server.docker_runtime.routers import _proxy_with_session
 
     class Body(httpx.AsyncByteStream):
         async def __aiter__(self):

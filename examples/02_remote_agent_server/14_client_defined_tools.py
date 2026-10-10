@@ -1,10 +1,10 @@
 """Client-defined tools via the agent-server API.
 
 Demonstrates the server-side path for client-defined tools: the agent runs
-inside a local ``openhands.agent_server`` subprocess, tool specs are sent in
+inside a local ``handprint.agent_server`` subprocess, tool specs are sent in
 ``POST /api/conversations``, and the SDK broadcasts ``ActionEvent`` s over
 WebSocket so this client process can intercept them — exactly what a browser
-frontend (e.g. Agent Canvas) would do.
+frontend (e.g. Agent Viczin) would do.
 
 Differences from the standalone SDK example:
   - No local tool registration: the server calls ``ClientTool.from_spec()`` and
@@ -22,10 +22,10 @@ import tempfile
 from pydantic import SecretStr
 from scripts.utils import ManagedAPIServer
 
-from openhands.sdk import LLM, Conversation, Event, RemoteConversation, get_logger
-from openhands.sdk.event.llm_convertible.action import ActionEvent
-from openhands.sdk.tool.client_tool import ClientToolSpec
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk import LLM, Conversation, Event, RemoteConversation, get_logger
+from handprint.sdk.event.llm_convertible.action import ActionEvent
+from handprint.sdk.tool.client_tool import ClientToolSpec
+from handprint.tools.preset.default import get_default_agent
 
 
 logger = get_logger(__name__)
@@ -113,7 +113,7 @@ llm = LLM(
 with ManagedAPIServer(port=8004) as server:
     workspace_dir = tempfile.mkdtemp(prefix="client_tools_demo_")
 
-    from openhands.sdk import Workspace
+    from handprint.sdk import Workspace
 
     workspace = Workspace(host=server.base_url, working_dir=workspace_dir)
 

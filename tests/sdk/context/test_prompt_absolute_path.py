@@ -6,9 +6,9 @@ import tempfile
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent.agent import Agent
-from openhands.sdk.context.prompts.prompt import render_template
-from openhands.sdk.llm import LLM
+from handprint.sdk.agent.agent import Agent
+from handprint.sdk.context.prompts.prompt import render_template
+from handprint.sdk.llm import LLM
 
 
 def test_render_template_with_relative_path():

@@ -4,17 +4,17 @@ import json
 
 import pytest
 
-from openhands.sdk.critic import (
+from handprint.sdk.critic import (
     AgentFinishedCritic,
     CriticBase,
     CriticResult,
     EmptyPatchCritic,
     PassCritic,
 )
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.llm import MessageToolCall, TextContent
-from openhands.sdk.tool.builtins.finish import FinishAction
-from openhands.sdk.tool.schema import Action
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.llm import MessageToolCall, TextContent
+from handprint.sdk.tool.builtins.finish import FinishAction
+from handprint.sdk.tool.schema import Action
 
 
 # Define a dummy action class once to avoid duplicate kind errors

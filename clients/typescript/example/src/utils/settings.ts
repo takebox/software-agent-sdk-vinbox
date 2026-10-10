@@ -1,10 +1,10 @@
 import { Settings } from '../components/SettingsModal';
 
-const SETTINGS_KEY = 'openhands-settings';
-const FIRST_VISIT_KEY = 'openhands-first-visit';
+const SETTINGS_KEY = 'handprint-settings';
+const FIRST_VISIT_KEY = 'handprint-first-visit';
 
 export const DEFAULT_SETTINGS: Settings = {
-  agentServerUrl: 'http://localhost:8000',
+  agentServerUrl: 'http://localhost:9000',
   modelName: 'gpt-4',
   apiKey: '',
   agentServerApiKey: ''

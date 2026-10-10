@@ -284,7 +284,7 @@ export function compareBudget(currentSites, budgetEntries) {
 function defaultCategory(modulePath) {
   if (
     modulePath === 'client/http-client.d.ts' ||
-    modulePath === 'client/openhands-client.d.ts' ||
+    modulePath === 'client/handprint-client.d.ts' ||
     modulePath === 'client/server-client.d.ts'
   ) {
     return 'transport-internal';

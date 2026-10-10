@@ -5,24 +5,24 @@ from types import SimpleNamespace
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, AgentBase, Conversation, LocalConversation, Tool
-from openhands.sdk.agent.acp_agent import ACPAgent
-from openhands.sdk.event.llm_convertible.observation import ObservationEvent
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles import OpenHandsAgentProfile, resolve_agent_profile
-from openhands.sdk.subagent import AgentDefinition, SubAgentScope
-from openhands.sdk.subagent.registry import _reset_registry_for_tests, register_agent
-from openhands.sdk.testing import TestLLM
-from openhands.tools.glob import GlobTool
-from openhands.tools.grep import GrepTool
-from openhands.tools.preset import register_builtins_agents
-from openhands.tools.task import TaskToolSet
-from openhands.tools.task.definition import TaskObservation
-from openhands.tools.task.manager import TaskManager
-from openhands.tools.workflow import WorkflowToolSet
-from openhands.tools.workflow.definition import WorkflowObservation, WorkflowTool
+from handprint.sdk import LLM, Agent, AgentBase, Conversation, LocalConversation, Tool
+from handprint.sdk.agent.acp_agent import ACPAgent
+from handprint.sdk.event.llm_convertible.observation import ObservationEvent
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles import HandprintAgentProfile, resolve_agent_profile
+from handprint.sdk.subagent import AgentDefinition, SubAgentScope
+from handprint.sdk.subagent.registry import _reset_registry_for_tests, register_agent
+from handprint.sdk.testing import TestLLM
+from handprint.tools.glob import GlobTool
+from handprint.tools.grep import GrepTool
+from handprint.tools.preset import register_builtins_agents
+from handprint.tools.task import TaskToolSet
+from handprint.tools.task.definition import TaskObservation
+from handprint.tools.task.manager import TaskManager
+from handprint.tools.workflow import WorkflowToolSet
+from handprint.tools.workflow.definition import WorkflowObservation, WorkflowTool
 
 
 TOOLS_ONLY = {"tools": True, "mcp_servers": False}
@@ -257,7 +257,7 @@ def test_a_read_only_profile_cannot_delegate_beyond_its_tools(
         LLM(model="gpt-4o", api_key=SecretStr("k"), usage_id="x"),
         include_secrets=True,
     )
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="read-only",
         llm_profile_ref="default",
         tools=[
@@ -267,7 +267,7 @@ def test_a_read_only_profile_cannot_delegate_beyond_its_tools(
         ],
     )
     settings = resolve_agent_profile(
-        profile, llm_store=store, mcp_config={}, available_skills=None
+        profile, llm_store=store, mcp_config={}, available_tracks=None
     )
     parent_llm = TestLLM.from_messages(
         [_tool_call("task", prompt="go", subagent_type=subagent), _done()]

@@ -4,12 +4,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from openhands.sdk import register_tool
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm.message import ImageContent, TextContent
-from openhands.sdk.tool import ToolDefinition, registry as registry_module
-from openhands.sdk.tool.client_tool import ClientToolSpec, register_client_tools
-from openhands.sdk.tool.registry import (
+from handprint.sdk import register_tool
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm.message import ImageContent, TextContent
+from handprint.sdk.tool import ToolDefinition, registry as registry_module
+from handprint.sdk.tool.client_tool import ClientToolSpec, register_client_tools
+from handprint.sdk.tool.registry import (
     _is_abstract_method,
     _resolver_from_subclass,
     list_registered_tools,
@@ -19,9 +19,9 @@ from openhands.sdk.tool.registry import (
     seal_tool_catalog,
     unseal_tool_catalog,
 )
-from openhands.sdk.tool.schema import Action, Observation
-from openhands.sdk.tool.spec import Tool
-from openhands.sdk.tool.tool import ToolExecutor
+from handprint.sdk.tool.schema import Action, Observation
+from handprint.sdk.tool.spec import Tool
+from handprint.sdk.tool.tool import ToolExecutor
 
 
 def _create_mock_conv_state() -> ConversationState:
@@ -110,7 +110,7 @@ class _InternalHelloTool(_SimpleHelloTool):
 
 @pytest.fixture(autouse=True)
 def _isolated_registry(monkeypatch):
-    from openhands.sdk.tool import client_tool, registry
+    from handprint.sdk.tool import client_tool, registry
 
     monkeypatch.setattr(registry, "_SEALED_CATALOG", None)
     for module, name in (
@@ -237,7 +237,7 @@ def test_catalog_reports_selectability_and_usability():
 
 def test_catalog_offers_a_builtin_under_its_snake_case_name(monkeypatch):
     """A built-in is keyed by class name internally but offered like any tool."""
-    from openhands.sdk.tool import builtins
+    from handprint.sdk.tool import builtins
 
     catalog = _catalog()
 
@@ -262,7 +262,7 @@ def test_catalog_does_not_offer_the_meta_profile_router(monkeypatch):
 
 def test_a_builtin_registered_by_class_name_is_offered_once(monkeypatch):
     """A built-in registered under its class name is listed once."""
-    from openhands.sdk.tool import builtins
+    from handprint.sdk.tool import builtins
 
     monkeypatch.setitem(
         builtins.BUILT_IN_TOOL_CLASSES,
@@ -278,7 +278,7 @@ def test_a_builtin_registered_by_class_name_is_offered_once(monkeypatch):
 
 
 def test_builtin_resolves_under_its_snake_case_name():
-    from openhands.sdk.tool import builtins
+    from handprint.sdk.tool import builtins
 
     resolved = resolve_tool(Tool(name="switch_llm"), _create_mock_conv_state())
 
@@ -300,7 +300,7 @@ def test_catalog_description_defaults_to_empty():
 
 def test_catalog_reports_a_selectable_builtin_as_unusable(monkeypatch):
     """A built-in is listed by class name, so its usability comes from the class."""
-    from openhands.sdk.tool import builtins
+    from handprint.sdk.tool import builtins
 
     monkeypatch.setitem(
         builtins.BUILT_IN_TOOL_CLASSES, "UnusableBuiltin", _UnavailableHelloTool
@@ -316,7 +316,7 @@ def test_catalog_reports_a_selectable_builtin_as_unusable(monkeypatch):
 
 
 def test_catalog_can_skip_usability_probes(monkeypatch):
-    from openhands.sdk.tool import builtins
+    from handprint.sdk.tool import builtins
 
     monkeypatch.setitem(
         builtins.BUILT_IN_TOOL_CLASSES, "UnusableBuiltin", _UnavailableHelloTool
@@ -335,7 +335,7 @@ def test_catalog_can_skip_usability_probes(monkeypatch):
 
 
 def test_builtin_lookup_sees_builtins_added_later(monkeypatch):
-    from openhands.sdk.tool import builtins
+    from handprint.sdk.tool import builtins
 
     monkeypatch.setitem(
         builtins.BUILT_IN_TOOL_CLASSES, "LateBuiltin", _UnavailableHelloTool
@@ -347,17 +347,17 @@ def test_builtin_lookup_sees_builtins_added_later(monkeypatch):
 
 
 def test_a_tool_registered_under_a_builtin_name_is_not_swapped_for_it():
-    from openhands.sdk.llm import LLM
-    from openhands.sdk.profiles import OpenHandsAgentProfile
-    from openhands.sdk.settings import OpenHandsAgentSettings
-    from openhands.sdk.tool.defaults import canonical_tool_name
+    from handprint.sdk.llm import LLM
+    from handprint.sdk.profiles import HandprintAgentProfile
+    from handprint.sdk.settings import HandprintAgentSettings
+    from handprint.sdk.tool.defaults import canonical_tool_name
 
     assert canonical_tool_name("ThinkTool") == "think"
     register_tool("ThinkTool", _SimpleHelloTool)
     spec = Tool(name="ThinkTool", params={"greeting": "hi"})
 
-    profile = OpenHandsAgentProfile(name="x", llm_profile_ref="y", tools=[spec])
-    agent = OpenHandsAgentSettings(llm=LLM(model="m"), tools=[spec]).create_agent()
+    profile = HandprintAgentProfile(name="x", llm_profile_ref="y", tools=[spec])
+    agent = HandprintAgentSettings(llm=LLM(model="m"), tools=[spec]).create_agent()
 
     assert canonical_tool_name("ThinkTool") == "ThinkTool"
     assert profile.tools == [spec]
@@ -365,7 +365,7 @@ def test_a_tool_registered_under_a_builtin_name_is_not_swapped_for_it():
 
 
 def test_a_builtin_class_name_is_not_collapsed_onto_a_registered_tool():
-    from openhands.sdk.tool.defaults import canonical_tool_name
+    from handprint.sdk.tool.defaults import canonical_tool_name
 
     register_tool("think", _SimpleHelloTool)
 

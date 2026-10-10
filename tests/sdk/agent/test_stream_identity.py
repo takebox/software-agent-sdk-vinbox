@@ -13,18 +13,18 @@ import pytest
 from litellm.types.utils import Delta, ModelResponseStream, StreamingChoices
 from pydantic import PrivateAttr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.agent.stream_context import (
+from handprint.sdk.agent import Agent
+from handprint.sdk.agent.stream_context import (
     StreamAborted,
     StreamDelta,
     StreamStarted,
 )
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import ActionEvent, MessageEvent
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.llm.exceptions import LLMNoResponseError
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.tool import (
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import ActionEvent, MessageEvent
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.llm.exceptions import LLMNoResponseError
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.tool import (
     Action,
     Observation,
     Tool,

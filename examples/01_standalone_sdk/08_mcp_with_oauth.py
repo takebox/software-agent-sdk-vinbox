@@ -2,7 +2,7 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -10,13 +10,13 @@ from openhands.sdk import (
     LLMConvertibleEvent,
     get_logger,
 )
-from openhands.sdk.mcp import (
+from handprint.sdk.mcp import (
     MCPOAuthAuthCredential,
     MCPServer,
 )
-from openhands.sdk.tool import Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.tool import Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 logger = get_logger(__name__)
@@ -64,7 +64,7 @@ conversation = Conversation(
 )
 
 logger.info("Starting conversation with MCP integration...")
-conversation.send_message("Can you search about OpenHands V1 in my notion workspace?")
+conversation.send_message("Can you search about Handprint V1 in my notion workspace?")
 conversation.run()
 
 print("=" * 100)

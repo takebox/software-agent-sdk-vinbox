@@ -40,7 +40,7 @@ function isRemoteWorkspaceOptions(options: WorkspaceOptions): options is RemoteW
  * ```typescript
  * // Legacy usage (backwards compatible)
  * const workspace = new Workspace({
- *   host: 'http://localhost:8000',
+ *   host: 'http://localhost:9000',
  *   workingDir: '/workspace',
  *   apiKey: 'key'
  * });
@@ -64,7 +64,7 @@ export class Workspace extends RemoteWorkspace {
  * const remoteWorkspace = createWorkspace({
  *   type: 'remote',
  *   options: {
- *     host: 'http://localhost:8000',
+ *     host: 'http://localhost:9000',
  *     workingDir: '/workspace',
  *     apiKey: 'key'
  *   }
@@ -108,7 +108,7 @@ export function createWorkspace(config: CreateWorkspaceOptions): IWorkspace {
  * ```typescript
  * // Automatically creates RemoteWorkspace (has 'host')
  * const remote = createWorkspaceAuto({
- *   host: 'http://localhost:8000',
+ *   host: 'http://localhost:9000',
  *   workingDir: '/workspace'
  * });
  *

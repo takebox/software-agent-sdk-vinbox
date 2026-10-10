@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from openhands.sdk.extensions.installation import (
+from handprint.sdk.extensions.installation import (
     InstallationInfo,
     InstallationInterface,
     InstallationMetadata,
@@ -60,25 +60,25 @@ def test_migrate_legacy_plugins_key():
     assert metadata.extensions["my-plugin"].name == "my-plugin"
 
 
-def test_migrate_legacy_skills_key():
-    """Test that old {"skills": {...}} format is migrated to extensions."""
+def test_migrate_legacy_tracks_key():
+    """Test that old {"tracks": {...}} format is migrated to extensions."""
     data = {
-        "skills": {
-            "my-skill": {
-                "name": "my-skill",
+        "tracks": {
+            "my-track": {
+                "name": "my-track",
                 "source": "local",
-                "install_path": "/tmp/installed/my-skill",
+                "install_path": "/tmp/installed/my-track",
                 "enabled": False,
             }
         }
     }
     metadata = InstallationMetadata.model_validate(data)
-    assert "my-skill" in metadata.extensions
-    assert metadata.extensions["my-skill"].enabled is False
+    assert "my-track" in metadata.extensions
+    assert metadata.extensions["my-track"].enabled is False
 
 
 def test_migrate_merges_both_legacy_keys():
-    """Test that both plugins and skills are merged when both are present."""
+    """Test that both plugins and tracks are merged when both are present."""
     data = {
         "plugins": {
             "my-plugin": {
@@ -87,17 +87,17 @@ def test_migrate_merges_both_legacy_keys():
                 "install_path": "/tmp/installed/my-plugin",
             }
         },
-        "skills": {
-            "my-skill": {
-                "name": "my-skill",
+        "tracks": {
+            "my-track": {
+                "name": "my-track",
                 "source": "local",
-                "install_path": "/tmp/installed/my-skill",
+                "install_path": "/tmp/installed/my-track",
             }
         },
     }
     metadata = InstallationMetadata.model_validate(data)
     assert "my-plugin" in metadata.extensions
-    assert "my-skill" in metadata.extensions
+    assert "my-track" in metadata.extensions
 
 
 def test_migrate_legacy_key_logs_warning(caplog: pytest.LogCaptureFixture):
@@ -110,7 +110,7 @@ def test_migrate_legacy_key_logs_warning(caplog: pytest.LogCaptureFixture):
                 "install_path": "/tmp/p",
             }
         },
-        "skills": {
+        "tracks": {
             "s": {
                 "name": "s",
                 "source": "local",
@@ -123,7 +123,7 @@ def test_migrate_legacy_key_logs_warning(caplog: pytest.LogCaptureFixture):
 
     warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
     assert any("plugins" in w for w in warnings)
-    assert any("skills" in w for w in warnings)
+    assert any("tracks" in w for w in warnings)
 
 
 def test_migrate_merges_legacy_into_extensions():
@@ -172,7 +172,7 @@ def test_migrate_extensions_wins_on_conflict():
 
 
 def test_migrate_conflicting_legacy_keys():
-    """When both plugins and skills have the same name, the later key wins."""
+    """When both plugins and tracks have the same name, the later key wins."""
     data = {
         "plugins": {
             "shared": {
@@ -181,7 +181,7 @@ def test_migrate_conflicting_legacy_keys():
                 "install_path": "/tmp/installed/shared",
             }
         },
-        "skills": {
+        "tracks": {
             "shared": {
                 "name": "shared",
                 "source": "github:B",
@@ -190,7 +190,7 @@ def test_migrate_conflicting_legacy_keys():
         },
     }
     metadata = InstallationMetadata.model_validate(data)
-    # skills is iterated after plugins in _LEGACY_KEYS, so it overwrites
+    # tracks is iterated after plugins in _LEGACY_KEYS, so it overwrites
     assert metadata.extensions["shared"].source == "github:B"
 
 

@@ -23,7 +23,7 @@ tests/fixtures/llm_data/
 ## Data Sources
 
 ### Function Calling Data
-- **Model**: `litellm_proxy/anthropic/claude-sonnet-4-20250514`
+- **Model**: `litellm_proxy/juglow/haijun-codtral`
 - **Features**: Native function calling support
 - **Files**: `fncall-llm-message.json`, `llm-logs/*.json`
 
@@ -35,7 +35,7 @@ tests/fixtures/llm_data/
 ## File Formats
 
 ### Message Files (`*-llm-message.json`)
-Contains conversation messages in OpenHands format:
+Contains conversation messages in Handprint format:
 ```json
 [
   {

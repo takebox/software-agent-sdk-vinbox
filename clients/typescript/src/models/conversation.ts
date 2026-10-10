@@ -51,8 +51,8 @@ export interface ConversationInfo {
    */
   agent_status?: AgentExecutionStatus;
   confirmation_policy: ConfirmationPolicyBase;
-  activated_knowledge_skills: string[];
-  invoked_skills?: string[];
+  activated_knowledge_tracks: string[];
+  invoked_tracks?: string[];
   agent: AgentBase;
   workspace: unknown;
   persistence_dir: string;

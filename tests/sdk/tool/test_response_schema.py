@@ -7,21 +7,21 @@ import mcp.types
 import pytest
 from pydantic import BaseModel, Field, ValidationError
 
-from openhands.sdk.agent.utils import fix_malformed_tool_arguments
-from openhands.sdk.event import ActionEvent, Event
-from openhands.sdk.llm import MessageToolCall
-from openhands.sdk.mcp.client import MCPClient
-from openhands.sdk.mcp.tool import MCPToolDefinition
-from openhands.sdk.tool import registry
-from openhands.sdk.tool.builtins.finish import (
+from handprint.sdk.agent.utils import fix_malformed_tool_arguments
+from handprint.sdk.event import ActionEvent, Event
+from handprint.sdk.llm import MessageToolCall
+from handprint.sdk.mcp.client import MCPClient
+from handprint.sdk.mcp.tool import MCPToolDefinition
+from handprint.sdk.tool import registry
+from handprint.sdk.tool.builtins.finish import (
     FinishAction,
     FinishObservation,
     FinishTool,
 )
-from openhands.sdk.tool.client_tool import ClientTool, ClientToolSpec
-from openhands.sdk.tool.registry import register_tool, resolve_tool
-from openhands.sdk.tool.spec import Tool
-from openhands.sdk.tool.tool import ToolDefinition
+from handprint.sdk.tool.client_tool import ClientTool, ClientToolSpec
+from handprint.sdk.tool.registry import register_tool, resolve_tool
+from handprint.sdk.tool.spec import Tool
+from handprint.sdk.tool.tool import ToolDefinition
 
 
 class TaskResult(BaseModel):
@@ -477,7 +477,7 @@ def test_response_schema_json_built_once_per_class_under_concurrency():
     trigger model_json_schema() at most once and all get an equal, private copy."""
     import threading
 
-    from openhands.sdk.tool.tool import (
+    from handprint.sdk.tool.tool import (
         _response_schema_json,
         _response_schema_json_cache,
     )

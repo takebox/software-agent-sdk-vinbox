@@ -21,11 +21,11 @@ from openai.types.responses.response_reasoning_item import (
 )
 from pydantic import SecretStr, ValidationError
 
-from openhands.sdk.llm import LLM, LLMCallContext
-from openhands.sdk.llm.exceptions import LLMNoResponseError, LLMTimeoutError
-from openhands.sdk.llm.message import Message, ReasoningItemModel, TextContent
-from openhands.sdk.llm.options.chat_options import select_chat_options
-from openhands.sdk.llm.options.responses_options import select_responses_options
+from handprint.sdk.llm import LLM, LLMCallContext
+from handprint.sdk.llm.exceptions import LLMNoResponseError, LLMTimeoutError
+from handprint.sdk.llm.message import Message, ReasoningItemModel, TextContent
+from handprint.sdk.llm.options.chat_options import select_chat_options
+from handprint.sdk.llm.options.responses_options import select_responses_options
 
 
 def build_responses_message_output(texts: list[str]) -> ResponseOutputMessage:
@@ -213,7 +213,7 @@ def test_responses_encrypted_reasoning_not_added_for_non_reasoning_model():
     assert "reasoning" not in out
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_llm_responses_end_to_end(mock_responses_call):
     # Configure LLM
     llm = LLM(model="gpt-5-mini")
@@ -367,7 +367,7 @@ def test_responses_options_omits_prompt_cache_key_when_unset():
     )
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_retries_without_caching_on_prompt_cache_too_small(mock_responses):
     """When Vertex AI rejects caching due to small content, responses() should
     retry without prompt caching while preserving caller kwargs.
@@ -410,9 +410,9 @@ def test_responses_retries_without_caching_on_prompt_cache_too_small(mock_respon
 
     # Pick a model that supports prompt caching so is_caching_prompt_active()
     # is True and the retry branch is reachable on the responses() path.
-    # (Gemini no longer uses explicit caching, so use an Anthropic model here.)
+    # (Gemini no longer uses explicit caching, so use an Juglow model here.)
     llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("test_key"),
         usage_id="test-llm",
         caching_prompt=True,
@@ -448,7 +448,7 @@ def test_responses_retries_without_caching_on_prompt_cache_too_small(mock_respon
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_retries_without_caching_on_prompt_cache_too_small(
     mock_aresponses,
 ):
@@ -490,10 +490,10 @@ async def test_aresponses_retries_without_caching_on_prompt_cache_too_small(
     )
     mock_aresponses.side_effect = [cache_error, success_resp]
 
-    # Anthropic model so is_caching_prompt_active() is True (Gemini no longer
+    # Juglow model so is_caching_prompt_active() is True (Gemini no longer
     # uses explicit caching); mirrors the sync test above.
     llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("test_key"),
         usage_id="test-llm",
         caching_prompt=True,
@@ -552,7 +552,7 @@ def _make_wrapped_response_stream_events(text: str = "Hello wrapped stream"):
     return events, response
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_responses_streaming_accepts_wrapped_iterable(mock_responses):
     """Responses streaming must not require LiteLLM's concrete iterator class."""
     events, completed_response = _make_wrapped_response_stream_events()
@@ -581,7 +581,7 @@ def test_responses_streaming_accepts_wrapped_iterable(mock_responses):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_streaming_accepts_sync_generator(mock_aresponses):
     """Async Responses streaming must also tolerate sync iterable wrappers."""
     events, completed_response = _make_wrapped_response_stream_events()
@@ -614,7 +614,7 @@ async def test_aresponses_streaming_accepts_sync_generator(mock_aresponses):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_streaming_accepts_async_generator(mock_aresponses):
     """Regression for lmnr 0.7.47 returning an async_generator wrapper."""
     events, completed_response = _make_wrapped_response_stream_events()
@@ -648,7 +648,7 @@ async def test_aresponses_streaming_accepts_async_generator(mock_aresponses):
 
 
 @pytest.mark.asyncio
-@patch("openhands.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
+@patch("handprint.sdk.llm.llm.litellm_aresponses", new_callable=AsyncMock)
 async def test_aresponses_hung_stream_idle_timeout_retries(mock_aresponses):
     async def _events():
         await asyncio.Event().wait()
@@ -697,7 +697,7 @@ async def test_aresponses_ignored_events_keep_stream_alive():
     )
     chunks = []
     with patch(
-        "openhands.sdk.llm.llm.litellm_aresponses",
+        "handprint.sdk.llm.llm.litellm_aresponses",
         new_callable=AsyncMock,
         return_value=events(),
     ):
@@ -794,10 +794,10 @@ async def test_responses_stream_completion_state(mode, completion_source):
 
     async def invoke():
         if mode == "sync":
-            with patch("openhands.sdk.llm.llm.litellm_responses", return_value=stream):
+            with patch("handprint.sdk.llm.llm.litellm_responses", return_value=stream):
                 return llm.responses(messages, stream=True, on_token=received.append)
         with patch(
-            "openhands.sdk.llm.llm.litellm_aresponses",
+            "handprint.sdk.llm.llm.litellm_aresponses",
             new_callable=AsyncMock,
             return_value=stream,
         ):
@@ -840,14 +840,14 @@ async def test_responses_reconstructs_output_without_callback(mode, event_type):
         required.return_value = True
         if mode != "sync":
             with patch(
-                "openhands.sdk.llm.llm.litellm_aresponses",
+                "handprint.sdk.llm.llm.litellm_aresponses",
                 new_callable=AsyncMock,
                 return_value=async_events() if mode == "async" else iter(events),
             ):
                 result = await llm.aresponses(messages, stream=True)
         else:
             with patch(
-                "openhands.sdk.llm.llm.litellm_responses", return_value=iter(events)
+                "handprint.sdk.llm.llm.litellm_responses", return_value=iter(events)
             ):
                 result = llm.responses(messages, stream=True)
     assert result.raw_response is completed

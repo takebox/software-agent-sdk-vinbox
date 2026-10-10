@@ -6,8 +6,8 @@ Tests the check_session_api_key dependency with multiple session API keys suppor
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.dependencies import check_session_api_key
+from handprint.agent_server.config import Config
+from handprint.agent_server.dependencies import check_session_api_key
 
 
 def _make_app(session_api_keys: list[str]) -> FastAPI:

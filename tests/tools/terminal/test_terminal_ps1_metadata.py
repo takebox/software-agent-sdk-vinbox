@@ -1,16 +1,16 @@
 import json
 from unittest.mock import MagicMock
 
-from openhands.tools.terminal.constants import (
+from handprint.tools.terminal.constants import (
     CMD_OUTPUT_METADATA_PS1_REGEX,
     CMD_OUTPUT_PS1_BEGIN,
     CMD_OUTPUT_PS1_END,
 )
-from openhands.tools.terminal.definition import (
+from handprint.tools.terminal.definition import (
     TerminalObservation,
 )
-from openhands.tools.terminal.metadata import CmdOutputMetadata
-from openhands.tools.terminal.terminal.terminal_session import (
+from handprint.tools.terminal.metadata import CmdOutputMetadata
+from handprint.tools.terminal.terminal.terminal_session import (
     TerminalSession,
 )
 
@@ -101,8 +101,8 @@ def test_ps1_metadata_parsing_string_real_example():
   "exit_code": "0",
   "username": "runner",
   "hostname": "fv-az1055-610",
-  "working_dir": "/home/runner/work/OpenHands/OpenHands",
-  "py_interpreter_path": "/home/runner/.cache/pypoetry/virtualenvs/openhands-ai-ULPBlkAi-py3.13/bin/python"
+  "working_dir": "/home/runner/work/Handprint/Handprint",
+  "py_interpreter_path": "/home/runner/.cache/pypoetry/virtualenvs/handprint-ai-ULPBlkAi-py3.13/bin/python"
 }
 ###PS1END###
 """  # noqa: E501
@@ -112,10 +112,10 @@ def test_ps1_metadata_parsing_string_real_example():
     assert metadata.exit_code == 0
     assert metadata.username == "runner"
     assert metadata.hostname == "fv-az1055-610"
-    assert metadata.working_dir == "/home/runner/work/OpenHands/OpenHands"
+    assert metadata.working_dir == "/home/runner/work/Handprint/Handprint"
     assert (
         metadata.py_interpreter_path == "/home/runner/.cache/pypoetry/virtualenvs/"
-        "openhands-ai-ULPBlkAi-py3.13/bin/python"
+        "handprint-ai-ULPBlkAi-py3.13/bin/python"
     )
 
 
@@ -273,7 +273,7 @@ def test_ps1_metadata_regex_pattern():
 
 def test_cmd_output_observation_properties():
     """Test TerminalObservation class properties"""
-    from openhands.sdk.tool.schema import TextContent
+    from handprint.sdk.tool.schema import TextContent
 
     # Test with successful command
     metadata = CmdOutputMetadata(exit_code=0, pid=123)

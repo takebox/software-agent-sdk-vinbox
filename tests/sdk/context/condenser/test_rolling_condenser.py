@@ -2,16 +2,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from openhands.sdk.context.condenser.base import (
+from handprint.sdk.context.condenser.base import (
     CondensationRequirement,
     NoCondensationAvailableException,
     RollingCondenser,
 )
-from openhands.sdk.context.view import View
-from openhands.sdk.event.base import Event
-from openhands.sdk.event.condenser import Condensation
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.llm import LLM, Message, TextContent
+from handprint.sdk.context.view import View
+from handprint.sdk.event.base import Event
+from handprint.sdk.event.condenser import Condensation
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.llm import LLM, Message, TextContent
 
 
 def message_event(content: str) -> MessageEvent:

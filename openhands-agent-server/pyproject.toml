@@ -1,7 +1,7 @@
 [project]
 name = "openhands-agent-server"
 version = "1.53.0"
-description = "OpenHands Agent Server - REST/WebSocket interface for OpenHands AI Agent"
+description = "Handprint Agent Server - REST/WebSocket interface for Handprint AI Agent"
 
 requires-python = ">=3.12"
 dependencies = [
@@ -29,7 +29,7 @@ posthog = ["posthog>=7.60.0,<8"]
 [project.urls]
 Source = "https://github.com/OpenHands/software-agent-sdk"
 Homepage = "https://github.com/OpenHands/software-agent-sdk"
-Documentation = "https://docs.openhands.dev/sdk"
+Documentation = "https://docs.handprint.dev/sdk"
 "Bug Tracker" = "https://github.com/OpenHands/software-agent-sdk/issues"
 
 [build-system]
@@ -41,13 +41,13 @@ build-backend = "setuptools.build_meta"
 "" = "."
 
 [tool.setuptools.packages.find]
-include = ["openhands.agent_server*"]
+include = ["handprint.agent_server*"]
 namespaces = true
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
 # Include Docker-related files and VSCode extensions
-"openhands.agent_server" = [
+"handprint.agent_server" = [
   "docker/Dockerfile",
   "docker/wallpaper.svg",
   "vscode_extensions/**/*.json",
@@ -55,4 +55,4 @@ namespaces = true
 ]
 
 [project.scripts]
-agent-server = "openhands.agent_server.__main__:main"
+agent-server = "handprint.agent_server.__main__:main"

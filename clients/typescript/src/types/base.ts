@@ -1,5 +1,5 @@
 /**
- * Base types and interfaces for the OpenHands Agent Server TypeScript client
+ * Base types and interfaces for the Handprint Agent Server TypeScript client
  */
 
 export type ConversationID = string;
@@ -38,10 +38,10 @@ export interface ImageContent extends MessageContent {
 }
 
 export interface AgentContext {
-  skills?: unknown[];
+  tracks?: unknown[];
   system_message_suffix?: string | null;
   user_message_suffix?: string | null;
-  load_project_skills?: boolean;
+  load_project_tracks?: boolean;
   [key: string]: unknown;
 }
 

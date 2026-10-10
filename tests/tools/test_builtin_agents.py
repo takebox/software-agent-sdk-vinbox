@@ -8,14 +8,14 @@ import pytest
 from deprecation import DeprecatedWarning
 from pydantic import SecretStr
 
-import openhands.tools.preset.default as _preset_default
-from openhands.sdk import LLM, Agent
-from openhands.sdk.subagent.load import load_agents_from_dir
-from openhands.sdk.subagent.registry import (
+import handprint.tools.preset.default as _preset_default
+from handprint.sdk import LLM, Agent
+from handprint.sdk.subagent.load import load_agents_from_dir
+from handprint.sdk.subagent.registry import (
     _reset_registry_for_tests,
     get_agent_factory,
 )
-from openhands.tools.preset.default import register_builtins_agents
+from handprint.tools.preset.default import register_builtins_agents
 
 
 # Resolve once from the installed package — works regardless of cwd.

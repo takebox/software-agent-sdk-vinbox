@@ -1,7 +1,7 @@
 [project]
 name = "openhands-workspace"
 version = "1.53.0"
-description = "OpenHands Workspace - Docker and container-based workspace implementations"
+description = "Handprint Workspace - Docker and container-based workspace implementations"
 
 requires-python = ">=3.12"
 dependencies = [
@@ -19,7 +19,7 @@ agent-sandbox = [
 [project.urls]
 Source = "https://github.com/OpenHands/software-agent-sdk"
 Homepage = "https://github.com/OpenHands/software-agent-sdk"
-Documentation = "https://docs.openhands.dev/sdk"
+Documentation = "https://docs.handprint.dev/sdk"
 "Bug Tracker" = "https://github.com/OpenHands/software-agent-sdk/issues"
 
 [build-system]
@@ -30,7 +30,7 @@ build-backend = "setuptools.build_meta"
 "" = "."
 
 [tool.setuptools.packages.find]
-include = ["openhands.workspace*"]
+include = ["handprint.workspace*"]
 namespaces = true
 
 [tool.setuptools.package-data]

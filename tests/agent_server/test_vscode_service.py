@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 
-from openhands.agent_server.vscode_service import (
+from handprint.agent_server.vscode_service import (
     VSCodeService,
     get_vscode_service,
 )
@@ -16,14 +16,14 @@ from openhands.agent_server.vscode_service import (
 def vscode_service(tmp_path):
     """Create a VSCode service instance for testing."""
     return VSCodeService(
-        port=8001,
+        port=9001,
     )
 
 
 @pytest.fixture
 def mock_openvscode_binary(tmp_path):
     """Create a mock VSCode binary for testing."""
-    openvscode_root = tmp_path / "openhands" / ".openvscode-server"
+    openvscode_root = tmp_path / "handprint" / ".openvscode-server"
     openvscode_root.mkdir(parents=True)
 
     bin_dir = openvscode_root / "bin"
@@ -38,7 +38,7 @@ def mock_openvscode_binary(tmp_path):
 
 def test_vscode_service_initialization(tmp_path):
     """Test VSCode service initialization."""
-    service = VSCodeService(port=8002)
+    service = VSCodeService(port=9002)
 
     assert service.port == 8002
     assert service.connection_token is None
@@ -48,7 +48,7 @@ def test_vscode_service_initialization(tmp_path):
 
 def test_vscode_service_initialization_with_server_base_path():
     """Test VSCode service initialization with server_base_path."""
-    service = VSCodeService(port=8002, server_base_path="/test/vscode")
+    service = VSCodeService(port=9002, server_base_path="/test/vscode")
 
     assert service.port == 8002
     assert service.server_base_path == "/test/vscode"
@@ -139,7 +139,7 @@ async def test_stop_with_process(vscode_service):
     vscode_service.process = mock_process
 
     with (
-        patch("openhands.agent_server.vscode_service.os.killpg") as mock_killpg,
+        patch("handprint.agent_server.vscode_service.os.killpg") as mock_killpg,
         patch.object(vscode_service, "_is_port_available", return_value=True),
     ):
         await vscode_service.stop()
@@ -156,7 +156,7 @@ async def test_stop_waits_for_port_release(vscode_service):
     vscode_service.process = AsyncMock(pid=4321)
 
     with (
-        patch("openhands.agent_server.vscode_service.os.killpg"),
+        patch("handprint.agent_server.vscode_service.os.killpg"),
         patch.object(
             vscode_service, "_is_port_available", side_effect=[False, False, True]
         ) as mock_port_check,
@@ -175,7 +175,7 @@ async def test_stop_with_timeout(vscode_service):
     mock_process.wait.side_effect = [TimeoutError(), None]
     vscode_service.process = mock_process
 
-    with patch("openhands.agent_server.vscode_service.os.killpg") as mock_killpg:
+    with patch("handprint.agent_server.vscode_service.os.killpg") as mock_killpg:
         await vscode_service.stop()
 
     assert mock_killpg.call_args_list == [
@@ -192,11 +192,11 @@ async def test_stop_after_process_group_is_gone(vscode_service):
 
     with (
         patch(
-            "openhands.agent_server.vscode_service.os.killpg",
+            "handprint.agent_server.vscode_service.os.killpg",
             side_effect=ProcessLookupError,
         ),
         patch.object(vscode_service, "_is_port_available", return_value=True),
-        patch("openhands.agent_server.vscode_service.logger") as mock_logger,
+        patch("handprint.agent_server.vscode_service.logger") as mock_logger,
     ):
         await vscode_service.stop()
 
@@ -222,7 +222,7 @@ async def test_set_connection_token_restarts_running_server(
     new_process = AsyncMock(returncode=None)
 
     with (
-        patch("openhands.agent_server.vscode_service.os.killpg") as mock_killpg,
+        patch("handprint.agent_server.vscode_service.os.killpg") as mock_killpg,
         patch.object(vscode_service, "_is_port_available", return_value=True),
         patch(
             "asyncio.create_subprocess_shell", return_value=new_process
@@ -235,7 +235,7 @@ async def test_set_connection_token_restarts_running_server(
     assert vscode_service.process is new_process
     assert "--connection-token session-key " in mock_create.call_args[0][0]
     assert vscode_service.get_vscode_url() == (
-        "http://localhost:8001/?tkn=session-key&folder=workspace"
+        "http://localhost:9001/?tkn=session-key&folder=workspace"
     )
 
 
@@ -340,15 +340,15 @@ def test_get_vscode_url_base_path_with_caller_supplied_base_url():
 def test_get_vscode_url_without_base_path_is_unchanged():
     """Test that URLs are byte-identical when no base path is configured.
 
-    Downstream clients (OpenHands-CLI, app-server, Enterprise) that do not set
+    Downstream clients (Handprint-CLI, app-server, Enterprise) that do not set
     ``vscode_base_path`` must see exactly the previous output.
     """
-    service = VSCodeService(port=8001)
+    service = VSCodeService(port=9001)
     service.connection_token = "test-token-000"
 
     assert (
         service.get_vscode_url()
-        == "http://localhost:8001/?tkn=test-token-000&folder=workspace"
+        == "http://localhost:9001/?tkn=test-token-000&folder=workspace"
     )
     assert (
         service.get_vscode_url(base_url="http://example.com:9000")
@@ -406,7 +406,7 @@ async def test_start_vscode_process(vscode_service, tmp_path):
 async def test_start_vscode_process_with_server_base_path():
     """Test starting VSCode process with server_base_path includes the arg."""
     service = VSCodeService(
-        port=8001, connection_token="test-token", server_base_path="/runtime/vscode"
+        port=9001, connection_token="test-token", server_base_path="/runtime/vscode"
     )
 
     mock_process = AsyncMock()
@@ -428,7 +428,7 @@ async def test_start_vscode_process_with_server_base_path():
 @pytest.mark.asyncio
 async def test_start_vscode_process_without_server_base_path():
     """Test starting VSCode process without server_base_path excludes the arg."""
-    service = VSCodeService(port=8001, connection_token="test-token")
+    service = VSCodeService(port=9001, connection_token="test-token")
 
     mock_process = AsyncMock()
     mock_process.stdout = AsyncMock()
@@ -453,7 +453,7 @@ async def test_wait_for_startup_success(vscode_service):
     mock_stdout.readline = AsyncMock(
         side_effect=[
             b"Starting server...\n",
-            b"Web UI available at http://localhost:8001\n",
+            b"Web UI available at http://localhost:9001\n",
             b"",
         ]
     )
@@ -491,11 +491,11 @@ async def test_wait_for_startup_timeout(vscode_service):
 def test_get_vscode_service_enabled(tmp_path):
     """Test get_vscode_service returns VSCodeService when enabled."""
     with (
-        patch("openhands.agent_server.config.get_default_config") as mock_config,
-        patch("openhands.agent_server.vscode_service._vscode_service", None),
+        patch("handprint.agent_server.config.get_default_config") as mock_config,
+        patch("handprint.agent_server.vscode_service._vscode_service", None),
     ):
         mock_config.return_value.enable_vscode = True
-        mock_config.return_value.vscode_port = 8001
+        mock_config.return_value.vscode_port = 9001
         mock_config.return_value.vscode_base_path = None
         mock_config.return_value.session_api_keys = []
 
@@ -507,8 +507,8 @@ def test_get_vscode_service_enabled(tmp_path):
 def test_get_vscode_service_disabled():
     """Test get_vscode_service returns None when disabled."""
     with (
-        patch("openhands.agent_server.config.get_default_config") as mock_config,
-        patch("openhands.agent_server.vscode_service._vscode_service", None),
+        patch("handprint.agent_server.config.get_default_config") as mock_config,
+        patch("handprint.agent_server.vscode_service._vscode_service", None),
     ):
         mock_config.return_value.enable_vscode = False
 
@@ -520,11 +520,11 @@ def test_get_vscode_service_disabled():
 def test_get_vscode_service_singleton():
     """Test get_vscode_service returns the same instance on multiple calls."""
     with (
-        patch("openhands.agent_server.config.get_default_config") as mock_config,
-        patch("openhands.agent_server.vscode_service._vscode_service", None),
+        patch("handprint.agent_server.config.get_default_config") as mock_config,
+        patch("handprint.agent_server.vscode_service._vscode_service", None),
     ):
         mock_config.return_value.enable_vscode = True
-        mock_config.return_value.vscode_port = 8001
+        mock_config.return_value.vscode_port = 9001
         mock_config.return_value.vscode_base_path = None
         mock_config.return_value.session_api_keys = []
 
@@ -538,8 +538,8 @@ def test_get_vscode_service_singleton():
 def test_get_vscode_service_with_custom_port():
     """Test get_vscode_service uses the configured port."""
     with (
-        patch("openhands.agent_server.config.get_default_config") as mock_config,
-        patch("openhands.agent_server.vscode_service._vscode_service", None),
+        patch("handprint.agent_server.config.get_default_config") as mock_config,
+        patch("handprint.agent_server.vscode_service._vscode_service", None),
     ):
         mock_config.return_value.enable_vscode = True
         mock_config.return_value.vscode_port = 9001
@@ -555,11 +555,11 @@ def test_get_vscode_service_with_custom_port():
 def test_get_vscode_service_with_base_path():
     """Test get_vscode_service passes vscode_base_path from config."""
     with (
-        patch("openhands.agent_server.config.get_default_config") as mock_config,
-        patch("openhands.agent_server.vscode_service._vscode_service", None),
+        patch("handprint.agent_server.config.get_default_config") as mock_config,
+        patch("handprint.agent_server.vscode_service._vscode_service", None),
     ):
         mock_config.return_value.enable_vscode = True
-        mock_config.return_value.vscode_port = 8001
+        mock_config.return_value.vscode_port = 9001
         mock_config.return_value.vscode_base_path = "/runtime-123/vscode"
         mock_config.return_value.session_api_keys = []
 
@@ -571,7 +571,7 @@ def test_get_vscode_service_with_base_path():
 
 def test_vscode_service_with_different_ports():
     """Test VSCode service initialization with different ports."""
-    service1 = VSCodeService(port=8001)
+    service1 = VSCodeService(port=9001)
     service2 = VSCodeService(port=9001)
 
     assert service1.port == 8001
@@ -582,7 +582,7 @@ def test_vscode_port_configuration():
     """Test that vscode_port configuration is properly used."""
     import os
 
-    from openhands.agent_server.config import Config, from_env
+    from handprint.agent_server.config import Config, from_env
 
     # Test default value
     config = Config()
@@ -598,7 +598,7 @@ def test_vscode_base_path_configuration():
     """Test that vscode_base_path configuration is properly used."""
     import os
 
-    from openhands.agent_server.config import Config, from_env
+    from handprint.agent_server.config import Config, from_env
 
     # Test default value is None
     config = Config()

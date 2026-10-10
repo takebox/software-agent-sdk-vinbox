@@ -11,7 +11,7 @@ import libtmux
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import (
+from handprint.agent_server.api import (
     _cleanup_stale_tmux_sessions,
     _default_server_tmux_tmpdir,
     _ensure_server_tmux_tmpdir,
@@ -19,7 +19,7 @@ from openhands.agent_server.api import (
     api_lifespan,
     create_app,
 )
-from openhands.agent_server.config import Config
+from handprint.agent_server.config import Config
 
 
 @pytest.fixture(autouse=True)
@@ -31,23 +31,23 @@ def clear_web_url_env(monkeypatch):
 
 def test_default_server_tmux_tmpdir_uses_current_pid(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "openhands.agent_server.api.tempfile.gettempdir", lambda: str(tmp_path)
+        "handprint.agent_server.api.tempfile.gettempdir", lambda: str(tmp_path)
     )
 
     assert _default_server_tmux_tmpdir() == (
-        tmp_path / f"openhands-agent-server-{os.getpid()}"
+        tmp_path / f"handprint-agent-server-{os.getpid()}"
     )
 
 
 def test_ensure_server_tmux_tmpdir_defaults_per_process_dir(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "openhands.agent_server.api.tempfile.gettempdir", lambda: str(tmp_path)
+        "handprint.agent_server.api.tempfile.gettempdir", lambda: str(tmp_path)
     )
 
     tmux_tmpdir, was_defaulted = _ensure_server_tmux_tmpdir()
 
     assert was_defaulted is True
-    assert tmux_tmpdir == tmp_path / f"openhands-agent-server-{os.getpid()}"
+    assert tmux_tmpdir == tmp_path / f"handprint-agent-server-{os.getpid()}"
     assert tmux_tmpdir.is_dir()
     assert os.environ["TMUX_TMPDIR"] == str(tmux_tmpdir)
 
@@ -69,7 +69,7 @@ def test_cleanup_stale_tmux_sessions_includes_isolated_sockets(monkeypatch):
         monkeypatch.setenv("TMUX_TMPDIR", socket_dir)
         servers = [
             libtmux.Server(socket_name=name)
-            for name in ["openhands", "openhands-" + "a" * 32, "unrelated"]
+            for name in ["handprint", "handprint-" + "a" * 32, "unrelated"]
         ]
         try:
             for server in servers:
@@ -316,15 +316,15 @@ class TestServiceParallelization:
         # Mock the service getters
         with (
             patch(
-                "openhands.agent_server.api.get_default_conversation_service",
+                "handprint.agent_server.api.get_default_conversation_service",
                 return_value=mock_conversation_service,
             ),
             patch(
-                "openhands.agent_server.api.get_vscode_service",
+                "handprint.agent_server.api.get_vscode_service",
                 return_value=mock_vscode_service,
             ),
             patch(
-                "openhands.agent_server.api.get_tool_preload_service",
+                "handprint.agent_server.api.get_tool_preload_service",
                 return_value=mock_tool_preload_service,
             ),
         ):
@@ -360,15 +360,15 @@ class TestServiceParallelization:
         # Mock the service getters
         with (
             patch(
-                "openhands.agent_server.api.get_default_conversation_service",
+                "handprint.agent_server.api.get_default_conversation_service",
                 return_value=mock_conversation_service,
             ),
             patch(
-                "openhands.agent_server.api.get_vscode_service",
+                "handprint.agent_server.api.get_vscode_service",
                 return_value=mock_vscode_service,
             ),
             patch(
-                "openhands.agent_server.api.get_tool_preload_service",
+                "handprint.agent_server.api.get_tool_preload_service",
                 return_value=mock_tool_preload_service,
             ),
         ):
@@ -377,7 +377,7 @@ class TestServiceParallelization:
             mock_backend_manager = AsyncMock()
             mock_app.state = SimpleNamespace(
                 config=Config(),
-                canvas_extension_backend_manager=mock_backend_manager,
+                viczin_extension_backend_manager=mock_backend_manager,
             )
 
             async with api_lifespan(mock_app):
@@ -396,12 +396,12 @@ class TestServiceParallelization:
         # Mock all services as None (disabled)
         with (
             patch(
-                "openhands.agent_server.api.get_default_conversation_service",
+                "handprint.agent_server.api.get_default_conversation_service",
                 return_value=mock_conversation_service,
             ),
-            patch("openhands.agent_server.api.get_vscode_service", return_value=None),
+            patch("handprint.agent_server.api.get_vscode_service", return_value=None),
             patch(
-                "openhands.agent_server.api.get_tool_preload_service", return_value=None
+                "handprint.agent_server.api.get_tool_preload_service", return_value=None
             ),
         ):
             # Create a mock FastAPI app
@@ -427,12 +427,12 @@ class TestServiceParallelization:
 
         with (
             patch(
-                "openhands.agent_server.api.get_default_conversation_service",
+                "handprint.agent_server.api.get_default_conversation_service",
                 return_value=service,
             ),
-            patch("openhands.agent_server.api.get_vscode_service", return_value=None),
+            patch("handprint.agent_server.api.get_vscode_service", return_value=None),
             patch(
-                "openhands.agent_server.api.get_tool_preload_service",
+                "handprint.agent_server.api.get_tool_preload_service",
                 return_value=None,
             ),
         ):
@@ -451,23 +451,23 @@ class TestServiceParallelization:
     ):
         """Test that lifespan defaults TMUX_TMPDIR per server instance."""
         monkeypatch.setattr(
-            "openhands.agent_server.api.tempfile.gettempdir", lambda: str(tmp_path)
+            "handprint.agent_server.api.tempfile.gettempdir", lambda: str(tmp_path)
         )
         mock_conversation_service = AsyncMock()
 
         with (
             patch(
-                "openhands.agent_server.api.get_default_conversation_service",
+                "handprint.agent_server.api.get_default_conversation_service",
                 return_value=mock_conversation_service,
             ),
-            patch("openhands.agent_server.api.get_vscode_service", return_value=None),
+            patch("handprint.agent_server.api.get_vscode_service", return_value=None),
             patch(
-                "openhands.agent_server.api.get_tool_preload_service", return_value=None
+                "handprint.agent_server.api.get_tool_preload_service", return_value=None
             ),
         ):
             mock_app = AsyncMock()
             mock_app.state = SimpleNamespace(config=Config())
-            expected_tmux_tmpdir = tmp_path / f"openhands-agent-server-{os.getpid()}"
+            expected_tmux_tmpdir = tmp_path / f"handprint-agent-server-{os.getpid()}"
 
             async with api_lifespan(mock_app):
                 assert os.environ["TMUX_TMPDIR"] == str(expected_tmux_tmpdir)
@@ -574,7 +574,7 @@ class TestConfigWebUrl:
         ("https://example.com/", ""),
         ("https://example.com/api", "/api"),
         ("https://example.com/api/v1", "/api/v1"),
-        ("http://localhost:8000/test", "/test"),
+        ("http://localhost:9000/test", "/test"),
         ("https://work-1-xyz.prod-runtime.all-hands.dev/runtime/abc", "/runtime/abc"),
     ],
 )
@@ -613,7 +613,7 @@ class TestHttpExceptionLogging:
         app = self._build_app_with_failing_route(502)
         client = TestClient(app)
 
-        with caplog.at_level(logging.ERROR, logger="openhands.agent_server.api"):
+        with caplog.at_level(logging.ERROR, logger="handprint.agent_server.api"):
             response = client.get("/__test__/raise_502")
 
         assert response.status_code == 502
@@ -623,7 +623,7 @@ class TestHttpExceptionLogging:
         api_error_records = [
             r
             for r in caplog.records
-            if r.name == "openhands.agent_server.api" and r.levelno == logging.ERROR
+            if r.name == "handprint.agent_server.api" and r.levelno == logging.ERROR
         ]
         assert len(api_error_records) == 1, (
             "Expected exactly one ERROR log line for a 5xx HTTPException, "
@@ -651,19 +651,19 @@ class TestHttpExceptionLogging:
 
         # DEBUG is read at module import time in api.py, so monkeypatch
         # the bound name on the module rather than mutating the env.
-        monkeypatch.setattr("openhands.agent_server.api.DEBUG", True)
+        monkeypatch.setattr("handprint.agent_server.api.DEBUG", True)
 
         app = self._build_app_with_failing_route(503)
         client = TestClient(app)
 
-        with caplog.at_level(logging.ERROR, logger="openhands.agent_server.api"):
+        with caplog.at_level(logging.ERROR, logger="handprint.agent_server.api"):
             response = client.get("/__test__/raise_503")
 
         assert response.status_code == 503
         api_error_records = [
             r
             for r in caplog.records
-            if r.name == "openhands.agent_server.api" and r.levelno == logging.ERROR
+            if r.name == "handprint.agent_server.api" and r.levelno == logging.ERROR
         ]
         assert len(api_error_records) == 1
         # In DEBUG mode the traceback is preserved as an opt-in debugging aid.
@@ -675,7 +675,7 @@ class TestHttpExceptionLogging:
         app = self._build_app_with_failing_route(404)
         client = TestClient(app)
 
-        with caplog.at_level(logging.INFO, logger="openhands.agent_server.api"):
+        with caplog.at_level(logging.INFO, logger="handprint.agent_server.api"):
             response = client.get("/__test__/raise_404")
 
         assert response.status_code == 404
@@ -683,7 +683,7 @@ class TestHttpExceptionLogging:
         assert response.json() == {"detail": "boom from upstream"}
 
         api_records = [
-            r for r in caplog.records if r.name == "openhands.agent_server.api"
+            r for r in caplog.records if r.name == "handprint.agent_server.api"
         ]
         # No ERROR-level noise for a routine 4xx.
         assert not any(r.levelno >= logging.ERROR for r in api_records)

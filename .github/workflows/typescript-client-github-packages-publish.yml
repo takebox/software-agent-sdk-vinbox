@@ -38,7 +38,7 @@ jobs:
                   cache: npm
                   cache-dependency-path: clients/typescript/package-lock.json
                   registry-url: https://npm.pkg.github.com
-                  scope: '@openhands'
+                  scope: '@handprint'
 
             - name: Install dependencies
               run: npm ci

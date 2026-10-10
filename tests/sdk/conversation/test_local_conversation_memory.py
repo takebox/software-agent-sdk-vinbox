@@ -1,6 +1,6 @@
 """LocalConversation lazily resolves persistent memory (``AgentContext.load_memory``).
 
-Memory resolution mirrors project skills: AgentContext cannot read the
+Memory resolution mirrors project tracks: AgentContext cannot read the
 workspace at validation time, so LocalConversation loads the MEMORY.md indexes
 on the first ``send_message()`` and the result lands in the SystemPromptEvent.
 """
@@ -10,18 +10,18 @@ from unittest.mock import patch
 
 import pytest
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.context.memory import MEMORY_INDEX_RELPATH
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import SystemPromptEvent
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.testing import TestLLM
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.context.memory import MEMORY_INDEX_RELPATH
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import SystemPromptEvent
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.testing import TestLLM
 
 
 @pytest.fixture(autouse=True)
 def isolated_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    """Keep the user memory tier (``~/.openhands/memory/``) off the host home."""
+    """Keep the user memory tier (``~/.handprint/memory/``) off the host home."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -104,7 +104,7 @@ def test_load_memory_failure_does_not_prevent_startup(tmp_path: Path):
     _write_memory_index(workspace, "- SENTINEL_MEMORY_789\n")
 
     with patch(
-        "openhands.sdk.conversation.impl.local_conversation.load_memory",
+        "handprint.sdk.conversation.impl.local_conversation.load_memory",
         side_effect=OSError("disk error"),
     ):
         event = _system_prompt_event(tmp_path, AgentContext(load_memory=True))

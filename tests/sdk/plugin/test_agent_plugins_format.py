@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.plugin import (
+from handprint.sdk.plugin import (
     AgentPluginsFormat,
-    ClaudeCodePluginFormat,
+    HaijunCodePluginFormat,
     PluginManifest,
     detect_format,
 )
-from openhands.sdk.plugin.format.agent_plugins import (
+from handprint.sdk.plugin.format.agent_plugins import (
     _MANIFEST_SCHEMA_FILE,
     EXTENSION_NAMESPACE,
     MANIFEST_SCHEMA_URL,
@@ -31,7 +31,7 @@ EXAMPLE_MANIFEST = {
         "A copyable reference package and migration guide for Agent Plugins v1.0.0."
     ),
     "license": "MIT",
-    "keywords": ["agent-plugins", "example", "migration", "skills"],
+    "keywords": ["agent-plugins", "example", "migration", "tracks"],
 }
 
 
@@ -83,10 +83,10 @@ class TestDetect:
         write_manifest(tmp_path / "p", EXAMPLE_MANIFEST)
         assert AgentPluginsFormat.detect(tmp_path / "p") is True
 
-    def test_ignores_nested_claude_code_manifest(self, tmp_path: Path):
+    def test_ignores_nested_haijun_code_manifest(self, tmp_path: Path):
         plugin_dir = tmp_path / "p"
-        (plugin_dir / ".claude-plugin").mkdir(parents=True)
-        (plugin_dir / ".claude-plugin" / "plugin.json").write_text('{"name": "p"}')
+        (plugin_dir / ".haijun-plugin").mkdir(parents=True)
+        (plugin_dir / ".haijun-plugin" / "plugin.json").write_text('{"name": "p"}')
 
         assert AgentPluginsFormat.detect(plugin_dir) is False
 
@@ -108,16 +108,16 @@ class TestDetect:
     def test_ignores_missing_dir(self, tmp_path: Path):
         assert AgentPluginsFormat.detect(tmp_path / "does-not-exist") is False
 
-    def test_registered_ahead_of_claude_code(self, tmp_path: Path):
-        """A root manifest wins over the universal Claude Code fallback."""
+    def test_registered_ahead_of_haijun_code(self, tmp_path: Path):
+        """A root manifest wins over the universal Haijun Code fallback."""
         write_manifest(tmp_path / "p", EXAMPLE_MANIFEST)
 
         assert isinstance(detect_format(tmp_path / "p"), AgentPluginsFormat)
 
-    def test_claude_code_still_the_fallback(self, tmp_path: Path):
+    def test_haijun_code_still_the_fallback(self, tmp_path: Path):
         (tmp_path / "p").mkdir()
 
-        assert isinstance(detect_format(tmp_path / "p"), ClaudeCodePluginFormat)
+        assert isinstance(detect_format(tmp_path / "p"), HaijunCodePluginFormat)
 
 
 class TestLoadManifestValid:
@@ -149,7 +149,7 @@ class TestLoadManifestValid:
 
         assert dumped["$schema"] == SCHEMA_1_0_0
         assert dumped["license"] == "MIT"
-        assert dumped["keywords"] == ["agent-plugins", "example", "migration", "skills"]
+        assert dumped["keywords"] == ["agent-plugins", "example", "migration", "tracks"]
         assert dumped["homepage"] == "https://example.com"
         assert dumped["repository"] == "https://github.com/example/plugin"
         assert dumped["extensions"] == {"com.example.client": {"entry_command": "now"}}
@@ -342,7 +342,7 @@ class TestLoadManifestFatal:
             AgentPluginsFormat().load_manifest(tmp_path)
 
     def test_string_author_rejected(self, tmp_path: Path):
-        """Agent Plugins authors are objects only, unlike the Claude Code format."""
+        """Agent Plugins authors are objects only, unlike the Haijun Code format."""
         write_manifest(
             tmp_path, {"$schema": SCHEMA_1_0_0, "name": "p", "author": "Ada <a@e.com>"}
         )
@@ -389,13 +389,13 @@ class TestLoadManifestFatal:
 
 
 class TestComponentLoaders:
-    """Portable core: skills are shared with the base, mcp.json is a follow-up."""
+    """Portable core: tracks are shared with the base, mcp.json is a follow-up."""
 
-    def test_load_assembles_plugin_with_skills(self, tmp_path: Path):
+    def test_load_assembles_plugin_with_tracks(self, tmp_path: Path):
         write_manifest(tmp_path, EXAMPLE_MANIFEST)
-        skill_dir = tmp_path / "skills" / "summarize"
-        skill_dir.mkdir(parents=True)
-        (skill_dir / "SKILL.md").write_text(
+        track_dir = tmp_path / "tracks" / "summarize"
+        track_dir.mkdir(parents=True)
+        (track_dir / "TRACK.md").write_text(
             "---\nname: summarize\ndescription: Summarize text.\n---\n\nDo it.\n",
             encoding="utf-8",
         )
@@ -403,7 +403,7 @@ class TestComponentLoaders:
         plugin = AgentPluginsFormat().load(tmp_path)
 
         assert plugin.manifest.name == "agent-plugins-example"
-        assert [s.name for s in plugin.skills] == ["summarize"]
+        assert [s.name for s in plugin.tracks] == ["summarize"]
 
     def test_mcp_loader_is_deferred(self, tmp_path: Path):
         """mcp.json is not read yet."""
@@ -417,7 +417,7 @@ class TestComponentLoaders:
 
 
 class TestClientExtension:
-    """Our ``dev.openhands`` namespace: manifest data and extension directory."""
+    """Our ``dev.handprint`` namespace: manifest data and extension directory."""
 
     def test_entry_command_is_mapped_from_our_namespace(self, tmp_path: Path):
         write_manifest(
@@ -518,17 +518,17 @@ class TestClientExtension:
         assert fmt.load_agents(tmp_path) == []
         assert fmt.load_commands(tmp_path) == []
 
-    def test_skills_stay_portable_core(self, tmp_path: Path):
-        """Skills come from ``<root>/skills``, never from the extension dir."""
+    def test_tracks_stay_portable_core(self, tmp_path: Path):
+        """Tracks come from ``<root>/tracks``, never from the extension dir."""
         write_manifest(tmp_path, EXAMPLE_MANIFEST)
-        skill_dir = tmp_path / EXTENSION_NAMESPACE / "skills" / "summarize"
-        skill_dir.mkdir(parents=True)
-        (skill_dir / "SKILL.md").write_text(
+        track_dir = tmp_path / EXTENSION_NAMESPACE / "tracks" / "summarize"
+        track_dir.mkdir(parents=True)
+        (track_dir / "TRACK.md").write_text(
             "---\nname: summarize\ndescription: Summarize text.\n---\n\nDo it.\n",
             encoding="utf-8",
         )
 
-        assert AgentPluginsFormat().load(tmp_path).skills == []
+        assert AgentPluginsFormat().load(tmp_path).tracks == []
 
     def test_broken_components_do_not_sink_the_plugin(self, tmp_path: Path, caplog):
         """§4.1: the failure boundary is one entry, not the plugin.

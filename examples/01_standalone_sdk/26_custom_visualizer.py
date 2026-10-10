@@ -15,12 +15,12 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation
-from openhands.sdk.conversation.visualizer import ConversationVisualizerBase
-from openhands.sdk.event import (
+from handprint.sdk import LLM, Conversation
+from handprint.sdk.conversation.visualizer import ConversationVisualizerBase
+from handprint.sdk.event import (
     Event,
 )
-from openhands.tools.preset.default import get_default_agent
+from handprint.tools.preset.default import get_default_agent
 
 
 class MinimalVisualizer(ConversationVisualizerBase):

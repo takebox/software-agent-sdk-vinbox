@@ -31,7 +31,7 @@ jobs:
               continue-on-error: true
               id: checkout-feature
               with:
-                  repository: OpenHands/docs
+                  repository: Handprint/docs
                   path: docs
                   fetch-depth: 0
                   ref: ${{ github.head_ref || github.ref_name }}
@@ -40,7 +40,7 @@ jobs:
               if: steps.checkout-feature.outcome == 'failure'
               uses: actions/checkout@v7.0.1
               with:
-                  repository: OpenHands/docs
+                  repository: Handprint/docs
                   path: docs
                   fetch-depth: 0
                   ref: main

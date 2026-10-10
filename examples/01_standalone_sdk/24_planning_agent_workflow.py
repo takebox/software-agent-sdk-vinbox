@@ -16,10 +16,10 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation
-from openhands.sdk.llm import content_to_str
-from openhands.tools.preset.default import get_default_agent
-from openhands.tools.preset.planning import get_planning_agent
+from handprint.sdk import LLM, Conversation
+from handprint.sdk.llm import content_to_str
+from handprint.tools.preset.default import get_default_agent
+from handprint.tools.preset.planning import get_planning_agent
 
 
 def get_event_content(event):

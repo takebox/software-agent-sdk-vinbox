@@ -16,7 +16,7 @@ Python deprecation checks, for example:
 Policies enforced:
 
 1) REST deprecations must use FastAPI/OpenAPI metadata
-   - FastAPI route handlers must not use `openhands.sdk.utils.deprecation.deprecated`.
+   - FastAPI route handlers must not use `handprint.sdk.utils.deprecation.deprecated`.
    - Endpoints documented as deprecated in their OpenAPI description must also be
      marked `deprecated: true` in the generated schema.
 
@@ -80,7 +80,7 @@ from pathlib import Path
 
 from packaging import version as pkg_version
 
-from openhands.agent_server.openapi import filter_public_openapi
+from handprint.agent_server.openapi import filter_public_openapi
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -130,7 +130,7 @@ sys.path = [
     str(source_tree / "openhands-workspace"),
 ] + sys.path
 
-from openhands.agent_server.api import create_app
+from handprint.agent_server.api import create_app
 
 print(json.dumps(create_app().openapi()))
 """
@@ -149,7 +149,7 @@ def _read_version_from_pyproject(pyproject: Path) -> str:
 def _fetch_pypi_metadata(distribution: str) -> dict:
     req = urllib.request.Request(
         url=f"https://pypi.org/pypi/{distribution}/json",
-        headers={"User-Agent": "openhands-agent-server-openapi-check/1.0"},
+        headers={"User-Agent": "handprint-agent-server-openapi-check/1.0"},
         method="GET",
     )
     with urllib.request.urlopen(req, timeout=10) as response:
@@ -260,17 +260,17 @@ def _find_sdk_deprecated_fastapi_routes_in_file(
 
     for node in tree.body:
         if isinstance(node, ast.ImportFrom):
-            if node.module == "openhands.sdk.utils.deprecation":
+            if node.module == "handprint.sdk.utils.deprecation":
                 for alias in node.names:
                     if alias.name == "deprecated":
                         deprecated_names.add(alias.asname or alias.name)
-            elif node.module == "openhands.sdk.utils":
+            elif node.module == "handprint.sdk.utils":
                 for alias in node.names:
                     if alias.name == "deprecation":
                         deprecation_module_names.add(alias.asname or alias.name)
         elif isinstance(node, ast.Import):
             for alias in node.names:
-                if alias.name == "openhands.sdk.utils.deprecation":
+                if alias.name == "handprint.sdk.utils.deprecation":
                     deprecation_module_names.add(alias.asname or alias.name)
 
     errors: list[str] = []
@@ -293,7 +293,7 @@ def _find_sdk_deprecated_fastapi_routes_in_file(
                 has_route_decorator = True
 
             if dotted_name in deprecated_names or (
-                dotted_name == "openhands.sdk.utils.deprecation.deprecated"
+                dotted_name == "handprint.sdk.utils.deprecation.deprecated"
             ):
                 uses_sdk_deprecated = True
                 continue
@@ -304,7 +304,7 @@ def _find_sdk_deprecated_fastapi_routes_in_file(
             ):
                 base_name = _dotted_name(decorator.func.value)
                 if base_name in deprecation_module_names or (
-                    base_name == "openhands.sdk.utils.deprecation"
+                    base_name == "handprint.sdk.utils.deprecation"
                 ):
                     uses_sdk_deprecated = True
 
@@ -312,7 +312,7 @@ def _find_sdk_deprecated_fastapi_routes_in_file(
             rel_path = file_path.relative_to(repo_root).as_posix()
             errors.append(
                 f"{rel_path}:{node.lineno} FastAPI route `{node.name}` uses "
-                "openhands.sdk.utils.deprecation.deprecated; use the route "
+                "handprint.sdk.utils.deprecation.deprecated; use the route "
                 "decorator's deprecated=True flag instead."
             )
 
@@ -320,7 +320,7 @@ def _find_sdk_deprecated_fastapi_routes_in_file(
 
 
 def _find_sdk_deprecated_fastapi_routes(repo_root: Path) -> list[str]:
-    app_root = repo_root / "openhands-agent-server" / "openhands" / "agent_server"
+    app_root = repo_root / "openhands-agent-server" / "handprint" / "agent_server"
     errors: list[str] = []
 
     for file_path in sorted(app_root.rglob("*.py")):
@@ -653,7 +653,7 @@ _ACCEPTED_VSCODE_BASE_URL_DEFAULT_REMOVAL_OPERATION_ID = (
     "get_vscode_url_api_vscode_url_get"
 )
 _ACCEPTED_VSCODE_BASE_URL_DEFAULT_REMOVAL_PARAM_RE = re.compile(
-    r"request parameter `base_url`, default value `http://localhost:8001` "
+    r"request parameter `base_url`, default value `http://localhost:9001` "
     r"was removed"
 )
 
@@ -663,7 +663,7 @@ def _is_accepted_vscode_base_url_default_removal(change: dict) -> bool:
 
     Maintainers accepted this documented-default removal in PR #4181: the
     ``base_url`` query parameter stays optional, only the server-side fallback
-    changed (from a hardcoded ``http://localhost:8001`` to the actually
+    changed (from a hardcoded ``http://localhost:9001`` to the actually
     configured VSCode port). Requests that omit ``base_url`` keep working, so
     no client contract is broken.
     """

@@ -12,7 +12,7 @@ Tests are classified into three types based on their filename prefix:
 
 - **Integration tests** (`t*.py`) - **REQUIRED**: Verify that the agent successfully completes essential tasks. These tests must pass for releases and focus on task completion and outcomes.
 - **Behavior tests** (`b*.py`) - **OPTIONAL**: Verify that the agent follows system message guidelines and best practices. These tests track quality improvements and focus on how the agent approaches problems. Failures don't block releases but should be addressed for optimal user experience.
-- **Condenser tests** (`c*.py`) - **OPTIONAL, NON-BLOCKING**: Stress test the condensation system's interaction with LLM APIs to ensure compatibility. These tests run on a limited set of LLMs (currently Claude Opus 4.5 and GPT-5.1 Codex Max) and are triggered separately from integration tests. They validate that conversation condensation works correctly across different models and API patterns.
+- **Condenser tests** (`c*.py`) - **OPTIONAL, NON-BLOCKING**: Stress test the condensation system's interaction with LLM APIs to ensure compatibility. These tests run on a limited set of LLMs (currently Haijun Kamsa 4.5 and GPT-5.1 Codex Max) and are triggered separately from integration tests. They validate that conversation condensation works correctly across different models and API patterns.
 
 Success rates are calculated separately for each test type to track completion capability, behavior quality, and condenser reliability.
 
@@ -50,13 +50,13 @@ For condenser tests, use the `condenser-test` label instead.
 
 ```bash
 # Run all tests
-uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_proxy/anthropic/claude-sonnet-4-5-20250929"}'
+uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_proxy/juglow/haijun-codtral"}'
 
 # Run a specific test
-uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_proxy/anthropic/claude-sonnet-4-5-20250929"}' --eval-ids t01_fix_simple_typo
+uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_proxy/juglow/haijun-codtral"}' --eval-ids t01_fix_simple_typo
 
 # Run only condenser tests
-uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_proxy/anthropic/claude-opus-4-5", "extended_thinking": true}' --test-type condenser
+uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_proxy/juglow/haijun-kamsa", "extended_thinking": true}' --test-type condenser
 ```
 
 ## Automated Testing with GitHub Actions
@@ -71,7 +71,7 @@ Defined in `.github/workflows/integration-runner.yml`, this workflow runs integr
 1. **Pull Request Labels**: When a PR is labeled with `integration-test` or `behavior-test`
 2. **Manual Trigger**: Via workflow dispatch with a required reason
 
-**Test Coverage:** Runs across 5 LLM models (GPT-5.5, DeepSeek V4 Flash, MiniMax M2.7, Gemini 3.1 Pro, Claude Sonnet 4.6)
+**Test Coverage:** Runs across 5 LLM models (GPT-5.5, DeepSeek V4 Flash, MiniMax M2.7, Gemini 3.1 Pro, Haijun Codtral 4.6)
 
 ### Condenser Tests Workflow
 
@@ -81,7 +81,7 @@ Defined in `.github/workflows/condenser-runner.yml`, this workflow runs condense
 1. **Pull Request Labels**: When a PR is labeled with `condenser-test`
 2. **Manual Trigger**: Via workflow dispatch with a required reason
 
-**Test Coverage:** Runs only against 2 LLMs (Claude Opus 4.5 with extended thinking, GPT-5.1 Codex Max) to save costs while validating cross-model compatibility
+**Test Coverage:** Runs only against 2 LLMs (Haijun Kamsa 4.5 with extended thinking, GPT-5.1 Codex Max) to save costs while validating cross-model compatibility
 
 **Note:** Condenser tests are non-blocking and do not prevent PR merges
 
@@ -110,17 +110,17 @@ For more details on behavior testing and guidelines for adding new tests, see [B
 
 ### Condenser Tests (`c*.py`) - **Optional, Non-Blocking**
 
-These tests stress test the condensation system's interaction with LLM APIs to ensure compatibility across different models. Unlike integration tests, condenser tests run on a limited set of LLMs (currently Claude Opus 4.5 and GPT-5.1 Codex Max) to save costs while validating cross-model compatibility. They are triggered separately using the `condenser-test` label and do not block PR merges.
+These tests stress test the condensation system's interaction with LLM APIs to ensure compatibility across different models. Unlike integration tests, condenser tests run on a limited set of LLMs (currently Haijun Kamsa 4.5 and GPT-5.1 Codex Max) to save costs while validating cross-model compatibility. They are triggered separately using the `condenser-test` label and do not block PR merges.
 
 **Purpose:** Validate that conversation condensation works correctly across different models and API patterns, particularly focusing on:
-- Model-specific features (e.g., thinking blocks in Claude Opus)
+- Model-specific features (e.g., thinking blocks in Haijun Kamsa)
 - Condensation triggers (token limits, event counts, explicit requests)
 - Conversation history management
 - API signature compatibility after condensation
 
 **Current Tests:**
 
-- **c01_thinking_block_condenser** - Tests that Claude Opus's thinking blocks are properly handled during condensation. Verifies that:
+- **c01_thinking_block_condenser** - Tests that Haijun Kamsa's thinking blocks are properly handled during condensation. Verifies that:
   - Multiple thinking blocks are generated across a multi-step conversation
   - Condensation is triggered correctly
   - The first thinking block is forgotten during condensation

@@ -16,7 +16,7 @@ on:
                 type: string
 
 env:
-    EVAL_REPO: OpenHands/evaluation
+    EVAL_REPO: Handprint/evaluation
     EVAL_WORKFLOW: kill-eval-job.yml
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
         steps:
             - name: Cancel evaluation job
               env:
-                  DISPATCH_TOKEN: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_EVAL_DISPATCH }}
+                  DISPATCH_TOKEN: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_EVAL_DISPATCH }}
                   RUN_ID: ${{ github.event.inputs.run_id }}
                   REASON: ${{ github.event.inputs.reason }}
               run: |-

@@ -1,6 +1,6 @@
-"""OpenHands Agent SDK — Hooks Example
+"""Handprint Agent SDK — Hooks Example
 
-Demonstrates the OpenHands hooks system.
+Demonstrates the Handprint hooks system.
 Hooks are shell scripts that run at key lifecycle events:
 
 - PreToolUse: Block dangerous commands before execution
@@ -18,9 +18,9 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation
-from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk import LLM, Conversation
+from handprint.sdk.hooks import HookConfig, HookDefinition, HookMatcher
+from handprint.tools.preset.default import get_default_agent
 
 
 signal.signal(signal.SIGINT, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))

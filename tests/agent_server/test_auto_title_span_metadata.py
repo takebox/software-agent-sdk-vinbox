@@ -11,7 +11,7 @@ import sys
 from typing import Any
 
 
-OPERATION_ATTRIBUTE = "lmnr.association.properties.metadata.openhands.operation"
+OPERATION_ATTRIBUTE = "lmnr.association.properties.metadata.handprint.operation"
 
 
 def _probe_auto_title_spans() -> dict[str, Any]:
@@ -32,16 +32,16 @@ def _probe_auto_title_spans() -> dict[str, Any]:
     )
     from pydantic import SecretStr
 
-    from openhands.agent_server.conversation_service import AutoTitleSubscriber
-    from openhands.agent_server.event_service import EventService
-    from openhands.agent_server.models import StoredConversation
-    from openhands.sdk.agent import Agent
-    from openhands.sdk.conversation import Conversation
-    from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-    from openhands.sdk.event.llm_convertible import MessageEvent
-    from openhands.sdk.llm import LLM, Message, TextContent
-    from openhands.sdk.security.confirmation_policy import NeverConfirm
-    from openhands.sdk.workspace import LocalWorkspace
+    from handprint.agent_server.conversation_service import AutoTitleSubscriber
+    from handprint.agent_server.event_service import EventService
+    from handprint.agent_server.models import StoredConversation
+    from handprint.sdk.agent import Agent
+    from handprint.sdk.conversation import Conversation
+    from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+    from handprint.sdk.event.llm_convertible import MessageEvent
+    from handprint.sdk.llm import LLM, Message, TextContent
+    from handprint.sdk.security.confirmation_policy import NeverConfirm
+    from handprint.sdk.workspace import LocalWorkspace
 
     Laminar.initialize(
         project_api_key="test-key",
@@ -92,7 +92,7 @@ def _probe_auto_title_spans() -> dict[str, Any]:
 
     async def drive() -> None:
         with patch(
-            "openhands.sdk.llm.llm.litellm_completion", side_effect=mocked_completion
+            "handprint.sdk.llm.llm.litellm_completion", side_effect=mocked_completion
         ):
             await AutoTitleSubscriber(service=service)(event)
             for _ in range(250):

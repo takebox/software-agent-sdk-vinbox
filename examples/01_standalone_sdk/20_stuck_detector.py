@@ -2,14 +2,14 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Conversation,
     Event,
     LLMConvertibleEvent,
     get_logger,
 )
-from openhands.tools.preset.default import get_default_agent
+from handprint.tools.preset.default import get_default_agent
 
 
 logger = get_logger(__name__)

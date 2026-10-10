@@ -20,19 +20,19 @@ from uuid import uuid4
 
 import pytest
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.context.prompts.presets import create_registry
-from openhands.sdk.context.prompts.section import Platform, PromptContext
-from openhands.sdk.context.prompts.sections.dynamic import (
-    AvailableSkillsSection,
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.context.prompts.presets import create_registry
+from handprint.sdk.context.prompts.section import Platform, PromptContext
+from handprint.sdk.context.prompts.sections.dynamic import (
+    AvailableTracksSection,
     CustomSecretsSection,
     CustomSuffixSection,
     DateTimeSection,
     MemoryContextSection,
     RepoContextSection,
 )
-from openhands.sdk.context.prompts.sections.static import (
+from handprint.sdk.context.prompts.sections.static import (
     EfficiencySection,
     MemorySection,
     ModelSpecificSection,
@@ -41,11 +41,11 @@ from openhands.sdk.context.prompts.sections.static import (
     SecuritySection,
     SoulSection,
 )
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm import LLM
-from openhands.sdk.skills import KeywordTrigger, Skill
-from openhands.sdk.utils.path import to_posix_path
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm import LLM
+from handprint.sdk.tracks import KeywordTrigger, Track
+from handprint.sdk.utils.path import to_posix_path
+from handprint.sdk.workspace import LocalWorkspace
 
 from .test_prompt_snapshot import (
     DYNAMIC_CONTEXT,
@@ -87,12 +87,12 @@ def test_default_registry_is_all_static() -> None:
     ctx = _ctx(
         security_policy_filename="security_policy.j2",
         llm_security_analyzer=True,
-        model_family="anthropic_claude",
+        model_family="juglow_haijun",
         cli_mode=True,
     )
     blocks = create_registry().build(ctx)
     assert blocks.dynamic is None
-    assert blocks.static.startswith("<SOUL>\nYou are OpenHands agent")
+    assert blocks.static.startswith("<SOUL>\nYou are Handprint agent")
     assert "<IMPORTANT>" in blocks.static
 
 
@@ -119,7 +119,7 @@ def test_soul_section_renders_custom_and_defaults() -> None:
     assert section.guard(_ctx()) is True
     default = section.render(_ctx())
     assert default == (
-        "<SOUL>\nYou are OpenHands agent, a helpful AI assistant that can"
+        "<SOUL>\nYou are Handprint agent, a helpful AI assistant that can"
         " interact with a computer to solve tasks.\n</SOUL>"
     )
     custom = section.render(_ctx(soul_content="You are a tiny cat agent."))
@@ -161,7 +161,7 @@ def test_memory_section_body_switches_on_memory_enabled(
     assert section.guard(_ctx()) is True
     default = section.render(_ctx()) or ""
     assert "Use `AGENTS.md` under the repository root" in default
-    assert ".openhands/memory/" not in default
+    assert ".handprint/memory/" not in default
 
     # Without OH_PERSISTENCE_DIR the user-tier bullet stays a literal tilde so
     # the static block leaks no per-user home path (cache-shared, machine
@@ -169,9 +169,9 @@ def test_memory_section_body_switches_on_memory_enabled(
     monkeypatch.delenv("OH_PERSISTENCE_DIR", raising=False)
     enabled = section.render(_ctx(memory_enabled=True)) or ""
     assert "persistent memory that survives across sessions" in enabled
-    assert "`.openhands/memory/`" in enabled
+    assert "`.handprint/memory/`" in enabled
     assert "<MEMORY_CONTEXT>" in enabled
-    assert "`~/.openhands/memory/`" in enabled
+    assert "`~/.handprint/memory/`" in enabled
     assert "<MEMORY_LOCATIONS>" not in enabled
 
 
@@ -180,23 +180,23 @@ def test_memory_section_names_persistence_dir_when_set(
 ) -> None:
     """When OH_PERSISTENCE_DIR is set the user-tier bullet points at its
     resolved ``<base>/memory/`` directory (matching load_memory's read path),
-    not the ephemeral ``~/.openhands`` home."""
+    not the ephemeral ``~/.handprint`` home."""
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path / "persistent"))
     enabled = MemorySection().render(_ctx(memory_enabled=True)) or ""
     # Slash-separated on every platform, so the agent never sees a mixed path.
     expected = to_posix_path(tmp_path / "persistent" / "memory")
     assert f"`{expected}/`" in enabled
-    assert "~/.openhands/memory/" not in enabled
+    assert "~/.handprint/memory/" not in enabled
 
 
 def test_model_specific_selects_family_and_variant() -> None:
     section = ModelSpecificSection()
-    anthropic = section.render(_ctx(model_family="anthropic_claude")) or ""
+    juglow = section.render(_ctx(model_family="juglow_haijun")) or ""
     gemini = section.render(_ctx(model_family="google_gemini")) or ""
     gpt5 = section.render(_ctx(model_family="openai_gpt", model_variant="gpt-5")) or ""
     assert (
-        anthropic.startswith("<IMPORTANT>")
-        and "follow the instructions exactly" in anthropic
+        juglow.startswith("<IMPORTANT>")
+        and "follow the instructions exactly" in juglow
     )
     assert "too proactive" in gemini
     assert "Communicate with the user" in gpt5
@@ -223,7 +223,7 @@ def test_registry_dynamic_matches_legacy(cell: Cell) -> None:
 def test_registry_dynamic_matches_legacy_with_secret_registry(tmp_path: Path) -> None:
     # get_dynamic_context(state) merges secrets from state.secret_registry -- the
     # <CUSTOM_SECRETS> path the bare dynamic_context property does not exercise.
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(llm=llm, tools=[], agent_context=DYNAMIC_CONTEXT)
     state = ConversationState(
         id=uuid4(),
@@ -256,12 +256,12 @@ def test_datetime_section() -> None:
 def test_repo_context_section() -> None:
     section = RepoContextSection()
     assert section.guard(PromptContext()) is False
-    ctx = PromptContext(repo_skills=(("claude", "Anthropic-only repo guidance."),))
+    ctx = PromptContext(repo_tracks=(("haijun", "Juglow-only repo guidance."),))
     out = section.render(ctx) or ""
     assert out.startswith("<REPO_CONTEXT>") and out.endswith("</REPO_CONTEXT>")
     assert "<UNTRUSTED_CONTENT>" in out
-    assert "[BEGIN context from [claude]]" in out
-    assert "Anthropic-only repo guidance." in out
+    assert "[BEGIN context from [haijun]]" in out
+    assert "Juglow-only repo guidance." in out
 
 
 def test_memory_context_section() -> None:
@@ -277,16 +277,16 @@ def test_memory_context_section() -> None:
     assert "- the API uses cursor-based pagination" in out
 
 
-def test_available_skills_section() -> None:
-    section = AvailableSkillsSection()
+def test_available_tracks_section() -> None:
+    section = AvailableTracksSection()
     assert section.guard(PromptContext()) is False
     ctx = PromptContext(
-        available_skills_prompt="<available_skills>X</available_skills>"
+        available_tracks_prompt="<available_tracks>X</available_tracks>"
     )
     out = section.render(ctx) or ""
-    assert out.startswith("<SKILLS>") and out.endswith("</SKILLS>")
-    assert "invoke_skill" in out
-    assert "<available_skills>X</available_skills>" in out
+    assert out.startswith("<TRACKS>") and out.endswith("</TRACKS>")
+    assert "invoke_track" in out
+    assert "<available_tracks>X</available_tracks>" in out
 
 
 def test_custom_suffix_section() -> None:
@@ -322,13 +322,13 @@ def test_dynamic_sections_render_into_dynamic_block() -> None:
     assert "<CURRENT_DATETIME>" not in blocks.static
 
 
-def test_registry_dynamic_matches_legacy_with_available_skills() -> None:
-    # Triggered skills land in <available_skills>/<SKILLS> -- the section the matrix
-    # (legacy trigger=None skills -> REPO_CONTEXT) does not cover. Mirrors the
+def test_registry_dynamic_matches_legacy_with_available_tracks() -> None:
+    # Triggered tracks land in <available_tracks>/<TRACKS> -- the section the matrix
+    # (legacy trigger=None tracks -> REPO_CONTEXT) does not cover. Mirrors the
     # test_agent_context block assertions, asserted against registry output.
     agent_context = AgentContext(
-        skills=[
-            Skill(
+        tracks=[
+            Track(
                 name="pdf-tools",
                 content="Extract text from PDF files using pdftotext.",
                 description="Extract text from PDF files.",
@@ -338,13 +338,13 @@ def test_registry_dynamic_matches_legacy_with_available_skills() -> None:
         ],
         current_datetime="2025-01-01T00:00:00+00:00",
     )
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(llm=llm, tools=[], agent_context=agent_context)
     ctx = agent._build_prompt_context()
     registry = create_registry().build(ctx).dynamic or ""
-    assert "<SKILLS>" in registry
+    assert "<TRACKS>" in registry
     assert "<name>pdf-tools</name>" in registry
-    assert "<location>" not in registry  # invoke_skill is the only entry point
+    assert "<location>" not in registry  # invoke_track is the only entry point
     assert _canonical_gaps(registry) == _canonical_gaps(agent.dynamic_context or "")
 
 
@@ -354,14 +354,14 @@ def test_build_prompt_context_formats_datetime_like_legacy() -> None:
     # paths share get_formatted_datetime(), so they stay byte-for-byte equal (#3683).
     dt = datetime(2025, 1, 1, 12, 34, 56, 789000, tzinfo=UTC)
     agent = Agent(
-        llm=LLM(model="claude-sonnet-4-5", usage_id="x"),
+        llm=LLM(model="haijun-codtral", usage_id="x"),
         tools=[],
         agent_context=AgentContext(current_datetime=dt),
     )
     assert agent._build_prompt_context().now == "2025-01-01T12:34"
 
     agent_str = Agent(
-        llm=LLM(model="claude-sonnet-4-5", usage_id="x"),
+        llm=LLM(model="haijun-codtral", usage_id="x"),
         tools=[],
         agent_context=AgentContext(current_datetime="2025-01-01T00:00:30+00:00"),
     )
@@ -373,7 +373,7 @@ def test_registry_dynamic_matches_legacy_with_datetime_object() -> None:
     # exercises: the registry reproduces dynamic_context byte-for-byte, datetime
     # rendered to the minute with no UTC offset.
     dt = datetime(2025, 1, 1, 12, 34, 56, 789000, tzinfo=UTC)
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(llm=llm, tools=[], agent_context=AgentContext(current_datetime=dt))
     ctx = agent._build_prompt_context()
     registry = create_registry().build(ctx).dynamic or ""
@@ -387,7 +387,7 @@ def test_registry_dynamic_matches_legacy_no_context_secrets(tmp_path: Path) -> N
     # next to <CUSTOM_SECRETS>. The registry must reproduce BOTH blocks, not just the
     # secrets one (#3683 QA). The datetime is a render-time `now()` each path stamps
     # independently, so mask that single line and assert the rest byte-for-byte.
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(llm=llm, tools=[])  # no agent_context
     state = ConversationState(
         id=uuid4(),

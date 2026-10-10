@@ -6,9 +6,9 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-import openhands.agent_server.server_details_router as sdr
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
+import handprint.agent_server.server_details_router as sdr
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
 
 
 @pytest.fixture(autouse=True)
@@ -100,14 +100,14 @@ def test_server_info_reports_configured_app_backend_bridge():
         payload = bridge_client.get("/server_info").json()
 
     assert payload["app_backend_ingress_url"] == "https://apps.example.test"
-    assert "canvas_app_backend_bridge_v1" in payload["capabilities"]
+    assert "viczin_app_backend_bridge_v1" in payload["capabilities"]
 
 
 def test_server_info_omits_unconfigured_app_backend_bridge(client):
     payload = client.get("/server_info").json()
 
     assert payload["app_backend_ingress_url"] is None
-    assert "canvas_app_backend_bridge_v1" not in payload["capabilities"]
+    assert "viczin_app_backend_bridge_v1" not in payload["capabilities"]
 
 
 def test_server_info_reports_configured_conversation_runtime(tmp_path, monkeypatch):

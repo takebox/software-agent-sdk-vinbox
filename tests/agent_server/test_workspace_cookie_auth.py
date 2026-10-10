@@ -12,15 +12,15 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.dependencies import (
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.dependencies import (
     WORKSPACE_SESSION_COOKIE_NAME,
     get_conversation_service,
 )
-from openhands.agent_server.event_service import EventService
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.agent_server.event_service import EventService
+from handprint.sdk.workspace import LocalWorkspace
 
 
 SESSION_KEY = "test-key-abc"
@@ -152,9 +152,9 @@ def test_mint_session_returns_cookie_attrs_over_https(client_factory):
     "host_header",
     [
         "localhost",
-        "localhost:8000",
+        "localhost:9000",
         "127.0.0.1",
-        "127.0.0.1:8000",
+        "127.0.0.1:9000",
     ],
 )
 def test_mint_session_marks_cookie_secure_on_loopback(client_factory, host_header):

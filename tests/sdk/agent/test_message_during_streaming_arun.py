@@ -1,6 +1,6 @@
 """A user message sent while the agent streams its final response must be seen.
 
-Regression for agent-canvas#1900: ``astep`` releases the state lock for the LLM
+Regression for agent-viczin#1900: ``astep`` releases the state lock for the LLM
 call, so a message can land mid-step with status still RUNNING; ``arun()`` used
 to break on FINISHED without rescanning, stranding it. Sync ``run()`` holds the
 lock across the step and never had the gap, and is used here as a control.
@@ -16,17 +16,17 @@ import pytest
 from litellm.types.utils import ModelResponse
 from pydantic import PrivateAttr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.conversation.state import ConversationExecutionStatus
-from openhands.sdk.event import MessageEvent
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.event.llm_convertible import UserRejectObservation
-from openhands.sdk.llm import LLM, LLMResponse, Message, MessageToolCall, TextContent
-from openhands.sdk.llm.utils.metrics import MetricsSnapshot, TokenUsage
-from openhands.sdk.security.confirmation_policy import AlwaysConfirm
-from openhands.sdk.tool import Tool, ToolDefinition, ToolExecutor, register_tool
-from openhands.sdk.tool.schema import Action, Observation
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.conversation.state import ConversationExecutionStatus
+from handprint.sdk.event import MessageEvent
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.event.llm_convertible import UserRejectObservation
+from handprint.sdk.llm import LLM, LLMResponse, Message, MessageToolCall, TextContent
+from handprint.sdk.llm.utils.metrics import MetricsSnapshot, TokenUsage
+from handprint.sdk.security.confirmation_policy import AlwaysConfirm
+from handprint.sdk.tool import Tool, ToolDefinition, ToolExecutor, register_tool
+from handprint.sdk.tool.schema import Action, Observation
 
 
 MODEL = "test-model"

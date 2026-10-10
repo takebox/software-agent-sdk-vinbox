@@ -38,14 +38,14 @@ from pathlib import Path
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Conversation,
     RemoteConversation,
     Tool,
     get_logger,
 )
-from openhands.workspace import DockerDevWorkspace
+from handprint.workspace import DockerDevWorkspace
 
 
 logger = get_logger(__name__)
@@ -127,8 +127,8 @@ with DockerDevWorkspace(
     # 5) Create agent with custom tools
     #    Note: We specify the tool here, but it's actually executed on the server
     #    Get default tools and add our custom tool
-    from openhands.sdk import Agent
-    from openhands.tools.preset.default import get_default_condenser, get_default_tools
+    from handprint.sdk import Agent
+    from handprint.tools.preset.default import get_default_condenser, get_default_tools
 
     tools = get_default_tools(enable_browser=False)
     # Add our custom tool!

@@ -5,19 +5,19 @@ import json
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.credential_binding import LocalVersionedCredentialBinding
-from openhands.agent_server.models import StartConversationRequest
-from openhands.agent_server.persistence import (
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.credential_binding import LocalVersionedCredentialBinding
+from handprint.agent_server.models import StartConversationRequest
+from handprint.agent_server.persistence import (
     FileSecretsStore,
     get_agent_profile_store,
     reset_stores,
 )
-from openhands.sdk.credential import CredentialAuthorizationRejected
-from openhands.sdk.profiles.agent_profile import ACPAgentProfile
-from openhands.sdk.secret import StaticSecret
-from openhands.sdk.utils.cipher import Cipher
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.credential import CredentialAuthorizationRejected
+from handprint.sdk.profiles.agent_profile import ACPAgentProfile
+from handprint.sdk.secret import StaticSecret
+from handprint.sdk.utils.cipher import Cipher
+from handprint.sdk.workspace import LocalWorkspace
 
 
 @pytest.fixture

@@ -10,39 +10,39 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.launch import (
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.launch import (
     container_browser_enabled,
     forward_to_runtime,
     launch_source,
     server_launch_stores,
     target_launch_runtime,
 )
-from openhands.agent_server.persistence import (
+from handprint.agent_server.persistence import (
     PersistedSettings,
     get_agent_profile_store,
     get_llm_profile_store,
     get_settings_store,
     reset_stores,
 )
-from openhands.sdk import LLM
-from openhands.sdk.conversation.request import StartConversationRequest
-from openhands.sdk.launch import finalize, preview_launch, resolve
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles import OpenHandsAgentProfile
-from openhands.sdk.settings.model import (
-    OpenHandsAgentSettings,
+from handprint.sdk import LLM
+from handprint.sdk.conversation.request import StartConversationRequest
+from handprint.sdk.launch import finalize, preview_launch, resolve
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles import HandprintAgentProfile
+from handprint.sdk.settings.model import (
+    HandprintAgentSettings,
     validate_agent_settings,
 )
-from openhands.sdk.skills import Skill
-from openhands.sdk.utils.cipher import Cipher
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.tracks import Track
+from handprint.sdk.utils.cipher import Cipher
+from handprint.sdk.workspace import LocalWorkspace
 
 
 CATALOG = [
-    Skill(name="alpha", content="a", description="alpha skill"),
-    Skill(name="beta", content="b", description="beta skill"),
+    Track(name="alpha", content="a", description="alpha track"),
+    Track(name="beta", content="b", description="beta track"),
 ]
 
 
@@ -60,7 +60,7 @@ def server(tmp_path, monkeypatch) -> Iterator[TestClient]:
     (tmp_path / "workspace").mkdir()
     get_settings_store(config).save(
         PersistedSettings(
-            agent_settings=OpenHandsAgentSettings(
+            agent_settings=HandprintAgentSettings(
                 mcp_config={
                     "fetch": MCPServer(command="echo", args=["fetch"]),
                     "other": MCPServer(command="echo", args=["other"]),
@@ -75,24 +75,24 @@ def server(tmp_path, monkeypatch) -> Iterator[TestClient]:
         cipher=config.cipher,
     )
     with (
-        patch("openhands.agent_server.launch.discover_profile_skills", lambda: CATALOG),
+        patch("handprint.agent_server.launch.discover_profile_tracks", lambda: CATALOG),
         TestClient(create_app(config)) as client,
     ):
         yield client
     reset_stores()
 
 
-def _save(profile: OpenHandsAgentProfile) -> OpenHandsAgentProfile:
+def _save(profile: HandprintAgentProfile) -> HandprintAgentProfile:
     get_agent_profile_store().save(profile)
     return profile
 
 
-def _profile(name: str) -> OpenHandsAgentProfile:
-    return OpenHandsAgentProfile(
+def _profile(name: str) -> HandprintAgentProfile:
+    return HandprintAgentProfile(
         name=name,
         llm_profile_ref="default",
         mcp_server_refs=["fetch"],
-        disabled_skills=["beta"],
+        disabled_tracks=["beta"],
         system_message_suffix="PROFILE SUFFIX",
         tool_concurrency_limit=3,
     )
@@ -101,7 +101,7 @@ def _profile(name: str) -> OpenHandsAgentProfile:
 def _launch(client: TestClient, workspace: str, **source: Any) -> dict[str, Any]:
     response = client.post(
         "/api/conversations",
-        params={"include_skills": True},
+        params={"include_tracks": True},
         json={"workspace": {"working_dir": workspace}, **source},
     )
     assert response.status_code == 201, response.text
@@ -125,10 +125,10 @@ def _agent_view(agent: dict[str, Any]) -> dict[str, Any]:
         "tools": [tool["name"] for tool in agent["tools"]],
         "include_default_tools": agent["include_default_tools"],
         "mcp": sorted(agent["mcp_config"]),
-        "skills": [skill["name"] for skill in context["skills"]],
+        "tracks": [track["name"] for track in context["tracks"]],
         "suffix": context["system_message_suffix"],
-        "disabled_skills": context["disabled_skills"],
-        "load_project_skills": context["load_project_skills"],
+        "disabled_tracks": context["disabled_tracks"],
+        "load_project_tracks": context["load_project_tracks"],
         "tool_concurrency_limit": agent["tool_concurrency_limit"],
         "condenser": (agent["condenser"] or {}).get("kind"),
     }
@@ -137,7 +137,7 @@ def _agent_view(agent: dict[str, Any]) -> dict[str, Any]:
 @pytest.mark.parametrize("browser", [True, False])
 def test_materialize_matches_a_stored_profile_launch(server, tmp_path, browser):
     profile = _save(_profile("named"))
-    with patch("openhands.agent_server.launch.is_tool_usable", return_value=browser):
+    with patch("handprint.agent_server.launch.is_tool_usable", return_value=browser):
         preview = server.post(f"/api/agent-profiles/{profile.name}/materialize").json()
         launched = _launch(
             server, str(tmp_path / "workspace"), agent_profile_id=str(profile.id)
@@ -148,8 +148,8 @@ def test_materialize_matches_a_stored_profile_launch(server, tmp_path, browser):
     settings = preview["resolved_settings"]
     assert _preview_tool_view(settings) == _tool_view(agent)
     assert ("browser_tool_set" in _tool_view(agent)[0]) is browser
-    assert preview["resolved_skills"] == [
-        skill["name"] for skill in agent["agent_context"]["skills"]
+    assert preview["resolved_tracks"] == [
+        track["name"] for track in agent["agent_context"]["tracks"]
     ]
     assert settings["llm"]["model"] == agent["llm"]["model"]
     assert sorted(settings["mcp_config"]) == sorted(agent["mcp_config"])
@@ -165,7 +165,7 @@ def test_default_and_a_copy_of_it_launch_the_same_agent(server, tmp_path):
     copy = _save(_profile("default-copy"))
     workspace = str(tmp_path / "workspace")
 
-    with patch("openhands.agent_server.launch.is_tool_usable", return_value=True):
+    with patch("handprint.agent_server.launch.is_tool_usable", return_value=True):
         from_default = _launch(server, workspace, agent_profile_id=str(default.id))
         from_copy = _launch(server, workspace, agent_profile_id=str(copy.id))
 
@@ -183,7 +183,7 @@ def test_stored_and_agent_settings_sources_launch_the_same_agent(server, tmp_pat
         mode="json", context={"expose_secrets": True}
     )
 
-    with patch("openhands.agent_server.launch.is_tool_usable", return_value=True):
+    with patch("handprint.agent_server.launch.is_tool_usable", return_value=True):
         from_stored = _launch(server, workspace, agent_profile_id=str(stored.id))
         from_settings = _launch(server, workspace, agent_settings=agent_settings)
 
@@ -223,11 +223,11 @@ def test_a_docker_host_preview_matches_what_the_container_launches(
     container = host.model_copy(
         update={
             "conversation_runtime": "local",
-            "acp_skill_sourcing": "openhands_managed",
+            "acp_track_sourcing": "handprint_managed",
             "enable_browser": container_browser_enabled(host),
         }
     )
-    with patch("openhands.agent_server.launch.is_tool_usable", return_value=True):
+    with patch("handprint.agent_server.launch.is_tool_usable", return_value=True):
         agent = finalize(
             launch_source(received, lambda: stores, container_cipher),
             target_launch_runtime(container),
@@ -238,4 +238,4 @@ def test_a_docker_host_preview_matches_what_the_container_launches(
     assert _preview_tool_view(preview.resolved_settings) == launched_tools
     assert ("browser_tool_set" in launched_tools[0]) is image_has_browser
     assert agent.agent_context is not None
-    assert preview.resolved_skills == [s.name for s in agent.agent_context.skills]
+    assert preview.resolved_tracks == [s.name for s in agent.agent_context.tracks]

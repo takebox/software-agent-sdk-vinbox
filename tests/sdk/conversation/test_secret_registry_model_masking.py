@@ -7,9 +7,9 @@ from typing import NamedTuple
 import mcp.types
 from pydantic import BaseModel, SecretStr
 
-from openhands.sdk.conversation.secret_registry import SecretRegistry
-from openhands.sdk.llm import ImageContent
-from openhands.sdk.mcp import MCPToolObservation
+from handprint.sdk.conversation.secret_registry import SecretRegistry
+from handprint.sdk.llm import ImageContent
+from handprint.sdk.mcp import MCPToolObservation
 
 
 SECRET = "sk-supersecret-value"

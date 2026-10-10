@@ -1,9 +1,9 @@
 import { HttpError, type ResponseType } from './http-client';
 import {
-  OpenHandsClient,
-  type OpenHandsClientOptions,
-  type OpenHandsRequestOptions,
-} from './openhands-client';
+  HandprintClient,
+  type HandprintClientOptions,
+  type HandprintRequestOptions,
+} from './handprint-client';
 import {
   pollForToken,
   startDeviceFlow,
@@ -32,14 +32,14 @@ export interface CloudProxyOptions {
   path?: string;
 }
 
-export interface CloudClientOptions extends OpenHandsClientOptions {
+export interface CloudClientOptions extends HandprintClientOptions {
   /** Locally selected org. Sent as `X-Org-Id` on cloud app-host requests. */
   orgId?: string | null;
   /** Runtime-sandbox requests with `hostOverride` are tunneled through this proxy. */
   proxy?: CloudProxyOptions;
 }
 
-export interface CloudRequestOptions extends OpenHandsRequestOptions {
+export interface CloudRequestOptions extends HandprintRequestOptions {
   timeoutSeconds?: number;
 }
 
@@ -91,7 +91,7 @@ export interface CloudSettingsResponse {
   condenser_max_size?: number | null;
   provider_tokens_set?: Partial<Record<string, string | null>>;
   mcp_config?: Record<string, CloudSettingsValue>;
-  disabled_skills?: string[];
+  disabled_tracks?: string[];
   agent_settings?: Record<string, CloudSettingsValue> | null;
   conversation_settings?: Record<string, CloudSettingsValue> | null;
   agent_settings_schema?: unknown;
@@ -113,9 +113,9 @@ export interface CloudSecret {
 
 export type CloudSecretWithoutValue = Omit<CloudSecret, 'value'>;
 
-export interface CloudSkillInfo {
+export interface CloudTrackInfo {
   name: string;
-  type: 'repo' | 'knowledge' | 'agentskills';
+  type: 'repo' | 'knowledge' | 'agenttracks';
   source?: string | null;
   description?: string | null;
   triggers?: string[];
@@ -124,7 +124,7 @@ export interface CloudSkillInfo {
   compatibility?: string | null;
   metadata?: Record<string, string> | null;
   allowed_tools?: string[] | null;
-  is_agentskills_format?: boolean;
+  is_agenttracks_format?: boolean;
   disable_model_invocation?: boolean;
   content?: string;
 }
@@ -246,15 +246,15 @@ interface CloudSecretsPage {
   next_page_id: string | null;
 }
 
-interface CloudSkillsPage {
-  items: CloudSkillInfo[];
+interface CloudTracksPage {
+  items: CloudTrackInfo[];
   next_page_id: string | null;
 }
 
 const SETTINGS_PROFILES_PATH = '/api/v1/settings/profiles';
 const DEFAULT_PAGE_LIMIT = 100;
 
-export class CloudClient extends OpenHandsClient {
+export class CloudClient extends HandprintClient {
   readonly kind = 'cloud' as const;
   readonly orgId: string | null;
   readonly proxy?: CloudProxyOptions;
@@ -443,17 +443,17 @@ export class CloudClient extends OpenHandsClient {
     await this.delete(`/api/v1/secrets/${encodeURIComponent(name)}`);
   }
 
-  async listSkills(): Promise<CloudSkillInfo[]> {
-    const skills: CloudSkillInfo[] = [];
+  async listTracks(): Promise<CloudTrackInfo[]> {
+    const tracks: CloudTrackInfo[] = [];
     let pageId: string | null = null;
     do {
       const query = new URLSearchParams({ limit: String(DEFAULT_PAGE_LIMIT) });
       if (pageId) query.set('page_id', pageId);
-      const page = await this.get<CloudSkillsPage>(`/api/v1/skills/search?${query.toString()}`);
-      skills.push(...(page.items ?? []));
+      const page = await this.get<CloudTracksPage>(`/api/v1/tracks/search?${query.toString()}`);
+      tracks.push(...(page.items ?? []));
       pageId = page.next_page_id;
     } while (pageId);
-    return skills;
+    return tracks;
   }
 
   searchRepositories(args: {

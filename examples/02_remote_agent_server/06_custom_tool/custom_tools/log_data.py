@@ -14,14 +14,14 @@ from typing import Any
 
 from pydantic import Field
 
-from openhands.sdk import (
+from handprint.sdk import (
     Action,
     ImageContent,
     Observation,
     TextContent,
     ToolDefinition,
 )
-from openhands.sdk.tool import ToolExecutor, register_tool
+from handprint.sdk.tool import ToolExecutor, register_tool
 
 
 # --- Enums and Models ---

@@ -8,19 +8,19 @@ rename of that field (which would silently no-op the whole feature) is caught.
 
 from pathlib import Path
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import ActionEvent, ObservationEvent
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.skills import PathTrigger, Skill
-from openhands.sdk.testing import TestLLM
-from openhands.tools.file_editor import FileEditorAction, FileEditorObservation
-from openhands.tools.file_editor.definition import CommandLiteral
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import ActionEvent, ObservationEvent
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.tracks import PathTrigger, Track
+from handprint.sdk.testing import TestLLM
+from handprint.tools.file_editor import FileEditorAction, FileEditorObservation
+from handprint.tools.file_editor.definition import CommandLiteral
 
 
 def _conversation(tmp_path: Path) -> LocalConversation:
-    rule = Skill(
+    rule = Track(
         name="api",
         content="Use zod for API validation.",
         trigger=PathTrigger(paths=["src/api/**/*.ts"]),
@@ -32,7 +32,7 @@ def _conversation(tmp_path: Path) -> LocalConversation:
         ),
         tools=[],
         include_default_tools=[],
-        agent_context=AgentContext(skills=[rule]),
+        agent_context=AgentContext(tracks=[rule]),
     )
     return LocalConversation(
         agent=agent,
@@ -117,7 +117,7 @@ def test_real_file_editor_action_nonmatching_path(tmp_path: Path) -> None:
 
 
 def test_real_file_editor_create_command_triggers_rule(tmp_path: Path) -> None:
-    """Rules fire on ``create`` too (beats Claude Code's Write/create gap)."""
+    """Rules fire on ``create`` too (beats Haijun Code's Write/create gap)."""
     conv = _conversation(tmp_path)
     try:
         action_event = _action_event(

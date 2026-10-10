@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.context.condenser import LLMSummarizingCondenser, NoOpCondenser
-from openhands.sdk.hooks.config import HookConfig, HookDefinition, HookMatcher
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.mcp.config import MCPServer, dump_mcp_config
-from openhands.sdk.subagent.registry import (
+from handprint.sdk import LLM, Agent
+from handprint.sdk.context.condenser import LLMSummarizingCondenser, NoOpCondenser
+from handprint.sdk.hooks.config import HookConfig, HookDefinition, HookMatcher
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.mcp.config import MCPServer, dump_mcp_config
+from handprint.sdk.subagent.registry import (
     _reset_registry_for_tests,
     agent_definition_to_factory,
     get_agent_factory,
@@ -20,7 +20,7 @@ from openhands.sdk.subagent.registry import (
     register_file_agents,
     register_plugin_agents,
 )
-from openhands.sdk.subagent.schema import AgentDefinition
+from handprint.sdk.subagent.schema import AgentDefinition
 
 
 def setup_function() -> None:
@@ -40,10 +40,10 @@ def _make_test_llm() -> LLM:
     )
 
 
-def _create_skill_file(skills_dir: Path, name: str, content: str) -> None:
-    """Create a skill .md file in the given skills directory."""
-    skill_file = skills_dir / f"{name}.md"
-    skill_file.write_text(
+def _create_track_file(tracks_dir: Path, name: str, content: str) -> None:
+    """Create a track .md file in the given tracks directory."""
+    track_file = tracks_dir / f"{name}.md"
+    track_file.write_text(
         f"---\nname: {name}\ntriggers:\n  - {name}\n---\n\n{content}\n"
     )
 
@@ -66,7 +66,7 @@ def test_register_file_agents_project_priority(tmp_path: Path) -> None:
         "---\nname: shared-agent\ndescription: User version\n---\n\nUser prompt."
     )
 
-    with patch("openhands.sdk.subagent.load.Path.home", return_value=user_home):
+    with patch("handprint.sdk.subagent.load.Path.home", return_value=user_home):
         registered = register_file_agents(tmp_path)
 
     assert "shared-agent" in registered
@@ -96,7 +96,7 @@ def test_register_file_agents_skips_programmatic(tmp_path: Path) -> None:
     )
 
     with patch(
-        "openhands.sdk.subagent.load.Path.home", return_value=tmp_path / "no_user"
+        "handprint.sdk.subagent.load.Path.home", return_value=tmp_path / "no_user"
     ):
         registered = register_file_agents(tmp_path)
 
@@ -191,7 +191,7 @@ def test_agent_definition_to_factory_basic() -> None:
     assert isinstance(agent, Agent)
     # Check tools are empty
     assert agent.tools == []
-    # Check skill (system prompt as always-active skill)
+    # Check track (system prompt as always-active track)
     assert agent.agent_context is not None
     assert agent.agent_context.system_message_suffix == "You are a test agent."
 
@@ -219,7 +219,7 @@ def test_agent_definition_to_factory_model_override() -> None:
     agent_def = AgentDefinition(
         name="override-agent",
         description="Uses specific model",
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         tools=[],
         system_prompt="Test prompt.",
     )
@@ -247,20 +247,20 @@ def test_agent_definition_to_factory_no_system_prompt() -> None:
     assert agent.agent_context is None
 
 
-def test_agent_definition_to_factory_with_skills(tmp_path: Path) -> None:
-    """Factory resolves skill names and passes them to AgentContext."""
-    # Create a skill file in project directory
-    skills_dir = tmp_path / ".agents" / "skills"
-    skills_dir.mkdir(parents=True)
-    _create_skill_file(skills_dir, "test-skill", "Skill content here.")
+def test_agent_definition_to_factory_with_tracks(tmp_path: Path) -> None:
+    """Factory resolves track names and passes them to AgentContext."""
+    # Create a track file in project directory
+    tracks_dir = tmp_path / ".agents" / "tracks"
+    tracks_dir.mkdir(parents=True)
+    _create_track_file(tracks_dir, "test-track", "Track content here.")
 
     agent_def = AgentDefinition(
-        name="skilled-agent",
-        description="Agent with skills",
+        name="tracked-agent",
+        description="Agent with tracks",
         model="inherit",
         tools=[],
-        skills=["test-skill"],
-        system_prompt="You are a skilled agent.",
+        tracks=["test-track"],
+        system_prompt="You are a tracked agent.",
     )
 
     factory = agent_definition_to_factory(agent_def, work_dir=tmp_path)
@@ -268,24 +268,24 @@ def test_agent_definition_to_factory_with_skills(tmp_path: Path) -> None:
     agent = factory(llm)
 
     assert agent.agent_context is not None
-    assert len(agent.agent_context.skills) == 1
-    assert agent.agent_context.skills[0].name == "test-skill"
-    assert "Skill content here." in agent.agent_context.skills[0].content
-    assert agent.agent_context.system_message_suffix == "You are a skilled agent."
+    assert len(agent.agent_context.tracks) == 1
+    assert agent.agent_context.tracks[0].name == "test-track"
+    assert "Track content here." in agent.agent_context.tracks[0].content
+    assert agent.agent_context.system_message_suffix == "You are a tracked agent."
 
 
-def test_agent_definition_to_factory_skills_only_no_prompt(tmp_path: Path) -> None:
-    """Factory with skills but no system prompt still creates AgentContext."""
-    skills_dir = tmp_path / ".agents" / "skills"
-    skills_dir.mkdir(parents=True)
-    _create_skill_file(skills_dir, "only-skill", "Only skill content.")
+def test_agent_definition_to_factory_tracks_only_no_prompt(tmp_path: Path) -> None:
+    """Factory with tracks but no system prompt still creates AgentContext."""
+    tracks_dir = tmp_path / ".agents" / "tracks"
+    tracks_dir.mkdir(parents=True)
+    _create_track_file(tracks_dir, "only-track", "Only track content.")
 
     agent_def = AgentDefinition(
-        name="skills-only-agent",
-        description="Agent with skills but no prompt",
+        name="tracks-only-agent",
+        description="Agent with tracks but no prompt",
         model="inherit",
         tools=[],
-        skills=["only-skill"],
+        tracks=["only-track"],
         system_prompt="",
     )
 
@@ -294,19 +294,19 @@ def test_agent_definition_to_factory_skills_only_no_prompt(tmp_path: Path) -> No
     agent = factory(llm)
 
     assert agent.agent_context is not None
-    assert len(agent.agent_context.skills) == 1
-    assert agent.agent_context.skills[0].name == "only-skill"
+    assert len(agent.agent_context.tracks) == 1
+    assert agent.agent_context.tracks[0].name == "only-track"
     assert agent.agent_context.system_message_suffix is None
 
 
-def test_agent_definition_to_factory_no_skills_no_prompt() -> None:
-    """Factory with no skills and no prompt creates no AgentContext."""
+def test_agent_definition_to_factory_no_tracks_no_prompt() -> None:
+    """Factory with no tracks and no prompt creates no AgentContext."""
     agent_def = AgentDefinition(
         name="empty-agent",
-        description="No skills no prompt",
+        description="No tracks no prompt",
         model="inherit",
         tools=[],
-        skills=[],
+        tracks=[],
         system_prompt="",
     )
 
@@ -317,47 +317,47 @@ def test_agent_definition_to_factory_no_skills_no_prompt() -> None:
     assert agent.agent_context is None
 
 
-def test_agent_definition_to_factory_skill_not_found() -> None:
-    """Factory raises ValueError when a skill name is not found."""
+def test_agent_definition_to_factory_track_not_found() -> None:
+    """Factory raises ValueError when a track name is not found."""
     agent_def = AgentDefinition(
-        name="missing-skill-agent",
-        description="Agent with missing skill",
+        name="missing-track-agent",
+        description="Agent with missing track",
         model="inherit",
-        skills=["nonexistent-skill"],
+        tracks=["nonexistent-track"],
     )
 
-    with pytest.raises(ValueError, match="Skill 'nonexistent-skill' not found"):
+    with pytest.raises(ValueError, match="Track 'nonexistent-track' not found"):
         agent_definition_to_factory(agent_def)
 
 
-def test_agent_definition_to_factory_skills_project_over_user(tmp_path: Path) -> None:
-    """Project skills take priority over user skills with the same name."""
-    # Create project-level skill
-    project_skills_dir = tmp_path / ".agents" / "skills"
-    project_skills_dir.mkdir(parents=True)
-    _create_skill_file(project_skills_dir, "shared-skill", "Project version.")
+def test_agent_definition_to_factory_tracks_project_over_user(tmp_path: Path) -> None:
+    """Project tracks take priority over user tracks with the same name."""
+    # Create project-level track
+    project_tracks_dir = tmp_path / ".agents" / "tracks"
+    project_tracks_dir.mkdir(parents=True)
+    _create_track_file(project_tracks_dir, "shared-track", "Project version.")
 
-    # Create user-level skill with same name
+    # Create user-level track with same name
     user_home = tmp_path / "fake_home"
-    user_skills_dir = user_home / ".agents" / "skills"
-    user_skills_dir.mkdir(parents=True)
-    _create_skill_file(user_skills_dir, "shared-skill", "User version.")
+    user_tracks_dir = user_home / ".agents" / "tracks"
+    user_tracks_dir.mkdir(parents=True)
+    _create_track_file(user_tracks_dir, "shared-track", "User version.")
 
     agent_def = AgentDefinition(
         name="priority-agent",
-        skills=["shared-skill"],
+        tracks=["shared-track"],
     )
 
-    with patch("openhands.sdk.skills.skill.Path.home", return_value=user_home):
+    with patch("handprint.sdk.tracks.track.Path.home", return_value=user_home):
         factory = agent_definition_to_factory(agent_def, work_dir=tmp_path)
 
     llm = _make_test_llm()
     agent = factory(llm)
 
     assert agent.agent_context is not None
-    assert len(agent.agent_context.skills) == 1
+    assert len(agent.agent_context.tracks) == 1
     # Project version should win
-    assert "Project version." in agent.agent_context.skills[0].content
+    assert "Project version." in agent.agent_context.tracks[0].content
 
 
 def test_factory_info() -> None:
@@ -474,7 +474,7 @@ def test_agent_definition_to_factory_model_profile(tmp_path: Path) -> None:
     """Profile name loads a complete LLM from the profile store."""
     store = LLMProfileStore(base_dir=tmp_path)
     profile_llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("profile-key"),
         usage_id="profile-llm",
         temperature=0.3,
@@ -492,13 +492,13 @@ def test_agent_definition_to_factory_model_profile(tmp_path: Path) -> None:
     factory = agent_definition_to_factory(agent_def)
     parent_llm = _make_test_llm()
     with patch(
-        "openhands.sdk.subagent.registry._get_profile_store", return_value=store
+        "handprint.sdk.subagent.registry._get_profile_store", return_value=store
     ):
         agent = factory(parent_llm)
 
     # The agent's LLM should come from the profile, not the parent
     assert agent.llm is not parent_llm
-    assert agent.llm.model == "claude-sonnet-4-20250514"
+    assert agent.llm.model == "haijun-codtral"
     assert agent.llm.temperature == 0.3
     assert agent.llm.stream is False
     # Metrics must be independent from the parent LLM
@@ -511,7 +511,7 @@ def test_agent_definition_to_factory_model_profile_with_json_suffix(
     """Profile name with .json suffix is accepted and loads correctly."""
     store = LLMProfileStore(base_dir=tmp_path)
     profile_llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("profile-key"),
         usage_id="profile-llm",
         temperature=0.3,
@@ -529,12 +529,12 @@ def test_agent_definition_to_factory_model_profile_with_json_suffix(
     factory = agent_definition_to_factory(agent_def)
     parent_llm = _make_test_llm()
     with patch(
-        "openhands.sdk.subagent.registry._get_profile_store", return_value=store
+        "handprint.sdk.subagent.registry._get_profile_store", return_value=store
     ):
         agent = factory(parent_llm)
 
     assert agent.llm is not parent_llm
-    assert agent.llm.model == "claude-sonnet-4-20250514"
+    assert agent.llm.model == "haijun-codtral"
     assert agent.llm.temperature == 0.3
 
 
@@ -554,7 +554,7 @@ def test_agent_definition_to_factory_model_profile_not_found(tmp_path: Path) -> 
     parent_llm = _make_test_llm()
 
     with patch(
-        "openhands.sdk.subagent.registry._get_profile_store", return_value=store
+        "handprint.sdk.subagent.registry._get_profile_store", return_value=store
     ):
         with pytest.raises(ValueError, match="nonexistent"):
             factory(parent_llm)
@@ -581,7 +581,7 @@ def test_agent_definition_to_factory_model_profile_custom_store(tmp_path: Path) 
     factory = agent_definition_to_factory(agent_def)
     parent_llm = _make_test_llm()
     with patch(
-        "openhands.sdk.subagent.registry._get_profile_store", return_value=custom_store
+        "handprint.sdk.subagent.registry._get_profile_store", return_value=custom_store
     ):
         agent = factory(parent_llm)
 
@@ -641,7 +641,7 @@ def test_agent_definition_to_factory_profile_store_dir_none_uses_default(
     """When profile_store_dir is None, the default cached store is used."""
     store = LLMProfileStore(base_dir=tmp_path)
     profile_llm = LLM(
-        model="claude-sonnet-4-20250514",
+        model="haijun-codtral",
         api_key=SecretStr("default-key"),
         usage_id="default-llm",
     )
@@ -659,11 +659,11 @@ def test_agent_definition_to_factory_profile_store_dir_none_uses_default(
     parent_llm = _make_test_llm()
 
     with patch(
-        "openhands.sdk.subagent.registry._get_profile_store", return_value=store
+        "handprint.sdk.subagent.registry._get_profile_store", return_value=store
     ):
         agent = factory(parent_llm)
 
-    assert agent.llm.model == "claude-sonnet-4-20250514"
+    assert agent.llm.model == "haijun-codtral"
 
 
 def test_register_agent_with_hook_config() -> None:
@@ -732,7 +732,7 @@ def test_register_file_agents_with_hooks(tmp_path: Path) -> None:
     )
 
     with patch(
-        "openhands.sdk.subagent.load.Path.home", return_value=tmp_path / "no_user"
+        "handprint.sdk.subagent.load.Path.home", return_value=tmp_path / "no_user"
     ):
         registered = register_file_agents(tmp_path)
 
@@ -867,7 +867,7 @@ def test_register_file_agents_passes_mcp_config_to_agent(tmp_path: Path) -> None
     )
 
     with patch(
-        "openhands.sdk.subagent.load.Path.home", return_value=tmp_path / "no_user"
+        "handprint.sdk.subagent.load.Path.home", return_value=tmp_path / "no_user"
     ):
         registered = register_file_agents(tmp_path)
 

@@ -1,7 +1,7 @@
 """Tests for the installed-plugin management router (plugins_router).
 
 Drives the endpoints through a TestClient against a temp install store (the SDK
-default install dir is redirected), so nothing touches the real ~/.openhands.
+default install dir is redirected), so nothing touches the real ~/.handprint.
 """
 
 import json
@@ -11,8 +11,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.plugins_router import plugins_router
-from openhands.sdk.plugin import Plugin
+from handprint.agent_server.plugins_router import plugins_router
+from handprint.sdk.plugin import Plugin
 
 
 def _make_installable_plugin(plugin_dir: Path, name: str) -> Path:
@@ -31,7 +31,7 @@ def client(tmp_path: Path, monkeypatch) -> TestClient:
     store = tmp_path / "installed-store"
     store.mkdir()
     monkeypatch.setattr(
-        "openhands.sdk.plugin.installed.DEFAULT_INSTALLED_PLUGINS_DIR", store
+        "handprint.sdk.plugin.installed.DEFAULT_INSTALLED_PLUGINS_DIR", store
     )
     app = FastAPI()
     app.include_router(plugins_router)
@@ -107,7 +107,7 @@ def test_refresh_returns_updated_plugin(client: TestClient, tmp_path: Path):
     assert refreshed.json()["plugin"]["name"] == "demo-plugin"
 
 
-def test_installed_plugin_carries_bundled_skills(client: TestClient, tmp_path: Path):
+def test_installed_plugin_carries_bundled_tracks(client: TestClient, tmp_path: Path):
     src = _make_installable_plugin(tmp_path / "src", "demo-plugin")
     commands = src / "commands"
     commands.mkdir()
@@ -117,7 +117,7 @@ def test_installed_plugin_carries_bundled_skills(client: TestClient, tmp_path: P
     listed = client.get("/plugins/installed")
 
     assert listed.status_code == 200
-    assert listed.json()["plugins"][0]["skills"] == [
+    assert listed.json()["plugins"][0]["tracks"] == [
         {"name": "demo-plugin:greet", "description": "Say hello"}
     ]
 
@@ -149,7 +149,7 @@ def test_corrupt_installed_plugin_degrades_to_metadata_only(
 
     assert got.status_code == 200
     assert got.json()["name"] == "demo-plugin"
-    assert got.json()["skills"] is None
+    assert got.json()["tracks"] is None
     assert got.json()["files"] is None
 
 
@@ -162,7 +162,7 @@ def test_list_available_returns_plugin_summaries(
         _make_installable_plugin(tmp_path / "avail", "available-plugin")
     )
     monkeypatch.setattr(
-        "openhands.sdk.plugin.load_available_plugins",
+        "handprint.sdk.plugin.load_available_plugins",
         lambda **kwargs: {plugin.name: plugin},
         raising=False,
     )
@@ -177,7 +177,7 @@ def test_list_available_returns_plugin_summaries(
                 "version": "1.0.0",
                 "description": "available-plugin",
                 "path": plugin.path,
-                "skills": [],
+                "tracks": [],
                 "files": [".plugin/plugin.json"],
             }
         ]

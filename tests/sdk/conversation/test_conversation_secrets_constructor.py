@@ -6,13 +6,13 @@ from unittest.mock import patch
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.conversation.impl.remote_conversation import RemoteConversation
-from openhands.sdk.llm import LLM
-from openhands.sdk.secret import SecretSource
-from openhands.sdk.workspace import RemoteWorkspace
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.conversation.impl.remote_conversation import RemoteConversation
+from handprint.sdk.llm import LLM
+from handprint.sdk.secret import SecretSource
+from handprint.sdk.workspace import RemoteWorkspace
 
 from .conftest import create_mock_http_client
 
@@ -173,13 +173,13 @@ def test_remote_conversation_constructor_with_secrets(api_key):
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create a RemoteWorkspace
         workspace = RemoteWorkspace(
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key=api_key,
             working_dir="/workspace/project",
         )
@@ -216,13 +216,13 @@ def test_remote_conversation_constructor_with_callable_secrets():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create a RemoteWorkspace
         workspace = RemoteWorkspace(
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key="test-api-key",
             working_dir="/workspace/project",
         )
@@ -258,13 +258,13 @@ def test_remote_conversation_constructor_without_secrets():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         # Create a RemoteWorkspace
         workspace = RemoteWorkspace(
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key="test-api-key",
             working_dir="/workspace/project",
         )
@@ -307,12 +307,12 @@ def test_conversation_factory_routing_with_secrets():
     with (
         patch("httpx.Client", return_value=mock_client_instance),
         patch(
-            "openhands.sdk.conversation.impl.remote_conversation"
+            "handprint.sdk.conversation.impl.remote_conversation"
             ".WebSocketCallbackClient"
         ),
     ):
         workspace = RemoteWorkspace(
-            host="http://localhost:3000",
+            host="http://localhost:4000",
             api_key="test-api-key",
             working_dir="/workspace/project",
         )

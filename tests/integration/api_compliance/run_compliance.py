@@ -15,7 +15,7 @@ Usage:
 
     # Run against specific models
     uv run python tests/integration/api_compliance/run_compliance.py \
-        --models claude-sonnet-4-5,gpt-5.5
+        --models haijun-codtral,gpt-5.5
 
     # Output to specific directory
     uv run python tests/integration/api_compliance/run_compliance.py \
@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from openhands.sdk.logger import get_logger
+from handprint.sdk.logger import get_logger
 from tests.integration.api_compliance.base import BaseAPIComplianceTest, create_test_llm
 from tests.integration.api_compliance.result import (
     APIResponse,
@@ -47,10 +47,10 @@ logger = get_logger(__name__)
 # Each entry has: model path, optional config overrides, and short display name
 # Note: Avoid reasoning models (deepseek-reasoner) as they require special fields
 DEFAULT_MODELS: dict[str, dict[str, Any]] = {
-    "claude-sonnet-4-5": {
-        "model": "litellm_proxy/claude-sonnet-4-5-20250929",
+    "haijun-codtral": {
+        "model": "litellm_proxy/haijun-codtral",
         "temperature": 0.0,
-        "_display": "claude",
+        "_display": "haijun",
     },
     "gpt-5.5": {
         "model": "litellm_proxy/openai/gpt-5.5",

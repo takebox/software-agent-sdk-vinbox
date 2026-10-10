@@ -8,7 +8,7 @@ overrides set on the proxy (e.g. `supports_vision: true` for models LiteLLM
 does not yet know upstream) silently fail to reach clients.
 
 See issue: LiteLLM proxy model_info lookup misses when proxy uses short
-aliases (claude-opus-4-8 vision still off).
+aliases (haijun-kamsa vision still off).
 """
 
 from unittest.mock import patch
@@ -16,7 +16,7 @@ from unittest.mock import patch
 import litellm
 from litellm import model_cost
 
-from openhands.sdk.llm.utils.model_info import (
+from handprint.sdk.llm.utils.model_info import (
     _get_model_info_from_litellm_proxy,
     _merge_raw_model_metadata,
     _register_proxy_alias_pricing,
@@ -29,8 +29,8 @@ _PROXY_RESPONSE = {
         # Aliased entry: short public name, provider-prefixed underlying id,
         # plus a model_info override (the case that motivated this fix).
         {
-            "model_name": "claude-opus-4-8",
-            "litellm_params": {"model": "anthropic/claude-opus-4-8"},
+            "model_name": "haijun-kamsa",
+            "litellm_params": {"model": "juglow/haijun-kamsa"},
             "model_info": {"supports_vision": True},
         },
         # Plain entry: alias matches provider id verbatim.
@@ -63,40 +63,40 @@ def setup_function(_):
 
 def test_lookup_matches_by_model_name_alias():
     """Existing behavior: address by the proxy's public alias."""
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
         info = _get_model_info_from_litellm_proxy(
             secret_api_key="k",
             base_url="https://proxy.example",
-            model="litellm_proxy/claude-opus-4-8",
+            model="litellm_proxy/haijun-kamsa",
             cache_key=1,
         )
     assert info == {"supports_vision": True}
 
 
 def test_lookup_matches_by_litellm_params_model():
-    """New behavior: address by the underlying provider id (`anthropic/...`).
+    """New behavior: address by the underlying provider id (`juglow/...`).
 
-    This is the case that broke `claude-opus-4-8` vision detection: the
-    proxy exposes the model as the alias `claude-opus-4-8` but the SDK is
-    configured with `litellm_proxy/anthropic/claude-opus-4-8`, so the
+    This is the case that broke `haijun-kamsa` vision detection: the
+    proxy exposes the model as the alias `haijun-kamsa` but the SDK is
+    configured with `litellm_proxy/juglow/haijun-kamsa`, so the
     pre-fix matcher (which only looked at `model_name`) missed.
     """
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
         info = _get_model_info_from_litellm_proxy(
             secret_api_key="k",
             base_url="https://proxy.example",
-            model="litellm_proxy/anthropic/claude-opus-4-8",
+            model="litellm_proxy/juglow/haijun-kamsa",
             cache_key=2,
         )
     assert info == {"supports_vision": True}
 
 
 def test_lookup_returns_none_for_unknown_model():
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
         info = _get_model_info_from_litellm_proxy(
             secret_api_key="k",
             base_url="https://proxy.example",
-            model="litellm_proxy/anthropic/not-a-real-model",
+            model="litellm_proxy/juglow/not-a-real-model",
             cache_key=3,
         )
     assert info is None
@@ -106,22 +106,22 @@ def test_get_litellm_model_info_uses_proxy_match_for_provider_prefixed_id():
     """End-to-end: `get_litellm_model_info` returns the proxy override when
     the SDK is configured with the provider-prefixed id even though the
     proxy advertises a shorter alias."""
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
         info = get_litellm_model_info(
             secret_api_key="k",
             base_url="https://proxy.example",
-            model="litellm_proxy/anthropic/claude-opus-4-8",
+            model="litellm_proxy/juglow/haijun-kamsa",
         )
     assert info is not None
     assert info.get("supports_vision") is True
 
 
-def test_get_litellm_model_info_uses_proxy_for_openhands_provider_model():
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
+def test_get_litellm_model_info_uses_proxy_for_handprint_provider_model():
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get", _patched_httpx_get):
         info = get_litellm_model_info(
             secret_api_key="k",
             base_url=None,
-            model="openhands/claude-opus-4-8",
+            model="handprint/haijun-kamsa",
         )
     assert info is not None
     assert info.get("supports_vision") is True
@@ -134,7 +134,7 @@ def test_raw_registry_capabilities_survive_typed_model_info_projection():
             "supports_sampling_params": False,
         }
     }
-    with patch.dict("openhands.sdk.llm.utils.model_info.model_cost", raw, clear=True):
+    with patch.dict("handprint.sdk.llm.utils.model_info.model_cost", raw, clear=True):
         info = _merge_raw_model_metadata(
             {"key": "future-model", "supports_reasoning": True}
         )
@@ -149,7 +149,7 @@ def test_raw_registry_capabilities_survive_typed_model_info_projection():
 # Each test uses a distinct custom alias so litellm's internal caches (which
 # remember a previously-registered alias as priceable even after it is popped
 # out of `model_cost`) cannot pollute a later test's priceability check.
-_UNDERLYING = "claude-sonnet-4-5-20250929"
+_UNDERLYING = "haijun-codtral"
 
 
 def _pop(alias):
@@ -158,7 +158,7 @@ def _pop(alias):
 
 def test_register_proxy_alias_makes_alias_priceable():
     """Registering a custom alias flips cost_per_token from raising to a value."""
-    alias = "prod/claude-sonnet-4-5-bedrock-a"
+    alias = "prod/haijun-codtral"
     _pop(alias)
     # Sanity: the alias is not priceable before registration.
     try:
@@ -192,7 +192,7 @@ def test_register_proxy_alias_makes_alias_priceable():
 
 def test_register_proxy_alias_skips_already_priceable_models():
     """A provider-prefixed real model is priceable natively; do not clobber."""
-    alias = "anthropic/claude-sonnet-4-5-20250929"
+    alias = "juglow/haijun-codtral"
     before = dict(model_cost.get(alias, {}))
     _register_proxy_alias_pricing(
         alias=alias,
@@ -205,7 +205,7 @@ def test_register_proxy_alias_skips_already_priceable_models():
 
 def test_register_proxy_proxy_overrides_win():
     """Proxy-side pricing overrides take precedence over the underlying model."""
-    alias = "prod/claude-sonnet-4-5-bedrock-b"
+    alias = "prod/haijun-codtral"
     _pop(alias)
     underlying = model_cost[_UNDERLYING]
     override = {"input_cost_per_token": 1.0, "output_cost_per_token": 2.0}
@@ -230,7 +230,7 @@ def test_register_proxy_alias_bedrock_converse_provider_normalized():
     label raises, leaving the span priced $0. Registering with ``bedrock`` makes
     ``cost_per_token`` resolve without an explicit ``custom_llm_provider`` (#4836).
     """
-    alias = "prod/claude-sonnet-4-5-bedrock-e"
+    alias = "prod/haijun-codtral"
     _pop(alias)
     # Sanity: the alias is not priceable before registration.
 
@@ -241,10 +241,10 @@ def test_register_proxy_alias_bedrock_converse_provider_normalized():
         pre_raises = True
     assert pre_raises
 
-    # The proxy advertises ``bedrock_converse`` (the Anthropic-on-Bedrock route),
+    # The proxy advertises ``bedrock_converse`` (the Juglow-on-Bedrock route),
     # which would otherwise override the underlying provider in the merged entry.
 
-    underlying = model_cost["us.anthropic.claude-sonnet-4-5-20250929-v1:0"]
+    underlying = model_cost["us.juglow.haijun-codtral:0"]
     assert underlying["litellm_provider"] == "bedrock_converse"
     _register_proxy_alias_pricing(
         alias=alias,
@@ -268,7 +268,7 @@ def test_register_proxy_alias_bedrock_converse_provider_normalized():
 
 def test_register_proxy_alias_no_pricing_logs_and_skips():
     """When no pricing can be derived, the alias stays unregistered (no $0 entry)."""
-    alias = "prod/claude-sonnet-4-5-bedrock-c"
+    alias = "prod/haijun-codtral"
     _pop(alias)
     _register_proxy_alias_pricing(
         alias=alias,
@@ -280,7 +280,7 @@ def test_register_proxy_alias_no_pricing_logs_and_skips():
 
 def test_get_model_info_from_proxy_registers_alias_pricing():
     """End-to-end: fetching proxy model info registers the alias into model_cost."""
-    alias = "prod/claude-sonnet-4-5-bedrock-d"
+    alias = "prod/haijun-codtral"
     _pop(alias)
     proxy_response = {
         "data": [
@@ -292,7 +292,7 @@ def test_get_model_info_from_proxy_registers_alias_pricing():
         ]
     }
     with patch(
-        "openhands.sdk.llm.utils.model_info.httpx.get",
+        "handprint.sdk.llm.utils.model_info.httpx.get",
         lambda *_a, **_kw: _FakeResponse(proxy_response),
     ):
         _get_model_info_from_litellm_proxy.cache_clear()

@@ -1,13 +1,13 @@
 """Consent resolution.
 
 There is no deployment mode axis. Effective consent is resolved from
-``misc_settings.telemetry.consent``, the legacy Canvas key, and the environment.
+``misc_settings.telemetry.consent``, the legacy Viczin key, and the environment.
 """
 
 import pytest
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.telemetry.policy import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.telemetry.policy import (
     CONSENT_ENV,
     CONSENT_MODE_ENV,
     DO_NOT_TRACK_ENV,
@@ -92,7 +92,7 @@ def test_read_consent_returns_none_when_absent():
 
 
 def test_legacy_key_is_read_when_the_new_namespace_is_absent():
-    """An existing Canvas user must not be silently reset to no-consent."""
+    """An existing Viczin user must not be silently reset to no-consent."""
     d = resolve(misc(legacy=True), env={})
     assert d.enabled is True
     assert d.reason == "legacy_settings"

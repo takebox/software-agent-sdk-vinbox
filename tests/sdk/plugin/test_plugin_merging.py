@@ -2,10 +2,10 @@
 
 import pytest
 
-from openhands.sdk.context import AgentContext
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.plugin import Plugin, PluginManifest
-from openhands.sdk.skills import Skill
+from handprint.sdk.context import AgentContext
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.plugin import Plugin, PluginManifest
+from handprint.sdk.tracks import Track
 
 
 def mcp_config(
@@ -14,138 +14,138 @@ def mcp_config(
     return servers or {}
 
 
-class TestPluginAddSkillsTo:
-    """Tests for Plugin.add_skills_to() method."""
+class TestPluginAddTracksTo:
+    """Tests for Plugin.add_tracks_to() method."""
 
-    def test_add_skills_to_empty_plugin(self, empty_plugin):
-        """Test adding skills from empty plugin returns unchanged context."""
-        context = AgentContext(skills=[])
-        new_context = empty_plugin.add_skills_to(context)
-        assert new_context.skills == []
+    def test_add_tracks_to_empty_plugin(self, empty_plugin):
+        """Test adding tracks from empty plugin returns unchanged context."""
+        context = AgentContext(tracks=[])
+        new_context = empty_plugin.add_tracks_to(context)
+        assert new_context.tracks == []
 
-    def test_add_skills_to_none_context_empty_plugin(self, empty_plugin):
-        """Test adding skills with None context and empty plugin."""
-        new_context = empty_plugin.add_skills_to(None)
+    def test_add_tracks_to_none_context_empty_plugin(self, empty_plugin):
+        """Test adding tracks with None context and empty plugin."""
+        new_context = empty_plugin.add_tracks_to(None)
         assert isinstance(new_context, AgentContext)
-        assert new_context.skills == []
+        assert new_context.tracks == []
 
-    def test_add_skills_to_none_input(self, mock_plugin_with_skills):
-        """Test adding skills with None input creates new context."""
-        new_context = mock_plugin_with_skills.add_skills_to()
+    def test_add_tracks_to_none_input(self, mock_plugin_with_tracks):
+        """Test adding tracks with None input creates new context."""
+        new_context = mock_plugin_with_tracks.add_tracks_to()
         assert isinstance(new_context, AgentContext)
-        assert len(new_context.skills) > 0
+        assert len(new_context.tracks) > 0
 
-    def test_add_skills_to_with_skills(self, mock_plugin_with_skills):
-        """Test adding plugin skills to context."""
-        context = AgentContext(skills=[])
-        new_context = mock_plugin_with_skills.add_skills_to(context)
-        assert len(new_context.skills) == len(mock_plugin_with_skills.skills)
+    def test_add_tracks_to_with_tracks(self, mock_plugin_with_tracks):
+        """Test adding plugin tracks to context."""
+        context = AgentContext(tracks=[])
+        new_context = mock_plugin_with_tracks.add_tracks_to(context)
+        assert len(new_context.tracks) == len(mock_plugin_with_tracks.tracks)
 
-    def test_add_skills_to_adds_new_skill(self, mock_skill, another_mock_skill):
-        """Test adding skills adds new skill when no conflict."""
+    def test_add_tracks_to_adds_new_track(self, mock_track, another_mock_track):
+        """Test adding tracks adds new track when no conflict."""
         plugin = Plugin(
             manifest=PluginManifest(name="test", version="1.0.0", description="Test"),
             path="/tmp/test",
-            skills=[another_mock_skill],
+            tracks=[another_mock_track],
         )
-        context = AgentContext(skills=[mock_skill])
-        new_context = plugin.add_skills_to(context)
-        assert len(new_context.skills) == 2
-        skill_names = {s.name for s in new_context.skills}
-        assert skill_names == {mock_skill.name, another_mock_skill.name}
+        context = AgentContext(tracks=[mock_track])
+        new_context = plugin.add_tracks_to(context)
+        assert len(new_context.tracks) == 2
+        track_names = {s.name for s in new_context.tracks}
+        assert track_names == {mock_track.name, another_mock_track.name}
 
-    def test_add_skills_to_overrides_existing_skill(self):
-        """Test plugin skill overrides existing skill with same name."""
-        original_skill = Skill(name="test-skill", content="Original content")
-        updated_skill = Skill(name="test-skill", content="Updated content")
+    def test_add_tracks_to_overrides_existing_track(self):
+        """Test plugin track overrides existing track with same name."""
+        original_track = Track(name="test-track", content="Original content")
+        updated_track = Track(name="test-track", content="Updated content")
         plugin = Plugin(
             manifest=PluginManifest(name="test", version="1.0.0", description="Test"),
             path="/tmp/test",
-            skills=[updated_skill],
+            tracks=[updated_track],
         )
-        context = AgentContext(skills=[original_skill])
-        new_context = plugin.add_skills_to(context)
-        assert len(new_context.skills) == 1
-        assert new_context.skills[0].content == "Updated content"
+        context = AgentContext(tracks=[original_track])
+        new_context = plugin.add_tracks_to(context)
+        assert len(new_context.tracks) == 1
+        assert new_context.tracks[0].content == "Updated content"
 
-    def test_add_skills_to_preserves_insertion_order(self):
-        """Test add_skills_to preserves order of existing skills."""
-        skill_a = Skill(name="skill-a", content="A")
-        skill_b = Skill(name="skill-b", content="B")
-        skill_c = Skill(name="skill-c", content="C")
+    def test_add_tracks_to_preserves_insertion_order(self):
+        """Test add_tracks_to preserves order of existing tracks."""
+        track_a = Track(name="track-a", content="A")
+        track_b = Track(name="track-b", content="B")
+        track_c = Track(name="track-c", content="C")
         plugin = Plugin(
             manifest=PluginManifest(name="test", version="1.0.0", description="Test"),
             path="/tmp/test",
-            skills=[skill_c],
+            tracks=[track_c],
         )
-        context = AgentContext(skills=[skill_a, skill_b])
-        new_context = plugin.add_skills_to(context)
-        skill_names = [s.name for s in new_context.skills]
-        assert skill_names == ["skill-a", "skill-b", "skill-c"]
+        context = AgentContext(tracks=[track_a, track_b])
+        new_context = plugin.add_tracks_to(context)
+        track_names = [s.name for s in new_context.tracks]
+        assert track_names == ["track-a", "track-b", "track-c"]
 
-    def test_add_skills_to_returns_new_context(self, mock_skill):
-        """Test add_skills_to returns new context instance, not modifying original."""
-        new_skill = Skill(name="new-skill", content="New")
+    def test_add_tracks_to_returns_new_context(self, mock_track):
+        """Test add_tracks_to returns new context instance, not modifying original."""
+        new_track = Track(name="new-track", content="New")
         plugin = Plugin(
             manifest=PluginManifest(name="test", version="1.0.0", description="Test"),
             path="/tmp/test",
-            skills=[new_skill],
+            tracks=[new_track],
         )
-        original_context = AgentContext(skills=[mock_skill])
-        new_context = plugin.add_skills_to(original_context)
+        original_context = AgentContext(tracks=[mock_track])
+        new_context = plugin.add_tracks_to(original_context)
         # Original context should be unchanged
-        assert len(original_context.skills) == 1
-        assert len(new_context.skills) == 2
+        assert len(original_context.tracks) == 1
+        assert len(new_context.tracks) == 2
         assert new_context is not original_context
 
-    def test_add_skills_to_enforces_max_skills(self, mock_plugin_with_skills):
-        """Test add_skills_to enforces max_skills limit."""
-        context = AgentContext(skills=[])
+    def test_add_tracks_to_enforces_max_tracks(self, mock_plugin_with_tracks):
+        """Test add_tracks_to enforces max_tracks limit."""
+        context = AgentContext(tracks=[])
         with pytest.raises(ValueError, match="exceeds maximum"):
-            mock_plugin_with_skills.add_skills_to(context, max_skills=0)
+            mock_plugin_with_tracks.add_tracks_to(context, max_tracks=0)
 
-    def test_add_skills_to_max_skills_with_existing(self, mock_skill):
-        """Test max_skills counts unique skills after merge."""
-        plugin_skill_1 = Skill(name="plugin-skill-1", content="P1")
-        plugin_skill_2 = Skill(name="plugin-skill-2", content="P2")
+    def test_add_tracks_to_max_tracks_with_existing(self, mock_track):
+        """Test max_tracks counts unique tracks after merge."""
+        plugin_track_1 = Track(name="plugin-track-1", content="P1")
+        plugin_track_2 = Track(name="plugin-track-2", content="P2")
         plugin = Plugin(
             manifest=PluginManifest(name="test", version="1.0.0", description="Test"),
             path="/tmp/test",
-            skills=[plugin_skill_1, plugin_skill_2],
+            tracks=[plugin_track_1, plugin_track_2],
         )
-        context = AgentContext(skills=[mock_skill])
+        context = AgentContext(tracks=[mock_track])
 
         # Limit of 3 should allow merge (1 existing + 2 new = 3)
-        new_context = plugin.add_skills_to(context, max_skills=3)
-        assert len(new_context.skills) == 3
+        new_context = plugin.add_tracks_to(context, max_tracks=3)
+        assert len(new_context.tracks) == 3
 
         # Limit of 2 should fail (3 > 2)
         with pytest.raises(ValueError, match="exceeds maximum"):
-            plugin.add_skills_to(context, max_skills=2)
+            plugin.add_tracks_to(context, max_tracks=2)
 
-    def test_add_skills_to_max_skills_with_override(self):
-        """Test max_skills counts correctly when plugin overrides existing skill."""
-        existing_skill = Skill(name="shared-skill", content="Old")
-        context = AgentContext(skills=[existing_skill])
+    def test_add_tracks_to_max_tracks_with_override(self):
+        """Test max_tracks counts correctly when plugin overrides existing track."""
+        existing_track = Track(name="shared-track", content="Old")
+        context = AgentContext(tracks=[existing_track])
 
-        plugin_skill = Skill(name="shared-skill", content="New")
+        plugin_track = Track(name="shared-track", content="New")
         plugin = Plugin(
             manifest=PluginManifest(name="test", version="1.0.0", description="Test"),
             path="/tmp/test",
-            skills=[plugin_skill],
+            tracks=[plugin_track],
         )
 
-        new_context = plugin.add_skills_to(context, max_skills=1)
-        assert len(new_context.skills) == 1
-        assert new_context.skills[0].content == "New"
+        new_context = plugin.add_tracks_to(context, max_tracks=1)
+        assert len(new_context.tracks) == 1
+        assert new_context.tracks[0].content == "New"
 
-    def test_add_skills_to_preserves_context_fields(self, mock_plugin_with_skills):
-        """Test add_skills_to preserves other AgentContext fields."""
+    def test_add_tracks_to_preserves_context_fields(self, mock_plugin_with_tracks):
+        """Test add_tracks_to preserves other AgentContext fields."""
         context = AgentContext(
-            skills=[],
+            tracks=[],
             system_message_suffix="Custom suffix",
         )
-        new_context = mock_plugin_with_skills.add_skills_to(context)
+        new_context = mock_plugin_with_tracks.add_tracks_to(context)
         assert new_context.system_message_suffix == context.system_message_suffix
 
 
@@ -260,20 +260,20 @@ class TestPluginAddMcpConfigTo:
 
 
 @pytest.fixture
-def mock_skill():
-    """Create a mock skill for testing."""
-    return Skill(
-        name="test-skill",
-        content="Test skill content",
+def mock_track():
+    """Create a mock track for testing."""
+    return Track(
+        name="test-track",
+        content="Test track content",
     )
 
 
 @pytest.fixture
-def another_mock_skill():
-    """Create another mock skill for testing."""
-    return Skill(
-        name="another-skill",
-        content="Another skill content",
+def another_mock_track():
+    """Create another mock track for testing."""
+    return Track(
+        name="another-track",
+        content="Another track content",
     )
 
 
@@ -289,14 +289,14 @@ def empty_plugin():
 
 
 @pytest.fixture
-def mock_plugin_with_skills(mock_skill, another_mock_skill):
-    """Create a plugin with skills."""
+def mock_plugin_with_tracks(mock_track, another_mock_track):
+    """Create a plugin with tracks."""
     return Plugin(
         manifest=PluginManifest(
             name="test-plugin", version="1.0.0", description="Test plugin"
         ),
         path="/tmp/test",
-        skills=[mock_skill, another_mock_skill],
+        tracks=[mock_track, another_mock_track],
     )
 
 

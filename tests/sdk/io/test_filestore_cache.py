@@ -14,8 +14,8 @@ import time
 
 import pytest
 
-from openhands.sdk.io.cache import MemoryLRUCache
-from openhands.sdk.io.local import LocalFileStore
+from handprint.sdk.io.cache import MemoryLRUCache
+from handprint.sdk.io.local import LocalFileStore
 
 
 def test_cache_basic_functionality():

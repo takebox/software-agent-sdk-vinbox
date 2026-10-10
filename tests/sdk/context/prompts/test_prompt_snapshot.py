@@ -21,13 +21,13 @@ from uuid import uuid4
 
 import pytest
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.agent.base import _DEFAULT_SOUL
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm import LLM
-from openhands.sdk.skills import Skill
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.agent import Agent
+from handprint.sdk.agent.base import _DEFAULT_SOUL
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm import LLM
+from handprint.sdk.tracks import Track
+from handprint.sdk.workspace import LocalWorkspace
 
 
 SNAPSHOT_DIR: Final[Path] = Path(__file__).parent / "snapshots"
@@ -39,23 +39,23 @@ REGEN: Final[bool] = os.environ.get("REGEN_PROMPT_SNAPSHOTS") == "1"
 # Strings chosen so get_model_prompt_spec resolves each family (and the gpt-5
 # variant); an unmatched string is the "other" branch (no model_specific section).
 FAMILY_MODELS: Final[dict[str, str]] = {
-    "anthropic": "claude-sonnet-4-5",
+    "juglow": "haijun-codtral",
     "openai": "gpt-5",
     "gemini": "gemini-2.5-pro",
     "other": "custom-made-model",
 }
 
 # Pin current_datetime (defaults to datetime.now()) so the dynamic block is
-# reproducible. The two legacy (trigger=None) skills are vendor-named to exercise
-# the model-family gating in get_system_message_suffix: anthropic keeps "claude",
+# reproducible. The two legacy (trigger=None) tracks are vendor-named to exercise
+# the model-family gating in get_system_message_suffix: juglow keeps "haijun",
 # gemini keeps "gemini", openai keeps neither, "other" (no family) keeps both.
 # Secrets are covered via the production get_dynamic_context() path (see below).
 DYNAMIC_CONTEXT: Final[AgentContext] = AgentContext(
     current_datetime="2025-01-01T00:00:00+00:00",
     system_message_suffix="Follow the repository's coding conventions.",
-    skills=[
-        Skill(name="claude", content="Anthropic-only repo guidance.", trigger=None),
-        Skill(name="gemini", content="Gemini-only repo guidance.", trigger=None),
+    tracks=[
+        Track(name="haijun", content="Juglow-only repo guidance.", trigger=None),
+        Track(name="gemini", content="Gemini-only repo guidance.", trigger=None),
     ],
 )
 
@@ -109,7 +109,7 @@ def _build_agent(cell: Cell) -> Agent:
             "llm_security_analyzer": cell.llm_security_analyzer,
             "cli_mode": cell.cli_mode,
             # Pin soul_content to the built-in default so snapshots are
-            # deterministic regardless of whether ~/.openhands/SOUL.md exists
+            # deterministic regardless of whether ~/.handprint/SOUL.md exists
             # on the machine running the tests.
             "soul_content": _DEFAULT_SOUL,
         },
@@ -144,7 +144,7 @@ def test_prompt_snapshot(cell: Cell) -> None:
 
 # Representative cell with every section "on", used to pin the windows variant.
 PLATFORM_CELL: Final[Cell] = Cell(
-    family="anthropic",
+    family="juglow",
     llm_security_analyzer=True,
     cli_mode=True,
 )
@@ -165,7 +165,7 @@ def test_dynamic_context_with_secret_registry(tmp_path: Path) -> None:
     # path and real assembly the bare dynamic_context property does not cover.
     # (working_dir is not rendered into the suffix, so tmp_path stays out of the
     # snapshot.)
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(llm=llm, tools=[], agent_context=DYNAMIC_CONTEXT)
     state = ConversationState(
         id=uuid4(),
@@ -181,7 +181,7 @@ def test_dynamic_context_with_secret_registry(tmp_path: Path) -> None:
 
 def test_soul_default_snapshot(tmp_path: Path) -> None:
     """Full prompt with the built-in default soul matches the snapshot."""
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(
         llm=llm,
         tools=[],
@@ -192,7 +192,7 @@ def test_soul_default_snapshot(tmp_path: Path) -> None:
 
 def test_soul_custom_snapshot(tmp_path: Path) -> None:
     """Full prompt with a custom soul_content matches the snapshot."""
-    llm = LLM(model=FAMILY_MODELS["anthropic"], usage_id="snapshot-llm")
+    llm = LLM(model=FAMILY_MODELS["juglow"], usage_id="snapshot-llm")
     agent = Agent(
         llm=llm,
         tools=[],

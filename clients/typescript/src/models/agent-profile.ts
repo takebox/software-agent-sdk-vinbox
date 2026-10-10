@@ -1,6 +1,6 @@
 /**
  * AgentProfile — TypeScript mirror of the Python SDK's
- * `openhands.sdk.profiles.agent_profile` module.
+ * `handprint.sdk.profiles.agent_profile` module.
  *
  * The AgentProfile union is discriminated on `agent_kind` and carries
  * *references* (llm_profile_ref / mcp_server_refs) rather than resolved
@@ -13,12 +13,12 @@ import type { MCPJsonValue } from './api';
 // ── Shared supporting types ──────────────────────────────────────────────────
 
 /** Discriminator across the {@link AgentProfile} union. */
-export type AgentKind = 'openhands' | 'acp';
+export type AgentKind = 'handprint' | 'acp';
 
 /** ACP backend selector: a built-in provider key or the `'custom'` sentinel. */
 export type ACPServerKind = ACPProviderKey | 'custom';
 
-/** Secret-free critic/refinement policy stored inside an OpenHands profile. */
+/** Secret-free critic/refinement policy stored inside an Handprint profile. */
 export interface ProfileVerificationSettings {
   critic_enabled: boolean;
   critic_mode: string;
@@ -59,13 +59,13 @@ interface AgentProfileBase {
   secret_refs?: string[] | null;
 }
 
-/** `agent_kind="openhands"` variant — references an LLM profile by name. */
-export interface OpenHandsAgentProfile extends AgentProfileBase {
-  agent_kind: 'openhands';
+/** `agent_kind="handprint"` variant — references an LLM profile by name. */
+export interface HandprintAgentProfile extends AgentProfileBase {
+  agent_kind: 'handprint';
   /** Name of the LLM profile to resolve. */
   llm_profile_ref: string;
   agent: string;
-  skills: unknown[];
+  tracks: unknown[];
   /** Replaces the built-in persona, keeping capability guidance; needs `profile_persona_v1`. */
   persona?: string | null;
   system_message_suffix: string | null;
@@ -91,10 +91,10 @@ export interface ACPAgentProfile extends AgentProfileBase {
 /**
  * Discriminated union on `agent_kind`. Use the `agent_kind` field to narrow:
  * ```ts
- * if (profile.agent_kind === 'openhands') { ... }
+ * if (profile.agent_kind === 'handprint') { ... }
  * ```
  */
-export type AgentProfile = OpenHandsAgentProfile | ACPAgentProfile;
+export type AgentProfile = HandprintAgentProfile | ACPAgentProfile;
 
 /**
  * Request body for `POST /api/agent-profiles/{name}` (create or overwrite).
@@ -104,10 +104,10 @@ export type AgentProfile = OpenHandsAgentProfile | ACPAgentProfile;
  * optional: server-managed identity (`id`/`revision`/`schema_version`) is
  * minted on create and preserved on overwrite. A field left unset takes the
  * server-side default where one exists — except `llm_profile_ref`, which is
- * required for the `openhands` variant (omitting it yields a 422).
+ * required for the `handprint` variant (omitting it yields a 422).
  */
 export type AgentProfileSaveInput =
-  | ({ agent_kind: 'openhands' } & Partial<Omit<OpenHandsAgentProfile, 'agent_kind'>>)
+  | ({ agent_kind: 'handprint' } & Partial<Omit<HandprintAgentProfile, 'agent_kind'>>)
   | ({ agent_kind: 'acp' } & Partial<Omit<ACPAgentProfile, 'agent_kind'>>);
 
 // ── Summary projection (list endpoint) ──────────────────────────────────────
@@ -126,7 +126,7 @@ export interface AgentProfileSummary {
 
 /**
  * Dry-run resolve report returned by `POST /api/agent-profiles/{name}/materialize`.
- * Mirrors `openhands.sdk.profiles.resolver.AgentProfileDiagnostics` field-for-field.
+ * Mirrors `handprint.sdk.profiles.resolver.AgentProfileDiagnostics` field-for-field.
  *
  * Dangling references are reported here (valid=false) rather than as HTTP errors.
  */
@@ -138,7 +138,7 @@ export interface AgentProfileDiagnostics {
   /** Secret scope; `null` = unrestricted. */
   secret_refs?: string[] | null;
 
-  // OpenHands LLM reference.
+  // Handprint LLM reference.
   llm_profile_ref: string | null;
   llm_profile_resolved: boolean;
   llm_api_key_set: boolean;
@@ -162,7 +162,7 @@ export interface AgentProfileDiagnostics {
 
 // ── Launch provenance ──────────────────────────────────────────────────────
 
-/** Mirrors `openhands.sdk.profiles.agent_profile.LaunchedAgentProfile`. */
+/** Mirrors `handprint.sdk.profiles.agent_profile.LaunchedAgentProfile`. */
 export interface LaunchedAgentProfile {
   agent_profile_id: string;
   revision: number;

@@ -11,7 +11,7 @@ This package lives in the monorepo root. Typical commands (run from repo root):
 
 ## PyInstaller data files
 
-When adding non-Python files (JS, templates, etc.) loaded at runtime, add them to `openhands-agent-server/openhands/agent_server/agent-server.spec` using `collect_data_files`.
+When adding non-Python files (JS, templates, etc.) loaded at runtime, add them to `openhands-agent-server/handprint/agent_server/agent-server.spec` using `collect_data_files`.
 
 
 ## Stress / scale tests
@@ -133,7 +133,7 @@ When deprecating a REST endpoint:
 2. Add a docstring note that includes:
    - the version it was deprecated in
    - the version it is scheduled for removal in (default: **5 minor releases** later)
-3. Do **not** use `openhands.sdk.utils.deprecation.deprecated` for FastAPI routes.
+3. Do **not** use `handprint.sdk.utils.deprecation.deprecated` for FastAPI routes.
    That decorator affects Python warnings/docstrings, not OpenAPI, and may be a
    no-op before the declared deprecation version.
 
@@ -181,7 +181,7 @@ but generates the baseline schema from the matching git tag under the current
 workspace dependency set before diffing with [oasdiff](https://github.com/oasdiff/oasdiff).
 
 It currently enforces:
-- FastAPI route handlers must not use `openhands.sdk.utils.deprecation.deprecated`.
+- FastAPI route handlers must not use `handprint.sdk.utils.deprecation.deprecated`.
 - Endpoints that document deprecation in their OpenAPI description must also set
   `deprecated: true`.
 - Removed operations must already be marked `deprecated: true` in the previous

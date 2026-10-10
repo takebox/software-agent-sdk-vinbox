@@ -1,4 +1,4 @@
-"""The ``X-OpenHands-Telemetry-Distinct-Id`` request header.
+"""The ``X-Handprint-Telemetry-Distinct-Id`` request header.
 
 Request-scoped activity (a failed request, and later e.g. LLM-profile creation)
 has no conversation ``user_id``. The frontend attaches its PostHog distinct id
@@ -8,7 +8,7 @@ anonymous per-process id.
 
 import pytest
 
-from openhands.agent_server.telemetry.factory import (
+from handprint.agent_server.telemetry.factory import (
     ANONYMOUS_PREFIX,
     DISTINCT_ID_HEADER,
     DiagnosticEventFactory,
@@ -18,7 +18,7 @@ from openhands.agent_server.telemetry.factory import (
 
 
 def test_header_name_is_the_documented_one():
-    assert DISTINCT_ID_HEADER == "X-OpenHands-Telemetry-Distinct-Id"
+    assert DISTINCT_ID_HEADER == "X-Handprint-Telemetry-Distinct-Id"
 
 
 @pytest.mark.parametrize(
@@ -58,7 +58,7 @@ def _factory() -> DiagnosticEventFactory:
 
 
 def test_supplied_header_becomes_the_event_distinct_id():
-    from openhands.agent_server.telemetry import models as m
+    from handprint.agent_server.telemetry import models as m
 
     factory = _factory()
     distinct_id = distinct_id_from_header("phc_user_42")
@@ -78,7 +78,7 @@ def test_supplied_header_becomes_the_event_distinct_id():
 
 
 def test_absent_header_falls_back_to_the_anonymous_id():
-    from openhands.agent_server.telemetry import models as m
+    from handprint.agent_server.telemetry import models as m
 
     factory = _factory()
     event = factory.build(

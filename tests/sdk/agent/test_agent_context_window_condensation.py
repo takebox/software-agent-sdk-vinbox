@@ -4,22 +4,22 @@ from unittest.mock import patch
 import pytest
 from pydantic import PrivateAttr
 
-import openhands.sdk.agent.agent as agent_mod
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.condenser.base import CondenserBase
-from openhands.sdk.context.view import View
-from openhands.sdk.conversation import Conversation
-from openhands.sdk.event.condenser import CondensationRequest
-from openhands.sdk.llm import LLM, ModelRuntimeMetadata
-from openhands.sdk.llm.exceptions import (
+import handprint.sdk.agent.agent as agent_mod
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.condenser.base import CondenserBase
+from handprint.sdk.context.view import View
+from handprint.sdk.conversation import Conversation
+from handprint.sdk.event.condenser import CondensationRequest
+from handprint.sdk.llm import LLM, ModelRuntimeMetadata
+from handprint.sdk.llm.exceptions import (
     LLMContextWindowExceedError,
     LLMMalformedConversationHistoryError,
 )
-from openhands.sdk.llm.utils import runtime_metadata as rm
+from handprint.sdk.llm.utils import runtime_metadata as rm
 
 
 if TYPE_CHECKING:
-    from openhands.sdk.event.condenser import Condensation
+    from handprint.sdk.event.condenser import Condensation
 
 
 class PreflightLLM(LLM):

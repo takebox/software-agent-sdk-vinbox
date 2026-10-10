@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from openhands.agent_server.storage import Reclaimer, StoredRuntime
+from handprint.agent_server.storage import Reclaimer, StoredRuntime
 
 
 class FakeStorage:

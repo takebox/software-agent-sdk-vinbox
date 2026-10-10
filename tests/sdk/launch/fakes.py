@@ -1,4 +1,4 @@
-"""In-memory stores for driving :func:`openhands.sdk.launch.resolve` in tests."""
+"""In-memory stores for driving :func:`handprint.sdk.launch.resolve` in tests."""
 
 from __future__ import annotations
 
@@ -6,16 +6,16 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 from uuid import UUID
 
-from openhands.sdk import LLM
-from openhands.sdk.launch import LaunchStores
-from openhands.sdk.llm.meta_profile_store import MetaProfile
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles.agent_profile import ACPAgentProfile, OpenHandsAgentProfile
-from openhands.sdk.skills import Skill
+from handprint.sdk import LLM
+from handprint.sdk.launch import LaunchStores
+from handprint.sdk.llm.meta_profile_store import MetaProfile
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles.agent_profile import ACPAgentProfile, HandprintAgentProfile
+from handprint.sdk.tracks import Track
 
 
 class AgentProfiles:
-    def __init__(self, *profiles: OpenHandsAgentProfile | ACPAgentProfile) -> None:
+    def __init__(self, *profiles: HandprintAgentProfile | ACPAgentProfile) -> None:
         self.profiles = {profile.name: profile for profile in profiles}
 
     def name_for_id(self, profile_id: str | UUID) -> str | None:
@@ -28,7 +28,7 @@ class AgentProfiles:
             None,
         )
 
-    def load(self, name: str) -> OpenHandsAgentProfile | ACPAgentProfile:
+    def load(self, name: str) -> HandprintAgentProfile | ACPAgentProfile:
         try:
             return self.profiles[name]
         except KeyError:
@@ -64,10 +64,10 @@ def llm(model: str = "gpt-4o", **kwargs: Any) -> LLM:
 
 
 def stores(
-    *profiles: OpenHandsAgentProfile | ACPAgentProfile,
+    *profiles: HandprintAgentProfile | ACPAgentProfile,
     llms: Mapping[str, LLM] | None = None,
     mcp: Mapping[str, MCPServer] | None = None,
-    skills: Sequence[Skill] = (),
+    tracks: Sequence[Track] = (),
     metas: Mapping[str, MetaProfile] | None = None,
 ) -> LaunchStores:
     llm_profiles = LLMProfiles({"default": llm()} if llms is None else llms)
@@ -75,7 +75,7 @@ def stores(
         llm_profiles=llm_profiles,
         llm_profile_names=lambda: list(llm_profiles.llms),
         mcp_config=dict(mcp or {}),
-        skills=lambda: list(skills),
+        tracks=lambda: list(tracks),
         agent_profiles=AgentProfiles(*profiles),
         meta_profiles=MetaProfiles(metas or {}),
     )

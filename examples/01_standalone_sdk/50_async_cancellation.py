@@ -27,18 +27,18 @@ import time
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent, Conversation, Event
-from openhands.sdk.event import ActionEvent, ObservationEvent
-from openhands.sdk.tool import Tool
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Agent, Conversation, Event
+from handprint.sdk.event import ActionEvent, ObservationEvent
+from handprint.sdk.tool import Tool
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
 
 
 # ── Configuration ────────────────────────────────────────────────────
 api_key = os.getenv("LLM_API_KEY")
 assert api_key, "Set LLM_API_KEY in your environment."
 
-model = os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5-20250929")
+model = os.getenv("LLM_MODEL", "juglow/haijun-codtral")
 base_url = os.getenv("LLM_BASE_URL")
 
 llm = LLM(

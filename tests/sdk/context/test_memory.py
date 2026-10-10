@@ -5,15 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.context.memory import MEMORY_INDEX_RELPATH, load_memory
-from openhands.sdk.llm import LLM
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.context.memory import MEMORY_INDEX_RELPATH, load_memory
+from handprint.sdk.llm import LLM
 
 
 @pytest.fixture(autouse=True)
 def isolated_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    """Point the user memory tier (``~/.openhands/memory/``) at a temp home.
+    """Point the user memory tier (``~/.handprint/memory/``) at a temp home.
 
     USERPROFILE is what ``Path.home()`` reads on Windows, where HOME is a no-op.
     ``OH_PERSISTENCE_DIR`` is cleared too: it overrides the home-relative base,
@@ -42,7 +42,7 @@ def test_load_memory_reads_project_index(tmp_path: Path) -> None:
     _write_index(workspace, "- run tests with `uv run pytest`\n")
 
     assert load_memory(workspace) == (
-        "# Project memory (.openhands/memory/MEMORY.md)\n"
+        "# Project memory (.handprint/memory/MEMORY.md)\n"
         "- run tests with `uv run pytest`"
     )
 
@@ -51,7 +51,7 @@ def test_load_memory_reads_user_index(isolated_home: Path, tmp_path: Path) -> No
     _write_index(isolated_home, "- prefers uv over pip\n")
 
     assert load_memory(tmp_path / "workspace") == (
-        "# User memory (~/.openhands/memory/MEMORY.md)\n- prefers uv over pip"
+        "# User memory (~/.handprint/memory/MEMORY.md)\n- prefers uv over pip"
     )
 
 
@@ -76,7 +76,7 @@ def test_load_memory_truncates_whole_lines_from_top_of_tier(tmp_path: Path) -> N
 
     assert text is not None
     lines = text.splitlines()
-    assert lines[0] == "# Project memory (.openhands/memory/MEMORY.md)"
+    assert lines[0] == "# Project memory (.handprint/memory/MEMORY.md)"
     assert lines[1] == "[earlier memory truncated]"
     assert text.endswith("NEW")
     assert "OLD" not in text
@@ -94,8 +94,8 @@ def test_load_memory_truncation_keeps_both_tier_headers(
 
     assert text is not None
     lines = text.splitlines()
-    assert "# User memory (~/.openhands/memory/MEMORY.md)" in lines
-    assert "# Project memory (.openhands/memory/MEMORY.md)" in lines
+    assert "# User memory (~/.handprint/memory/MEMORY.md)" in lines
+    assert "# Project memory (.handprint/memory/MEMORY.md)" in lines
     # The short user tier fits its share, so its content survives untouched.
     assert "- prefers tabs" in lines
     assert text.endswith("NEW-PROJECT")
@@ -114,7 +114,7 @@ def test_load_memory_truncation_drops_no_partial_lines(tmp_path: Path) -> None:
     assert text is not None
     assert "[earlier memory truncated]" in text
     allowed = {
-        "# Project memory (.openhands/memory/MEMORY.md)",
+        "# Project memory (.handprint/memory/MEMORY.md)",
         "[earlier memory truncated]",
         *original_lines,
     }
@@ -167,7 +167,7 @@ def _advertised_user_memory_dir(agent: Agent) -> Path:
 
 def _memory_agent() -> Agent:
     return Agent(
-        llm=LLM(model="claude-sonnet-4-5", usage_id="memory-align"),
+        llm=LLM(model="haijun-codtral", usage_id="memory-align"),
         tools=[],
         agent_context=AgentContext(load_memory=True),
     )
@@ -201,11 +201,11 @@ def test_instructed_write_path_matches_loader_read_path_with_persistence_dir(
 def test_instructed_write_path_matches_loader_read_path_home_fallback(
     isolated_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    """Without OH_PERSISTENCE_DIR, both halves fall back to ~/.openhands/memory."""
+    """Without OH_PERSISTENCE_DIR, both halves fall back to ~/.handprint/memory."""
     monkeypatch.delenv("OH_PERSISTENCE_DIR", raising=False)
 
     write_dir = _advertised_user_memory_dir(_memory_agent())
-    assert write_dir == isolated_home / ".openhands" / "memory"
+    assert write_dir == isolated_home / ".handprint" / "memory"
 
     memory_md = write_dir / "MEMORY.md"
     memory_md.parent.mkdir(parents=True)
@@ -220,7 +220,7 @@ def test_load_memory_user_header_reflects_persistence_dir(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     """With OH_PERSISTENCE_DIR set, the loaded user-tier header names the real
-    read path -- not the stale ``~/.openhands/memory/`` -- so it matches the
+    read path -- not the stale ``~/.handprint/memory/`` -- so it matches the
     write location advertised in the <MEMORY> guidance."""
     persistence = tmp_path / "persistent"
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(persistence))
@@ -233,7 +233,7 @@ def test_load_memory_user_header_reflects_persistence_dir(
     assert loaded is not None
     expected = user_memory / "MEMORY.md"
     assert loaded.startswith(f"# User memory ({expected})")
-    assert "~/.openhands/memory/MEMORY.md" not in loaded
+    assert "~/.handprint/memory/MEMORY.md" not in loaded
 
 
 def test_load_memory_user_header_uses_tilde_without_persistence_dir(
@@ -247,7 +247,7 @@ def test_load_memory_user_header_uses_tilde_without_persistence_dir(
     loaded = load_memory(tmp_path / "workspace")
 
     assert loaded is not None
-    assert loaded.startswith("# User memory (~/.openhands/memory/MEMORY.md)")
+    assert loaded.startswith("# User memory (~/.handprint/memory/MEMORY.md)")
     assert str(isolated_home) not in loaded
 
 
@@ -257,7 +257,7 @@ def test_user_memory_line_absent_when_memory_disabled(
     """No user-memory directory is advertised unless memory is enabled."""
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path / "persistent"))
     agent = Agent(
-        llm=LLM(model="claude-sonnet-4-5", usage_id="memory-off"),
+        llm=LLM(model="haijun-codtral", usage_id="memory-off"),
         tools=[],
         agent_context=AgentContext(load_memory=False),
     )

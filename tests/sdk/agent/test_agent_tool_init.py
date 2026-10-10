@@ -6,13 +6,13 @@ import pytest
 from pydantic import Field
 from rich.text import Text
 
-from openhands.sdk import LLM, Conversation
-from openhands.sdk.agent import Agent
-from openhands.sdk.llm.message import ImageContent, TextContent
-from openhands.sdk.tool import ToolDefinition
-from openhands.sdk.tool.registry import register_tool
-from openhands.sdk.tool.spec import Tool
-from openhands.sdk.tool.tool import Action, Observation, ToolExecutor
+from handprint.sdk import LLM, Conversation
+from handprint.sdk.agent import Agent
+from handprint.sdk.llm.message import ImageContent, TextContent
+from handprint.sdk.tool import ToolDefinition
+from handprint.sdk.tool.registry import register_tool
+from handprint.sdk.tool.spec import Tool
+from handprint.sdk.tool.tool import Action, Observation, ToolExecutor
 
 
 class _Action(Action):

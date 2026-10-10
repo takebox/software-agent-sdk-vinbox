@@ -11,20 +11,20 @@ from litellm import ChatCompletionMessageToolCall
 from litellm.types.utils import Function
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.view import View
-from openhands.sdk.conversation import Conversation, LocalConversation
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.event import ActionEvent
-from openhands.sdk.event.base import Event
-from openhands.sdk.event.condenser import Condensation
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.event.conversation_state import ConversationStateUpdateEvent
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.event.types import ROOT_PARENT_ID, SourceType
-from openhands.sdk.event.user_action import PauseEvent
-from openhands.sdk.llm import LLM, Message, MessageToolCall, TextContent
-from openhands.sdk.tool.schema import Action
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.view import View
+from handprint.sdk.conversation import Conversation, LocalConversation
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.event import ActionEvent
+from handprint.sdk.event.base import Event
+from handprint.sdk.event.condenser import Condensation
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.event.conversation_state import ConversationStateUpdateEvent
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.event.types import ROOT_PARENT_ID, SourceType
+from handprint.sdk.event.user_action import PauseEvent
+from handprint.sdk.llm import LLM, Message, MessageToolCall, TextContent
+from handprint.sdk.tool.schema import Action
 
 
 def _agent() -> Agent:
@@ -607,7 +607,7 @@ def test_generate_title_reads_active_branch(monkeypatch):
             return "title"
 
         monkeypatch.setattr(
-            "openhands.sdk.conversation.impl.local_conversation."
+            "handprint.sdk.conversation.impl.local_conversation."
             "generate_conversation_title",
             _fake_generate,
         )

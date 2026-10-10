@@ -1,4 +1,4 @@
-"""Tests for openhands.sdk.event.resume_transcript."""
+"""Tests for handprint.sdk.event.resume_transcript."""
 
 from __future__ import annotations
 
@@ -6,19 +6,19 @@ import json
 
 import pytest
 
-from openhands.sdk.event import (
+from handprint.sdk.event import (
     RESUME_CONTEXT_MARKER,
     ACPToolCallEvent,
     ActionEvent,
     MessageEvent,
     render_resume_transcript,
 )
-from openhands.sdk.event.resume_transcript import (
+from handprint.sdk.event.resume_transcript import (
     DEFAULT_FOOTER,
     DEFAULT_HEADER_BODY,
 )
-from openhands.sdk.llm import ImageContent, Message, MessageToolCall, TextContent
-from openhands.sdk.tool.builtins.finish import FinishAction
+from handprint.sdk.llm import ImageContent, Message, MessageToolCall, TextContent
+from handprint.sdk.tool.builtins.finish import FinishAction
 
 
 def _user(text: str) -> MessageEvent:

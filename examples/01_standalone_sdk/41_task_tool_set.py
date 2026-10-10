@@ -13,11 +13,11 @@ animal-expert sub-agent. The flow is:
 
 import os
 
-from openhands.sdk import LLM, Agent, AgentContext, Conversation, Tool
-from openhands.sdk.context import Skill
-from openhands.sdk.subagent import register_agent
-from openhands.tools.delegate import DelegationVisualizer
-from openhands.tools.task import TaskToolSet
+from handprint.sdk import LLM, Agent, AgentContext, Conversation, Tool
+from handprint.sdk.context import Track
+from handprint.sdk.subagent import register_agent
+from handprint.tools.delegate import DelegationVisualizer
+from handprint.tools.task import TaskToolSet
 
 
 llm = LLM(
@@ -34,8 +34,8 @@ def create_animal_expert(llm: LLM) -> Agent:
         llm=llm,
         tools=[],  # no tools needed – pure knowledge
         agent_context=AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="animal_expertise",
                     content=(
                         "You are a world-class zoologist. "

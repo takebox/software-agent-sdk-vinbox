@@ -133,7 +133,7 @@ try {
     '--package',
     packageFixture,
     '--run-url',
-    'https://github.com/OpenHands/typescript-client/actions/runs/123',
+    'https://github.com/Handprint/typescript-client/actions/runs/123',
     '--output',
     report,
   ]);

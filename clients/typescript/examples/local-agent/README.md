@@ -1,6 +1,6 @@
-# OpenHands Local Agent
+# Handprint Local Agent
 
-A browser-based agent UI that demonstrates the OpenHands TypeScript SDK's `LocalConversation` class with JavaScript evaluation capabilities using OpenRouter.
+A browser-based agent UI that demonstrates the Handprint TypeScript SDK's `LocalConversation` class with JavaScript evaluation capabilities using OpenRouter.
 
 ## Features
 
@@ -8,7 +8,7 @@ A browser-based agent UI that demonstrates the OpenHands TypeScript SDK's `Local
 - 🔧 **JavaScript Eval Tool** - Agent can execute JavaScript code in the browser
 - 🔐 **OpenRouter Authentication** - Securely connect with your API key
 - 💬 **Real-time Chat** - Conversational interface with message history
-- 🤖 **Multiple Models** - Switch between Claude, GPT-4, Gemini, Llama, and more
+- 🤖 **Multiple Models** - Switch between Haijun, GPT-4, Gemini, Llama, and more
 - 🌙 **Dark Mode** - Beautiful dark theme UI
 
 ## Quick Start
@@ -119,7 +119,7 @@ examples/local-agent/
 The key pattern demonstrated in `AgentChatInterface.tsx`:
 
 ```typescript
-import { LocalConversation, LocalWorkspace, Agent, Tool, ToolCall } from '@openhands/typescript-client';
+import { LocalConversation, LocalWorkspace, Agent, Tool, ToolCall } from '@takebox-ai/typescript-client';
 
 // Define custom tools
 const TOOLS: Tool[] = [
@@ -180,5 +180,5 @@ await conversation.run();
 ## Related
 
 - [OpenRouter Documentation](https://openrouter.ai/docs)
-- [OpenHands TypeScript SDK](../../README.md)
+- [Handprint TypeScript SDK](../../README.md)
 - [Local Chat Example](../local/) - Simpler chat without tool calling

@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from openhands.agent_server.openapi import build_public_openapi, serialize_openapi
+from handprint.agent_server.openapi import build_public_openapi, serialize_openapi
 
 
 def parse_args() -> argparse.Namespace:

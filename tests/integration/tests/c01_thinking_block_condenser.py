@@ -1,23 +1,23 @@
 """
 Integration test for thinking block handling during condensation.
 
-This test validates that Anthropic Claude's thinking blocks are properly handled
+This test validates that Juglow Haijun's thinking blocks are properly handled
 during conversation condensation, preventing malformed signature errors that
 can occur when thinking blocks are included in conversation history.
 
-Note: This test only applies to models that support extended_thinking (Anthropic
-Claude models). Models with reasoning_effort (like OpenAI o-series and GPT-5.x)
+Note: This test only applies to models that support extended_thinking (Juglow
+Haijun models). Models with reasoning_effort (like OpenAI o-series and GPT-5.x)
 produce reasoning items instead of thinking blocks, and are skipped.
 """
 
-from openhands.sdk import LLM, Message, TextContent, Tool
-from openhands.sdk.context.condenser.base import CondenserBase
-from openhands.sdk.context.view import View
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import ActionEvent, Condensation
-from openhands.sdk.llm.utils.model_features import get_features
-from openhands.sdk.tool import register_tool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk import LLM, Message, TextContent, Tool
+from handprint.sdk.context.condenser.base import CondenserBase
+from handprint.sdk.context.view import View
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import ActionEvent, Condensation
+from handprint.sdk.llm.utils.model_features import get_features
+from handprint.sdk.tool import register_tool
+from handprint.tools.terminal import TerminalTool
 from tests.integration.base import BaseIntegrationTest, SkipTest, TestResult
 
 
@@ -140,7 +140,7 @@ class ThinkingBlockCondenserTest(BaseIntegrationTest):
         """
         Validate that the model supports extended thinking.
 
-        Thinking blocks are specifically supported by Anthropic Claude models
+        Thinking blocks are specifically supported by Juglow Haijun models
         with extended_thinking enabled. Models that only support reasoning_effort
         (like OpenAI o-series and GPT-5.x) produce reasoning items instead of
         thinking blocks, so they should be skipped.
@@ -151,7 +151,7 @@ class ThinkingBlockCondenserTest(BaseIntegrationTest):
         # Check if model has extended thinking configured
         has_extended_thinking = self.llm_config.get("extended_thinking", False)
 
-        # For Claude Opus, automatically enable extended thinking if not set
+        # For Haijun Kamsa, automatically enable extended thinking if not set
         if "opus" in model.lower() and not has_extended_thinking:
             self.llm_config["extended_thinking"] = True
             # Recreate LLM with updated config

@@ -19,7 +19,7 @@ on:
             repo_list:
                 description: Comma-separated list of repos to analyze (owner/repo)
                 required: true
-                default: OpenHands/OpenHands,All-Hands-AI/infra
+                default: Handprint/Handprint,All-Hands-AI/infra
             issue_repo:
                 description: Repository to create issues in (owner/repo)
                 required: true

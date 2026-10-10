@@ -24,15 +24,15 @@ from openai.types.responses.response_function_tool_call import (
 )
 from pydantic import ConfigDict, model_validator
 
-from openhands.sdk.llm.exceptions import LLMNoResponseError
-from openhands.sdk.llm.llm import LLM
-from openhands.sdk.llm.message import (
+from handprint.sdk.llm.exceptions import LLMNoResponseError
+from handprint.sdk.llm.llm import LLM
+from handprint.sdk.llm.message import (
     Message,
     MessageToolCall,
     ReasoningItemModel,
     TextContent,
 )
-from openhands.sdk.llm.options.responses_options import select_responses_options
+from handprint.sdk.llm.options.responses_options import select_responses_options
 
 
 # ---------------------------------------------------------------------------
@@ -147,7 +147,7 @@ def test_non_subscription_keeps_structured_param(param: str, check: Any):
 # ---------------------------------------------------------------------------
 
 
-@patch("openhands.sdk.llm.llm.litellm_responses")
+@patch("handprint.sdk.llm.llm.litellm_responses")
 def test_subscription_retry_does_not_add_temperature(mock_responses: Any):
     """Subscription mode intentionally omits temperature.
 

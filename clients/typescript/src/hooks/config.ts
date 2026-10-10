@@ -1,7 +1,7 @@
 /**
  * Hook configuration loading and management.
  *
- * Mirrors the Python SDK's openhands.sdk.hooks.config module.
+ * Mirrors the Python SDK's handprint.sdk.hooks.config module.
  * Browser-safe: no file I/O operations (those happen server-side).
  */
 

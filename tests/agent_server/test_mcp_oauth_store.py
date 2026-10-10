@@ -16,20 +16,20 @@ from fastmcp.server.auth.providers.in_memory import InMemoryOAuthProvider
 from mcp.server.auth.settings import ClientRegistrationOptions
 from pydantic import SecretStr
 
-import openhands.sdk.mcp.utils as mcp_utils
-from openhands.agent_server.config import Config, WebhookSpec
-from openhands.agent_server.mcp_oauth_store import (
+import handprint.sdk.mcp.utils as mcp_utils
+from handprint.agent_server.config import Config, WebhookSpec
+from handprint.agent_server.mcp_oauth_store import (
     MCPSettingsOAuthTokenStore,
     SettingsBackedMCPToolProvider,
     create_settings_backed_mcp_tool_provider,
 )
-from openhands.agent_server.persistence import (
+from handprint.agent_server.persistence import (
     PersistedSettings,
     get_settings_store,
     reset_stores,
 )
-from openhands.sdk.mcp.config import coerce_mcp_config, dump_mcp_config
-from openhands.sdk.mcp.oauth import MCPOAuth
+from handprint.sdk.mcp.config import coerce_mcp_config, dump_mcp_config
+from handprint.sdk.mcp.oauth import MCPOAuth
 
 
 def _find_free_port() -> int:
@@ -380,7 +380,7 @@ def test_settings_backed_provider_forwards_on_tools_reconciled():
         return None
 
     with patch(
-        "openhands.agent_server.mcp_oauth_store.create_mcp_tools"
+        "handprint.agent_server.mcp_oauth_store.create_mcp_tools"
     ) as mock_create:
         provider.create_tools(config, on_tools_reconciled=callback)
 
@@ -497,7 +497,7 @@ async def test_settings_backed_provider_seeds_token_store_from_agent_mcp_config(
 
         # Act
         with patch(
-            "openhands.agent_server.mcp_oauth_store.create_mcp_tools"
+            "handprint.agent_server.mcp_oauth_store.create_mcp_tools"
         ) as mock_create:
             provider.create_tools(mcp_config)
 
@@ -544,7 +544,7 @@ async def test_settings_backed_provider_writes_refreshed_inline_state_back_to_th
         monkeypatch.setattr(httpx, "post", fake_post)
         provider = create_settings_backed_mcp_tool_provider(config)
         with patch(
-            "openhands.agent_server.mcp_oauth_store.create_mcp_tools"
+            "handprint.agent_server.mcp_oauth_store.create_mcp_tools"
         ) as mock_create:
             provider.create_tools(_inline_oauth_server("agent-access-token"))
         storage = mock_create.call_args.kwargs["mcp_oauth_token_storage"]

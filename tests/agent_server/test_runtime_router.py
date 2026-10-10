@@ -6,13 +6,13 @@ import httpx
 import pytest
 from fastapi.routing import APIRoute
 
-import openhands.agent_server.vscode_service as vscode_service_module
-from openhands.agent_server.api import create_app
-from openhands.agent_server.bash_service import BashEventService
-from openhands.agent_server.config import Config
-from openhands.agent_server.conversation_service import ConversationService
-from openhands.agent_server.runtime_router import create_runtime_router
-from openhands.agent_server.vscode_service import VSCodeService
+import handprint.agent_server.vscode_service as vscode_service_module
+from handprint.agent_server.api import create_app
+from handprint.agent_server.bash_service import BashEventService
+from handprint.agent_server.config import Config
+from handprint.agent_server.conversation_service import ConversationService
+from handprint.agent_server.runtime_router import create_runtime_router
+from handprint.agent_server.vscode_service import VSCodeService
 
 
 @pytest.fixture
@@ -182,7 +182,7 @@ def test_runtime_routes_are_registered_with_dispatch_adapter():
 async def test_concurrent_runtime_requests_share_event_loop_bash_service(
     runtime_client, tmp_path, monkeypatch
 ):
-    import openhands.agent_server.dependencies as dependencies
+    import handprint.agent_server.dependencies as dependencies
 
     client, app = runtime_client
     cid = await _create(client, tmp_path / "workspace")

@@ -1,18 +1,18 @@
 """Common fixtures and utilities for view properties tests."""
 
-from openhands.sdk.event.llm_convertible import (
+from handprint.sdk.event.llm_convertible import (
     ActionEvent,
     MessageEvent,
     ObservationEvent,
 )
-from openhands.sdk.llm import (
+from handprint.sdk.llm import (
     Message,
     MessageToolCall,
     RedactedThinkingBlock,
     TextContent,
     ThinkingBlock,
 )
-from openhands.sdk.mcp.definition import MCPToolAction, MCPToolObservation
+from handprint.sdk.mcp.definition import MCPToolAction, MCPToolObservation
 
 
 def create_action_event(

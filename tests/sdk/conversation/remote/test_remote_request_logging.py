@@ -3,8 +3,8 @@ from unittest.mock import Mock
 import httpx
 import pytest
 
-from openhands.sdk.conversation.impl.remote_conversation import _send_request
-from openhands.sdk.utils.redact import (
+from handprint.sdk.conversation.impl.remote_conversation import _send_request
+from handprint.sdk.utils.redact import (
     http_error_log_content,
     is_secret_key,
     sanitize_dict,
@@ -113,7 +113,7 @@ class TestHttpErrorLogContent:
 
 
 def test_send_request_redacts_structured_error_content(caplog):
-    request = httpx.Request("POST", "http://localhost:8000/api/conversations")
+    request = httpx.Request("POST", "http://localhost:9000/api/conversations")
     response = httpx.Response(
         422,
         request=request,
@@ -152,7 +152,7 @@ def test_send_request_redacts_structured_error_content(caplog):
 
 
 def test_send_request_omits_non_json_error_body(caplog):
-    request = httpx.Request("GET", "http://localhost:8000/api/conversations")
+    request = httpx.Request("GET", "http://localhost:9000/api/conversations")
     response = httpx.Response(
         500,
         request=request,

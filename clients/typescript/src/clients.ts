@@ -9,7 +9,7 @@ export type {
 } from './client/conversation-event-stream';
 export { ServerClient } from './client/server-client';
 export { BashClient } from './client/bash-client';
-export { CanvasExtensionsClient } from './client/canvas-extensions-client';
+export { ViczinExtensionsClient } from './client/viczin-extensions-client';
 export { ConversationClient } from './client/conversation-client';
 export { FileClient } from './client/file-client';
 export { HooksClient } from './client/hooks-client';
@@ -19,18 +19,18 @@ export { MCPClient } from './client/mcp-client';
 export { ProfilesClient } from './client/profiles-client';
 export { MetaProfilesClient } from './client/meta-profiles-client';
 export { SettingsClient } from './client/settings-client';
-export { SkillsClient } from './client/skills-client';
+export { TracksClient } from './client/tracks-client';
 export { SubAgentsClient } from './client/sub-agents-client';
 export { PluginsClient } from './client/plugins-client';
 export { ToolClient } from './client/tool-client';
 export { VSCodeClient } from './client/vscode-client';
 export { SharedClient } from './client/shared-client';
 export { WorkspacesClient } from './client/workspaces-client';
-export { AgentServerClient, OpenHandsClient } from './client/openhands-client';
+export { AgentServerClient, HandprintClient } from './client/handprint-client';
 export { CloudClient } from './client/cloud-client';
 export {
   DeviceFlowError,
-  isOpenHandsCloudHost,
+  isHandprintCloudHost,
   pollForToken,
   startDeviceFlow,
 } from './client/device-flow-client';
@@ -47,7 +47,7 @@ export {
 
 export type { ServerClientOptions } from './client/server-client';
 export type { BashClientOptions } from './client/bash-client';
-export type { CanvasExtensionsClientOptions } from './client/canvas-extensions-client';
+export type { ViczinExtensionsClientOptions } from './client/viczin-extensions-client';
 export type {
   ConversationClientOptions,
   CreateConversationPayload,
@@ -77,7 +77,7 @@ export type {
   SaveLLMProfileRequest,
   LLMProfileMutationResponse,
 } from './client/settings-client';
-export type { SkillsClientOptions } from './client/skills-client';
+export type { TracksClientOptions } from './client/tracks-client';
 export type { SubAgentsClientOptions } from './client/sub-agents-client';
 export type { PluginsClientOptions } from './client/plugins-client';
 export type { ToolClientOptions } from './client/tool-client';
@@ -92,15 +92,15 @@ export type {
 } from './client/workspaces-client';
 export type { AgentServerFeatureRequirement } from './client/agent-server-compatibility';
 export type {
-  AgentServerCanvasBackendDataDeleteResponse,
-  AgentServerCanvasBackendLogs,
-  AgentServerCanvasBackendLogsResponse,
-  AgentServerCanvasBackendPrepareResponse,
-  AgentServerCanvasBackendRevisionRequest,
-  AgentServerCanvasBackendStartResponse,
-  AgentServerCanvasBackendStatus,
-  AgentServerCanvasBackendStatusResponse,
-  AgentServerCanvasBackendStopResponse,
+  AgentServerViczinBackendDataDeleteResponse,
+  AgentServerViczinBackendLogs,
+  AgentServerViczinBackendLogsResponse,
+  AgentServerViczinBackendPrepareResponse,
+  AgentServerViczinBackendRevisionRequest,
+  AgentServerViczinBackendStartResponse,
+  AgentServerViczinBackendStatus,
+  AgentServerViczinBackendStatusResponse,
+  AgentServerViczinBackendStopResponse,
   AgentServerConversationSettingsSchema,
   AgentServerMCPOAuthCallbackRequest,
   AgentServerMCPOAuthCallbackResponse,
@@ -135,12 +135,12 @@ export type {
   StdioMCPServer,
 } from './models/mcp-settings';
 export type {
-  OpenHandsClientKind,
-  OpenHandsClientOptions,
-  OpenHandsRequestAuthMode,
-  OpenHandsRequestMethod,
-  OpenHandsRequestOptions,
-} from './client/openhands-client';
+  HandprintClientKind,
+  HandprintClientOptions,
+  HandprintRequestAuthMode,
+  HandprintRequestMethod,
+  HandprintRequestOptions,
+} from './client/handprint-client';
 export type { GitProviderRepository, GitProviderRepositoryPage } from './models/api';
 export type {
   CloudApiKeyMetadata,
@@ -168,7 +168,7 @@ export type {
   CloudSecretWithoutValue,
   CloudSettingsResponse,
   CloudSettingsValue,
-  CloudSkillInfo,
+  CloudTrackInfo,
   CloudSuggestedTask,
   SaveCloudSettingsRequest,
 } from './client/cloud-client';

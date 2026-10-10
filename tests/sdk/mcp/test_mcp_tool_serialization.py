@@ -9,11 +9,11 @@ from unittest.mock import Mock
 
 import mcp.types
 
-from openhands.sdk.mcp.client import MCPClient
-from openhands.sdk.mcp.definition import MCPToolAction, MCPToolObservation
-from openhands.sdk.mcp.tool import MCPToolDefinition
-from openhands.sdk.tool.schema import Action
-from openhands.sdk.tool.tool import ToolDefinition
+from handprint.sdk.mcp.client import MCPClient
+from handprint.sdk.mcp.definition import MCPToolAction, MCPToolObservation
+from handprint.sdk.mcp.tool import MCPToolDefinition
+from handprint.sdk.tool.schema import Action
+from handprint.sdk.tool.tool import ToolDefinition
 
 
 def create_mock_mcp_tool(name: str) -> mcp.types.Tool:

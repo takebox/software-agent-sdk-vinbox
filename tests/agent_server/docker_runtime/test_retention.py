@@ -7,14 +7,14 @@ import pytest
 from fastapi import HTTPException
 from pydantic import SecretStr
 
-from openhands.agent_server.config import Config
-from openhands.agent_server.docker_runtime import routers
-from openhands.agent_server.docker_runtime.registry import (
+from handprint.agent_server.config import Config
+from handprint.agent_server.docker_runtime import routers
+from handprint.agent_server.docker_runtime.registry import (
     ConversationContainer,
     DockerConversationRegistry,
     RuntimeArchivedError,
 )
-from openhands.agent_server.models import ConversationRuntimeStatus
+from handprint.agent_server.models import ConversationRuntimeStatus
 
 
 DAY = 86400
@@ -163,7 +163,7 @@ async def test_archiving_leaves_the_manifest_untouched(tmp_path, monkeypatch):
 
 
 def test_retention_days_is_read_from_nested_env(monkeypatch):
-    from openhands.agent_server.config import load_config
+    from handprint.agent_server.config import load_config
 
     monkeypatch.setenv("OH_CONVERSATION_STORAGE_RETENTION_DAYS", "7")
 

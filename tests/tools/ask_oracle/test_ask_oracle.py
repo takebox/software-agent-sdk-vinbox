@@ -5,25 +5,25 @@ from typing import Any, cast
 import pytest
 from pydantic import PrivateAttr
 
-from openhands.sdk import LLM, LocalConversation, Tool
-from openhands.sdk.agent import Agent
-from openhands.sdk.llm import (
+from handprint.sdk import LLM, LocalConversation, Tool
+from handprint.sdk.agent import Agent
+from handprint.sdk.llm import (
     LLMResponse,
     Message,
     TextContent,
     TokenCallbackType,
     llm_profile_store,
 )
-from openhands.sdk.llm.llm import LLMCallContext
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.tool import ToolDefinition
-from openhands.tools.ask_oracle import (
+from handprint.sdk.llm.llm import LLMCallContext
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.tool import ToolDefinition
+from handprint.tools.ask_oracle import (
     ORACLE_PROFILE_NAME,
     AskOracleAction,
     AskOracleObservation,
     AskOracleTool,
 )
-from openhands.tools.ask_oracle.impl import AskOracleExecutor
+from handprint.tools.ask_oracle.impl import AskOracleExecutor
 
 
 class CapturingTestLLM(TestLLM):

@@ -1,6 +1,6 @@
 ---
-# SandboxTemplate that runs the OpenHands agent server. See the canonical copy and
-# docs at openhands-workspace/openhands/workspace/agent_sandbox/.
+# SandboxTemplate that runs the Handprint agent server. See the canonical copy and
+# docs at openhands-workspace/handprint/workspace/agent_sandbox/.
 apiVersion: extensions.agents.x-k8s.io/v1beta1
 kind: SandboxTemplate
 metadata:
@@ -28,11 +28,11 @@ spec:
                   args: [--host, 0.0.0.0, --port, '8000']
                   workingDir: /workspace
                   ports:
-                      - containerPort: 8000
+                      - containerPort: 9000
                   readinessProbe:
                       httpGet:
                           path: /health
-                          port: 8000
+                          port: 9000
                       initialDelaySeconds: 3
                       periodSeconds: 3
                       failureThreshold: 40

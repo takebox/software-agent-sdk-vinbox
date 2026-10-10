@@ -1,19 +1,19 @@
-"""Example: OpenHandsCloudWorkspace for OpenHands Cloud API.
+"""Example: HandprintCloudWorkspace for Handprint Cloud API.
 
-This example demonstrates using OpenHandsCloudWorkspace to provision a sandbox
-via OpenHands Cloud (app.all-hands.dev) and run an agent conversation.
+This example demonstrates using HandprintCloudWorkspace to provision a sandbox
+via Handprint Cloud (app.all-hands.dev) and run an agent conversation.
 
 Usage:
   uv run examples/02_remote_agent_server/06_convo_with_cloud_workspace.py
 
 Requirements:
-  - LLM_API_KEY: API key for direct LLM provider access (e.g., Anthropic API key)
-  - OPENHANDS_CLOUD_API_KEY: API key for OpenHands Cloud access
+  - LLM_API_KEY: API key for direct LLM provider access (e.g., Juglow API key)
+  - HANDPRINT_CLOUD_API_KEY: API key for Handprint Cloud access
 
 Note:
   The LLM configuration is sent to the cloud sandbox, so you need an API key
   that works directly with the LLM provider (not a local proxy). If using
-  Anthropic, set LLM_API_KEY to your Anthropic API key.
+  Juglow, set LLM_API_KEY to your Juglow API key.
 """
 
 import os
@@ -21,14 +21,14 @@ import time
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Conversation,
     RemoteConversation,
     get_logger,
 )
-from openhands.tools.preset.default import get_default_agent
-from openhands.workspace import OpenHandsCloudWorkspace
+from handprint.tools.preset.default import get_default_agent
+from handprint.workspace import HandprintCloudWorkspace
 
 
 logger = get_logger(__name__)
@@ -47,15 +47,15 @@ llm = LLM(
     api_key=SecretStr(api_key),
 )
 
-cloud_api_key = os.getenv("OPENHANDS_CLOUD_API_KEY")
+cloud_api_key = os.getenv("HANDPRINT_CLOUD_API_KEY")
 if not cloud_api_key:
-    logger.error("OPENHANDS_CLOUD_API_KEY required")
+    logger.error("HANDPRINT_CLOUD_API_KEY required")
     exit(1)
 
-cloud_api_url = os.getenv("OPENHANDS_CLOUD_API_URL", "https://app.all-hands.dev")
-logger.info(f"Using OpenHands Cloud API: {cloud_api_url}")
+cloud_api_url = os.getenv("HANDPRINT_CLOUD_API_URL", "https://app.all-hands.dev")
+logger.info(f"Using Handprint Cloud API: {cloud_api_url}")
 
-with OpenHandsCloudWorkspace(
+with HandprintCloudWorkspace(
     cloud_api_url=cloud_api_url,
     cloud_api_key=cloud_api_key,
 ) as workspace:
@@ -68,7 +68,7 @@ with OpenHandsCloudWorkspace(
         last_event_time["ts"] = time.time()
 
     result = workspace.execute_command(
-        "echo 'Hello from OpenHands Cloud sandbox!' && pwd"
+        "echo 'Hello from Handprint Cloud sandbox!' && pwd"
     )
     logger.info(f"Command completed: {result.exit_code}, {result.stdout}")
 

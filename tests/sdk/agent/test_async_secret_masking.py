@@ -2,12 +2,12 @@ import asyncio
 
 import pytest
 
-from openhands.sdk import Agent, Conversation
-from openhands.sdk.event import ActionEvent, MessageEvent
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.llm.message import MessageToolCall
-from openhands.sdk.secret import LookupSecret
-from openhands.sdk.testing import TestLLM
+from handprint.sdk import Agent, Conversation
+from handprint.sdk.event import ActionEvent, MessageEvent
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.llm.message import MessageToolCall
+from handprint.sdk.secret import LookupSecret
+from handprint.sdk.testing import TestLLM
 
 
 @pytest.mark.asyncio

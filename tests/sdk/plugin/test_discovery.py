@@ -1,8 +1,8 @@
 """Tests for local + installed plugin discovery.
 
-Covers ``openhands.sdk.plugin.discovery`` — the *ambient* plugin set that
+Covers ``handprint.sdk.plugin.discovery`` — the *ambient* plugin set that
 auto-loads into conversations: plugins in the user/project directories plus
-enabled installed plugins. Mirrors the user/project skill discovery tests.
+enabled installed plugins. Mirrors the user/project track discovery tests.
 """
 
 import json
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.plugin import (
+from handprint.sdk.plugin import (
     disable_plugin,
     discovery,
     install_plugin,
@@ -21,17 +21,17 @@ from openhands.sdk.plugin import (
 )
 
 
-def _make_plugin(plugin_dir: Path, name: str, skill_name: str, content: str) -> Path:
-    """Create a minimal plugin directory containing a single skill."""
+def _make_plugin(plugin_dir: Path, name: str, track_name: str, content: str) -> Path:
+    """Create a minimal plugin directory containing a single track."""
     manifest_dir = plugin_dir / ".plugin"
     manifest_dir.mkdir(parents=True, exist_ok=True)
     (manifest_dir / "plugin.json").write_text(
         json.dumps({"name": name, "version": "1.0.0", "description": f"Plugin {name}"})
     )
-    skills_dir = plugin_dir / "skills"
-    skills_dir.mkdir(exist_ok=True)
-    (skills_dir / f"{skill_name}.md").write_text(
-        f"---\nname: {skill_name}\n---\n{content}"
+    tracks_dir = plugin_dir / "tracks"
+    tracks_dir.mkdir(exist_ok=True)
+    (tracks_dir / f"{track_name}.md").write_text(
+        f"---\nname: {track_name}\n---\n{content}"
     )
     return plugin_dir
 
@@ -49,7 +49,7 @@ def test_load_user_plugins_discovers_directory_plugin(
 ):
     # Arrange
     user_dir = tmp_path / ".agents" / "plugins"
-    _make_plugin(user_dir / "weather", "weather", "weather-skill", "Weather content.")
+    _make_plugin(user_dir / "weather", "weather", "weather-track", "Weather content.")
     monkeypatch.setattr(discovery, "USER_PLUGINS_DIRS", [user_dir])
     monkeypatch.setattr(installed, "DEFAULT_INSTALLED_PLUGINS_DIR", installed_dir)
 
@@ -85,11 +85,11 @@ def test_load_user_plugins_does_not_load_installed_store_as_plugin(
 ):
     # Arrange: a user plugins dir holding a real plugin AND the install store as
     # a child directory named "installed".
-    openhands_plugins = tmp_path / ".openhands" / "plugins"
-    _make_plugin(openhands_plugins / "real-plugin", "real-plugin", "rs", "Real.")
-    install_store = openhands_plugins / "installed"
+    handprint_plugins = tmp_path / ".handprint" / "plugins"
+    _make_plugin(handprint_plugins / "real-plugin", "real-plugin", "rs", "Real.")
+    install_store = handprint_plugins / "installed"
     install_store.mkdir(parents=True)
-    monkeypatch.setattr(discovery, "USER_PLUGINS_DIRS", [openhands_plugins])
+    monkeypatch.setattr(discovery, "USER_PLUGINS_DIRS", [handprint_plugins])
     monkeypatch.setattr(installed, "DEFAULT_INSTALLED_PLUGINS_DIR", install_store)
 
     # Act
@@ -119,12 +119,12 @@ def test_load_available_plugins_project_overrides_user(
     tmp_path: Path, installed_dir: Path, monkeypatch
 ):
     # Arrange: the same plugin name in a user dir and the project dir, each
-    # providing a distinguishable skill.
+    # providing a distinguishable track.
     user_dir = tmp_path / ".agents" / "plugins"
-    _make_plugin(user_dir / "shared", "shared", "user-skill", "User.")
+    _make_plugin(user_dir / "shared", "shared", "user-track", "User.")
     work_dir = tmp_path / "workspace"
     _make_plugin(
-        work_dir / ".agents" / "plugins" / "shared", "shared", "project-skill", "Proj."
+        work_dir / ".agents" / "plugins" / "shared", "shared", "project-track", "Proj."
     )
     monkeypatch.setattr(discovery, "USER_PLUGINS_DIRS", [user_dir])
     monkeypatch.setattr(installed, "DEFAULT_INSTALLED_PLUGINS_DIR", installed_dir)
@@ -136,6 +136,6 @@ def test_load_available_plugins_project_overrides_user(
 
     # Assert: project wins the name conflict.
     assert set(available) == {"shared"}
-    skill_names = {s.name for s in available["shared"].skills}
-    assert "project-skill" in skill_names
-    assert "user-skill" not in skill_names
+    track_names = {s.name for s in available["shared"].tracks}
+    assert "project-track" in track_names
+    assert "user-track" not in track_names

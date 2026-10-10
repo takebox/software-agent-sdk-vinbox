@@ -1,6 +1,6 @@
 ---
 name: Feature Request or Enhancement
-description: Suggest a new feature or improvement for OpenHands SDK
+description: Suggest a new feature or improvement for Handprint SDK
 title: '[Feature]: '
 labels: [enhancement]
 body:
@@ -11,13 +11,13 @@ body:
 
               We encourage you to open the discussion on the feature you need. You are always welcome to implement it, if you wish.
 
-              New AI providers are generally out of scope unless they are broadly popular and commonly used by OpenHands users. Requests below that bar may be marked out of scope and closed; please consider the existing generic provider interfaces first.
+              New AI providers are generally out of scope unless they are broadly popular and commonly used by Handprint users. Requests below that bar may be marked out of scope and closed; please consider the existing generic provider interfaces first.
 
     - type: checkboxes
       attributes:
           label: Is there an existing feature request for this?
           description: Please search existing issues and feature requests before creating a new one. If found, react or comment to the duplicate issue
-              instead of making a new one. <!-- TODO-openhands -->
+              instead of making a new one. <!-- TODO-handprint -->
           options:
               - label: I have searched existing issues and feature requests, and this is not a duplicate.
                 required: true
@@ -91,12 +91,12 @@ body:
       id: feature-area
       attributes:
           label: Feature Area
-          description: Which part of OpenHands SDK does this feature relate to? If you select "Other", please specify the area in the Additional 
-              Context section below. <!-- TODO-openhands -->
+          description: Which part of Handprint SDK does this feature relate to? If you select "Other", please specify the area in the Additional 
+              Context section below. <!-- TODO-handprint -->
           options:
               - label: Agent API / Core functionality
               - label: Tools / Tool system
-              - label: Skills / Plugins
+              - label: Tracks / Plugins
               - label: Agent Server
               - label: Workspace management
               - label: Configuration / Settings
@@ -123,7 +123,7 @@ body:
           placeholder: |
               Example code or API design:
               ```python
-              from openhands.sdk import Agent, StateManager
+              from handprint.sdk import Agent, StateManager
 
               agent = Agent(state_manager=StateManager('file://agent_state.json'))
               agent.save_state()

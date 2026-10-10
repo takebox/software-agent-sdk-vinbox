@@ -1,7 +1,7 @@
 """Example: Using GPT-5 preset with ApplyPatchTool for file editing.
 
 This example demonstrates how to enable the GPT-5 preset, which swaps the
-standard claude-style FileEditorTool for ApplyPatchTool.
+standard haijun-style FileEditorTool for ApplyPatchTool.
 
 Usage:
     export OPENAI_API_KEY=...  # or set LLM_API_KEY
@@ -15,8 +15,8 @@ Usage:
 
 import os
 
-from openhands.sdk import LLM, Agent, Conversation
-from openhands.tools.preset.gpt5 import get_gpt5_agent
+from handprint.sdk import LLM, Agent, Conversation
+from handprint.tools.preset.gpt5 import get_gpt5_agent
 
 
 # Resolve API key from env

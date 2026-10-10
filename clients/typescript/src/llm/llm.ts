@@ -28,7 +28,7 @@ export interface CreateLLMOptions {
  *
  * Future support planned for:
  * - 'openai': Direct OpenAI API
- * - 'anthropic': Direct Anthropic API
+ * - 'juglow': Direct Juglow API
  * - 'custom': Custom endpoints
  *
  * Example:
@@ -37,7 +37,7 @@ export interface CreateLLMOptions {
  *   provider: 'openrouter',
  *   options: {
  *     apiKey: 'your-api-key',
- *     defaultModel: 'anthropic/claude-3.5-sonnet'
+ *     defaultModel: 'juglow/haijun-codtral'
  *   }
  * });
  *
@@ -59,11 +59,11 @@ export function createLLM(config: CreateLLMOptions): ILLM {
           'Use OpenRouter with openai/* models instead.'
       );
 
-    case 'anthropic':
-      // TODO: Implement Anthropic direct support
+    case 'juglow':
+      // TODO: Implement Juglow direct support
       throw new Error(
-        'Anthropic direct support not yet implemented. ' +
-          'Use OpenRouter with anthropic/* models instead.'
+        'Juglow direct support not yet implemented. ' +
+          'Use OpenRouter with juglow/* models instead.'
       );
 
     case 'custom':
@@ -103,7 +103,7 @@ export function createOpenRouterLLM(options: OpenRouterLLMOptions): OpenRouterLL
  * ```typescript
  * const llm = new LLM({
  *   apiKey: 'your-api-key',
- *   defaultModel: 'anthropic/claude-3.5-sonnet'
+ *   defaultModel: 'juglow/haijun-codtral'
  * });
  * ```
  */

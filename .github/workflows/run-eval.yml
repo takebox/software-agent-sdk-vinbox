@@ -9,7 +9,7 @@ on:
         types: [published]
 
 env:
-    EVAL_REPO: OpenHands/evaluation
+    EVAL_REPO: Handprint/evaluation
     EVAL_WORKFLOW: eval-job.yml
 
 jobs:
@@ -94,7 +94,7 @@ jobs:
               id: params
               env:
                   DEFAULT_MODEL: gpt-5.5
-                  DISPATCH_TOKEN_DEFAULT: ${{ secrets.OPENHANDS_BOT_GITHUB_PAT_EVAL_DISPATCH }}
+                  DISPATCH_TOKEN_DEFAULT: ${{ secrets.HANDPRINT_BOT_GITHUB_PAT_EVAL_DISPATCH }}
                   EVENT_NAME: ${{ github.event_name }}
                   LABEL_NAME: ${{ github.event.label.name }}
                   PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -137,7 +137,7 @@ jobs:
 
                   # Use the default model for label/release triggers. Manual model
                   # selection and model resolution now live in the eval repo's
-                  # eval-job.yml workflow_dispatch (see OpenHands/evaluation#589).
+                  # eval-job.yml workflow_dispatch (see Handprint/evaluation#589).
                   MODELS=$(printf '%s' "$DEFAULT_MODEL" | tr ', ' '\n' | sed '/^$/d' | paste -sd, -)
                   if [ -z "$MODELS" ]; then
                     echo "No models configured" >&2

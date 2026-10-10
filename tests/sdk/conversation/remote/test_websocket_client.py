@@ -10,10 +10,10 @@ import pytest
 import websockets
 import websockets.frames
 
-from openhands.sdk.conversation.impl.remote_conversation import WebSocketCallbackClient
-from openhands.sdk.event.conversation_state import FULL_STATE_KEY
-from openhands.sdk.event.llm_convertible import MessageEvent
-from openhands.sdk.llm import Message, TextContent
+from handprint.sdk.conversation.impl.remote_conversation import WebSocketCallbackClient
+from handprint.sdk.event.conversation_state import FULL_STATE_KEY
+from handprint.sdk.event.llm_convertible import MessageEvent
+from handprint.sdk.llm import Message, TextContent
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def test_websocket_client_lifecycle():
         callback_events.append(event)
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=test_callback,
     )
@@ -68,13 +68,13 @@ def test_websocket_client_error_resilience(mock_event):
         raise ValueError("Test error")
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=failing_callback,
     )
 
     with patch(
-        "openhands.sdk.conversation.impl.remote_conversation.logger"
+        "handprint.sdk.conversation.impl.remote_conversation.logger"
     ) as mock_logger:
         try:
             client.callback(mock_event)
@@ -93,7 +93,7 @@ def test_websocket_client_stop_timeout():
         pass
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=noop_callback,
     )
@@ -120,7 +120,7 @@ def test_websocket_client_callback_invocation(mock_event):
         callback_events.append(event)
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=test_callback,
     )
@@ -180,20 +180,20 @@ def test_websocket_client_authenticates_outside_url(api_key, expected_messages):
             return _MockAsyncContextManager(url)
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=lambda event: None,
         api_key=api_key,
     )
 
     with patch(
-        "openhands.sdk.conversation.impl.remote_conversation.websockets.connect",
+        "handprint.sdk.conversation.impl.remote_conversation.websockets.connect",
         _MockConnect(),
     ):
         asyncio.run(client._client_loop())
 
     assert len(captured_urls) == 1
-    assert captured_urls[0] == ("ws://localhost:8000/sockets/events/test-conv-id")
+    assert captured_urls[0] == ("ws://localhost:9000/sockets/events/test-conv-id")
     assert sent_messages == expected_messages
 
 
@@ -274,7 +274,7 @@ def test_websocket_client_retries_after_retryable_connection_closed():
             )
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=callback,
         api_key="sk-oh-" + "b" * 64,
@@ -287,7 +287,7 @@ def test_websocket_client_retries_after_retryable_connection_closed():
     client._sleep_before_retry = no_sleep
 
     with patch(
-        "openhands.sdk.conversation.impl.remote_conversation.websockets.connect",
+        "handprint.sdk.conversation.impl.remote_conversation.websockets.connect",
         _MockConnect(),
     ):
         asyncio.run(client._client_loop())
@@ -323,13 +323,13 @@ def test_websocket_client_stops_after_fatal_connection_closed(close_code):
             return _MockAsyncContextManager()
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=lambda event: None,
     )
 
     with patch(
-        "openhands.sdk.conversation.impl.remote_conversation.websockets.connect",
+        "handprint.sdk.conversation.impl.remote_conversation.websockets.connect",
         _MockConnect(),
     ):
         asyncio.run(client._client_loop())
@@ -361,7 +361,7 @@ def test_websocket_client_calls_on_reconnect_after_subscription_restored():
             )
 
     client = WebSocketCallbackClient(
-        host="http://localhost:8000",
+        host="http://localhost:9000",
         conversation_id="test-conv-id",
         callback=callback,
         on_reconnect=reconnect,
@@ -373,7 +373,7 @@ def test_websocket_client_calls_on_reconnect_after_subscription_restored():
     client._sleep_before_retry = no_sleep
 
     with patch(
-        "openhands.sdk.conversation.impl.remote_conversation.websockets.connect",
+        "handprint.sdk.conversation.impl.remote_conversation.websockets.connect",
         _MockConnect(),
     ):
         asyncio.run(client._client_loop())

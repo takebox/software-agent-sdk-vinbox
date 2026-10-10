@@ -1,4 +1,4 @@
-"""OpenHands Agent SDK — Confirmation Mode Example"""
+"""Handprint Agent SDK — Confirmation Mode Example"""
 
 import os
 import signal
@@ -6,14 +6,14 @@ from collections.abc import Callable
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, BaseConversation, Conversation
-from openhands.sdk.conversation.state import (
+from handprint.sdk import LLM, BaseConversation, Conversation
+from handprint.sdk.conversation.state import (
     ConversationExecutionStatus,
     ConversationState,
 )
-from openhands.sdk.security.confirmation_policy import AlwaysConfirm, NeverConfirm
-from openhands.sdk.security.llm_analyzer import LLMSecurityAnalyzer
-from openhands.tools.preset.default import get_default_agent
+from handprint.sdk.security.confirmation_policy import AlwaysConfirm, NeverConfirm
+from handprint.sdk.security.llm_analyzer import LLMSecurityAnalyzer
+from handprint.tools.preset.default import get_default_agent
 
 
 # Make ^C a clean exit instead of a stack trace

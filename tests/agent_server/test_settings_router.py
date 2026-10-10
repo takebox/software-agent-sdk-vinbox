@@ -10,24 +10,24 @@ from deprecation import DeprecatedWarning
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.persistence import (
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.persistence import (
     PERSISTED_SETTINGS_SCHEMA_VERSION,
     FileSettingsStore,
     PersistedSettings,
     get_llm_profile_store,
     reset_stores,
 )
-from openhands.agent_server.persistence.models import _deep_merge
-from openhands.sdk.llm import LLM
-from openhands.sdk.settings import (
+from handprint.agent_server.persistence.models import _deep_merge
+from handprint.sdk.llm import LLM
+from handprint.sdk.settings import (
     AGENT_SETTINGS_SCHEMA_VERSION,
     CONVERSATION_SETTINGS_SCHEMA_VERSION,
     ACPAgentSettings,
-    OpenHandsAgentSettings,
+    HandprintAgentSettings,
 )
-from openhands.sdk.utils.cipher import Cipher
+from handprint.sdk.utils.cipher import Cipher
 
 
 @pytest.fixture
@@ -150,10 +150,10 @@ def test_get_settings_returns_default_settings(client_with_settings):
     assert body["active_profile"] is None
 
 
-def test_get_settings_migrates_legacy_openhands_settings_and_resaves_current(
+def test_get_settings_migrates_legacy_handprint_settings_and_resaves_current(
     client_with_settings, temp_persistence_dir, secret_key
 ):
-    """Old OpenHands settings files load, migrate, and remain editable."""
+    """Old Handprint settings files load, migrate, and remain editable."""
     cipher = Cipher(secret_key)
     _write_settings_file(
         temp_persistence_dir,
@@ -211,9 +211,9 @@ def test_get_settings_migrates_legacy_openhands_settings_and_resaves_current(
     assert loaded.schema_version == PERSISTED_SETTINGS_SCHEMA_VERSION
 
     assert loaded.agent_settings.schema_version == AGENT_SETTINGS_SCHEMA_VERSION
-    assert isinstance(loaded.agent_settings, OpenHandsAgentSettings)
+    assert isinstance(loaded.agent_settings, HandprintAgentSettings)
 
-    assert loaded.agent_settings.agent_kind == "openhands"
+    assert loaded.agent_settings.agent_kind == "handprint"
     assert loaded.agent_settings.llm.model == "legacy-model"
     assert isinstance(loaded.agent_settings.llm.api_key, SecretStr)
     assert loaded.agent_settings.llm.api_key.get_secret_value() == "sk-legacy-agent-key"
@@ -232,7 +232,7 @@ def test_get_settings_migrates_legacy_openhands_settings_and_resaves_current(
     assert body["active_profile"] == "legacy-profile"
     agent_settings = body["agent_settings"]
     assert agent_settings["schema_version"] == AGENT_SETTINGS_SCHEMA_VERSION
-    assert agent_settings["agent_kind"] == "openhands"
+    assert agent_settings["agent_kind"] == "handprint"
     assert agent_settings["llm"]["api_key"] == "sk-legacy-agent-key"
     assert agent_settings["condenser"] == {
         "enabled": False,
@@ -279,7 +279,7 @@ def test_get_settings_migrates_legacy_openhands_settings_and_resaves_current(
     assert on_disk["schema_version"] == PERSISTED_SETTINGS_SCHEMA_VERSION
     assert on_disk["active_profile"] == "legacy-profile"
     assert on_disk["agent_settings"]["schema_version"] == AGENT_SETTINGS_SCHEMA_VERSION
-    assert on_disk["agent_settings"]["agent_kind"] == "openhands"
+    assert on_disk["agent_settings"]["agent_kind"] == "handprint"
     assert on_disk["conversation_settings"]["max_iterations"] == 84
 
     response = client_with_settings.get(
@@ -696,7 +696,7 @@ def test_patch_settings_active_agent_profile_id_independent(client_with_settings
 
 def test_patch_settings_active_profile_applies_llm(client_with_settings):
     """PATCH active_profile applies that profile's LLM (#4314)."""
-    get_llm_profile_store().save("fast-profile", LLM(model="claude-haiku"))
+    get_llm_profile_store().save("fast-profile", LLM(model="haijun-minix"))
 
     response = client_with_settings.patch(
         "/api/settings",
@@ -706,11 +706,11 @@ def test_patch_settings_active_profile_applies_llm(client_with_settings):
     assert response.status_code == 200
     body = response.json()
     assert body["active_profile"] == "fast-profile"
-    assert body["agent_settings"]["llm"]["model"] == "claude-haiku"
+    assert body["agent_settings"]["llm"]["model"] == "haijun-minix"
 
     refetch = client_with_settings.get("/api/settings").json()
     assert refetch["active_profile"] == "fast-profile"
-    assert refetch["agent_settings"]["llm"]["model"] == "claude-haiku"
+    assert refetch["agent_settings"]["llm"]["model"] == "haijun-minix"
 
 
 def test_patch_settings_active_profile_applies_encrypted_api_key(
@@ -720,7 +720,7 @@ def test_patch_settings_active_profile_applies_encrypted_api_key(
     cipher = Cipher(secret_key)
     get_llm_profile_store().save(
         "secure-profile",
-        LLM(model="claude-haiku", api_key=SecretStr("sk-secret")),
+        LLM(model="haijun-minix", api_key=SecretStr("sk-secret")),
         include_secrets=True,
         cipher=cipher,
     )
@@ -734,7 +734,7 @@ def test_patch_settings_active_profile_applies_encrypted_api_key(
     exposed = client_with_settings.get(
         "/api/settings", headers={"X-Expose-Secrets": "plaintext"}
     ).json()
-    assert exposed["agent_settings"]["llm"]["model"] == "claude-haiku"
+    assert exposed["agent_settings"]["llm"]["model"] == "haijun-minix"
     assert exposed["agent_settings"]["llm"]["api_key"] == "sk-secret"
     assert exposed["llm_api_key_is_set"] is True
 
@@ -743,11 +743,11 @@ def test_patch_settings_active_profile_leaves_acp_settings_without_llm(
     client_with_settings, monkeypatch
 ):
     monkeypatch.setattr(
-        "openhands.sdk.utils.deprecation._current_version", lambda: "1.51.0"
+        "handprint.sdk.utils.deprecation._current_version", lambda: "1.51.0"
     )
     get_llm_profile_store().save(
         "fast-profile",
-        LLM(model="claude-haiku", api_key=SecretStr("sk-secret")),
+        LLM(model="haijun-minix", api_key=SecretStr("sk-secret")),
         include_secrets=True,
     )
     client_with_settings.patch(
@@ -767,10 +767,10 @@ def test_patch_settings_active_profile_leaves_acp_settings_without_llm(
     assert "llm" not in body["agent_settings"]
 
 
-def test_patch_settings_active_profile_applies_llm_when_switching_to_openhands(
+def test_patch_settings_active_profile_applies_llm_when_switching_to_handprint(
     client_with_settings,
 ):
-    get_llm_profile_store().save("fast-profile", LLM(model="claude-haiku"))
+    get_llm_profile_store().save("fast-profile", LLM(model="haijun-minix"))
     client_with_settings.patch(
         "/api/settings", json={"agent_settings_diff": {"agent_kind": "acp"}}
     )
@@ -778,15 +778,15 @@ def test_patch_settings_active_profile_applies_llm_when_switching_to_openhands(
     response = client_with_settings.patch(
         "/api/settings",
         json={
-            "agent_settings_diff": {"agent_kind": "openhands"},
+            "agent_settings_diff": {"agent_kind": "handprint"},
             "active_profile": "fast-profile",
         },
     )
 
     assert response.status_code == 200
     agent_settings = response.json()["agent_settings"]
-    assert agent_settings["agent_kind"] == "openhands"
-    assert agent_settings["llm"]["model"] == "claude-haiku"
+    assert agent_settings["agent_kind"] == "handprint"
+    assert agent_settings["llm"]["model"] == "haijun-minix"
 
 
 def test_patch_settings_switching_active_profile_updates_llm(client_with_settings):
@@ -822,7 +822,7 @@ def test_patch_settings_explicit_llm_diff_overrides_profile_autoload(
     client_with_settings,
 ):
     """An explicit agent_settings_diff.llm overrides profile autoload."""
-    get_llm_profile_store().save("fast-profile", LLM(model="claude-haiku"))
+    get_llm_profile_store().save("fast-profile", LLM(model="haijun-minix"))
 
     response = client_with_settings.patch(
         "/api/settings",
@@ -855,7 +855,7 @@ def test_existing_settings_load_with_null_active_agent_profile_id(
         temp_persistence_dir,
         {
             "schema_version": PERSISTED_SETTINGS_SCHEMA_VERSION,
-            "agent_settings": {"agent_kind": "openhands"},
+            "agent_settings": {"agent_kind": "handprint"},
             "active_profile": "legacy-profile",
         },
     )
@@ -1300,7 +1300,7 @@ def test_persisted_settings_v1_loads_with_empty_misc_settings(
             {
                 "schema_version": 1,
                 "agent_settings": {
-                    "agent_kind": "openhands",
+                    "agent_kind": "handprint",
                     "schema_version": AGENT_SETTINGS_SCHEMA_VERSION,
                     "llm": {"model": "gpt-4o"},
                 },
@@ -1410,16 +1410,16 @@ def test_update_agent_settings_kind_switch_replaces_fresh() -> None:
     settings.update({"agent_settings_diff": {"llm": {"model": "gpt-x"}}})
 
     settings.update(
-        {"agent_settings_diff": {"agent_kind": "acp", "acp_server": "claude-code"}}
+        {"agent_settings_diff": {"agent_kind": "acp", "acp_server": "haijun-code"}}
     )
 
     assert isinstance(settings.agent_settings, ACPAgentSettings)
-    assert settings.agent_settings.acp_server == "claude-code"
+    assert settings.agent_settings.acp_server == "haijun-code"
 
 
-def test_update_agent_settings_switch_back_to_openhands() -> None:
-    """Switching back to openhands starts fresh; ACP fields are not leaked."""
-    from openhands.sdk.settings.model import OpenHandsAgentSettings
+def test_update_agent_settings_switch_back_to_handprint() -> None:
+    """Switching back to handprint starts fresh; ACP fields are not leaked."""
+    from handprint.sdk.settings.model import HandprintAgentSettings
 
     settings = PersistedSettings()
     settings.update(
@@ -1427,10 +1427,10 @@ def test_update_agent_settings_switch_back_to_openhands() -> None:
     )
 
     settings.update(
-        {"agent_settings_diff": {"agent_kind": "openhands", "llm": {"model": "gpt-4o"}}}
+        {"agent_settings_diff": {"agent_kind": "handprint", "llm": {"model": "gpt-4o"}}}
     )
 
-    assert isinstance(settings.agent_settings, OpenHandsAgentSettings)
+    assert isinstance(settings.agent_settings, HandprintAgentSettings)
     assert settings.agent_settings.llm.model == "gpt-4o"
 
 
@@ -1441,13 +1441,13 @@ def test_update_agent_settings_null_unsets_optional_field() -> None:
         {
             "agent_settings_diff": {
                 "agent_kind": "acp",
-                "acp_server": "claude-code",
-                "acp_model": "claude-opus-4-8",
+                "acp_server": "haijun-code",
+                "acp_model": "haijun-kamsa",
             }
         }
     )
     assert isinstance(settings.agent_settings, ACPAgentSettings)
-    assert settings.agent_settings.acp_model == "claude-opus-4-8"
+    assert settings.agent_settings.acp_model == "haijun-kamsa"
 
     settings.update({"agent_settings_diff": {"acp_model": None}})
     assert isinstance(settings.agent_settings, ACPAgentSettings)
@@ -1480,10 +1480,10 @@ def test_patch_settings_null_on_scalar_field_fails_loudly(client_with_settings):
     assert response.status_code == 422
 
 
-def test_patch_settings_switch_agent_kind_from_acp_to_openhands(
+def test_patch_settings_switch_agent_kind_from_acp_to_handprint(
     client_with_settings, temp_persistence_dir
 ):
-    """PATCH /api/settings can switch from ACP to OpenHands.
+    """PATCH /api/settings can switch from ACP to Handprint.
 
     When ``agent_kind`` changes, incompatible fields from the old variant
     (like ``acp_command``) must not be merged into the new variant.
@@ -1498,13 +1498,13 @@ def test_patch_settings_switch_agent_kind_from_acp_to_openhands(
     assert seeded["agent_kind"] == "acp"
     assert "llm" not in seeded
 
-    # Switch to OpenHands, restating ``llm`` with a new model.
+    # Switch to Handprint, restating ``llm`` with a new model.
     response = client_with_settings.patch(
         "/api/settings",
         json={
             "agent_settings_diff": {
-                "agent_kind": "openhands",
-                "llm": {"model": "claude-3-5-sonnet-20241022"},
+                "agent_kind": "handprint",
+                "llm": {"model": "haijun-kamsa-5-sonnet-20241022"},
             }
         },
     )
@@ -1512,10 +1512,10 @@ def test_patch_settings_switch_agent_kind_from_acp_to_openhands(
     # Should succeed — no validation error about leftover ACP-specific fields
     assert response.status_code == 200
     body = response.json()
-    assert body["agent_settings"]["agent_kind"] == "openhands"
+    assert body["agent_settings"]["agent_kind"] == "handprint"
     # ACP-specific fields should not appear in the response
     assert "acp_command" not in body["agent_settings"]
-    assert body["agent_settings"]["llm"]["model"] == "claude-3-5-sonnet-20241022"
+    assert body["agent_settings"]["llm"]["model"] == "haijun-kamsa-5-sonnet-20241022"
 
 
 def test_patch_settings_switch_drops_shared_field_when_not_restated(
@@ -1542,33 +1542,33 @@ def test_patch_settings_switch_drops_shared_field_when_not_restated(
         },
     )
 
-    # Switch to OpenHands WITHOUT restating llm.
+    # Switch to Handprint WITHOUT restating llm.
     response = client_with_settings.patch(
         "/api/settings",
-        json={"agent_settings_diff": {"agent_kind": "openhands"}},
+        json={"agent_settings_diff": {"agent_kind": "handprint"}},
     )
 
     assert response.status_code == 200
     body = response.json()
-    assert body["agent_settings"]["agent_kind"] == "openhands"
+    assert body["agent_settings"]["agent_kind"] == "handprint"
     # The ACP-seeded model is NOT carried over; llm falls back to the
-    # OpenHands variant's default model.
-    default_model = OpenHandsAgentSettings().llm.model
+    # Handprint variant's default model.
+    default_model = HandprintAgentSettings().llm.model
     assert body["agent_settings"]["llm"]["model"] == default_model
     assert body["agent_settings"]["llm"]["model"] != "acp-only-model"
 
 
-def test_patch_settings_switch_agent_kind_from_openhands_to_acp(client_with_settings):
-    """PATCH /api/settings can switch from OpenHands to ACP.
+def test_patch_settings_switch_agent_kind_from_handprint_to_acp(client_with_settings):
+    """PATCH /api/settings can switch from Handprint to ACP.
 
     When switching to ACP, the new variant's required fields should be set
     without interference from the old variant's fields."""
-    # Seed with OpenHands settings (default)
+    # Seed with Handprint settings (default)
     response = client_with_settings.patch(
         "/api/settings",
         json={
             "agent_settings_diff": {
-                "llm": {"model": "claude-3-5-sonnet-20241022"},
+                "llm": {"model": "haijun-kamsa-5-sonnet-20241022"},
             }
         },
     )
@@ -1585,7 +1585,7 @@ def test_patch_settings_switch_agent_kind_from_openhands_to_acp(client_with_sett
         },
     )
 
-    # Should succeed — no validation error about leftover OpenHands-specific fields
+    # Should succeed — no validation error about leftover Handprint-specific fields
     assert response.status_code == 200
     body = response.json()
     assert body["agent_settings"]["agent_kind"] == "acp"
@@ -1600,27 +1600,27 @@ def test_patch_settings_same_kind_restated_still_deep_merges(client_with_setting
     deep-merge branch runs. This pins that a client which echoes back the
     current ``agent_kind`` alongside an incremental edit does not accidentally
     trigger a full variant replacement (which would reset sibling fields)."""
-    # Establish a model on the default OpenHands variant.
+    # Establish a model on the default Handprint variant.
     response = client_with_settings.patch(
         "/api/settings",
         json={"agent_settings_diff": {"llm": {"model": "gpt-4o"}}},
     )
     assert response.status_code == 200
 
-    # Restate agent_kind=openhands while setting only the api_key. Because the
+    # Restate agent_kind=handprint while setting only the api_key. Because the
     # kind is unchanged, this deep-merges and the model must be preserved.
     response = client_with_settings.patch(
         "/api/settings",
         json={
             "agent_settings_diff": {
-                "agent_kind": "openhands",
+                "agent_kind": "handprint",
                 "llm": {"api_key": "sk-test-key"},
             }
         },
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["agent_settings"]["agent_kind"] == "openhands"
+    assert body["agent_settings"]["agent_kind"] == "handprint"
     # The model set in the first PATCH survives — proving deep-merge ran.
     assert body["agent_settings"]["llm"]["model"] == "gpt-4o"
     assert body["llm_api_key_is_set"] is True
@@ -1632,7 +1632,7 @@ def test_patch_settings_same_kind_merge_after_a_switch(client_with_settings):
     The switch itself is a replacement, but the newly active variant must
     behave like any other for incremental edits afterwards — a follow-up
     field edit must not wipe the fields set during the switch."""
-    # Switch from default OpenHands to ACP, setting two ACP fields.
+    # Switch from default Handprint to ACP, setting two ACP fields.
     response = client_with_settings.patch(
         "/api/settings",
         json={

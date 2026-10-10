@@ -1,7 +1,7 @@
 /**
  * Remote conversation implementation
  *
- * This implements the IConversation interface by connecting to a remote OpenHands
+ * This implements the IConversation interface by connecting to a remote Handprint
  * agent server. It mirrors the Python SDK's RemoteConversation class.
  */
 
@@ -60,10 +60,10 @@ export interface RemoteConversationOptions extends BaseConversationOptions {
 }
 
 /**
- * Remote conversation implementation that connects to an OpenHands agent server.
+ * Remote conversation implementation that connects to an Handprint agent server.
  *
  * RemoteConversation provides access to a conversation running on a remote
- * OpenHands agent server. This is the recommended approach for production deployments
+ * Handprint agent server. This is the recommended approach for production deployments
  * as it provides better isolation and security.
  *
  * Example:
@@ -205,7 +205,7 @@ export class RemoteConversation implements IConversation {
   /**
    * Load hooks configuration from the server workspace.
    *
-   * This calls the server's hooks endpoint to read `.openhands/hooks.json`
+   * This calls the server's hooks endpoint to read `.handprint/hooks.json`
    * from the project directory.
    *
    * @param projectDir - Optional project directory path. Defaults to the workspace working dir.
@@ -372,16 +372,16 @@ export class RemoteConversation implements IConversation {
    */
   async fork(
     request: ForkConversationRequest = {},
-    options: { includeSkills?: boolean } = {}
+    options: { includeTracks?: boolean } = {}
   ): Promise<RemoteConversation> {
     const response = await this.client.post<ConversationInfo>(
       `/api/conversations/${this.id}/fork`,
       request,
       {
         params:
-          options.includeSkills === undefined
+          options.includeTracks === undefined
             ? undefined
-            : { include_skills: options.includeSkills },
+            : { include_tracks: options.includeTracks },
       }
     );
 

@@ -17,7 +17,7 @@ export interface TestConfig extends ServerTestConfig {
 
 export function getServerTestConfig(): ServerTestConfig {
   return {
-    agentServerUrl: process.env.AGENT_SERVER_URL || 'http://localhost:8010',
+    agentServerUrl: process.env.AGENT_SERVER_URL || 'http://localhost:9010',
     agentWorkspaceDir: process.env.AGENT_WORKSPACE_DIR || '/workspace',
     hostWorkspaceDir: process.env.HOST_WORKSPACE_DIR || '/tmp/agent-workspace',
     testTimeout: parseInt(process.env.TEST_TIMEOUT || '120000', 10),
@@ -31,14 +31,14 @@ export function getTestConfig(): TestConfig {
   if (!llmApiKey) {
     throw new Error(
       'LLM_API_KEY environment variable is required. ' +
-        'Set it to your LLM provider API key (e.g., Anthropic, OpenAI).'
+        'Set it to your LLM provider API key (e.g., Juglow, OpenAI).'
     );
   }
 
   if (!llmModel) {
     throw new Error(
       'LLM_MODEL environment variable is required. ' +
-        'Set it to the model name (e.g., "anthropic/claude-sonnet-4-5-20250929").'
+        'Set it to the model name (e.g., "juglow/haijun-codtral").'
     );
   }
 

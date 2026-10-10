@@ -6,33 +6,33 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.agent_server.config import DEFAULT_CONVERSATION_IMAGE, Config
-from openhands.agent_server.docker_runtime.provisioning import (
+from handprint.agent_server.config import DEFAULT_CONVERSATION_IMAGE, Config
+from handprint.agent_server.docker_runtime.provisioning import (
     RuntimeIdentity,
     RuntimeProvisioningStore,
 )
-from openhands.agent_server.docker_runtime.registry import DockerConversationRegistry
-from openhands.agent_server.docker_runtime.routers import _prepare_forward
-from openhands.agent_server.launch import launch_source, target_launch_runtime
-from openhands.agent_server.persistence import (
+from handprint.agent_server.docker_runtime.registry import DockerConversationRegistry
+from handprint.agent_server.docker_runtime.routers import _prepare_forward
+from handprint.agent_server.launch import launch_source, target_launch_runtime
+from handprint.agent_server.persistence import (
     PersistedSettings,
     get_agent_profile_store,
     get_llm_profile_store,
     get_settings_store,
 )
-from openhands.sdk import LLM, Agent
-from openhands.sdk.context import AgentContext
-from openhands.sdk.conversation.request import (
+from handprint.sdk import LLM, Agent
+from handprint.sdk.context import AgentContext
+from handprint.sdk.conversation.request import (
     AgentLaunchAdditions,
     StartConversationRequest,
 )
-from openhands.sdk.launch import LaunchRuntime, LaunchStores, ResolvedLaunch, finalize
-from openhands.sdk.mcp.config import MCPServer
-from openhands.sdk.profiles import OpenHandsAgentProfile
-from openhands.sdk.secret import LookupSecret, StaticSecret
-from openhands.sdk.settings.model import OpenHandsAgentSettings
-from openhands.sdk.subagent.schema import AgentDefinition
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.sdk.launch import LaunchRuntime, LaunchStores, ResolvedLaunch, finalize
+from handprint.sdk.mcp.config import MCPServer
+from handprint.sdk.profiles import HandprintAgentProfile
+from handprint.sdk.secret import LookupSecret, StaticSecret
+from handprint.sdk.settings.model import HandprintAgentSettings
+from handprint.sdk.subagent.schema import AgentDefinition
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def config(tmp_path, monkeypatch) -> Config:
@@ -168,7 +168,7 @@ async def test_the_host_resolves_a_profile_and_the_container_finalizes_it(
         include_secrets=True,
         cipher=runtime_config.cipher,
     )
-    profile = OpenHandsAgentProfile(
+    profile = HandprintAgentProfile(
         name="docker-test-profile",
         llm_profile_ref="docker-test-model",
         mcp_server_refs=[],
@@ -176,7 +176,7 @@ async def test_the_host_resolves_a_profile_and_the_container_finalizes_it(
     )
     get_agent_profile_store().save(profile)
     monkeypatch.setattr(
-        "openhands.agent_server.launch.discover_profile_skills", lambda: []
+        "handprint.agent_server.launch.discover_profile_tracks", lambda: []
     )
     monkeypatch.setattr(
         LookupSecret, "get_value", lambda secret: secret.url.rsplit("/", 1)[-1]
@@ -208,7 +208,7 @@ async def test_the_host_resolves_a_profile_and_the_container_finalizes_it(
     assert isinstance(source, ResolvedLaunch)
     agent = finalize(
         source,
-        LaunchRuntime(browser_available=True, acp_skill_sourcing="openhands_managed"),
+        LaunchRuntime(browser_available=True, acp_track_sourcing="handprint_managed"),
         additions=received.agent_launch_additions,
     ).agent
     assert isinstance(agent, Agent)
@@ -224,16 +224,16 @@ async def test_the_host_forwards_its_memory_preference(tmp_path, monkeypatch):
     runtime_config = config(tmp_path, monkeypatch)
     get_settings_store(runtime_config).save(
         PersistedSettings(
-            agent_settings=OpenHandsAgentSettings(
+            agent_settings=HandprintAgentSettings(
                 agent_context=AgentContext(load_memory=True)
             )
         )
     )
     get_llm_profile_store().save("fast", LLM(model="fast-model"))
-    profile = OpenHandsAgentProfile(name="p", llm_profile_ref="fast")
+    profile = HandprintAgentProfile(name="p", llm_profile_ref="fast")
     get_agent_profile_store().save(profile)
     monkeypatch.setattr(
-        "openhands.agent_server.launch.discover_profile_skills", lambda: []
+        "handprint.agent_server.launch.discover_profile_tracks", lambda: []
     )
     request = StartConversationRequest(
         workspace=LocalWorkspace(working_dir="/workspace"),
@@ -271,9 +271,9 @@ async def test_an_existing_conversation_is_not_resolved_again(tmp_path, monkeypa
 
 def _docker_host_browser(host: Config) -> bool:
     # The host's own chromium says nothing about the container's.
-    with patch("openhands.agent_server.launch.is_tool_usable", return_value=False):
+    with patch("handprint.agent_server.launch.is_tool_usable", return_value=False):
         runtime = target_launch_runtime(host)
-    assert runtime.acp_skill_sourcing == "openhands_managed"
+    assert runtime.acp_track_sourcing == "handprint_managed"
     return runtime.browser_available
 
 
@@ -329,7 +329,7 @@ async def test_an_explicit_agent_is_forwarded_instead_of_agent_settings(
         {
             "workspace": {"kind": "LocalWorkspace", "working_dir": "/workspace"},
             "agent": {"kind": "Agent", "llm": {"model": "test"}, "tools": []},
-            "agent_settings": {"agent_kind": "openhands", "llm": {"model": "test"}},
+            "agent_settings": {"agent_kind": "handprint", "llm": {"model": "test"}},
         }
     )
 

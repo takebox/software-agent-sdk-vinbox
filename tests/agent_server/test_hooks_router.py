@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
 
 
 @pytest.fixture
@@ -25,10 +25,10 @@ class TestHooksRouter:
     def test_get_hooks_success(self, client):
         """Test getting hooks from a valid hooks.json file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create .openhands/hooks.json
-            openhands_dir = Path(tmpdir) / ".openhands"
-            openhands_dir.mkdir()
-            hooks_file = openhands_dir / "hooks.json"
+            # Create .handprint/hooks.json
+            handprint_dir = Path(tmpdir) / ".handprint"
+            handprint_dir.mkdir()
+            hooks_file = handprint_dir / "hooks.json"
 
             hooks_data = {
                 "hooks": {
@@ -80,10 +80,10 @@ class TestHooksRouter:
     def test_get_hooks_empty_hooks(self, client):
         """Test getting hooks when hooks.json is empty."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create .openhands/hooks.json with empty content
-            openhands_dir = Path(tmpdir) / ".openhands"
-            openhands_dir.mkdir()
-            hooks_file = openhands_dir / "hooks.json"
+            # Create .handprint/hooks.json with empty content
+            handprint_dir = Path(tmpdir) / ".handprint"
+            handprint_dir.mkdir()
+            hooks_file = handprint_dir / "hooks.json"
             hooks_file.write_text("{}")
 
             response = client.post(
@@ -98,10 +98,10 @@ class TestHooksRouter:
     def test_get_hooks_multiple_event_types(self, client):
         """Test getting hooks with multiple event types."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create .openhands/hooks.json with multiple event types
-            openhands_dir = Path(tmpdir) / ".openhands"
-            openhands_dir.mkdir()
-            hooks_file = openhands_dir / "hooks.json"
+            # Create .handprint/hooks.json with multiple event types
+            handprint_dir = Path(tmpdir) / ".handprint"
+            handprint_dir.mkdir()
+            hooks_file = handprint_dir / "hooks.json"
 
             hooks_data = {
                 "hooks": {

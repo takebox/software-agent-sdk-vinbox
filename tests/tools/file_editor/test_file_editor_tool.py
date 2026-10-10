@@ -8,12 +8,12 @@ from uuid import uuid4
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.state import ConversationState
-from openhands.sdk.llm import LLM
-from openhands.sdk.tool import DeclaredResources
-from openhands.sdk.workspace import LocalWorkspace
-from openhands.tools.file_editor import (
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.state import ConversationState
+from handprint.sdk.llm import LLM
+from handprint.sdk.tool import DeclaredResources
+from handprint.sdk.workspace import LocalWorkspace
+from handprint.tools.file_editor import (
     FileEditorAction,
     FileEditorObservation,
     FileEditorTool,

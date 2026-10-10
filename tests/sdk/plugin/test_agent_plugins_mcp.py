@@ -11,20 +11,20 @@ from typing import Any
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.mcp.config import MCPServer, to_fastmcp_mcp_config
-from openhands.sdk.mcp.utils import create_mcp_tools
-from openhands.sdk.plugin import (
+from handprint.sdk import LLM, Agent
+from handprint.sdk.mcp.config import MCPServer, to_fastmcp_mcp_config
+from handprint.sdk.mcp.utils import create_mcp_tools
+from handprint.sdk.plugin import (
     AgentPluginsFormat,
     Plugin,
     PluginSource,
     get_plugin_data_dir,
 )
-from openhands.sdk.plugin.discovery import USER_PLUGINS_DIRS, load_user_plugins
-from openhands.sdk.plugin.format.agent_plugins_mcp import DEFAULT_PLUGIN_DATA_DIR
-from openhands.sdk.plugin.loader import load_plugins
-from openhands.sdk.settings.model import OpenHandsAgentSettings
-from openhands.sdk.skills.utils import expand_mcp_servers
+from handprint.sdk.plugin.discovery import USER_PLUGINS_DIRS, load_user_plugins
+from handprint.sdk.plugin.format.agent_plugins_mcp import DEFAULT_PLUGIN_DATA_DIR
+from handprint.sdk.plugin.loader import load_plugins
+from handprint.sdk.settings.model import HandprintAgentSettings
+from handprint.sdk.tracks.utils import expand_mcp_servers
 
 
 MCP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json"
@@ -99,7 +99,7 @@ class TestDocument:
         assert fmt.load_mcp_config(plugin_dir) == {}
 
     def test_dotted_mcp_json_is_not_read(self, plugin_dir: Path, data_root: Path):
-        """The Claude Code filename is a different format's file."""
+        """The Haijun Code filename is a different format's file."""
         (plugin_dir / ".mcp.json").write_text(
             json.dumps({"mcpServers": {"s": {"command": "echo"}}}), encoding="utf-8"
         )
@@ -164,9 +164,9 @@ class TestDocument:
         self, plugin_dir: Path, data_root: Path
     ):
         """§7.2.2 rule 2: MCP is disabled, the plugin still loads."""
-        skill = plugin_dir / "skills" / "greet"
-        skill.mkdir(parents=True)
-        (skill / "SKILL.md").write_text(
+        track = plugin_dir / "tracks" / "greet"
+        track.mkdir(parents=True)
+        (track / "TRACK.md").write_text(
             "---\nname: greet\ndescription: Greet someone.\n---\n\nHi.\n",
             encoding="utf-8",
         )
@@ -175,7 +175,7 @@ class TestDocument:
         plugin = Plugin.load(plugin_dir)
 
         assert plugin.mcp_config == {}
-        assert [s.name for s in plugin.skills] == ["greet"]
+        assert [s.name for s in plugin.tracks] == ["greet"]
 
 
 class TestFailureIsolation:
@@ -397,10 +397,10 @@ class TestRemote:
     @pytest.mark.parametrize(
         "url",
         [
-            "http://localhost:3000/mcp",
-            "http://127.0.0.1:3000/mcp",
+            "http://localhost:4000/mcp",
+            "http://127.0.0.1:4000/mcp",
             "http://127.8.9.10/mcp",
-            "http://[::1]:3000/mcp",
+            "http://[::1]:4000/mcp",
         ],
     )
     def test_loopback_may_use_http(self, plugin_dir: Path, data_root: Path, url: str):
@@ -547,7 +547,7 @@ class TestLiteralValues:
         [
             pytest.param(MCPServer.model_validate, id="server"),
             pytest.param(
-                lambda server: OpenHandsAgentSettings.model_validate(
+                lambda server: HandprintAgentSettings.model_validate(
                     {"mcp_config": {"mine": server}}
                 ),
                 id="settings-payload",
@@ -698,7 +698,7 @@ class TestPluginData:
             raise ValidationError.from_exception_data("MCPServer", [])
 
         monkeypatch.setattr(
-            "openhands.sdk.plugin.format.agent_plugins_mcp.MCPServer.model_validate",
+            "handprint.sdk.plugin.format.agent_plugins_mcp.MCPServer.model_validate",
             reject,
         )
 
@@ -718,7 +718,7 @@ class TestPluginData:
     ):
         default = tmp_path / "default-data"
         monkeypatch.setattr(
-            "openhands.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
+            "handprint.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
             default,
         )
         write_mcp(
@@ -749,7 +749,7 @@ class TestPluginData:
         """A data directory under a scanned root loads as a plugin of its own.
 
         ``_load_plugins_from_dir`` treats every child directory as a plugin, and
-        the Claude Code format accepts any directory, so ``plugins/data`` would
+        the Haijun Code format accepts any directory, so ``plugins/data`` would
         be discovered ambiently and merged into every agent.
         """
         assert not any(
@@ -761,7 +761,7 @@ class TestPluginData:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ):
         monkeypatch.setattr(
-            "openhands.sdk.plugin.discovery.USER_PLUGINS_DIRS",
+            "handprint.sdk.plugin.discovery.USER_PLUGINS_DIRS",
             [tmp_path / ".agents" / "plugins", tmp_path / "plugins"],
         )
         get_plugin_data_dir(
@@ -840,7 +840,7 @@ def test_load_plugins_does_not_expand_package_servers(
 ):
     """The public loader expands secrets too; package servers must skip it."""
     monkeypatch.setattr(
-        "openhands.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
+        "handprint.sdk.plugin.format.agent_plugins_mcp.DEFAULT_PLUGIN_DATA_DIR",
         tmp_path / "data",
     )
     monkeypatch.setenv("LEAKED", "from-environment")

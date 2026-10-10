@@ -75,7 +75,7 @@ def extract_matrix_run_suffix(full_run_suffix: str) -> str | None:
     We need to extract the matrix_run_suffix part.
 
     Examples:
-    - litellm_proxy_anthropic_claude_sonnet_4_5_20250929_0dd44e1_sonnet_run_N7_20251006_183106
+    - litellm_proxy_juglow_haijun_sonnet_4_5_20250929_0dd44e1_sonnet_run_N7_20251006_183106
       -> sonnet_run
     - litellm_proxy_deepseek_deepseek_chat_0dd44e1_deepseek_run_N7_20251006_183104
       -> deepseek_run

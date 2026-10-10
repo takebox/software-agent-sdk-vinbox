@@ -1,25 +1,25 @@
 """Tests for the path-rule injection seam in LocalConversation.
 
-When the agent touches a file whose path matches a PathTrigger skill ("rule"),
+When the agent touches a file whose path matches a PathTrigger track ("rule"),
 the rule content is appended to the resulting ObservationEvent's
 ``extended_content`` and deduped via ``state.activated_path_rules``.
 """
 
 from pathlib import Path
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.context.agent_context import AgentContext
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import ActionEvent, ObservationEvent
-from openhands.sdk.llm import Message, MessageToolCall, TextContent
-from openhands.sdk.skills import PathTrigger, Skill
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.tool.builtins.finish import FinishObservation
-from openhands.sdk.tool.builtins.invoke_skill import (
-    InvokeSkillAction,
-    InvokeSkillExecutor,
+from handprint.sdk.agent import Agent
+from handprint.sdk.context.agent_context import AgentContext
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import ActionEvent, ObservationEvent
+from handprint.sdk.llm import Message, MessageToolCall, TextContent
+from handprint.sdk.tracks import PathTrigger, Track
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.tool.builtins.finish import FinishObservation
+from handprint.sdk.tool.builtins.invoke_track import (
+    InvokeTrackAction,
+    InvokeTrackExecutor,
 )
-from openhands.sdk.tool.schema import Action
+from handprint.sdk.tool.schema import Action
 
 
 class _FileAction(Action):
@@ -35,7 +35,7 @@ class _NoPathAction(Action):
     command: str = "ls"
 
 
-def _conversation(tmp_path: Path, rule: Skill) -> LocalConversation:
+def _conversation(tmp_path: Path, rule: Track) -> LocalConversation:
     agent = Agent(
         llm=TestLLM.from_messages(
             [Message(role="assistant", content=[TextContent(text="ok")])],
@@ -43,7 +43,7 @@ def _conversation(tmp_path: Path, rule: Skill) -> LocalConversation:
         ),
         tools=[],
         include_default_tools=[],
-        agent_context=AgentContext(skills=[rule]),
+        agent_context=AgentContext(tracks=[rule]),
     )
     return LocalConversation(
         agent=agent,
@@ -86,7 +86,7 @@ def _inject(conv: LocalConversation, obs: ObservationEvent) -> ObservationEvent:
 
 
 def test_rule_injected_into_observation_on_matching_file_touch(tmp_path: Path) -> None:
-    rule = Skill(
+    rule = Track(
         name="api",
         content="Use zod for API validation.",
         trigger=PathTrigger(paths=["src/api/**/*.ts"]),
@@ -109,7 +109,7 @@ def test_rule_injected_into_observation_on_matching_file_touch(tmp_path: Path) -
 
 
 def test_rule_not_injected_for_nonmatching_path(tmp_path: Path) -> None:
-    rule = Skill(
+    rule = Track(
         name="api",
         content="Use zod.",
         trigger=PathTrigger(paths=["src/api/**/*.ts"]),
@@ -125,7 +125,7 @@ def test_rule_not_injected_for_nonmatching_path(tmp_path: Path) -> None:
 
 
 def test_rule_injected_once_then_deduped(tmp_path: Path) -> None:
-    rule = Skill(
+    rule = Track(
         name="api",
         content="Use zod.",
         trigger=PathTrigger(paths=["src/api/**/*.ts"]),
@@ -147,7 +147,7 @@ def test_rule_injected_once_then_deduped(tmp_path: Path) -> None:
 
 def test_injection_is_wired_through_on_event(tmp_path: Path) -> None:
     """The rule reaches the *persisted* observation via the real callback chain."""
-    rule = Skill(
+    rule = Track(
         name="api",
         content="Use zod.",
         trigger=PathTrigger(paths=["src/api/**/*.ts"]),
@@ -171,7 +171,7 @@ def test_injection_is_wired_through_on_event(tmp_path: Path) -> None:
 
 
 def test_file_outside_workspace_is_not_matched(tmp_path: Path) -> None:
-    rule = Skill(
+    rule = Track(
         name="any",
         content="rule",
         trigger=PathTrigger(paths=["**/*.ts"]),
@@ -204,7 +204,7 @@ def test_symlinked_workspace_root_still_matches(tmp_path: Path) -> None:
 
         pytest.skip("symlinks not supported on this platform")
 
-    rule = Skill(
+    rule = Track(
         name="api", content="Use zod.", trigger=PathTrigger(paths=["src/api/**/*.ts"])
     )
     conv = _conversation(link, rule)  # workspace is the symlink form
@@ -220,7 +220,7 @@ def test_symlinked_workspace_root_still_matches(tmp_path: Path) -> None:
 
 def test_non_path_action_does_not_inject(tmp_path: Path) -> None:
     """A tool action with no ``path`` field never triggers a rule."""
-    rule = Skill(name="any", content="rule", trigger=PathTrigger(paths=["**/*"]))
+    rule = Track(name="any", content="rule", trigger=PathTrigger(paths=["**/*"]))
     conv = _conversation(tmp_path, rule)
     try:
         action_event = ActionEvent(
@@ -245,7 +245,7 @@ def test_non_path_action_does_not_inject(tmp_path: Path) -> None:
 
 def test_relative_path_action_matched_against_workspace(tmp_path: Path) -> None:
     """A workspace-relative action path is matched as-is."""
-    rule = Skill(
+    rule = Track(
         name="api", content="Use zod.", trigger=PathTrigger(paths=["src/api/**/*.ts"])
     )
     conv = _conversation(tmp_path, rule)
@@ -275,7 +275,7 @@ def test_observation_extended_content_serialization_round_trip() -> None:
 
 
 def test_fork_copies_activated_path_rules(tmp_path: Path) -> None:
-    rule = Skill(
+    rule = Track(
         name="api", content="Use zod.", trigger=PathTrigger(paths=["src/api/**/*.ts"])
     )
     conv = _conversation(tmp_path, rule)
@@ -294,12 +294,12 @@ def test_fork_copies_activated_path_rules(tmp_path: Path) -> None:
         conv.close()
 
 
-def test_path_rule_not_invocable_via_invoke_skill(tmp_path: Path) -> None:
-    """A path rule can only be activated by file-touch, never invoke_skill."""
-    rule = Skill(name="api", content="Use zod.", trigger=PathTrigger(paths=["**/*.ts"]))
+def test_path_rule_not_invocable_via_invoke_track(tmp_path: Path) -> None:
+    """A path rule can only be activated by file-touch, never invoke_track."""
+    rule = Track(name="api", content="Use zod.", trigger=PathTrigger(paths=["**/*.ts"]))
     conv = _conversation(tmp_path, rule)
     try:
-        obs = InvokeSkillExecutor()(InvokeSkillAction(name="api"), conv)
+        obs = InvokeTrackExecutor()(InvokeTrackAction(name="api"), conv)
         assert obs.is_error
         assert "cannot be invoked directly" in obs.text
     finally:
@@ -333,7 +333,7 @@ def test_no_injection_when_agent_has_no_context(tmp_path: Path) -> None:
 
 def test_no_injection_when_action_not_correlated(tmp_path: Path) -> None:
     """An observation whose action_id isn't in the event log yields no path."""
-    rule = Skill(name="any", content="rule", trigger=PathTrigger(paths=["**/*"]))
+    rule = Track(name="any", content="rule", trigger=PathTrigger(paths=["**/*"]))
     conv = _conversation(tmp_path, rule)
     try:
         orphan = ObservationEvent(

@@ -9,17 +9,17 @@ import pytest
 from litellm.types.utils import Delta, ModelResponseStream, StreamingChoices
 from pydantic import SecretStr
 
-from openhands.agent_server import server_details_router
-from openhands.agent_server.event_service import EventService
-from openhands.agent_server.models import StoredConversation
-from openhands.agent_server.pub_sub import Subscriber
-from openhands.sdk import Event
-from openhands.sdk.agent import ACPAgent, Agent
-from openhands.sdk.agent.acp_agent import ACTIVITY_SIGNAL_INTERVAL
-from openhands.sdk.agent.stream_context import StreamProgress, StreamStarted
-from openhands.sdk.event import StreamingDeltaEvent
-from openhands.sdk.llm import LLM
-from openhands.sdk.workspace import LocalWorkspace
+from handprint.agent_server import server_details_router
+from handprint.agent_server.event_service import EventService
+from handprint.agent_server.models import StoredConversation
+from handprint.agent_server.pub_sub import Subscriber
+from handprint.sdk import Event
+from handprint.sdk.agent import ACPAgent, Agent
+from handprint.sdk.agent.acp_agent import ACTIVITY_SIGNAL_INTERVAL
+from handprint.sdk.agent.stream_context import StreamProgress, StreamStarted
+from handprint.sdk.event import StreamingDeltaEvent
+from handprint.sdk.llm import LLM
+from handprint.sdk.workspace import LocalWorkspace
 
 
 def _make_chunk(
@@ -59,7 +59,7 @@ class _PlainSubscriber(_CollectorSubscriber):
 
 @pytest.fixture
 def event_service(tmp_path):
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get") as mock_get:
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get") as mock_get:
         mock_get.return_value = MagicMock(json=lambda: {"data": []})
         service = EventService(
             stored=StoredConversation(
@@ -82,7 +82,7 @@ def event_service(tmp_path):
 
 def _mock_local_conversation():
     """Return a patch context manager for LocalConversation."""
-    return patch("openhands.agent_server.event_service.LocalConversation")
+    return patch("handprint.agent_server.event_service.LocalConversation")
 
 
 async def _start_and_capture_callback(event_service, tmp_path):
@@ -199,7 +199,7 @@ async def test_callback_handles_none_choices(event_service, tmp_path):
 @pytest.mark.asyncio
 async def test_token_callbacks_not_wired_when_stream_disabled(tmp_path):
     """If no LLM has stream=True, don't attach the streaming callback at all."""
-    with patch("openhands.sdk.llm.utils.model_info.httpx.get") as mock_get:
+    with patch("handprint.sdk.llm.utils.model_info.httpx.get") as mock_get:
         mock_get.return_value = MagicMock(json=lambda: {"data": []})
         service = EventService(
             stored=StoredConversation(

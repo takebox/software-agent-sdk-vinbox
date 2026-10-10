@@ -18,10 +18,10 @@ import pytest
 from fastapi import UploadFile
 from fastapi.testclient import TestClient
 
-from openhands.agent_server import file_router as file_router_module
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.file_router import ARCHIVE_MANIFEST_NAME, _upload_file
+from handprint.agent_server import file_router as file_router_module
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.file_router import ARCHIVE_MANIFEST_NAME, _upload_file
 
 
 @pytest.fixture
@@ -353,7 +353,7 @@ def test_download_trajectory_uses_python_zipfile(client, monkeypatch, tmp_path):
     (nested_dir / "event.json").write_text('{"id": "event-1"}')
 
     monkeypatch.setattr(
-        "openhands.agent_server.file_router.get_default_config",
+        "handprint.agent_server.file_router.get_default_config",
         lambda: Config(session_api_keys=[], conversations_path=conversations_path),
     )
 
@@ -391,7 +391,7 @@ def test_download_trajectory_omits_acp_credential_dir(client, monkeypatch, tmp_p
     (acp_dir / "auth.json").write_text('{"refresh_token": "rt-secret-123"}')
 
     monkeypatch.setattr(
-        "openhands.agent_server.file_router.get_default_config",
+        "handprint.agent_server.file_router.get_default_config",
         lambda: Config(session_api_keys=[], conversations_path=conversations_path),
     )
 
@@ -469,7 +469,7 @@ def test_download_trajectory_redacts_llm_and_condenser_secrets(
     (events_dir / "event-00000.json").write_text(json.dumps(event))
 
     monkeypatch.setattr(
-        "openhands.agent_server.file_router.get_default_config",
+        "handprint.agent_server.file_router.get_default_config",
         lambda: Config(session_api_keys=[], conversations_path=conversations_path),
     )
 

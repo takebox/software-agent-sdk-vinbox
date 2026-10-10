@@ -8,8 +8,8 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
-from openhands.sdk.llm.utils.metrics import Metrics
-from openhands.sdk.llm.utils.telemetry import Telemetry, normalize_usage
+from handprint.sdk.llm.utils.metrics import Metrics
+from handprint.sdk.llm.utils.telemetry import Telemetry, normalize_usage
 
 
 PROXY_COST = 0.084930
@@ -26,7 +26,7 @@ def _usage(cache_creation=20281, cache_read=0, prompt=20291, completion=83):
 
 
 def _response(usage, cost=PROXY_COST):
-    resp = ModelResponse(model="litellm_proxy/claude-sonnet-4-5-20250929", usage=usage)
+    resp = ModelResponse(model="litellm_proxy/haijun-codtral", usage=usage)
     resp._hidden_params = {
         "additional_headers": {"llm_provider-x-litellm-response-cost": cost}
     }
@@ -45,7 +45,7 @@ def exporter(monkeypatch):
         with tracer.start_as_current_span(name) as span:
             yield span
 
-    monkeypatch.setattr("openhands.sdk.observability.laminar.llm_call_span", fake_span)
+    monkeypatch.setattr("handprint.sdk.observability.laminar.llm_call_span", fake_span)
     return exp
 
 
@@ -57,7 +57,7 @@ def _attrs(exporter):
 
 def test_span_cost_uses_authoritative_proxy_cost(exporter):
     t = Telemetry(
-        model_name="litellm_proxy/claude-sonnet-4-5-20250929", metrics=Metrics()
+        model_name="litellm_proxy/haijun-codtral", metrics=Metrics()
     )
     t.on_request(telemetry_ctx={})
     t.on_response(_response(_usage()))

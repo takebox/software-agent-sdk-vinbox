@@ -16,7 +16,7 @@
     {
       "endpoints": ["GET /", "GET /alive", "GET /health", "GET /ready", "GET /server_info"],
       "reason": "Operational Agent Server endpoints intentionally excluded from the filtered public release artifact.",
-      "owner": "OpenHands runtime maintainers"
+      "owner": "Handprint runtime maintainers"
     },
     {
       "endpoints": [
@@ -27,13 +27,13 @@
         "POST /api/meta-profiles/{}/activate"
       ],
       "reason": "Client-ahead API stacked on the pending Agent Server meta-profiles implementation.",
-      "owner": "OpenHands SDK maintainers",
+      "owner": "Handprint SDK maintainers",
       "tracking": "https://github.com/OpenHands/software-agent-sdk/pull/3744"
     },
     {
       "endpoints": ["POST /api/profiles/{}/validate"],
       "reason": "Client-ahead API stacked on the pending Agent Server pre-flight LLM validation endpoint.",
-      "owner": "OpenHands TypeScript client maintainers",
+      "owner": "Handprint TypeScript client maintainers",
       "tracking": "https://github.com/OpenHands/software-agent-sdk/pull/4422"
     }
   ],
@@ -45,7 +45,7 @@
         "GET /api/conversations/{}/workspace/{}"
       ],
       "reason": "RemoteWorkspace.startWorkspaceSession exposes these authenticated URLs for browser iframe and file requests; they are not HttpClient method calls.",
-      "owner": "OpenHands TypeScript client maintainers"
+      "owner": "Handprint TypeScript client maintainers"
     }
   ],
 

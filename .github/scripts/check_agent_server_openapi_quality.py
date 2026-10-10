@@ -390,7 +390,7 @@ def main() -> int:
     if args.schema is not None:
         document = json.loads(args.schema.read_text())
     else:
-        from openhands.agent_server.openapi import build_public_openapi
+        from handprint.agent_server.openapi import build_public_openapi
 
         document = build_public_openapi()
     findings = find_weak_locations(document)

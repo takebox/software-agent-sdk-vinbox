@@ -15,9 +15,9 @@ import threading
 import httpx
 import pytest
 
-from openhands.sdk.llm import LLM, Message, ModelRuntimeMetadata, TextContent
-from openhands.sdk.llm.utils import runtime_metadata as rm
-from openhands.sdk.llm.utils.providers import openrouter as orm
+from handprint.sdk.llm import LLM, Message, ModelRuntimeMetadata, TextContent
+from handprint.sdk.llm.utils import runtime_metadata as rm
+from handprint.sdk.llm.utils.providers import openrouter as orm
 
 
 PAYLOAD = {
@@ -288,7 +288,7 @@ def test_acompletion_resolves_runtime_metadata(monkeypatch):
             usage=Usage(prompt_tokens=3, completion_tokens=2, total_tokens=5),
         )
 
-    monkeypatch.setattr("openhands.sdk.llm.llm.litellm_acompletion", fake_acompletion)
+    monkeypatch.setattr("handprint.sdk.llm.llm.litellm_acompletion", fake_acompletion)
 
     async def go():
         return await llm.acompletion(
@@ -518,7 +518,7 @@ def test_async_inflight_keyed_by_event_loop(monkeypatch):
 
 def test_sync_resolution_generation_guards_stale_write(monkeypatch):
     """A stale (earlier-started) sync probe must not overwrite a newer result."""
-    from openhands.sdk.llm import llm as llm_module
+    from handprint.sdk.llm import llm as llm_module
 
     start = threading.Event()
     release = threading.Event()

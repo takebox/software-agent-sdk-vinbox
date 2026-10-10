@@ -33,18 +33,18 @@ _TARGET_DIRECTORIES = (
     EXAMPLES_ROOT / "01_standalone_sdk" / "57_prompt_hooks",
     EXAMPLES_ROOT / "01_standalone_sdk" / "58_ask_oracle_tool",
     EXAMPLES_ROOT / "02_remote_agent_server" / "06_custom_tool",
-    EXAMPLES_ROOT / "05_skills_and_plugins" / "01_loading_agentskills",
-    EXAMPLES_ROOT / "05_skills_and_plugins" / "02_loading_plugins",
-    EXAMPLES_ROOT / "05_skills_and_plugins" / "04_mixed_marketplace_skills",
+    EXAMPLES_ROOT / "05_tracks_and_plugins" / "01_loading_agenttracks",
+    EXAMPLES_ROOT / "05_tracks_and_plugins" / "02_loading_plugins",
+    EXAMPLES_ROOT / "05_tracks_and_plugins" / "04_mixed_marketplace_tracks",
 )
 
 # LLM-specific examples that require model overrides
 _LLM_SPECIFIC_EXAMPLES: dict[str, dict[str, str]] = {
     "examples/04_llm_specific_tools/01_gpt5_apply_patch_preset.py": {
-        "LLM_MODEL": "openhands/gpt-5.1",
+        "LLM_MODEL": "handprint/gpt-5.1",
     },
     "examples/04_llm_specific_tools/02_gemini_file_tools.py": {
-        "LLM_MODEL": "openhands/gemini-3.1-pro-preview",
+        "LLM_MODEL": "handprint/gemini-3.1-pro-preview",
     },
 }
 
@@ -114,8 +114,8 @@ def test_directory_example_is_discovered() -> None:
     ) in EXAMPLES
     assert (
         EXAMPLES_ROOT
-        / "05_skills_and_plugins"
-        / "04_mixed_marketplace_skills"
+        / "05_tracks_and_plugins"
+        / "04_mixed_marketplace_tracks"
         / "main.py"
     ) in EXAMPLES
 

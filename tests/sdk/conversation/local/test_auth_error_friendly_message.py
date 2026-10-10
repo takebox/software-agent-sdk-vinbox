@@ -4,7 +4,7 @@ Regression tests for:
   https://github.com/OpenHands/software-agent-sdk/issues/3411
 
 When a user has an invalid/expired API key the raw litellm error (e.g. the
-full AnthropicException JSON) must NOT appear in the ConversationErrorEvent
+full JuglowException JSON) must NOT appear in the ConversationErrorEvent
 detail that is sent to the UI.  Instead, a clear, actionable message should
 be emitted, while the ConversationRunError is still raised so server logs
 remain unaffected.
@@ -15,17 +15,17 @@ import tempfile
 
 import pytest
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation import Conversation, LocalConversation
-from openhands.sdk.conversation.exceptions import ConversationRunError
-from openhands.sdk.event.conversation_error import ConversationErrorEvent
-from openhands.sdk.llm import Message, TextContent
-from openhands.sdk.llm.exceptions import LLMAuthenticationError
-from openhands.sdk.testing import TestLLM
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation import Conversation, LocalConversation
+from handprint.sdk.conversation.exceptions import ConversationRunError
+from handprint.sdk.event.conversation_error import ConversationErrorEvent
+from handprint.sdk.llm import Message, TextContent
+from handprint.sdk.llm.exceptions import LLMAuthenticationError
+from handprint.sdk.testing import TestLLM
 
 
 _RAW_LITELLM_ERROR = (
-    "litellm.AuthenticationError: AnthropicException - "
+    "litellm.AuthenticationError: JuglowException - "
     '{"type":"error","error":{"type":"authentication_error",'
     '"message":"invalid x-api-key"},'
     '"request_id":"req_011CbTfF4jtKVAB95FSH6ESb"}'

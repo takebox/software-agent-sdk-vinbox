@@ -17,13 +17,13 @@ import time
 
 import pytest
 
-from openhands.sdk import TextContent
-from openhands.sdk.logger import get_logger
-from openhands.tools.terminal.definition import (
+from handprint.sdk import TextContent
+from handprint.sdk.logger import get_logger
+from handprint.tools.terminal.definition import (
     TerminalAction,
     TerminalObservation,
 )
-from openhands.tools.terminal.terminal import (
+from handprint.tools.terminal.terminal import (
     TerminalCommandStatus,
     create_terminal_session,
 )
@@ -142,7 +142,7 @@ def test_session_truncates_large_command_output(monkeypatch, terminal_type):
     # (Avoid generating 30k+ output in unit tests.)
     small_max = 600
 
-    from openhands.tools.terminal.terminal import (
+    from handprint.tools.terminal.terminal import (
         terminal_session as terminal_session_mod,
     )
 
@@ -171,7 +171,7 @@ def test_session_truncates_multiline_output(monkeypatch, terminal_type):
 
     small_max = 600
 
-    from openhands.tools.terminal.terminal import (
+    from handprint.tools.terminal.terminal import (
         terminal_session as terminal_session_mod,
     )
 
@@ -201,8 +201,8 @@ def test_session_truncates_multiline_output(monkeypatch, terminal_type):
 def test_truncation_preserves_metadata_in_llm_content(monkeypatch, terminal_type):
     # Ensure that when we truncate the final formatted text for the LLM,
     # the metadata suffix remains visible.
-    from openhands.sdk.utils.truncate import DEFAULT_TRUNCATE_NOTICE
-    from openhands.tools.terminal import definition as terminal_definition_mod
+    from handprint.sdk.utils.truncate import DEFAULT_TRUNCATE_NOTICE
+    from handprint.tools.terminal import definition as terminal_definition_mod
 
     session = create_terminal_session(work_dir=os.getcwd(), terminal_type=terminal_type)
     session.initialize()
@@ -258,7 +258,7 @@ def test_environment_variable_persistence(terminal_type):
 def test_environment_variable_inheritance_from_parent(terminal_type):
     """Test that environment variables from parent process are inherited."""
     # Set an environment variable in the current process
-    test_var_name = "OPENHANDS_TEST_INHERITANCE_VAR"
+    test_var_name = "HANDPRINT_TEST_INHERITANCE_VAR"
     test_var_value = "inherited_from_parent_12345"
     original_value = os.environ.get(test_var_name)
 
@@ -797,7 +797,7 @@ def test_no_ps2_in_output(terminal_type):
 @parametrize_terminal_types
 def test_multiline_command_loop(terminal_type):
     """Test multiline command with loops."""
-    # https://github.com/OpenHands/OpenHands/issues/3143
+    # https://github.com/Handprint/Handprint/issues/3143
     init_cmd = """mkdir -p _modules && \\
 for month in {01..04}; do
     for day in {01..05}; do
@@ -1102,14 +1102,14 @@ def test_bash_remove_prefix(terminal_type):
             # create a git repo - same for both platforms
             obs = _run_bash_action(
                 session,
-                "git init && git remote add origin https://github.com/OpenHands/OpenHands",
+                "git init && git remote add origin https://github.com/Handprint/Handprint",
             )
             assert obs.metadata.exit_code == 0
 
             # Check git remote - same for both platforms
             obs = _run_bash_action(session, "git remote -v")
             assert obs.metadata.exit_code == 0
-            assert "https://github.com/OpenHands/OpenHands" in obs.text
+            assert "https://github.com/Handprint/Handprint" in obs.text
             assert "git remote -v" not in obs.text
         finally:
             session.close()

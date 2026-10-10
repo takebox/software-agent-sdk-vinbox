@@ -11,13 +11,13 @@ This example demonstrates the intended workflow shape:
 import os
 from pathlib import Path
 
-from openhands.sdk import LLM, Agent, AgentContext, Conversation, Tool
-from openhands.sdk.context import Skill
-from openhands.sdk.subagent import register_agent_if_absent
-from openhands.tools.delegate import DelegationVisualizer
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.terminal import TerminalTool
-from openhands.tools.workflow import WorkflowToolSet
+from handprint.sdk import LLM, Agent, AgentContext, Conversation, Tool
+from handprint.sdk.context import Track
+from handprint.sdk.subagent import register_agent_if_absent
+from handprint.tools.delegate import DelegationVisualizer
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.terminal import TerminalTool
+from handprint.tools.workflow import WorkflowToolSet
 
 
 llm = LLM(
@@ -37,8 +37,8 @@ def create_coverage_auditor(llm: LLM) -> Agent:
             Tool(name=FileEditorTool.name),
         ],
         agent_context=AgentContext(
-            skills=[
-                Skill(
+            tracks=[
+                Track(
                     name="coverage_audit",
                     content=(
                         "You audit whether source code has meaningful test "
@@ -74,8 +74,8 @@ parent_agent = Agent(
     llm=llm,
     tools=[Tool(name=WorkflowToolSet.name)],
     agent_context=AgentContext(
-        skills=[
-            Skill(
+        tracks=[
+            Track(
                 name="workflow_author",
                 content=(
                     "When a task benefits from parallel sub-agents, write a "
@@ -101,10 +101,10 @@ conversation = Conversation(
 conversation.send_message(
     "Write and run a dynamic workflow that audits whether test coverage is "
     "good across this repository. In the workflow code you generate, create "
-    "one item for each project area: `openhands-sdk/openhands/sdk`, "
-    "`openhands-tools/openhands/tools`, "
-    "`openhands-workspace/openhands/workspace`, and "
-    "`openhands-agent-server/openhands/agent_server`. Use `wf.map_agents` "
+    "one item for each project area: `openhands-sdk/handprint/sdk`, "
+    "`openhands-tools/handprint/tools`, "
+    "`openhands-workspace/handprint/workspace`, and "
+    "`openhands-agent-server/handprint/agent_server`. Use `wf.map_agents` "
     "with `max_concurrency=2` to fan out one `coverage_auditor` sub-agent "
     "per area. Each sub-agent should inspect source files and matching tests "
     "under `tests/sdk`, `tests/tools`, `tests/workspace`, or "

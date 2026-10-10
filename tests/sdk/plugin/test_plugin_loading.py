@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk.mcp.config import dump_mcp_config
-from openhands.sdk.plugin import (
-    ClaudeCodePluginFormat,
+from handprint.sdk.mcp.config import dump_mcp_config
+from handprint.sdk.plugin import (
+    HaijunCodePluginFormat,
     Plugin,
     PluginManifest,
     detect_format,
 )
-from openhands.sdk.plugin.types import (
+from handprint.sdk.plugin.types import (
     CommandDefinition,
     PluginAuthor,
 )
@@ -34,7 +34,7 @@ class TestPluginManifest:
 
     def test_manifest_with_author_object(self):
         """Test parsing manifest with author as object."""
-        from openhands.sdk.plugin.types import PluginAuthor
+        from handprint.sdk.plugin.types import PluginAuthor
 
         manifest = PluginManifest(
             name="test-plugin",
@@ -88,23 +88,23 @@ class TestPluginLoading:
         assert plugin.version == "2.0.0"
         assert plugin.description == "A test plugin"
 
-    def test_load_plugin_with_claude_plugin_dir(self, tmp_path: Path):
-        """Test loading a plugin with .claude-plugin directory."""
-        plugin_dir = tmp_path / "claude-plugin"
+    def test_load_plugin_with_haijun_plugin_dir(self, tmp_path: Path):
+        """Test loading a plugin with .haijun-plugin directory."""
+        plugin_dir = tmp_path / "haijun-plugin"
         plugin_dir.mkdir()
-        manifest_dir = plugin_dir / ".claude-plugin"
+        manifest_dir = plugin_dir / ".haijun-plugin"
         manifest_dir.mkdir()
 
         manifest_file = manifest_dir / "plugin.json"
         manifest_file.write_text(
             """{
-            "name": "claude-plugin",
+            "name": "haijun-plugin",
             "version": "1.0.0"
         }"""
         )
 
         plugin = Plugin.load(plugin_dir)
-        assert plugin.name == "claude-plugin"
+        assert plugin.name == "haijun-plugin"
 
     def test_load_plugin_without_manifest(self, tmp_path: Path):
         """Test loading a plugin without manifest (infers from directory name)."""
@@ -116,73 +116,73 @@ class TestPluginLoading:
         assert plugin.name == "inferred-plugin"
         assert plugin.version == "1.0.0"
 
-    def test_load_plugin_with_skills(self, tmp_path: Path):
-        """Test loading a plugin with skills."""
-        plugin_dir = tmp_path / "skill-plugin"
+    def test_load_plugin_with_tracks(self, tmp_path: Path):
+        """Test loading a plugin with tracks."""
+        plugin_dir = tmp_path / "track-plugin"
         plugin_dir.mkdir()
 
-        # Create skills directory
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir()
+        # Create tracks directory
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir()
 
-        # Create a skill
-        skill_dir = skills_dir / "test-skill"
-        skill_dir.mkdir()
-        skill_md = skill_dir / "SKILL.md"
-        skill_md.write_text(
+        # Create a track
+        track_dir = tracks_dir / "test-track"
+        track_dir.mkdir()
+        track_md = track_dir / "TRACK.md"
+        track_md.write_text(
             """---
-name: test-skill
-description: A test skill
+name: test-track
+description: A test track
 ---
 
-This is a test skill content.
+This is a test track content.
 """
         )
 
         plugin = Plugin.load(plugin_dir)
 
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].name == "test-skill"
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].name == "test-track"
 
-    def test_load_single_skill_plugin_root_skill_md(self, tmp_path: Path):
-        """A SKILL.md at the plugin root loads as a single-skill plugin.
+    def test_load_single_track_plugin_root_track_md(self, tmp_path: Path):
+        """A TRACK.md at the plugin root loads as a single-track plugin.
 
-        Mirrors Claude Code's single-skill-plugin behavior (v2.1.142+): when a
-        plugin has no skills/ directory, a root SKILL.md is loaded as the
-        plugin's skill. This is how standalone Agent Skills are published as
+        Mirrors Haijun Code's single-track-plugin behavior (v2.1.142+): when a
+        plugin has no tracks/ directory, a root TRACK.md is loaded as the
+        plugin's track. This is how standalone Agent Tracks are published as
         plugins without an extra nesting level.
         """
-        plugin_dir = tmp_path / "solo-skill"
+        plugin_dir = tmp_path / "solo-track"
         plugin_dir.mkdir()
-        manifest_dir = plugin_dir / ".claude-plugin"
+        manifest_dir = plugin_dir / ".haijun-plugin"
         manifest_dir.mkdir()
         (manifest_dir / "plugin.json").write_text(
-            '{"name": "solo-skill", "version": "1.0.0"}'
+            '{"name": "solo-track", "version": "1.0.0"}'
         )
-        (plugin_dir / "SKILL.md").write_text(
+        (plugin_dir / "TRACK.md").write_text(
             """---
-name: solo-skill
-description: A standalone skill published as a single-skill plugin.
+name: solo-track
+description: A standalone track published as a single-track plugin.
 ---
 
-Body of the solo skill.
+Body of the solo track.
 """
         )
 
         plugin = Plugin.load(plugin_dir)
 
-        assert plugin.name == "solo-skill"
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].name == "solo-skill"
+        assert plugin.name == "solo-track"
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].name == "solo-track"
 
-    def test_load_single_skill_plugin_without_manifest(self, tmp_path: Path):
-        """Root SKILL.md loads even when plugin.json is absent."""
+    def test_load_single_track_plugin_without_manifest(self, tmp_path: Path):
+        """Root TRACK.md loads even when plugin.json is absent."""
         plugin_dir = tmp_path / "inferred-solo"
         plugin_dir.mkdir()
-        (plugin_dir / "SKILL.md").write_text(
+        (plugin_dir / "TRACK.md").write_text(
             """---
 name: inferred-solo
-description: Root skill with no manifest.
+description: Root track with no manifest.
 ---
 
 Body.
@@ -192,75 +192,75 @@ Body.
         plugin = Plugin.load(plugin_dir)
 
         assert plugin.name == "inferred-solo"
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].name == "inferred-solo"
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].name == "inferred-solo"
 
-    def test_skills_dir_takes_precedence_over_root_skill_md(self, tmp_path: Path):
-        """When a skills/ directory exists, it wins over a root SKILL.md.
+    def test_tracks_dir_takes_precedence_over_root_track_md(self, tmp_path: Path):
+        """When a tracks/ directory exists, it wins over a root TRACK.md.
 
-        Matches Claude Code: the root SKILL.md is only a fallback used when
-        there is no skills/ directory.
+        Matches Haijun Code: the root TRACK.md is only a fallback used when
+        there is no tracks/ directory.
         """
         plugin_dir = tmp_path / "both"
         plugin_dir.mkdir()
-        # Root SKILL.md that must be IGNORED because skills/ exists.
-        (plugin_dir / "SKILL.md").write_text(
+        # Root TRACK.md that must be IGNORED because tracks/ exists.
+        (plugin_dir / "TRACK.md").write_text(
             "---\nname: root-ignored\ndescription: should not load\n---\nbody\n"
         )
-        skill_dir = plugin_dir / "skills" / "nested"
-        skill_dir.mkdir(parents=True)
-        (skill_dir / "SKILL.md").write_text(
+        track_dir = plugin_dir / "tracks" / "nested"
+        track_dir.mkdir(parents=True)
+        (track_dir / "TRACK.md").write_text(
             "---\nname: nested\ndescription: the real one\n---\nbody\n"
         )
 
         plugin = Plugin.load(plugin_dir)
 
-        names = {s.name for s in plugin.skills}
+        names = {s.name for s in plugin.tracks}
         assert names == {"nested"}
         assert "root-ignored" not in names
 
-    def test_load_plugin_no_skills_anywhere(self, tmp_path: Path):
-        """A plugin with neither skills/ nor a root SKILL.md loads zero skills."""
+    def test_load_plugin_no_tracks_anywhere(self, tmp_path: Path):
+        """A plugin with neither tracks/ nor a root TRACK.md loads zero tracks."""
         plugin_dir = tmp_path / "empty"
         plugin_dir.mkdir()
-        (plugin_dir / "README.md").write_text("# not a skill\n")
+        (plugin_dir / "README.md").write_text("# not a track\n")
 
         plugin = Plugin.load(plugin_dir)
 
-        assert plugin.skills == []
+        assert plugin.tracks == []
 
-    def test_skills_dir_nested_md_and_relaxed_names(self, tmp_path: Path):
-        """Nested .md files are skill resources, not skills; names are relaxed."""
+    def test_tracks_dir_nested_md_and_relaxed_names(self, tmp_path: Path):
+        """Nested .md files are track resources, not tracks; names are relaxed."""
         plugin_dir = tmp_path / "nested"
-        skill_dir = plugin_dir / "skills" / "Summarize_Tool"
-        (skill_dir / "references").mkdir(parents=True)
-        (skill_dir / "SKILL.md").write_text(
+        track_dir = plugin_dir / "tracks" / "Summarize_Tool"
+        (track_dir / "references").mkdir(parents=True)
+        (track_dir / "TRACK.md").write_text(
             "---\nname: Summarize_Tool\ndescription: d\n---\nbody\n"
         )
-        (skill_dir / "references" / "notes.md").write_text("# notes\n")
-        (plugin_dir / "skills" / "shared").mkdir()
-        (plugin_dir / "skills" / "shared" / "notes.md").write_text("# notes\n")
-        (plugin_dir / "skills" / "loose.md").write_text("loose skill\n")
-        (plugin_dir / "skills" / "readme.md").write_text("# readme\n")
+        (track_dir / "references" / "notes.md").write_text("# notes\n")
+        (plugin_dir / "tracks" / "shared").mkdir()
+        (plugin_dir / "tracks" / "shared" / "notes.md").write_text("# notes\n")
+        (plugin_dir / "tracks" / "loose.md").write_text("loose track\n")
+        (plugin_dir / "tracks" / "readme.md").write_text("# readme\n")
 
         plugin = Plugin.load(plugin_dir)
 
-        assert [s.name for s in plugin.skills] == ["Summarize_Tool", "loose"]
+        assert [s.name for s in plugin.tracks] == ["Summarize_Tool", "loose"]
 
-    def test_skills_dir_bad_skill_skips_only_itself(self, tmp_path: Path):
-        """A skill that fails to load does not abort the remaining skills."""
+    def test_tracks_dir_bad_track_skips_only_itself(self, tmp_path: Path):
+        """A track that fails to load does not abort the remaining tracks."""
         plugin_dir = tmp_path / "partial"
-        skills_dir = plugin_dir / "skills"
-        (skills_dir / "broken").mkdir(parents=True)
-        (skills_dir / "broken" / "SKILL.md").write_bytes(b"\xff\xfe\xfa")
-        (skills_dir / "good").mkdir()
-        (skills_dir / "good" / "SKILL.md").write_text(
+        tracks_dir = plugin_dir / "tracks"
+        (tracks_dir / "broken").mkdir(parents=True)
+        (tracks_dir / "broken" / "TRACK.md").write_bytes(b"\xff\xfe\xfa")
+        (tracks_dir / "good").mkdir()
+        (tracks_dir / "good" / "TRACK.md").write_text(
             "---\nname: good\ndescription: d\n---\nbody\n"
         )
 
         plugin = Plugin.load(plugin_dir)
 
-        assert [s.name for s in plugin.skills] == ["good"]
+        assert [s.name for s in plugin.tracks] == ["good"]
 
     def test_load_plugin_with_hooks(self, tmp_path: Path):
         """Test loading a plugin with hooks."""
@@ -402,9 +402,9 @@ Review the specified code and provide feedback.
         assert plugin.manifest.entry_command is None
         assert plugin.entry_slash_command is None
 
-    def test_command_to_skill_conversion(self, tmp_path: Path):
-        """Test converting a command to a keyword-triggered skill."""
-        from openhands.sdk.skills.trigger import KeywordTrigger
+    def test_command_to_track_conversion(self, tmp_path: Path):
+        """Test converting a command to a keyword-triggered track."""
+        from handprint.sdk.tracks.trigger import KeywordTrigger
 
         plugin_dir = tmp_path / "city-weather"
         plugin_dir.mkdir()
@@ -431,27 +431,27 @@ Fetch and display the current weather for the specified city.
         plugin = Plugin.load(plugin_dir)
         assert len(plugin.commands) == 1
 
-        # Convert command to skill
+        # Convert command to track
         command = plugin.commands[0]
-        skill = command.to_skill("city-weather")
+        track = command.to_track("city-weather")
 
-        # Verify skill properties
-        assert skill.name == "city-weather:now"
-        assert skill.description == "Get current weather for a city"
-        assert skill.allowed_tools is not None
-        assert "tavily_search" in skill.allowed_tools
+        # Verify track properties
+        assert track.name == "city-weather:now"
+        assert track.description == "Get current weather for a city"
+        assert track.allowed_tools is not None
+        assert "tavily_search" in track.allowed_tools
 
         # Verify trigger format
-        assert isinstance(skill.trigger, KeywordTrigger)
-        assert "/city-weather:now" in skill.trigger.keywords
+        assert isinstance(track.trigger, KeywordTrigger)
+        assert "/city-weather:now" in track.trigger.keywords
 
         # Verify content includes argument hint
-        assert "$ARGUMENTS" in skill.content
-        assert "Fetch and display the current weather" in skill.content
+        assert "$ARGUMENTS" in track.content
+        assert "Fetch and display the current weather" in track.content
 
-    def test_get_all_skills_with_commands(self, tmp_path: Path):
-        """Test get_all_skills returns both skills and command-derived skills."""
-        from openhands.sdk.skills.trigger import KeywordTrigger
+    def test_get_all_tracks_with_commands(self, tmp_path: Path):
+        """Test get_all_tracks returns both tracks and command-derived tracks."""
+        from handprint.sdk.tracks.trigger import KeywordTrigger
 
         plugin_dir = tmp_path / "test-plugin"
         plugin_dir.mkdir()
@@ -460,19 +460,19 @@ Fetch and display the current weather for the specified city.
         manifest_file = manifest_dir / "plugin.json"
         manifest_file.write_text('{"name": "test-plugin", "version": "1.0.0"}')
 
-        # Create skills directory with a skill
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir()
-        skill_dir = skills_dir / "my-skill"
-        skill_dir.mkdir()
-        skill_md = skill_dir / "SKILL.md"
-        skill_md.write_text(
+        # Create tracks directory with a track
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir()
+        track_dir = tracks_dir / "my-track"
+        track_dir.mkdir()
+        track_md = track_dir / "TRACK.md"
+        track_md.write_text(
             """---
-name: my-skill
-description: A regular skill
+name: my-track
+description: A regular track
 ---
 
-This is a regular skill content.
+This is a regular track content.
 """
         )
 
@@ -493,49 +493,49 @@ Say hello to the specified person.
         plugin = Plugin.load(plugin_dir)
 
         # Verify separate counts
-        assert len(plugin.skills) == 1
+        assert len(plugin.tracks) == 1
         assert len(plugin.commands) == 1
 
-        # Verify combined skills
-        all_skills = plugin.get_all_skills()
-        assert len(all_skills) == 2
+        # Verify combined tracks
+        all_tracks = plugin.get_all_tracks()
+        assert len(all_tracks) == 2
 
-        # Find the regular skill and command-derived skill
-        skill_names = {s.name for s in all_skills}
-        assert "my-skill" in skill_names
-        assert "test-plugin:greet" in skill_names
+        # Find the regular track and command-derived track
+        track_names = {s.name for s in all_tracks}
+        assert "my-track" in track_names
+        assert "test-plugin:greet" in track_names
 
-        # Verify command-derived skill has keyword trigger
-        command_skill = next(s for s in all_skills if s.name == "test-plugin:greet")
-        assert isinstance(command_skill.trigger, KeywordTrigger)
-        assert "/test-plugin:greet" in command_skill.trigger.keywords
+        # Verify command-derived track has keyword trigger
+        command_track = next(s for s in all_tracks if s.name == "test-plugin:greet")
+        assert isinstance(command_track.trigger, KeywordTrigger)
+        assert "/test-plugin:greet" in command_track.trigger.keywords
 
-    def test_get_all_skills_empty_commands(self, tmp_path: Path):
-        """Test get_all_skills with no commands."""
+    def test_get_all_tracks_empty_commands(self, tmp_path: Path):
+        """Test get_all_tracks with no commands."""
         plugin_dir = tmp_path / "no-commands"
         plugin_dir.mkdir()
 
-        # Create skills directory with a skill only
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir()
-        skill_dir = skills_dir / "only-skill"
-        skill_dir.mkdir()
-        skill_md = skill_dir / "SKILL.md"
-        skill_md.write_text(
+        # Create tracks directory with a track only
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir()
+        track_dir = tracks_dir / "only-track"
+        track_dir.mkdir()
+        track_md = track_dir / "TRACK.md"
+        track_md.write_text(
             """---
-name: only-skill
-description: The only skill
+name: only-track
+description: The only track
 ---
 
-Content for the only skill.
+Content for the only track.
 """
         )
 
         plugin = Plugin.load(plugin_dir)
 
-        all_skills = plugin.get_all_skills()
-        assert len(all_skills) == 1
-        assert all_skills[0].name == "only-skill"
+        all_tracks = plugin.get_all_tracks()
+        assert len(all_tracks) == 1
+        assert all_tracks[0].name == "only-track"
 
     def test_load_all_plugins(self, tmp_path: Path):
         """Test loading all plugins from a directory."""
@@ -943,10 +943,10 @@ class TestPluginMcpConfigLoading:
             }
         }
 
-    def test_plugin_mcp_skill_root_is_expanded(self, tmp_path: Path):
-        """Test that SKILL_ROOT is correctly expanded during plugin loading.
+    def test_plugin_mcp_track_root_is_expanded(self, tmp_path: Path):
+        """Test that TRACK_ROOT is correctly expanded during plugin loading.
 
-        ${SKILL_ROOT} is a special variable that should be expanded to the
+        ${TRACK_ROOT} is a special variable that should be expanded to the
         plugin directory path during loading.
         """
         import json
@@ -961,14 +961,14 @@ class TestPluginMcpConfigLoading:
             json.dumps({"name": "test-plugin", "version": "1.0.0"})
         )
 
-        # Create MCP config with SKILL_ROOT variable
+        # Create MCP config with TRACK_ROOT variable
         mcp_json = plugin_dir / ".mcp.json"
         mcp_json.write_text(
             json.dumps(
                 {
                     "mcpServers": {
                         "test-server": {
-                            "command": "${SKILL_ROOT}/scripts/server.py",
+                            "command": "${TRACK_ROOT}/scripts/server.py",
                         }
                     }
                 }
@@ -977,28 +977,28 @@ class TestPluginMcpConfigLoading:
 
         plugin = Plugin.load(plugin_dir)
 
-        # SKILL_ROOT should be expanded to the plugin directory
+        # TRACK_ROOT should be expanded to the plugin directory
         command = dump_mcp_config(plugin.mcp_config)["test-server"]["command"]
         assert str(plugin_dir) in command
-        assert "${SKILL_ROOT}" not in command
+        assert "${TRACK_ROOT}" not in command
 
 
-class TestRootSkillMcpHandling:
-    """Tests for proper MCP config handling in root SKILL.md plugins.
+class TestRootTrackMcpHandling:
+    """Tests for proper MCP config handling in root TRACK.md plugins.
 
     These tests verify the fix for issues where root .mcp.json files were
     being loaded twice with different semantics, causing failures and
     inconsistencies.
     """
 
-    def test_malformed_root_mcp_json_does_not_drop_skill(self, tmp_path: Path):
-        """Issue #1: Malformed root .mcp.json should not silently drop the skill.
+    def test_malformed_root_mcp_json_does_not_drop_track(self, tmp_path: Path):
+        """Issue #1: Malformed root .mcp.json should not silently drop the track.
 
         Before fix: Plugin-level loader tolerates malformed .mcp.json (logs warning),
-        but skill-level loader raises SkillValidationError, caught by broad except,
-        returning [] - skill silently dropped.
+        but track-level loader raises TrackValidationError, caught by broad except,
+        returning [] - track silently dropped.
 
-        After fix: skip_mcp=True prevents double-loading, skill loads successfully.
+        After fix: skip_mcp=True prevents double-loading, track loads successfully.
         """
         import json
 
@@ -1012,16 +1012,16 @@ class TestRootSkillMcpHandling:
             json.dumps({"name": "test-plugin", "version": "1.0.0"})
         )
 
-        # Create valid root SKILL.md
-        (plugin_dir / "SKILL.md").write_text(
+        # Create valid root TRACK.md
+        (plugin_dir / "TRACK.md").write_text(
             """---
-name: test-skill
-description: A test skill
+name: test-track
+description: A test track
 ---
 
-# Test Skill
+# Test Track
 
-This is a test skill.
+This is a test track.
 """
         )
 
@@ -1031,9 +1031,9 @@ This is a test skill.
         # Load the plugin
         plugin = Plugin.load(plugin_dir)
 
-        # The skill should still load (MCP loading is skipped for root skills)
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].name == "test-skill"
+        # The track should still load (MCP loading is skipped for root tracks)
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].name == "test-track"
         # Plugin-level MCP config should be empty (malformed file tolerated)
         assert plugin.mcp_config == {}
 
@@ -1041,9 +1041,9 @@ This is a test skill.
         """Issue #2: Root .mcp.json should not be loaded twice with different semantics.
 
         Before fix: Same file loaded by both _load_plugin_mcp_config
-        (expand_defaults=False) and Skill.load (expand_defaults=True).
+        (expand_defaults=False) and Track.load (expand_defaults=True).
 
-        After fix: Only loaded once at plugin level, skill uses skip_mcp=True.
+        After fix: Only loaded once at plugin level, track uses skip_mcp=True.
         """
         import json
 
@@ -1057,14 +1057,14 @@ This is a test skill.
             json.dumps({"name": "test-plugin", "version": "1.0.0"})
         )
 
-        # Create root SKILL.md
-        (plugin_dir / "SKILL.md").write_text(
+        # Create root TRACK.md
+        (plugin_dir / "TRACK.md").write_text(
             """---
-name: test-skill
-description: A test skill
+name: test-track
+description: A test track
 ---
 
-# Test Skill
+# Test Track
 """
         )
 
@@ -1089,20 +1089,20 @@ description: A test skill
         mcp_dump = dump_mcp_config(plugin.mcp_config)
         assert "${DB_TOKEN:-DEFAULT_TOKEN}" in mcp_dump["test-server"]["args"]
 
-        # Skill should have loaded successfully with skip_mcp=True
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].name == "test-skill"
-        # Skill's mcp_tools should be None (not loaded due to skip_mcp=True)
-        assert plugin.skills[0].mcp_tools is None
+        # Track should have loaded successfully with skip_mcp=True
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].name == "test-track"
+        # Track's mcp_tools should be None (not loaded due to skip_mcp=True)
+        assert plugin.tracks[0].mcp_tools is None
 
-    def test_root_skill_resources_not_duplicated(self, tmp_path: Path):
-        """Issue #3: Resources should not be discovered twice for root skills.
+    def test_root_track_resources_not_duplicated(self, tmp_path: Path):
+        """Issue #3: Resources should not be discovered twice for root tracks.
 
-        Before fix: discover_skill_resources called both by Skill.load() and
+        Before fix: discover_track_resources called both by Track.load() and
         by plugin loader (redundant).
 
-        After fix: Only Skill.load() discovers resources, plugin loader doesn't
-        call discover_skill_resources.
+        After fix: Only Track.load() discovers resources, plugin loader doesn't
+        call discover_track_resources.
         """
         import json
 
@@ -1116,14 +1116,14 @@ description: A test skill
             json.dumps({"name": "test-plugin", "version": "1.0.0"})
         )
 
-        # Create root SKILL.md
-        (plugin_dir / "SKILL.md").write_text(
+        # Create root TRACK.md
+        (plugin_dir / "TRACK.md").write_text(
             """---
-name: test-skill
-description: A test skill
+name: test-track
+description: A test track
 ---
 
-# Test Skill
+# Test Track
 """
         )
 
@@ -1137,16 +1137,16 @@ description: A test skill
         plugin = Plugin.load(plugin_dir)
 
         # Resources should be discovered and attached
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].resources is not None
-        assert plugin.skills[0].resources.assets == ["asset.txt"]
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].resources is not None
+        assert plugin.tracks[0].resources.assets == ["asset.txt"]
         # This test passes if no exception is raised - the fix prevents the
         # redundant call but the end result is the same
 
-    def test_nested_skill_with_own_mcp_json_still_loads(self, tmp_path: Path):
-        """Verify nested skills with their own .mcp.json still work correctly.
+    def test_nested_track_with_own_mcp_json_still_loads(self, tmp_path: Path):
+        """Verify nested tracks with their own .mcp.json still work correctly.
 
-        Nested skills should continue to load their own .mcp.json normally
+        Nested tracks should continue to load their own .mcp.json normally
         (not skipped) since they're in a different directory than the plugin root.
         """
         import json
@@ -1161,23 +1161,23 @@ description: A test skill
             json.dumps({"name": "test-plugin", "version": "1.0.0"})
         )
 
-        # Create nested skill with its own .mcp.json
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir()
-        skill_dir = skills_dir / "nested-skill"
-        skill_dir.mkdir()
+        # Create nested track with its own .mcp.json
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir()
+        track_dir = tracks_dir / "nested-track"
+        track_dir.mkdir()
 
-        (skill_dir / "SKILL.md").write_text(
+        (track_dir / "TRACK.md").write_text(
             """---
-name: nested-skill
-description: A nested skill
+name: nested-track
+description: A nested track
 ---
 
-# Nested Skill
+# Nested Track
 """
         )
 
-        (skill_dir / ".mcp.json").write_text(
+        (track_dir / ".mcp.json").write_text(
             json.dumps(
                 {
                     "mcpServers": {
@@ -1192,42 +1192,42 @@ description: A nested skill
         # Load the plugin
         plugin = Plugin.load(plugin_dir)
 
-        # Skill should load with its own MCP config
-        assert len(plugin.skills) == 1
-        assert plugin.skills[0].name == "nested-skill"
-        # Nested skill SHOULD have mcp_tools (not skipped)
-        assert plugin.skills[0].mcp_tools is not None
-        assert "nested-server" in plugin.skills[0].mcp_tools
+        # Track should load with its own MCP config
+        assert len(plugin.tracks) == 1
+        assert plugin.tracks[0].name == "nested-track"
+        # Nested track SHOULD have mcp_tools (not skipped)
+        assert plugin.tracks[0].mcp_tools is not None
+        assert "nested-server" in plugin.tracks[0].mcp_tools
 
 
 class TestDetectFormat:
     """Tests for the plugin-format selection contract (detect_format()).
 
     detect_format() is the seam that decides which PluginFormat loads a plugin
-    directory. Today only the Claude Code layout is registered, so it is the
+    directory. Today only the Haijun Code layout is registered, so it is the
     fallback for every directory; these tests pin that precedence so the future
     Agent Plugins format (root plugin.json) can be slotted ahead of it without
-    silently changing the Claude Code behavior.
+    silently changing the Haijun Code behavior.
     """
 
-    def test_detects_claude_code_for_nested_manifest(self, tmp_path: Path):
-        """A directory with a nested .claude-plugin manifest selects Claude Code."""
+    def test_detects_haijun_code_for_nested_manifest(self, tmp_path: Path):
+        """A directory with a nested .haijun-plugin manifest selects Haijun Code."""
         plugin_dir = tmp_path / "with-manifest"
-        manifest_dir = plugin_dir / ".claude-plugin"
+        manifest_dir = plugin_dir / ".haijun-plugin"
         manifest_dir.mkdir(parents=True)
         (manifest_dir / "plugin.json").write_text('{"name": "with-manifest"}')
 
         fmt = detect_format(plugin_dir)
 
-        assert isinstance(fmt, ClaudeCodePluginFormat)
-        assert fmt.name == "claude-code"
+        assert isinstance(fmt, HaijunCodePluginFormat)
+        assert fmt.name == "haijun-code"
 
-    def test_detects_claude_code_for_bare_dir(self, tmp_path: Path):
-        """A directory with no manifest still falls back to Claude Code."""
+    def test_detects_haijun_code_for_bare_dir(self, tmp_path: Path):
+        """A directory with no manifest still falls back to Haijun Code."""
         plugin_dir = tmp_path / "bare-plugin"
         plugin_dir.mkdir()
 
-        assert isinstance(detect_format(plugin_dir), ClaudeCodePluginFormat)
+        assert isinstance(detect_format(plugin_dir), HaijunCodePluginFormat)
 
     def test_detected_format_loads_equivalent_plugin(self, tmp_path: Path):
         """The strategy from detect_format() loads the same plugin as Plugin.load()."""
@@ -1257,7 +1257,7 @@ class TestDetectFormat:
 
     def test_subclass_without_name_is_rejected(self):
         """A PluginFormat subclass must declare a class-level ``name``."""
-        from openhands.sdk.plugin.format.base import PluginFormat
+        from handprint.sdk.plugin.format.base import PluginFormat
 
         with pytest.raises(TypeError, match="name"):
 

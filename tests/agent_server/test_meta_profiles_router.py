@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.persistence import get_settings_store, reset_stores
-from openhands.sdk.llm.meta_profile_store import MetaProfile, MetaProfileStore
-from openhands.sdk.settings.model import OpenHandsAgentSettings
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.persistence import get_settings_store, reset_stores
+from handprint.sdk.llm.meta_profile_store import MetaProfile, MetaProfileStore
+from handprint.sdk.settings.model import HandprintAgentSettings
 
 
 @pytest.fixture
@@ -63,8 +63,8 @@ def _meta(classifier="minimax", classes=None) -> dict:
 
 def test_meta_profile_store_honors_persistence_dir(monkeypatch, tmp_path):
     """The router resolves meta-profiles under OH_PERSISTENCE_DIR, not the host
-    ~/.openhands/meta-profiles, so isolated agent-servers stay isolated."""
-    from openhands.agent_server.meta_profiles_router import _get_meta_profile_store
+    ~/.handprint/meta-profiles, so isolated agent-servers stay isolated."""
+    from handprint.agent_server.meta_profiles_router import _get_meta_profile_store
 
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(tmp_path))
     store = _get_meta_profile_store()
@@ -72,17 +72,17 @@ def test_meta_profile_store_honors_persistence_dir(monkeypatch, tmp_path):
 
 
 def test_meta_profile_store_falls_back_to_home(monkeypatch, tmp_path):
-    """Without OH_PERSISTENCE_DIR, fall back to ~/.openhands/meta-profiles so
+    """Without OH_PERSISTENCE_DIR, fall back to ~/.handprint/meta-profiles so
     meta-profiles stay co-located with the LLM profiles they reference by name
     (not a workspace-relative dir)."""
-    from openhands.agent_server.meta_profiles_router import _get_meta_profile_store
+    from handprint.agent_server.meta_profiles_router import _get_meta_profile_store
 
     monkeypatch.delenv("OH_PERSISTENCE_DIR", raising=False)
     fake_home = tmp_path / "home"
     fake_home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: fake_home)
     store = _get_meta_profile_store()
-    assert store.base_dir == fake_home / ".openhands" / "meta-profiles"
+    assert store.base_dir == fake_home / ".handprint" / "meta-profiles"
 
 
 # ── List ────────────────────────────────────────────────────────────────────
@@ -218,7 +218,7 @@ def test_delete_active_clears_nested_agent_settings(client, store):
     persisted = get_settings_store().load()
     assert persisted is not None
     agent = persisted.agent_settings
-    assert isinstance(agent, OpenHandsAgentSettings)
+    assert isinstance(agent, HandprintAgentSettings)
     assert agent.active_meta_profile is None
     assert agent.enable_classify_and_switch_llm_tool is False
     assert agent.meta_profile is None
@@ -252,7 +252,7 @@ def test_activate_propagates_into_agent_settings(client, store):
     assert persisted is not None
     assert persisted.active_meta_profile == "p"
     agent = persisted.agent_settings
-    assert isinstance(agent, OpenHandsAgentSettings)
+    assert isinstance(agent, HandprintAgentSettings)
     assert agent.active_meta_profile == "p"
     assert agent.enable_classify_and_switch_llm_tool is True
     assert agent.meta_profile == MetaProfile.model_validate(_meta())
@@ -295,7 +295,7 @@ def test_concurrent_delete_and_activate_keep_settings_consistent(client, store):
         assert active in (None, "q")
 
         agent = persisted.agent_settings
-        assert isinstance(agent, OpenHandsAgentSettings)
+        assert isinstance(agent, HandprintAgentSettings)
         # Nested agent settings must agree with the top-level facade.
         assert agent.active_meta_profile == active
         assert agent.enable_classify_and_switch_llm_tool is (active is not None)

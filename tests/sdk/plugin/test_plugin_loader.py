@@ -6,17 +6,17 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Agent
-from openhands.sdk.context import AgentContext
-from openhands.sdk.hooks import HookConfig
-from openhands.sdk.hooks.config import HookDefinition, HookMatcher
-from openhands.sdk.mcp.config import coerce_mcp_config
-from openhands.sdk.plugin import (
+from handprint.sdk import LLM, Agent
+from handprint.sdk.context import AgentContext
+from handprint.sdk.hooks import HookConfig
+from handprint.sdk.hooks.config import HookDefinition, HookMatcher
+from handprint.sdk.mcp.config import coerce_mcp_config
+from handprint.sdk.plugin import (
     PluginFetchError,
     PluginSource,
     load_plugins,
 )
-from openhands.sdk.skills import Skill
+from handprint.sdk.tracks import Track
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def basic_agent(mock_llm):
 def agent_with_context(mock_llm):
     """Create an agent with existing context."""
     context = AgentContext(
-        skills=[Skill(name="existing-skill", content="Existing skill content")]
+        tracks=[Track(name="existing-track", content="Existing track content")]
     )
     return Agent(
         llm=mock_llm,
@@ -63,7 +63,7 @@ def agent_with_mcp(mock_llm):
 def create_test_plugin(
     plugin_dir: Path,
     name: str = "test-plugin",
-    skills: list[dict] | None = None,
+    tracks: list[dict] | None = None,
     mcp_config: dict | None = None,
     hooks: dict | None = None,
 ):
@@ -76,15 +76,15 @@ def create_test_plugin(
     manifest = {"name": name, "version": "1.0.0", "description": f"Test plugin {name}"}
     (manifest_dir / "plugin.json").write_text(json.dumps(manifest))
 
-    # Write skills
-    if skills:
-        skills_dir = plugin_dir / "skills"
-        skills_dir.mkdir(exist_ok=True)
-        for skill in skills:
-            skill_name = skill["name"]
-            skill_content = skill["content"]
-            skill_file = skills_dir / f"{skill_name}.md"
-            skill_file.write_text(f"---\nname: {skill_name}\n---\n{skill_content}")
+    # Write tracks
+    if tracks:
+        tracks_dir = plugin_dir / "tracks"
+        tracks_dir.mkdir(exist_ok=True)
+        for track in tracks:
+            track_name = track["name"]
+            track_content = track["content"]
+            track_file = tracks_dir / f"{track_name}.md"
+            track_file.write_text(f"---\nname: {track_name}\n---\n{track_content}")
 
     # Write MCP config
     if mcp_config:
@@ -206,20 +206,20 @@ class TestLoadPluginsSinglePlugin:
         assert updated_agent is basic_agent
         assert hooks is None
 
-    def test_load_single_plugin_with_skills(self, tmp_path: Path, basic_agent):
-        """Test loading a plugin with skills merges into agent context."""
+    def test_load_single_plugin_with_tracks(self, tmp_path: Path, basic_agent):
+        """Test loading a plugin with tracks merges into agent context."""
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="test-plugin",
-            skills=[{"name": "my-skill", "content": "Skill content here"}],
+            tracks=[{"name": "my-track", "content": "Track content here"}],
         )
 
         plugins = [PluginSource(source=str(plugin_dir))]
         updated_agent, hooks = load_plugins(plugins, basic_agent)
 
         assert updated_agent.agent_context is not None
-        assert len(updated_agent.agent_context.skills) == 1
-        assert updated_agent.agent_context.skills[0].name == "my-skill"
+        assert len(updated_agent.agent_context.tracks) == 1
+        assert updated_agent.agent_context.tracks[0].name == "my-track"
         assert hooks is None
 
     def test_load_single_plugin_with_mcp(self, tmp_path: Path, basic_agent):
@@ -260,17 +260,17 @@ class TestLoadPluginsSinglePlugin:
 class TestLoadPluginsMultiplePlugins:
     """Tests for load_plugins with multiple plugins."""
 
-    def test_load_multiple_plugins_skills_override(self, tmp_path: Path, basic_agent):
-        """Test that later plugins override skills by name."""
+    def test_load_multiple_plugins_tracks_override(self, tmp_path: Path, basic_agent):
+        """Test that later plugins override tracks by name."""
         plugin1 = create_test_plugin(
             tmp_path / "plugin1",
             name="plugin1",
-            skills=[{"name": "shared-skill", "content": "First content"}],
+            tracks=[{"name": "shared-track", "content": "First content"}],
         )
         plugin2 = create_test_plugin(
             tmp_path / "plugin2",
             name="plugin2",
-            skills=[{"name": "shared-skill", "content": "Second content"}],
+            tracks=[{"name": "shared-track", "content": "Second content"}],
         )
 
         plugins = [
@@ -280,8 +280,8 @@ class TestLoadPluginsMultiplePlugins:
         updated_agent, _ = load_plugins(plugins, basic_agent)
 
         assert updated_agent.agent_context is not None
-        assert len(updated_agent.agent_context.skills) == 1
-        assert "Second content" in updated_agent.agent_context.skills[0].content
+        assert len(updated_agent.agent_context.tracks) == 1
+        assert "Second content" in updated_agent.agent_context.tracks[0].content
 
     def test_load_multiple_plugins_mcp_override(self, tmp_path: Path, basic_agent):
         """Test that later plugins override MCP config by key."""
@@ -334,17 +334,17 @@ class TestLoadPluginsMultiplePlugins:
         assert hooks is not None
         assert len(hooks.pre_tool_use) == 2
 
-    def test_load_multiple_plugins_different_skills(self, tmp_path: Path, basic_agent):
-        """Test that different skills from multiple plugins are combined."""
+    def test_load_multiple_plugins_different_tracks(self, tmp_path: Path, basic_agent):
+        """Test that different tracks from multiple plugins are combined."""
         plugin1 = create_test_plugin(
             tmp_path / "plugin1",
             name="plugin1",
-            skills=[{"name": "skill-a", "content": "A"}],
+            tracks=[{"name": "track-a", "content": "A"}],
         )
         plugin2 = create_test_plugin(
             tmp_path / "plugin2",
             name="plugin2",
-            skills=[{"name": "skill-b", "content": "B"}],
+            tracks=[{"name": "track-b", "content": "B"}],
         )
 
         plugins = [
@@ -354,44 +354,44 @@ class TestLoadPluginsMultiplePlugins:
         updated_agent, _ = load_plugins(plugins, basic_agent)
 
         assert updated_agent.agent_context is not None
-        skill_names = [s.name for s in updated_agent.agent_context.skills]
-        assert "skill-a" in skill_names
-        assert "skill-b" in skill_names
+        track_names = [s.name for s in updated_agent.agent_context.tracks]
+        assert "track-a" in track_names
+        assert "track-b" in track_names
 
 
 class TestLoadPluginsWithExistingContext:
     """Tests for load_plugins with agents that have existing context."""
 
-    def test_preserves_existing_skills(self, tmp_path: Path, agent_with_context):
-        """Test that existing skills are preserved when loading plugins."""
+    def test_preserves_existing_tracks(self, tmp_path: Path, agent_with_context):
+        """Test that existing tracks are preserved when loading plugins."""
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="plugin",
-            skills=[{"name": "new-skill", "content": "New content"}],
+            tracks=[{"name": "new-track", "content": "New content"}],
         )
 
         plugins = [PluginSource(source=str(plugin_dir))]
         updated_agent, _ = load_plugins(plugins, agent_with_context)
 
         assert updated_agent.agent_context is not None
-        skill_names = [s.name for s in updated_agent.agent_context.skills]
-        assert "existing-skill" in skill_names
-        assert "new-skill" in skill_names
+        track_names = [s.name for s in updated_agent.agent_context.tracks]
+        assert "existing-track" in track_names
+        assert "new-track" in track_names
 
-    def test_plugin_skill_overrides_existing(self, tmp_path: Path, agent_with_context):
-        """Test that plugin skill with same name overrides existing."""
+    def test_plugin_track_overrides_existing(self, tmp_path: Path, agent_with_context):
+        """Test that plugin track with same name overrides existing."""
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="plugin",
-            skills=[{"name": "existing-skill", "content": "Plugin content"}],
+            tracks=[{"name": "existing-track", "content": "Plugin content"}],
         )
 
         plugins = [PluginSource(source=str(plugin_dir))]
         updated_agent, _ = load_plugins(plugins, agent_with_context)
 
         assert updated_agent.agent_context is not None
-        assert len(updated_agent.agent_context.skills) == 1
-        assert "Plugin content" in updated_agent.agent_context.skills[0].content
+        assert len(updated_agent.agent_context.tracks) == 1
+        assert "Plugin content" in updated_agent.agent_context.tracks[0].content
 
     def test_preserves_existing_mcp(self, tmp_path: Path, agent_with_mcp):
         """Test that existing MCP config is preserved."""
@@ -408,41 +408,41 @@ class TestLoadPluginsWithExistingContext:
         assert "new-server" in updated_agent.mcp_config
 
 
-class TestLoadPluginsMaxSkills:
-    """Tests for max_skills limit enforcement."""
+class TestLoadPluginsMaxTracks:
+    """Tests for max_tracks limit enforcement."""
 
-    def test_max_skills_not_exceeded(self, tmp_path: Path, basic_agent):
-        """Test that loading succeeds when under max_skills."""
+    def test_max_tracks_not_exceeded(self, tmp_path: Path, basic_agent):
+        """Test that loading succeeds when under max_tracks."""
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="plugin",
-            skills=[
-                {"name": "skill-1", "content": "C1"},
-                {"name": "skill-2", "content": "C2"},
+            tracks=[
+                {"name": "track-1", "content": "C1"},
+                {"name": "track-2", "content": "C2"},
             ],
         )
 
         plugins = [PluginSource(source=str(plugin_dir))]
-        updated_agent, _ = load_plugins(plugins, basic_agent, max_skills=10)
+        updated_agent, _ = load_plugins(plugins, basic_agent, max_tracks=10)
 
         assert updated_agent.agent_context is not None
-        assert len(updated_agent.agent_context.skills) == 2
+        assert len(updated_agent.agent_context.tracks) == 2
 
-    def test_max_skills_exceeded_raises_error(self, tmp_path: Path, basic_agent):
-        """Test that exceeding max_skills raises ValueError."""
+    def test_max_tracks_exceeded_raises_error(self, tmp_path: Path, basic_agent):
+        """Test that exceeding max_tracks raises ValueError."""
         plugin_dir = create_test_plugin(
             tmp_path / "plugin",
             name="plugin",
-            skills=[
-                {"name": "skill-1", "content": "C1"},
-                {"name": "skill-2", "content": "C2"},
-                {"name": "skill-3", "content": "C3"},
+            tracks=[
+                {"name": "track-1", "content": "C1"},
+                {"name": "track-2", "content": "C2"},
+                {"name": "track-3", "content": "C3"},
             ],
         )
 
         plugins = [PluginSource(source=str(plugin_dir))]
         with pytest.raises(ValueError, match="exceeds maximum"):
-            load_plugins(plugins, basic_agent, max_skills=2)
+            load_plugins(plugins, basic_agent, max_tracks=2)
 
 
 class TestLoadPluginsErrorHandling:

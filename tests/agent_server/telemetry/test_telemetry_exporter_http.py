@@ -12,8 +12,8 @@ from datetime import UTC, datetime
 import httpx
 import pytest
 
-from openhands.agent_server.telemetry import models as m
-from openhands.agent_server.telemetry.http_exporter import HttpExporter
+from handprint.agent_server.telemetry import models as m
+from handprint.agent_server.telemetry.http_exporter import HttpExporter
 
 
 ENDPOINT = "https://telemetry.example.test/v1/events"
@@ -41,7 +41,7 @@ def make_event(distinct_id: str = "user-1") -> m.DiagnosticEvent:
             event_count_bucket="5-20",
             total_tokens_bucket="1000-10000",
             cost_bucket="lt-0p01",
-            llm_model_family="anthropic",
+            llm_model_family="juglow",
         ),
     )
 

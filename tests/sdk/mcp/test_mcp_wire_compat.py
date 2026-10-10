@@ -10,12 +10,12 @@ import pytest
 from pydantic import BaseModel, ConfigDict, SecretStr
 from pydantic.alias_generators import to_camel
 
-from openhands.sdk.agent import Agent
-from openhands.sdk.conversation.impl.local_conversation import LocalConversation
-from openhands.sdk.event import Event, SystemPromptEvent
-from openhands.sdk.llm import LLM, TextContent
-from openhands.sdk.mcp.client import MCPClient
-from openhands.sdk.mcp.tool import MCPToolDefinition
+from handprint.sdk.agent import Agent
+from handprint.sdk.conversation.impl.local_conversation import LocalConversation
+from handprint.sdk.event import Event, SystemPromptEvent
+from handprint.sdk.llm import LLM, TextContent
+from handprint.sdk.mcp.client import MCPClient
+from handprint.sdk.mcp.tool import MCPToolDefinition
 
 
 # Verbatim Tool.model_dump(mode="json", exclude_none=True) under mcp 2.2.0,

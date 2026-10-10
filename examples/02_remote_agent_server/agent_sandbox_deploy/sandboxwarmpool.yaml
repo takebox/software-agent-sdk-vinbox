@@ -3,7 +3,7 @@
 apiVersion: extensions.agents.x-k8s.io/v1beta1
 kind: SandboxWarmPool
 metadata:
-    name: openhands-pool
+    name: handprint-pool
     namespace: default
 spec:
     replicas: 2

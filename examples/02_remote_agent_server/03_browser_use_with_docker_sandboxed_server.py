@@ -4,10 +4,10 @@ import time
 
 from pydantic import SecretStr
 
-from openhands.sdk import LLM, Conversation, get_logger
-from openhands.sdk.conversation.impl.remote_conversation import RemoteConversation
-from openhands.tools.preset.default import get_default_agent
-from openhands.workspace import DockerWorkspace
+from handprint.sdk import LLM, Conversation, get_logger
+from handprint.sdk.conversation.impl.remote_conversation import RemoteConversation
+from handprint.tools.preset.default import get_default_agent
+from handprint.workspace import DockerWorkspace
 
 
 logger = get_logger(__name__)
@@ -49,7 +49,7 @@ def get_server_image():
 #    with DockerDevWorkspace(
 #        # dynamically build agent-server image
 #        base_image="nikolaik/python-nodejs:python3.13-nodejs24-slim",
-#        host_port=8010,
+#        host_port=9010,
 #        platform=detect_platform(),
 #    ) as workspace:
 server_image = get_server_image()
@@ -86,7 +86,7 @@ with DockerWorkspace(
     logger.info(f"\n📋 Conversation ID: {conversation.state.id}")
     logger.info("📝 Sending first message...")
     conversation.send_message(
-        "Could you go to https://openhands.dev/ blog page and summarize main "
+        "Could you go to https://handprint.dev/ blog page and summarize main "
         "points of the latest blog?"
     )
     conversation.run()

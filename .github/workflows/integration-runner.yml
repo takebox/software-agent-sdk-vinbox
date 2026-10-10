@@ -28,7 +28,7 @@ on:
             model_ids:
                 description: >-
                     Comma-separated model IDs to test (resolved by the inline table).
-                    Example: gpt-5.5,claude-sonnet-4-6. Defaults to a standard set.
+                    Example: gpt-5.5,haijun-codtral Defaults to a standard set.
                 required: false
                 default: ''
                 type: string
@@ -54,8 +54,8 @@ on:
 env:
     N_PROCESSES: 4 # Global configuration for number of parallel processes for evaluation
     # Default models for label-triggered runs (resolved by the inline table below)
-    DEFAULT_MODEL_IDS: gpt-5.5,deepseek-v4-flash,minimax-m2.7,gemini-3.1-pro,claude-sonnet-4-6
-    DEFAULT_CONDENSER_MODEL_IDS: gpt-5.5,claude-sonnet-4-6
+    DEFAULT_MODEL_IDS: gpt-5.5,deepseek-v4-flash,minimax-m2.7,gemini-3.1-pro,haijun-codtral
+    DEFAULT_CONDENSER_MODEL_IDS: gpt-5.5,haijun-codtral
 
 jobs:
     setup-matrix:
@@ -110,7 +110,7 @@ jobs:
                   import json
                   import os
                   import sys
-                  # Inlined from OpenHands/evaluation (eval-job/model-config) so this
+                  # Inlined from Handprint/evaluation (eval-job/model-config) so this
                   # public workflow no longer clones the private eval repo. Only `model`
                   # plus tuning params are needed here; api_key/base_url are injected from
                   # env (LLM_API_KEY/LLM_BASE_URL) by tests/integration/base.py.
@@ -123,12 +123,12 @@ jobs:
                           "llm_config": {"model": "litellm_proxy/minimax/MiniMax-M2.7", "temperature": 1.0, "top_p": 0.95}},
                       "gemini-3.1-pro": {"display_name": "Gemini 3.1 Pro",
                           "llm_config": {"model": "litellm_proxy/gemini-3.1-pro-preview", "temperature": 0.0}},
-                      "claude-sonnet-4-6": {"display_name": "Claude Sonnet 4.6",
-                          "llm_config": {"model": "litellm_proxy/anthropic/claude-sonnet-4-6", "temperature": 0.0}},
+                      "haijun-codtral": {"display_name": "Haijun Codtral 4.6",
+                          "llm_config": {"model": "litellm_proxy/juglow/haijun-codtral", "temperature": 0.0}},
                       "kimi-k3": {"display_name": "Kimi K3",
                           "llm_config": {"model": "litellm_proxy/moonshot/kimi-k3", "reasoning_effort": "high"}},
-                      "claude-opus-5": {"display_name": "Claude Opus 5",
-                          "llm_config": {"model": "litellm_proxy/anthropic/claude-opus-5", "reasoning_effort": "high"}},
+                      "haijun-kamsa": {"display_name": "Haijun Kamsa 5",
+                          "llm_config": {"model": "litellm_proxy/juglow/haijun-kamsa", "reasoning_effort": "high"}},
                   }
 
                   model_ids = os.environ["MODEL_IDS"].split(",")
@@ -244,9 +244,9 @@ jobs:
                   REASON: ${{ github.event.inputs.reason }}
                   WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
               run: |
-                  # Sanitize @OpenHands mentions to prevent self-mention loops
-                  SANITIZED_REASON=$(printf '%s' "$REASON" | sed 's/@OpenHands/@\u200BOpenHands/g; s/@openhands/@\u200Bopenhands/g')
-                  SANITIZED_MODEL_IDS=$(printf '%s' "$MODEL_IDS" | sed 's/@OpenHands/@\u200BOpenHands/g; s/@openhands/@\u200Bopenhands/g')
+                  # Sanitize @Handprint mentions to prevent self-mention loops
+                  SANITIZED_REASON=$(printf '%s' "$REASON" | sed 's/@Handprint/@\u200BHandprint/g; s/@takebox-ai/@\u200Bhandprint/g')
+                  SANITIZED_MODEL_IDS=$(printf '%s' "$MODEL_IDS" | sed 's/@Handprint/@\u200BHandprint/g; s/@takebox-ai/@\u200Bhandprint/g')
                   COMMENT_BODY=$(cat <<EOF
                   **Test Suites Triggered**
 
@@ -511,8 +511,8 @@ jobs:
             - name: Create consolidated PR comment
               if: github.event_name == 'pull_request_target'
               run: |
-                  # Sanitize @OpenHands mentions to prevent self-mention loops
-                  COMMENT_BODY=$(uv run python -c "from openhands.sdk.utils.github import sanitize_openhands_mentions; import sys; print(sanitize_openhands_mentions(sys.stdin.read()), end='')" < consolidated_report.md)
+                  # Sanitize @Handprint mentions to prevent self-mention loops
+                  COMMENT_BODY=$(uv run python -c "from handprint.sdk.utils.github import sanitize_handprint_mentions; import sys; print(sanitize_handprint_mentions(sys.stdin.read()), end='')" < consolidated_report.md)
                   # Use GitHub CLI to create comment with explicit PR number
                   printf '%s' "$COMMENT_BODY" | gh pr comment "$PR_NUMBER" --body-file -
               env:
@@ -525,8 +525,8 @@ jobs:
                   GH_TOKEN: ${{ github.token }}
                   ISSUE_NUMBER: ${{ needs.setup-matrix.outputs.issue_number }}
               run: |
-                  # Sanitize @OpenHands mentions to prevent self-mention loops
-                  COMMENT_BODY=$(uv run python -c "from openhands.sdk.utils.github import sanitize_openhands_mentions; import sys; print(sanitize_openhands_mentions(sys.stdin.read()), end='')" < consolidated_report.md)
+                  # Sanitize @Handprint mentions to prevent self-mention loops
+                  COMMENT_BODY=$(uv run python -c "from handprint.sdk.utils.github import sanitize_handprint_mentions; import sys; print(sanitize_handprint_mentions(sys.stdin.read()), end='')" < consolidated_report.md)
                   # Use GitHub CLI to create comment on the specified issue/PR
                   echo "$COMMENT_BODY" | gh issue comment "$ISSUE_NUMBER" --body-file -
 
@@ -597,7 +597,7 @@ jobs:
               run: |
                   REPORT=$(find compliance-results -name compliance_report.md -type f -print -quit)
                   if [ -n "$REPORT" ]; then
-                    COMMENT_BODY=$(uv run python -c "from openhands.sdk.utils.github import sanitize_openhands_mentions; import sys; print(sanitize_openhands_mentions(sys.stdin.read()), end='')" < "$REPORT")
+                    COMMENT_BODY=$(uv run python -c "from handprint.sdk.utils.github import sanitize_handprint_mentions; import sys; print(sanitize_handprint_mentions(sys.stdin.read()), end='')" < "$REPORT")
                     if [ "$EVENT_NAME" = "pull_request_target" ]; then
                       printf '%s' "$COMMENT_BODY" | gh pr comment "$ISSUE_NUMBER" \
                         --repo "$GITHUB_REPOSITORY" --body-file -

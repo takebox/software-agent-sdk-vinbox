@@ -8,22 +8,22 @@ import pytest
 
 def test_agent_sandbox_workspace_import():
     """AgentSandboxWorkspace can be imported from the package."""
-    from openhands.workspace import AgentSandboxWorkspace
+    from handprint.workspace import AgentSandboxWorkspace
 
     assert AgentSandboxWorkspace is not None
 
 
 def test_agent_sandbox_workspace_inheritance():
     """AgentSandboxWorkspace is a RemoteWorkspace."""
-    from openhands.sdk.workspace import RemoteWorkspace
-    from openhands.workspace import AgentSandboxWorkspace
+    from handprint.sdk.workspace import RemoteWorkspace
+    from handprint.workspace import AgentSandboxWorkspace
 
     assert issubclass(AgentSandboxWorkspace, RemoteWorkspace)
 
 
 def test_agent_sandbox_workspace_fields():
     """The key agent-sandbox knobs are exposed as fields."""
-    from openhands.workspace import AgentSandboxWorkspace
+    from handprint.workspace import AgentSandboxWorkspace
 
     for field in ("warmpool", "namespace", "server_port", "connection", "host_port"):
         assert field in AgentSandboxWorkspace.model_fields
@@ -31,7 +31,7 @@ def test_agent_sandbox_workspace_fields():
 
 def test_direct_connection_requires_host():
     """connection='direct' without a host is rejected before any k8s call."""
-    from openhands.workspace import AgentSandboxWorkspace
+    from handprint.workspace import AgentSandboxWorkspace
 
     with pytest.raises(ValueError, match="requires 'host'"):
         AgentSandboxWorkspace(warmpool="pool", connection="direct")
@@ -70,16 +70,16 @@ def k8s_mocks():
 
 def _make_ws(**overrides):
     """Construct a workspace with connection + parent init mocked out."""
-    from openhands.workspace import AgentSandboxWorkspace
+    from handprint.workspace import AgentSandboxWorkspace
 
-    kwargs = {"warmpool": "openhands-pool", "detach_logs": False}
+    kwargs = {"warmpool": "handprint-pool", "detach_logs": False}
     kwargs.update(overrides)
     with (
         patch.object(AgentSandboxWorkspace, "_start_port_forward"),
         patch.object(AgentSandboxWorkspace, "_wait_for_health"),
         # RemoteWorkspace.model_post_init would open a real HTTP client; skip it.
         patch(
-            "openhands.sdk.workspace.remote.base.RemoteWorkspace.model_post_init",
+            "handprint.sdk.workspace.remote.base.RemoteWorkspace.model_post_init",
             return_value=None,
         ),
     ):
@@ -92,7 +92,7 @@ def test_claims_from_warmpool_on_init(k8s_mocks):
 
     k8s_mocks.client.create_sandbox.assert_called_once()
     call = k8s_mocks.client.create_sandbox.call_args
-    assert call.kwargs["warmpool"] == "openhands-pool"
+    assert call.kwargs["warmpool"] == "handprint-pool"
     assert call.kwargs["namespace"] == "ns1"
     assert call.kwargs["shutdown_after_seconds"] == 600
 
@@ -120,7 +120,7 @@ def test_pause_and_resume_flip_operating_mode(k8s_mocks):
 
 def test_failed_connect_terminates_claim(k8s_mocks):
     """A failure after the claim is created must not leak the sandbox."""
-    from openhands.workspace import AgentSandboxWorkspace
+    from handprint.workspace import AgentSandboxWorkspace
 
     with (
         patch.object(
@@ -131,7 +131,7 @@ def test_failed_connect_terminates_claim(k8s_mocks):
         patch.object(AgentSandboxWorkspace, "_stop_port_forward"),
         pytest.raises(RuntimeError, match="boom"),
     ):
-        AgentSandboxWorkspace(warmpool="openhands-pool", detach_logs=False)
+        AgentSandboxWorkspace(warmpool="handprint-pool", detach_logs=False)
 
     k8s_mocks.handle.terminate.assert_called_once()
 
@@ -152,7 +152,7 @@ def test_resume_reconnects_on_a_fresh_port(k8s_mocks):
 
 def test_exit_preserves_parent_lifecycle_and_cleanup(k8s_mocks):
     """Context exit delegates to RemoteWorkspace and always cleans up."""
-    from openhands.sdk.workspace import RemoteWorkspace
+    from handprint.sdk.workspace import RemoteWorkspace
 
     ws = _make_ws()
     error = RuntimeError("callback failed")

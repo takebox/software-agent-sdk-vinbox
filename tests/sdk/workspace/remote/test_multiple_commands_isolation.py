@@ -7,7 +7,7 @@ without contamination from previous commands.
 
 from unittest.mock import Mock
 
-from openhands.sdk.workspace.remote.remote_workspace_mixin import RemoteWorkspaceMixin
+from handprint.sdk.workspace.remote.remote_workspace_mixin import RemoteWorkspaceMixin
 
 
 class _RemoteWorkspaceMixinForTest(RemoteWorkspaceMixin):
@@ -25,7 +25,7 @@ def test_multiple_commands_use_different_command_ids():
     output contamination from previous commands.
     """
     mixin = _RemoteWorkspaceMixinForTest(
-        host="http://localhost:8000", working_dir="/workspace"
+        host="http://localhost:9000", working_dir="/workspace"
     )
 
     # ==== First command ====
@@ -86,7 +86,7 @@ def test_command_id_filter_params_structure():
     ensuring proper event filtering by command ID.
     """
     mixin = _RemoteWorkspaceMixinForTest(
-        host="http://localhost:8000", working_dir="/workspace"
+        host="http://localhost:9000", working_dir="/workspace"
     )
 
     start_response = Mock()

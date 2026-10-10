@@ -9,7 +9,7 @@ import os
 
 from pydantic import SecretStr
 
-from openhands.sdk import (
+from handprint.sdk import (
     LLM,
     Agent,
     Conversation,
@@ -17,12 +17,12 @@ from openhands.sdk import (
     LLMConvertibleEvent,
     get_logger,
 )
-from openhands.sdk.conversation.types import ConversationCallbackType
-from openhands.sdk.tool import Tool
-from openhands.sdk.utils.async_utils import AsyncCallbackWrapper
-from openhands.tools.file_editor import FileEditorTool
-from openhands.tools.task_tracker import TaskTrackerTool
-from openhands.tools.terminal import TerminalTool
+from handprint.sdk.conversation.types import ConversationCallbackType
+from handprint.sdk.tool import Tool
+from handprint.sdk.utils.async_utils import AsyncCallbackWrapper
+from handprint.tools.file_editor import FileEditorTool
+from handprint.tools.task_tracker import TaskTrackerTool
+from handprint.tools.terminal import TerminalTool
 
 
 logger = get_logger(__name__)

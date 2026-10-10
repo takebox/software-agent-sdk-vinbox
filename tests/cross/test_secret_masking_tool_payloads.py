@@ -2,9 +2,9 @@
 
 import base64
 
-from openhands.sdk.conversation.secret_registry import SecretRegistry
-from openhands.sdk.llm import ImageContent
-from openhands.tools.browser_use.definition import BrowserObservation
+from handprint.sdk.conversation.secret_registry import SecretRegistry
+from handprint.sdk.llm import ImageContent
+from handprint.tools.browser_use.definition import BrowserObservation
 
 
 def test_preserves_browser_screenshot_payload_and_llm_content():

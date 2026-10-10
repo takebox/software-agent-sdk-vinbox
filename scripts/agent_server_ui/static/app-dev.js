@@ -1,8 +1,8 @@
-class OpenHandsWebChat {
+class HandprintWebChat {
     constructor() {
         // For development - direct connection to agent server
-        this.apiBaseUrl = 'http://localhost:8000';
-        this.wsBaseUrl = 'ws://localhost:8000';
+        this.apiBaseUrl = 'http://localhost:9000';
+        this.wsBaseUrl = 'ws://localhost:9000';
         
         this.currentConversationId = null;
         this.websocket = null;
@@ -639,5 +639,5 @@ class OpenHandsWebChat {
 
 // Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new OpenHandsWebChat();
+    new HandprintWebChat();
 });

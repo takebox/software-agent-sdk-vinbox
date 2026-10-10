@@ -15,8 +15,8 @@ from unittest.mock import MagicMock
 
 import mcp.types
 
-from openhands.sdk.mcp.definition import MCPToolAction
-from openhands.sdk.mcp.tool import MCPToolDefinition, MCPToolExecutor
+from handprint.sdk.mcp.definition import MCPToolAction
+from handprint.sdk.mcp.tool import MCPToolDefinition, MCPToolExecutor
 
 
 class DummyExecutor(MCPToolExecutor):
@@ -200,12 +200,12 @@ class TestDeeplyNestedSchema:
 
 
 # ---------------------------------------------------------------------------
-# OpenHands-injected fields
+# Handprint-injected fields
 # ---------------------------------------------------------------------------
 
 
 class TestInjectedFields:
-    """Verify that OpenHands-specific fields (security_risk, summary)
+    """Verify that Handprint-specific fields (security_risk, summary)
     are correctly injected alongside nested MCP properties.
     """
 
@@ -236,7 +236,7 @@ class TestInjectedFields:
 
     def test_security_risk_not_injected_for_readonly(self) -> None:
         """Read-only tools should NOT get security_risk."""
-        from openhands.sdk.tool import ToolAnnotations
+        from handprint.sdk.tool import ToolAnnotations
 
         mcp_tool = mcp.types.Tool(
             name="readonly_tool",

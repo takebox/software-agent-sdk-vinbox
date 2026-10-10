@@ -4,19 +4,19 @@ from pathlib import Path
 
 import pytest
 
-from openhands.sdk import LLM, LocalConversation, OpenHandsAgentSettings
-from openhands.sdk.agent import Agent
-from openhands.sdk.llm import Message, TextContent, llm_profile_store
-from openhands.sdk.llm.llm_profile_store import LLMProfileStore
-from openhands.sdk.llm.meta_profile_store import MetaProfile, MetaProfileStore
-from openhands.sdk.testing import TestLLM
-from openhands.sdk.tool.builtins import (
+from handprint.sdk import LLM, LocalConversation, HandprintAgentSettings
+from handprint.sdk.agent import Agent
+from handprint.sdk.llm import Message, TextContent, llm_profile_store
+from handprint.sdk.llm.llm_profile_store import LLMProfileStore
+from handprint.sdk.llm.meta_profile_store import MetaProfile, MetaProfileStore
+from handprint.sdk.testing import TestLLM
+from handprint.sdk.tool.builtins import (
     ClassifyAndSwitchLLMAction,
     ClassifyAndSwitchLLMExecutor,
     ClassifyAndSwitchLLMObservation,
     ClassifyAndSwitchLLMTool,
 )
-from openhands.sdk.tool.builtins.classify_and_switch_llm import (
+from handprint.sdk.tool.builtins.classify_and_switch_llm import (
     _recent_messages_text,
     build_classifier_messages,
     build_classifier_prompt,
@@ -102,7 +102,7 @@ def _patch_classifier(
 
 
 def test_build_classifier_prompt_lists_categories() -> None:
-    from openhands.sdk.llm.meta_profile_store import MetaProfile
+    from handprint.sdk.llm.meta_profile_store import MetaProfile
 
     prompt = build_classifier_prompt(MetaProfile.model_validate(META))
     assert prompt.startswith("You are a model-routing classifier.")
@@ -127,7 +127,7 @@ def test_parse_class_index(reply: str, expected: int) -> None:
 
 
 def test_render_direct_prompt_replaces_supported_placeholders() -> None:
-    from openhands.sdk.llm.meta_profile_store import MetaProfile
+    from handprint.sdk.llm.meta_profile_store import MetaProfile
 
     prompt = render_direct_prompt(
         MetaProfile.model_validate(DIRECT_META),
@@ -143,7 +143,7 @@ def test_render_direct_prompt_replaces_supported_placeholders() -> None:
 
 
 def test_build_classifier_messages_class_mode_has_system_and_user() -> None:
-    from openhands.sdk.llm.meta_profile_store import MetaProfile
+    from handprint.sdk.llm.meta_profile_store import MetaProfile
 
     messages = build_classifier_messages(MetaProfile.model_validate(META), "user: hi")
 
@@ -161,7 +161,7 @@ def test_build_classifier_messages_class_mode_has_system_and_user() -> None:
 
 
 def test_build_classifier_messages_direct_mode_has_system_and_user() -> None:
-    from openhands.sdk.llm.meta_profile_store import MetaProfile
+    from handprint.sdk.llm.meta_profile_store import MetaProfile
 
     messages = build_classifier_messages(
         MetaProfile.model_validate(DIRECT_META), "user: add parser tests"
@@ -203,7 +203,7 @@ def test_parse_direct_model_matches_saved_profile_names_case_insensitively() -> 
 
 
 def test_recent_messages_text_takes_last_n() -> None:
-    from openhands.sdk.event.llm_convertible.message import MessageEvent
+    from handprint.sdk.event.llm_convertible.message import MessageEvent
 
     events = [
         MessageEvent(
@@ -651,7 +651,7 @@ def test_missing_active_meta_profile_does_not_break_startup(
     # The whole point of deferring the load: a missing active meta-profile must
     # not break _ensure_agent_ready() / conversation startup.
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(meta_store.base_dir.parent))
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
         tools=[],
         enable_classify_and_switch_llm_tool=True,
@@ -670,7 +670,7 @@ def test_missing_active_meta_profile_does_not_break_startup(
 
 def test_create_agent_adds_tool_when_enabled(meta_store, monkeypatch) -> None:
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(meta_store.base_dir.parent))
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
         enable_classify_and_switch_llm_tool=True,
         active_meta_profile="balanced",
@@ -680,7 +680,7 @@ def test_create_agent_adds_tool_when_enabled(meta_store, monkeypatch) -> None:
 
 
 def test_create_agent_passes_inline_meta_profile_without_filesystem(tmp_path) -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
         enable_classify_and_switch_llm_tool=True,
         active_meta_profile="cloud-router",
@@ -695,7 +695,7 @@ def test_create_agent_passes_inline_meta_profile_without_filesystem(tmp_path) ->
 
 def test_create_agent_passes_inline_cloud_llms() -> None:
     inline_llm = _make_llm("cloud-model", "cloud")
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
         enable_classify_and_switch_llm_tool=True,
         active_meta_profile="cloud-router",
@@ -712,7 +712,7 @@ def test_create_agent_adds_tool_when_enabled_without_active_profile(
 ) -> None:
     monkeypatch.setenv("OH_PERSISTENCE_DIR", str(meta_store.base_dir.parent))
     # No active_meta_profile: the tool is still wired and resolves the first one.
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
         enable_classify_and_switch_llm_tool=True,
     ).create_agent()
@@ -721,7 +721,7 @@ def test_create_agent_adds_tool_when_enabled_without_active_profile(
 
 
 def test_create_agent_omits_tool_when_disabled() -> None:
-    agent = OpenHandsAgentSettings(
+    agent = HandprintAgentSettings(
         llm=_make_llm("default-model", "default"),
     ).create_agent()
 

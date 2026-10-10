@@ -12,10 +12,10 @@ from unittest.mock import MagicMock
 import mcp.types
 import pytest
 
-from openhands.sdk.conversation.secret_registry import SecretRegistry
-from openhands.sdk.llm import ImageContent
-from openhands.sdk.mcp.definition import MCPToolAction, MCPToolObservation
-from openhands.sdk.mcp.tool import MCPToolExecutor
+from handprint.sdk.conversation.secret_registry import SecretRegistry
+from handprint.sdk.llm import ImageContent
+from handprint.sdk.mcp.definition import MCPToolAction, MCPToolObservation
+from handprint.sdk.mcp.tool import MCPToolExecutor
 
 
 @pytest.fixture

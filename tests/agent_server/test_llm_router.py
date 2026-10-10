@@ -3,15 +3,15 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from openhands.agent_server.api import create_app
-from openhands.agent_server.config import Config
-from openhands.agent_server.llm_router import (
+from handprint.agent_server.api import create_app
+from handprint.agent_server.config import Config
+from handprint.agent_server.llm_router import (
     list_models,
     list_providers,
     list_verified_models,
 )
-from openhands.sdk.llm.auth.openai import OPENAI_CODEX_MODELS
-from openhands.sdk.llm.utils.verified_models import VERIFIED_MODELS
+from handprint.sdk.llm.auth.openai import OPENAI_CODEX_MODELS
+from handprint.sdk.llm.utils.verified_models import VERIFIED_MODELS
 
 
 @pytest.fixture
@@ -28,7 +28,7 @@ async def test_list_providers():
     response = await list_providers()
     assert len(response.providers) > 0
     assert "openai" in response.providers
-    assert "anthropic" in response.providers
+    assert "juglow" in response.providers
     assert response.providers == sorted(response.providers)
 
 
@@ -90,7 +90,7 @@ async def test_list_verified_models():
     response = await list_verified_models()
     assert response.models == VERIFIED_MODELS
     assert "openai" in response.models
-    assert "anthropic" in response.models
+    assert "juglow" in response.models
     assert "openrouter" in response.models
 
 
@@ -139,14 +139,14 @@ def test_verified_models_endpoint_integration(client):
     data = response.json()
     assert "models" in data
     assert "openai" in data["models"]
-    assert "anthropic" in data["models"]
+    assert "juglow" in data["models"]
     assert "gpt-5.6" in data["models"]["openai"]
-    assert "claude-opus-5" in data["models"]["anthropic"]
+    assert "haijun-kamsa" in data["models"]["juglow"]
     assert "deepseek-v4-flash" in data["models"]["deepseek"]
     assert "kimi-k3" in data["models"]["moonshot"]
-    assert "claude-opus-5" in data["models"]["openhands"]
-    assert "deepseek-v4-flash" in data["models"]["openhands"]
-    assert "kimi-k3" in data["models"]["openhands"]
+    assert "haijun-kamsa" in data["models"]["handprint"]
+    assert "deepseek-v4-flash" in data["models"]["handprint"]
+    assert "kimi-k3" in data["models"]["handprint"]
 
 
 def test_openai_subscription_models_endpoint_integration(client):
@@ -165,8 +165,8 @@ def test_openai_subscription_status_endpoint_does_not_return_tokens(
     client, monkeypatch
 ):
     """Status reports safe metadata without exposing OAuth tokens."""
-    from openhands.agent_server import llm_router
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
+    from handprint.agent_server import llm_router
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
 
     class FakeAuth:
         async def refresh_if_needed(self):
@@ -205,8 +205,8 @@ def test_openai_subscription_device_start_returns_opaque_poll_token(
     client, monkeypatch
 ):
     """Device start stores OpenAI internals server-side."""
-    from openhands.agent_server import llm_router
-    from openhands.sdk.llm.auth.openai import DeviceCode
+    from handprint.agent_server import llm_router
+    from handprint.sdk.llm.auth.openai import DeviceCode
 
     class FakeAuth:
         async def start_device_login(self):
@@ -233,9 +233,9 @@ def test_openai_subscription_device_start_returns_opaque_poll_token(
 
 def test_openai_subscription_device_poll_pending_and_success(client, monkeypatch):
     """Polling returns disconnected while pending and connected after success."""
-    from openhands.agent_server import llm_router
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
-    from openhands.sdk.llm.auth.openai import DeviceCode
+    from handprint.agent_server import llm_router
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
+    from handprint.sdk.llm.auth.openai import DeviceCode
 
     llm_router._PENDING_OPENAI_DEVICE_LOGINS.clear()
     llm_router._PENDING_OPENAI_DEVICE_LOGINS["opaque-token"] = (
@@ -297,9 +297,9 @@ async def test_openai_subscription_device_poll_failure_keeps_pending_login(
     monkeypatch,
 ):
     """Transient provider failures do not consume the opaque poll token."""
-    from openhands.agent_server import llm_router
-    from openhands.sdk.llm.auth.credentials import OAuthCredentials
-    from openhands.sdk.llm.auth.openai import DeviceCode
+    from handprint.agent_server import llm_router
+    from handprint.sdk.llm.auth.credentials import OAuthCredentials
+    from handprint.sdk.llm.auth.openai import DeviceCode
 
     llm_router._PENDING_OPENAI_DEVICE_LOGINS.clear()
     llm_router._IN_FLIGHT_OPENAI_DEVICE_LOGINS.clear()
@@ -355,7 +355,7 @@ async def test_openai_subscription_device_poll_failure_keeps_pending_login(
 
 def test_openai_subscription_logout_endpoint(client, monkeypatch):
     """Logout removes credentials and returns disconnected status."""
-    from openhands.agent_server import llm_router
+    from handprint.agent_server import llm_router
 
     llm_router._PENDING_OPENAI_DEVICE_LOGINS["opaque-token"] = (
         llm_router.PendingDeviceLogin(

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { LocalConversation, LocalWorkspace, Agent } from '@openhands/typescript-client';
-import type { LLM, Tool, ToolCall } from '@openhands/typescript-client';
+import { LocalConversation, LocalWorkspace, Agent } from '@takebox-ai/typescript-client';
+import type { LLM, Tool, ToolCall } from '@takebox-ai/typescript-client';
 
 interface Message {
   id: string;

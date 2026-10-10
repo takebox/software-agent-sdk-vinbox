@@ -36,7 +36,7 @@ describe('device flow request metadata', () => {
     await client.startDeviceFlow({
       headers: {
         'content-type': 'text/plain',
-        'X-OpenHands-Client': 'agent_canvas',
+        'X-Handprint-Client': 'agent_viczin',
       },
     });
 
@@ -46,7 +46,7 @@ describe('device flow request metadata', () => {
     );
     const headers = requestHeadersForCall();
     expect(headers.get('Content-Type')).toBe('application/json');
-    expect(headers.get('X-OpenHands-Client')).toBe('agent_canvas');
+    expect(headers.get('X-Handprint-Client')).toBe('agent_viczin');
   });
 
   it('forwards additional headers while polling for a token', async () => {
@@ -60,7 +60,7 @@ describe('device flow request metadata', () => {
       interval: 1,
       headers: {
         'CONTENT-TYPE': 'text/plain',
-        'X-OpenHands-Client-Version': '1.4.0',
+        'X-Handprint-Client-Version': '1.4.0',
       },
     });
 
@@ -70,6 +70,6 @@ describe('device flow request metadata', () => {
     );
     const headers = requestHeadersForCall();
     expect(headers.get('Content-Type')).toBe('application/x-www-form-urlencoded');
-    expect(headers.get('X-OpenHands-Client-Version')).toBe('1.4.0');
+    expect(headers.get('X-Handprint-Client-Version')).toBe('1.4.0');
   });
 });

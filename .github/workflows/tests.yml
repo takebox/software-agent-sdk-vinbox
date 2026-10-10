@@ -95,17 +95,17 @@ jobs:
               if: steps.changed.outputs.any_changed == 'true'
               run: uv sync --frozen --group dev
 
-            - name: Check for openhands.tools imports in sdk tests
+            - name: Check for handprint.tools imports in sdk tests
               if: steps.changed.outputs.any_changed == 'true'
               run: |
-                  echo "Checking for openhands.tools imports in tests/sdk..."
-                  if grep -r "from openhands\.tools" tests/sdk/ || grep -r "import openhands\.tools" tests/sdk/; then
-                    echo "ERROR: Found openhands.tools imports in tests/sdk/"
-                    echo "SDK tests should only import from openhands.sdk"
-                    echo "Please move tests that use openhands.tools to tests/cross/"
+                  echo "Checking for handprint.tools imports in tests/sdk..."
+                  if grep -r "from handprint\.tools" tests/sdk/ || grep -r "import handprint\.tools" tests/sdk/; then
+                    echo "ERROR: Found handprint.tools imports in tests/sdk/"
+                    echo "SDK tests should only import from handprint.sdk"
+                    echo "Please move tests that use handprint.tools to tests/cross/"
                     exit 1
                   fi
-                  echo "✓ No openhands.tools imports found in tests/sdk/"
+                  echo "✓ No handprint.tools imports found in tests/sdk/"
 
             - name: Run sdk tests with coverage
               if: steps.changed.outputs.any_changed == 'true'
@@ -140,7 +140,7 @@ jobs:
     # and tests/sdk/agent/test_acp_conformance.py's docstring). sdk-tests IS
     # required, so a registry blip must not be able to block unrelated PRs;
     # this job carries that live-network risk instead, gated to only run
-    # when ACP registry/catalog files actually change (OpenHands/
+    # when ACP registry/catalog files actually change (Handprint/
     # software-agent-sdk#4830 P0-1/2/3).
     acp-live-tests:
         runs-on: blacksmith-2vcpu-ubuntu-2404
@@ -155,8 +155,8 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-sdk/openhands/sdk/settings/acp_providers.py
-                      openhands-sdk/openhands/sdk/settings/acp_install_catalog.py
+                      openhands-sdk/handprint/sdk/settings/acp_providers.py
+                      openhands-sdk/handprint/sdk/settings/acp_install_catalog.py
                       tests/sdk/agent/test_acp_conformance.py
                       tests/sdk/settings/test_acp_install_catalog_pins_live.py
                       pyproject.toml
@@ -492,7 +492,7 @@ jobs:
               with:
                   files: |
                       tests/**
-                      openhands/**
+                      handprint/**
                       pyproject.toml
                       uv.lock
                       .github/workflows/tests.yml
@@ -517,7 +517,7 @@ jobs:
                     --basetemp="${{ runner.temp }}/pytest" \
                     -o tmp_path_retention=none \
                     -o tmp_path_retention_count=0 \
-                    --cov=openhands \
+                    --cov=handprint \
                     --cov-report=term-missing \
                     --cov-fail-under=0 \
                     --cov-config=pyproject.toml \
