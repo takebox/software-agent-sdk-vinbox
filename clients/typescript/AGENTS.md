@@ -8,7 +8,7 @@ The client is designed to mirror the structure and functionality of the Python S
 
 ## Cross-Repository Boundaries
 
-This directory owns the browser-compatible TypeScript client for the Handprint Agent Server API. The canonical API implementation and behavior live in the Python SDK and Agent Server packages in this repository; [`Handprint/Handprint`](https://github.com/Handprint/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/Handprint/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/Handprint/automation) owns scheduling, webhooks, run history, and dispatching.
+This directory owns the browser-compatible TypeScript client for the Handprint Agent Server API. The canonical API implementation and behavior live in the Python SDK and Agent Server packages in this repository; [`Handprint/Handprint`](https://github.com/takebox/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/takebox/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/takebox/automation) owns scheduling, webhooks, run history, and dispatching.
 
 The normal flow is SDK/Agent Server → OpenAPI contract → this client → Agent Viczin. Keep backend behavior and endpoints in the Python SDK or Agent Server packages, typed API access in this directory, UI in Agent Viczin, and automation lifecycle behavior in `automation`.
 
@@ -407,8 +407,8 @@ The agent should focus on code development, testing, and documentation tasks. On
 
 ## Related Repositories
 
-- **[Handprint/Handprint](https://github.com/Handprint/Handprint)**: Agent Viczin application
-- **[Handprint/docs](https://github.com/Handprint/docs)**: User documentation
+- **[Handprint/Handprint](https://github.com/takebox/Handprint)**: Agent Viczin application
+- **[Handprint/docs](https://github.com/takebox/docs)**: User documentation
 
 ## Usage Context
 

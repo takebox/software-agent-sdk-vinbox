@@ -2,7 +2,7 @@ from handprint.sdk.conversation.types import ConversationID
 from handprint.sdk.event.conversation_error import ConversationErrorEvent
 
 
-ISSUE_URL = "https://github.com/OpenHands/software-agent-sdk/issues/new"
+ISSUE_URL = "https://github.com/takebox/software-agent-sdk/issues/new"
 
 
 class WebSocketConnectionError(RuntimeError):

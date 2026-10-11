@@ -954,7 +954,7 @@ def main():
     parser.add_argument(
         "--issue-parent",
         help="Parent issue URL to reference (e.g., "
-        "'https://github.com/All-Hands-AI/infra/issues/672')",
+        "'https://github.com/takebox/infra/issues/672')",
     )
     parser.add_argument(
         "--issue-prefix",

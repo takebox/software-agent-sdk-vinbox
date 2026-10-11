@@ -149,7 +149,7 @@ def test_pinned_cache_entry_never_expires():
     )
 
     fake_track = Track(name="pinned-track", content="pinned content")
-    cache_key = ("https://github.com/Handprint/extensions", "v1.0.0", None)
+    cache_key = ("https://github.com/takebox/extensions", "v1.0.0", None)
 
     _invalidate_public_tracks_cache()
     _seed_cache(
@@ -180,7 +180,7 @@ def test_mutable_cache_entry_expires_after_ttl():
     )
 
     fake_track = Track(name="stale-track", content="stale content")
-    cache_key = ("https://github.com/Handprint/extensions", "main", None)
+    cache_key = ("https://github.com/takebox/extensions", "main", None)
 
     _invalidate_public_tracks_cache()
     _seed_cache(

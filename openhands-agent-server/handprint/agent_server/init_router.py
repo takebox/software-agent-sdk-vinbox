@@ -7,7 +7,7 @@ delivers the runtime configuration. This is intended for warm-pool
 deployments where pods are pre-warmed before a user is matched and the
 per-user workspace + credentials are attached later.
 
-See: https://github.com/OpenHands/software-agent-sdk/issues/2523
+See: https://github.com/takebox/software-agent-sdk/issues/2523
 """
 
 from __future__ import annotations

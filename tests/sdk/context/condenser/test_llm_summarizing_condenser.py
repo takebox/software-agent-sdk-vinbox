@@ -111,7 +111,7 @@ def test_default_values(mock_llm: LLM) -> None:
     """Test that LLMSummarizingCondenser has correct default values.
 
     These defaults are tuned to ensure workable manipulation indices for condensation.
-    See https://github.com/OpenHands/software-agent-sdk/issues/1518 for context.
+    See https://github.com/takebox/software-agent-sdk/issues/1518 for context.
     """
     condenser = LLMSummarizingCondenser(llm=mock_llm)
 
@@ -650,7 +650,7 @@ def test_generate_condensation_raises_on_zero_events(mock_llm: LLM) -> None:
 
     This prevents the LLM from being called with an empty event list, which would
     produce a confusing summary like "I don't see any events provided to summarize."
-    See https://github.com/OpenHands/software-agent-sdk/issues/1518 for context.
+    See https://github.com/takebox/software-agent-sdk/issues/1518 for context.
     """
     condenser = LLMSummarizingCondenser(llm=mock_llm, max_size=100, keep_first=2)
 

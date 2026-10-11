@@ -11,7 +11,7 @@ falls back to the existing metadata on any error. It is a narrow compatibility
 layer for metadata LiteLLM does not yet expose, and should be removable (or
 delegating) once LiteLLM provides equivalent provider-endpoint metadata.
 
-See: https://github.com/OpenHands/software-agent-sdk/issues/4421
+See: https://github.com/takebox/software-agent-sdk/issues/4421
 """
 
 from __future__ import annotations

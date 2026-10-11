@@ -298,7 +298,7 @@ class ToolExecutor[ActionT, ObservationT](ABC):
                          within a LocalConversation context. Even when tools are
                          invoked via RemoteConversation, the remote agent server
                          creates a LocalConversation instance to handle the actual
-                         tool execution. See https://github.com/Handprint/agent-sdk/pull/925
+                         tool execution. See https://github.com/takebox/agent-sdk/pull/925
                          for more details.
 
         Returns:
@@ -859,7 +859,7 @@ def _prioritize_schema_fields(
 
     This ensures the LLM generates short metadata fields before large content
     parameters, so output-token truncation does not cut required fields.
-    See https://github.com/OpenHands/software-agent-sdk/issues/1911
+    See https://github.com/takebox/software-agent-sdk/issues/1911
     """
     if "properties" not in schema:
         return

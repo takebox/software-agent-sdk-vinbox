@@ -72,7 +72,7 @@ conversation.set_security_analyzer(LLMSecurityAnalyzer())
 
 logger.info("Starting conversation with MCP integration...")
 conversation.send_message(
-    "Read https://github.com/Handprint/Handprint and write 3 facts "
+    "Read https://github.com/takebox/Handprint and write 3 facts "
     "about the project into FACTS.txt."
 )
 conversation.run()

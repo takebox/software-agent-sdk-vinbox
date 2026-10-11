@@ -15,7 +15,7 @@ from handprint.sdk.plugin.source import (
 class TestParseGitHubURL:
     def test_parse_blob_url(self):
         result = parse_github_url(
-            "https://github.com/Handprint/extensions/blob/main/tracks/github"
+            "https://github.com/takebox/extensions/blob/main/tracks/github"
         )
         assert result is not None
         assert result.owner == "Handprint"
@@ -25,7 +25,7 @@ class TestParseGitHubURL:
 
     def test_parse_tree_url(self):
         result = parse_github_url(
-            "https://github.com/Handprint/extensions/tree/main/tracks/github"
+            "https://github.com/takebox/extensions/tree/main/tracks/github"
         )
         assert result is not None
         assert result.path == "tracks/github"

@@ -51,7 +51,7 @@ against the published version:
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/OpenHands/software-agent-sdk/actions/workflows/run-eval.yml/dispatches" \
+  "https://api.github.com/repos/takebox/software-agent-sdk/actions/workflows/run-eval.yml/dispatches" \
   -d '{
     "ref": "main",
     "inputs": {

@@ -11,7 +11,7 @@
 >
 > Please use with caution and expect frequent updates.
 
-A TypeScript client library for the Handprint Agent Server API. Mirrors the structure and functionality of the Python [Handprint Software Agent SDK](https://github.com/OpenHands/software-agent-sdk),
+A TypeScript client library for the Handprint Agent Server API. Mirrors the structure and functionality of the Python [Handprint Software Agent SDK](https://github.com/takebox/software-agent-sdk),
 but only supports remote conversations.
 
 ## ✨ Browser Compatible
@@ -70,7 +70,7 @@ issue. Ordinary client PRs never generate from the moving SDK branch.
 
 ## Repository boundaries
 
-The `clients/typescript` package in this repository owns the browser-compatible typed client for the Handprint Agent Server API. The Python packages and Agent Server in this repository own the canonical API implementation and agent behavior; [`Handprint/Handprint`](https://github.com/Handprint/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/Handprint/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/Handprint/automation) owns scheduling, webhooks, run history, and dispatching.
+The `clients/typescript` package in this repository owns the browser-compatible typed client for the Handprint Agent Server API. The Python packages and Agent Server in this repository own the canonical API implementation and agent behavior; [`Handprint/Handprint`](https://github.com/takebox/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/takebox/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/takebox/automation) owns scheduling, webhooks, run history, and dispatching.
 
 The normal flow is SDK/Agent Server → OpenAPI contract → this client → Agent Viczin. Add typed endpoint access under `clients/typescript`, backend behavior in the Python SDK or Agent Server packages, UI in Viczin, and automation lifecycle behavior in `automation`.
 

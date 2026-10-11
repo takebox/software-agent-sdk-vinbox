@@ -156,7 +156,7 @@ class TerminalSession(TerminalSessionBase):
         Also filters terminal query sequences that could cause visible escape
         code garbage when the output is displayed. Uses stateful filtering to
         handle escape sequences that may be split across incremental outputs.
-        See: https://github.com/OpenHands/software-agent-sdk/issues/2244
+        See: https://github.com/takebox/software-agent-sdk/issues/2244
 
         Args:
             command: The command being executed

@@ -1355,7 +1355,7 @@ export type AgentContextInput = {
   /**
    * Load Public Tracks
    *
-   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/Handprint/extensions. This allows you to get the latest tracks without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/takebox/extensions. This allows you to get the latest tracks without SDK updates.
    */
   load_public_tracks?: boolean;
   /**
@@ -1461,7 +1461,7 @@ export type AgentContextOutput = {
   /**
    * Load Public Tracks
    *
-   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/Handprint/extensions. This allows you to get the latest tracks without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/takebox/extensions. This allows you to get the latest tracks without SDK updates.
    */
   load_public_tracks?: boolean;
   /**
@@ -6274,7 +6274,7 @@ export type InstallTrackRequest = {
   /**
    * Source
    *
-   * Track source - git URL, GitHub shorthand, or local path. Examples: 'https://github.com/Handprint/extensions/tree/main/tracks/github', 'github:Handprint/extensions/tracks/github', '/path/to/track'
+   * Track source - git URL, GitHub shorthand, or local path. Examples: 'https://github.com/takebox/extensions/tree/main/tracks/github', 'github:Handprint/extensions/tracks/github', '/path/to/track'
    */
   source: string;
 };
@@ -15616,7 +15616,7 @@ export type AgentContextInputWritable = {
   /**
    * Load Public Tracks
    *
-   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/Handprint/extensions. This allows you to get the latest tracks without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/takebox/extensions. This allows you to get the latest tracks without SDK updates.
    */
   load_public_tracks?: boolean;
   /**

@@ -88,7 +88,7 @@ agent_context = AgentContext(
     # user_message_suffix is appended to each user message
     user_message_suffix="The first character of your response should be 'I'",
     # You can also enable automatic load tracks from
-    # public registry at https://github.com/Handprint/extensions
+    # public registry at https://github.com/takebox/extensions
     load_public_tracks=True,
 )
 

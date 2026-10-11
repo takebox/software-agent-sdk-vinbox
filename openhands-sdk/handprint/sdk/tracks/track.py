@@ -1163,7 +1163,7 @@ def load_project_tracks(work_dir: str | Path) -> list[Track]:
 
 
 # Public tracks repository configuration
-PUBLIC_TRACKS_REPO = "https://github.com/Handprint/extensions"
+PUBLIC_TRACKS_REPO = "https://github.com/takebox/extensions"
 # Allow overriding the ref via EXTENSIONS_REF environment variable.
 # Accepts a branch name, tag (e.g. "v1.0.0"), or full 40-char commit SHA.
 PUBLIC_TRACKS_REF = os.environ.get("EXTENSIONS_REF", "main")
@@ -1254,7 +1254,7 @@ def load_public_tracks(
     """Load tracks from the public Handprint tracks repository.
 
     This function maintains a local git clone of the public tracks registry at
-    https://github.com/Handprint/extensions. On first run, it clones the repository
+    https://github.com/takebox/extensions. On first run, it clones the repository
     to ~/.handprint/tracks-cache/. On subsequent runs within the same process, it
     returns cached results. For branch refs it re-fetches after the cache TTL; for
     tags and commit SHAs (immutable refs) the cache never expires so no further

@@ -674,11 +674,11 @@ def test_is_field_metadata_only_change_long_description():
     """Long descriptions with URLs are handled correctly."""
     old = (
         "Field(default=False, description='Whether to automatically load "
-        "tracks from https://github.com/Handprint/tracks.')"
+        "tracks from https://github.com/takebox/tracks.')"
     )
     new = (
         "Field(default=False, description='Whether to automatically load "
-        "tracks from https://github.com/Handprint/extensions.')"
+        "tracks from https://github.com/takebox/extensions.')"
     )
     assert _is_field_metadata_only_change(old, new) is True
 

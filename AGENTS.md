@@ -29,9 +29,9 @@ strong bias toward simplicity and maintainable code.
 
 This repository owns the Python SDK and Agent Server: agent and tool behavior, conversations, workspaces, events, and the canonical REST/WebSocket API. Related responsibilities live elsewhere:
 
-- [`Handprint/Handprint`](https://github.com/Handprint/Handprint) owns Agent Viczin UI, frontend state, backend selection, and local-stack orchestration.
+- [`Handprint/Handprint`](https://github.com/takebox/Handprint) owns Agent Viczin UI, frontend state, backend selection, and local-stack orchestration.
 - `clients/typescript/` mirrors the Agent Server API for browser-compatible TypeScript clients.
-- [`Handprint/extensions`](https://github.com/Handprint/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/Handprint/automation) owns automation definitions, scheduling, webhooks, run history, dispatch, and sandbox lifecycle orchestration; this repository executes the dispatched conversations.
+- [`Handprint/extensions`](https://github.com/takebox/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/takebox/automation) owns automation definitions, scheduling, webhooks, run history, dispatch, and sandbox lifecycle orchestration; this repository executes the dispatched conversations.
 
 The usual flow is SDK/Agent Server → OpenAPI contract → `clients/typescript` → Agent Viczin. Implement backend behavior and endpoints in the Python SDK or Agent Server packages first, then update the typed client and downstream applications as needed. If a PR is opened in the wrong repository, explicitly recommend closing and moving it to the repository that owns the change rather than merging it here.
 

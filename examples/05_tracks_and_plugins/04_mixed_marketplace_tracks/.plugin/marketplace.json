@@ -14,7 +14,7 @@
         },
         {
             "name": "github",
-            "source": "https://github.com/Handprint/extensions/blob/main/tracks/github",
+            "source": "https://github.com/takebox/extensions/blob/main/tracks/github",
             "description": "GitHub best practices from the Handprint extensions repository"
         }
     ]

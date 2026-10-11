@@ -3,14 +3,14 @@
 ## Setup
 
 ```bash
-git clone https://github.com/OpenHands/software-agent-sdk.git
+git clone https://github.com/takebox/software-agent-sdk.git
 cd software-agent-sdk
 make build
 ```
 
 ## Repository boundaries
 
-This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Viczin in [`Handprint/Handprint`](https://github.com/Handprint/Handprint); automation scheduling, webhooks, run history, and dispatch belong in [`Handprint/automation`](https://github.com/Handprint/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md) for every PR.
+This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Viczin in [`Handprint/Handprint`](https://github.com/takebox/Handprint); automation scheduling, webhooks, run history, and dispatch belong in [`Handprint/automation`](https://github.com/takebox/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md) for every PR.
 
 ## Code Quality
 

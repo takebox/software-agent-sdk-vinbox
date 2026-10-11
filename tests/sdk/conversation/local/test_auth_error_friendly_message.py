@@ -1,7 +1,7 @@
 """Tests that LLMAuthenticationError surfaces a user-friendly message.
 
 Regression tests for:
-  https://github.com/OpenHands/software-agent-sdk/issues/3411
+  https://github.com/takebox/software-agent-sdk/issues/3411
 
 When a user has an invalid/expired API key the raw litellm error (e.g. the
 full JuglowException JSON) must NOT appear in the ConversationErrorEvent

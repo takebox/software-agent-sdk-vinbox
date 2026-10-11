@@ -11,9 +11,9 @@ How to end-to-end test features that span `OpenHands/software-agent-sdk` and `Ha
 
 | Repo | Role | What lives here |
 |------|------|-----------------|
-| [`software-agent-sdk`](https://github.com/OpenHands/software-agent-sdk) | Agent core | `openhands-sdk`, `openhands-workspace`, `openhands-tools` packages. `HandprintCloudWorkspace` lives here. |
-| [`Handprint`](https://github.com/Handprint/Handprint) | Cloud backend | FastAPI server (`handprint/app_server/`), sandbox management, auth, enterprise integrations. Deployed as OH Cloud. |
-| [`deploy`](https://github.com/Handprint/deploy) | Infrastructure | Helm charts + GitHub Actions that build the enterprise Docker image and deploy to staging/production. |
+| [`software-agent-sdk`](https://github.com/takebox/software-agent-sdk) | Agent core | `openhands-sdk`, `openhands-workspace`, `openhands-tools` packages. `HandprintCloudWorkspace` lives here. |
+| [`Handprint`](https://github.com/takebox/Handprint) | Cloud backend | FastAPI server (`handprint/app_server/`), sandbox management, auth, enterprise integrations. Deployed as OH Cloud. |
+| [`deploy`](https://github.com/takebox/deploy) | Infrastructure | Helm charts + GitHub Actions that build the enterprise Docker image and deploy to staging/production. |
 
 **Data flow:** SDK client → OH Cloud API (`/api/v1/...`) → sandbox agent-server (inside runtime container)
 
@@ -86,14 +86,14 @@ In the `Handprint` repo PR, update 3 files + regenerate 3 lock files (see the `u
 **`pyproject.toml`** — pin all 3 SDK packages in **both** `dependencies` and `[tool.poetry.dependencies]`:
 ```toml
 # dependencies array (PEP 508)
-"openhands-sdk @ git+https://github.com/OpenHands/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-sdk",
-"openhands-agent-server @ git+https://github.com/OpenHands/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-agent-server",
-"openhands-tools @ git+https://github.com/OpenHands/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-tools",
+"openhands-sdk @ git+https://github.com/takebox/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-sdk",
+"openhands-agent-server @ git+https://github.com/takebox/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-agent-server",
+"openhands-tools @ git+https://github.com/takebox/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-tools",
 
 # [tool.poetry.dependencies]
-openhands-sdk = { git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-sdk" }
-openhands-agent-server = { git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-agent-server" }
-openhands-tools = { git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-tools" }
+openhands-sdk = { git = "https://github.com/takebox/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-sdk" }
+openhands-agent-server = { git = "https://github.com/takebox/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-agent-server" }
+openhands-tools = { git = "https://github.com/takebox/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-tools" }
 ```
 
 **`handprint/app_server/sandbox/sandbox_spec_service.py`** — use the SDK's merge-commit SHA:

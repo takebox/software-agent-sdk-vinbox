@@ -179,7 +179,7 @@ jobs:
                   - \`openhands-sdk\`
                   - \`openhands-workspace\`
 
-                  **Triggered by:** Release of [software-agent-sdk v$VERSION](https://github.com/OpenHands/software-agent-sdk/releases/tag/v$VERSION)
+                  **Triggered by:** Release of [software-agent-sdk v$VERSION](https://github.com/takebox/software-agent-sdk/releases/tag/v$VERSION)
 
                   ---
                   _This PR was automatically created by the version-bump-prs workflow._" \
@@ -453,7 +453,7 @@ jobs:
 
                   ## Video/Screenshots
 
-                  ![sdk-version-bump](https://raw.githubusercontent.com/Handprint/Handprint/$BRANCH/.pr/sdk-version-bump.svg)
+                  ![sdk-version-bump](https://raw.githubusercontent.com/takebox/Handprint/$BRANCH/.pr/sdk-version-bump.svg)
 
 
 
@@ -560,7 +560,7 @@ jobs:
                   - \`openhands-agent-server\`
                   - \`openhands-tools\`
 
-                  **Triggered by:** Release of [software-agent-sdk v$VERSION](https://github.com/OpenHands/software-agent-sdk/releases/tag/v$VERSION)
+                  **Triggered by:** Release of [software-agent-sdk v$VERSION](https://github.com/takebox/software-agent-sdk/releases/tag/v$VERSION)
 
                   ---
                   _This PR was automatically created by the version-bump-prs workflow._" \
@@ -608,20 +608,20 @@ jobs:
                     fi
                   }
 
-                  check "automation"    "$AUTOMATION_OUTCOME" "https://github.com/Handprint/automation/pulls?q=is%3Apr+bump-sdk-$VERSION"
-                  check "Handprint"     "$HANDPRINT_OUTCOME" "https://github.com/Handprint/Handprint/pulls?q=is%3Apr+bump-sdk-$VERSION"
-                  check "enterprise"    "$ENTERPRISE_OUTCOME" "https://github.com/Handprint/enterprise/pulls?q=is%3Apr+bump-sdk-$VERSION"
+                  check "automation"    "$AUTOMATION_OUTCOME" "https://github.com/takebox/automation/pulls?q=is%3Apr+bump-sdk-$VERSION"
+                  check "Handprint"     "$HANDPRINT_OUTCOME" "https://github.com/takebox/Handprint/pulls?q=is%3Apr+bump-sdk-$VERSION"
+                  check "enterprise"    "$ENTERPRISE_OUTCOME" "https://github.com/takebox/enterprise/pulls?q=is%3Apr+bump-sdk-$VERSION"
 
                   TOTAL=3
                   if [ "$FAILED_COUNT" -eq 0 ]; then
                     OVERALL="success"
-                    SLACK_TEXT="🚀 *SDK v$VERSION published to PyPI!*\n\nVersion bump PRs created:\n$SUCCESS_LINKS\n\n<https://github.com/OpenHands/software-agent-sdk/releases/tag/v$VERSION|View Release>"
+                    SLACK_TEXT="🚀 *SDK v$VERSION published to PyPI!*\n\nVersion bump PRs created:\n$SUCCESS_LINKS\n\n<https://github.com/takebox/software-agent-sdk/releases/tag/v$VERSION|View Release>"
                   elif [ "$FAILED_COUNT" -eq "$TOTAL" ]; then
                     OVERALL="failure"
-                    SLACK_TEXT="❌ *SDK v$VERSION published, but ALL version bump PRs FAILED*\n\nFailed: $FAILED_REPOS\n\nSee run: <$RUN_URL|workflow logs>\n\n<https://github.com/OpenHands/software-agent-sdk/releases/tag/v$VERSION|View Release>"
+                    SLACK_TEXT="❌ *SDK v$VERSION published, but ALL version bump PRs FAILED*\n\nFailed: $FAILED_REPOS\n\nSee run: <$RUN_URL|workflow logs>\n\n<https://github.com/takebox/software-agent-sdk/releases/tag/v$VERSION|View Release>"
                   else
                     OVERALL="failure"
-                    SLACK_TEXT="⚠️ *SDK v$VERSION published, but $FAILED_COUNT/$TOTAL version bump PRs FAILED*\n\nFailed: $FAILED_REPOS\nCreated:\n$SUCCESS_LINKS\n\nSee run: <$RUN_URL|workflow logs>\n\n<https://github.com/OpenHands/software-agent-sdk/releases/tag/v$VERSION|View Release>"
+                    SLACK_TEXT="⚠️ *SDK v$VERSION published, but $FAILED_COUNT/$TOTAL version bump PRs FAILED*\n\nFailed: $FAILED_REPOS\nCreated:\n$SUCCESS_LINKS\n\nSee run: <$RUN_URL|workflow logs>\n\n<https://github.com/takebox/software-agent-sdk/releases/tag/v$VERSION|View Release>"
                   fi
 
                   echo "" >> $GITHUB_STEP_SUMMARY
@@ -799,7 +799,7 @@ jobs:
 
                   $(cat "$API_SUMMARY")
 
-                  Triggered by https://github.com/OpenHands/software-agent-sdk/releases/tag/v${VERSION}.
+                  Triggered by https://github.com/takebox/software-agent-sdk/releases/tag/v${VERSION}.
                   EOF
                   gh pr create --repo "$REPO" --base main --head "$BRANCH" \
                     --title "chore(typescript): agent-server to v$VERSION" \
@@ -925,7 +925,7 @@ jobs:
                   labels: automated,image-bump
                   body: |
                       Automated image tag bump for **agent-server** after the
-                      [software-agent-sdk v${{ steps.get_version.outputs.version }} release](https://github.com/OpenHands/software-agent-sdk/releases/tag/v${{ steps.get_version.outputs.version }}).
+                      [software-agent-sdk v${{ steps.get_version.outputs.version }} release](https://github.com/takebox/software-agent-sdk/releases/tag/v${{ steps.get_version.outputs.version }}).
 
                       | File | Path |
                       | --- | --- |

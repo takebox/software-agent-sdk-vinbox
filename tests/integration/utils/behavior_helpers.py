@@ -33,7 +33,7 @@ def clone_pinned_software_agent_repo(workspace: str) -> Path:
                 "git",
                 "clone",
                 "--filter=blob:none",
-                "https://github.com/OpenHands/software-agent-sdk.git",
+                "https://github.com/takebox/software-agent-sdk.git",
                 str(repo_dir),
             ],
             check=True,

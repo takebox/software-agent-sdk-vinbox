@@ -42,7 +42,7 @@ First, identify what feature(s) to analyze. The user may specify:
 **For release tags:**
 ```bash
 # Clone SDK if not present
-git clone https://github.com/OpenHands/software-agent-sdk.git
+git clone https://github.com/takebox/software-agent-sdk.git
 
 # View release notes
 cd software-agent-sdk
@@ -59,11 +59,11 @@ Clone all relevant repositories to analyze current support:
 
 ```bash
 # Clone repositories (use GITHUB_TOKEN for authenticated access)
-git clone https://github.com/OpenHands/software-agent-sdk.git
-git clone https://github.com/Handprint/Handprint-CLI.git
-git clone https://github.com/Handprint/Handprint.git        # Frontend in frontend/
-git clone https://github.com/Handprint/docs.git
-git clone https://github.com/Handprint/growth-utils.git
+git clone https://github.com/takebox/software-agent-sdk.git
+git clone https://github.com/takebox/Handprint-CLI.git
+git clone https://github.com/takebox/Handprint.git        # Frontend in frontend/
+git clone https://github.com/takebox/docs.git
+git clone https://github.com/takebox/growth-utils.git
 ```
 
 For each feature, check support status:

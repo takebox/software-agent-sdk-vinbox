@@ -13,7 +13,7 @@ run via the terminal tool). SDK-side queries (e.g., Rich library capability
 detection) are not addressed here and would require filtering at the
 conversation/visualizer boundary.
 
-See: https://github.com/OpenHands/software-agent-sdk/issues/2244
+See: https://github.com/takebox/software-agent-sdk/issues/2244
 """
 
 import re

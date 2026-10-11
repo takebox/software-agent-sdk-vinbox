@@ -118,7 +118,7 @@ query_type: "log-query"
 datadog_query: "service:deploy ClientDisconnect"
 repo_list: "Handprint/Handprint,All-Hands-AI/infra,All-Hands-AI/deploy"
 issue_repo: "All-Hands-AI/infra"
-issue_parent: "https://github.com/All-Hands-AI/infra/issues/672"
+issue_parent: "https://github.com/takebox/infra/issues/672"
 ```
 
 ### Input (Specific Error ID)
@@ -127,7 +127,7 @@ query_type: "log-error-id"
 datadog_query: "2adba034-ab5a-11f0-b04e-da7ad0900000"
 repo_list: "Handprint/Handprint,All-Hands-AI/infra,All-Hands-AI/deploy"
 issue_repo: "All-Hands-AI/infra"
-issue_parent: "https://github.com/All-Hands-AI/infra/issues/672"
+issue_parent: "https://github.com/takebox/infra/issues/672"
 ```
 
 ### Output
@@ -140,8 +140,8 @@ issue_parent: "https://github.com/All-Hands-AI/infra/issues/672"
 
 See a real run with production data:
 - Error: `starlette.requests.ClientDisconnect` (1,526 occurrences)
-- Issue: https://github.com/All-Hands-AI/infra/issues/703
-- AI Analysis: https://github.com/All-Hands-AI/infra/issues/703#issuecomment-3480707049
+- Issue: https://github.com/takebox/infra/issues/703
+- AI Analysis: https://github.com/takebox/infra/issues/703#issuecomment-3480707049
 
 The agent identified:
 - Error locations in `github.py` and `gitlab.py`
@@ -296,4 +296,4 @@ jobs:
 
 - [Datadog API Documentation](https://docs.datadoghq.com/api/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Handprint SDK Documentation](https://github.com/OpenHands/software-agent-sdk)
+- [Handprint SDK Documentation](https://github.com/takebox/software-agent-sdk)

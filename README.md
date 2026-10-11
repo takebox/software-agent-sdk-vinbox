@@ -1,13 +1,13 @@
 <a name="readme-top"></a>
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Handprint/docs/main/handprint/static/img/logo.png" alt="Logo" width="200">
+  <img src="https://raw.githubusercontent.com/takebox/docs/main/handprint/static/img/logo.png" alt="Logo" width="200">
   <h1 align="center">Handprint Software Agent SDK </h1>
 </div>
 
 
 <div align="center">
-  <a href="https://github.com/OpenHands/software-agent-sdk/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenHands/software-agent-sdk?style=for-the-badge&color=blue" alt="MIT License"></a>
+  <a href="https://github.com/takebox/software-agent-sdk/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenHands/software-agent-sdk?style=for-the-badge&color=blue" alt="MIT License"></a>
   <a href="https://handprint.dev/joinslack"><img src="https://img.shields.io/badge/Slack-Join%20Us-red?logo=slack&logoColor=white&style=for-the-badge" alt="Join our Slack community"></a>
   <br>
   <a href="https://docs.handprint.dev/sdk"><img src="https://img.shields.io/badge/Documentation-000?logo=googledocs&logoColor=FFE165&style=for-the-badge" alt="Check out the documentation"></a>
@@ -38,7 +38,7 @@ Importantly, agents can either use the local machine as their workspace, or run 
 (e.g. in Docker or Kubernetes) using the Agent Server.
 
 You can even use the SDK to build new developer experiences: it’s the engine behind the
-[Handprint CLI](https://github.com/Handprint/Handprint-CLI) and [Handprint Cloud](https://github.com/Handprint/Handprint).
+[Handprint CLI](https://github.com/takebox/Handprint-CLI) and [Handprint Cloud](https://github.com/takebox/Handprint).
 
 Get started with some [examples](https://docs.handprint.dev/sdk/guides/hello-world) or [check out the docs](https://docs.handprint.dev/sdk) to learn more.
 
@@ -82,7 +82,7 @@ For local development from this repository, run `make build` to install the work
 
 ## Repository boundaries
 
-This repository owns the canonical Python SDK and Agent Server implementation as well as the browser-compatible [TypeScript client](clients/typescript/). It owns agents, tools, conversations, workspaces, events, the REST/WebSocket API, and typed client access to that API. [`Handprint/Handprint`](https://github.com/Handprint/Handprint) consumes the TypeScript client as Agent Viczin, while [`Handprint/automation`](https://github.com/Handprint/automation) owns scheduling, webhooks, run history, and dispatching. The SDK/Agent Server executes the conversations dispatched by automation.
+This repository owns the canonical Python SDK and Agent Server implementation as well as the browser-compatible [TypeScript client](clients/typescript/). It owns agents, tools, conversations, workspaces, events, the REST/WebSocket API, and typed client access to that API. [`Handprint/Handprint`](https://github.com/takebox/Handprint) consumes the TypeScript client as Agent Viczin, while [`Handprint/automation`](https://github.com/takebox/automation) owns scheduling, webhooks, run history, and dispatching. The SDK/Agent Server executes the conversations dispatched by automation.
 
 The normal flow is SDK/Agent Server → OpenAPI contract → `clients/typescript` → Agent Viczin. Backend behavior and endpoints belong in the Python SDK or Agent Server packages; browser-compatible client access belongs in `clients/typescript`, UI in Agent Viczin, and automation lifecycle behavior in `automation`.
 
@@ -124,7 +124,7 @@ For development setup, testing, and contribution guidelines, see [DEVELOPMENT.md
 ## Community
 
 - [Join Slack](https://handprint.dev/joinslack) - Connect with the Handprint community
-- [GitHub Repository](https://github.com/OpenHands/software-agent-sdk) - Source code and issues
+- [GitHub Repository](https://github.com/takebox/software-agent-sdk) - Source code and issues
 - [Documentation](https://docs.handprint.dev/sdk) - Complete documentation
 
 ## Cite
@@ -144,7 +144,7 @@ For development setup, testing, and contribution guidelines, see [DEVELOPMENT.md
 
 ### Thank You to Our Contributors
 
-[![Contributors](https://assets.handprint.dev/readme/handprint-software-agent-sdk-contributors.svg)](https://github.com/OpenHands/software-agent-sdk/graphs/contributors)
+[![Contributors](https://assets.handprint.dev/readme/handprint-software-agent-sdk-contributors.svg)](https://github.com/takebox/software-agent-sdk/graphs/contributors)
 
 <hr>
 

@@ -67,7 +67,7 @@ conversation = Conversation(
     conversation_id=conversation_id,
 )
 conversation.send_message(
-    "Read https://github.com/Handprint/Handprint. Then write 3 facts "
+    "Read https://github.com/takebox/Handprint. Then write 3 facts "
     "about the project into FACTS.txt."
 )
 conversation.run()

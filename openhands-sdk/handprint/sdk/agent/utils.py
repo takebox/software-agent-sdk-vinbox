@@ -593,7 +593,7 @@ def prepare_llm_messages(
     Callers should pass the cached `ConversationState.view`, which is
     maintained incrementally as events are appended. This avoids paying the
     O(n) `View.from_events` (with `enforce_properties`) cost on every step.
-    See https://github.com/OpenHands/software-agent-sdk/issues/3053.
+    See https://github.com/takebox/software-agent-sdk/issues/3053.
 
     Args:
         view: A `View` of the conversation history. The view is treated as

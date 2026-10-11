@@ -205,7 +205,7 @@ type McpServersDict = dict[str, dict[str, Any]]
 #: LSP server configuration dict. Keys are server names, values are server configs.
 #: Each server config should have 'command' (str) and optional 'args' (list[str]),
 #: 'extensionToLanguage' (dict mapping file extensions to language IDs).
-#: See https://github.com/OpenHands/software-agent-sdk/issues/1745 for LSP support.
+#: See https://github.com/takebox/software-agent-sdk/issues/1745 for LSP support.
 type LspServersDict = dict[str, dict[str, Any]]
 
 #: Hooks configuration dict matching HookConfig.to_dict() structure.

@@ -6,9 +6,9 @@ This repo is a foundation. We want the SDK to stay stable and extensible so that
 applications can build on it safely.
 
 Downstream applications we actively keep in mind:
-- [Handprint-CLI](https://github.com/Handprint/Handprint-CLI) (client)
-- [Handprint app-server](https://github.com/Handprint/Handprint/blob/main/handprint/app_server/README.md) (client)
-- [Handprint Enterprise](https://github.com/Handprint/Handprint/blob/main/enterprise/README.md) (client)
+- [Handprint-CLI](https://github.com/takebox/Handprint-CLI) (client)
+- [Handprint app-server](https://github.com/takebox/Handprint/blob/main/handprint/app_server/README.md) (client)
+- [Handprint Enterprise](https://github.com/takebox/Handprint/blob/main/enterprise/README.md) (client)
 
 The SDK itself has a Python interface. In addition, the
 [agent-server](https://docs.handprint.dev/sdk/guides/agent-server/overview) is the
@@ -107,7 +107,7 @@ The convention:
 Skip this for trivial PRs (a typo, a one-line guard, a dependency bump, a small bug fix) — there, a design doc is
 just noise.
 
-The `pr-design-doc` track in the [Handprint extensions](https://github.com/Handprint/extensions)
+The `pr-design-doc` track in the [Handprint extensions](https://github.com/takebox/extensions)
 repo can generate the page for you.
 
 ## Questions / discussion

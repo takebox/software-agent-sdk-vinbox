@@ -27,10 +27,10 @@ dependencies = [
 posthog = ["posthog>=7.60.0,<8"]
 
 [project.urls]
-Source = "https://github.com/OpenHands/software-agent-sdk"
-Homepage = "https://github.com/OpenHands/software-agent-sdk"
+Source = "https://github.com/takebox/software-agent-sdk"
+Homepage = "https://github.com/takebox/software-agent-sdk"
 Documentation = "https://docs.handprint.dev/sdk"
-"Bug Tracker" = "https://github.com/OpenHands/software-agent-sdk/issues"
+"Bug Tracker" = "https://github.com/takebox/software-agent-sdk/issues"
 
 [build-system]
 requires = ["setuptools>=83.0.0", "wheel"]

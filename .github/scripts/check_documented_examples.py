@@ -240,7 +240,7 @@ def main() -> None:
         print("\n📚 How to Document Examples:")
         print("=" * 60)
         print("1. Clone the docs repository:")
-        print("   git clone https://github.com/Handprint/docs.git")
+        print("   git clone https://github.com/takebox/docs.git")
         print()
         print("2. Create a new .mdx file in sdk/guides/ directory")
         print("   (e.g., sdk/guides/my-feature.mdx)")
@@ -252,11 +252,11 @@ def main() -> None:
         print()
         print("4. See the format documentation at:")
         print(
-            "   https://github.com/Handprint/docs/blob/main/.github/scripts/README.md"
+            "   https://github.com/takebox/docs/blob/main/.github/scripts/README.md"
         )
         print()
         print("5. Example documentation files can be found in:")
-        print("   https://github.com/Handprint/docs/tree/main/sdk/guides")
+        print("   https://github.com/takebox/docs/tree/main/sdk/guides")
         print()
         print("6. After creating the PR in docs repo, reference it in your")
         print("   agent-sdk PR description.")

@@ -152,7 +152,7 @@ class InstallTrackRequest(BaseModel):
         description=(
             "Track source - git URL, GitHub shorthand, or local path. "
             "Examples: "
-            "'https://github.com/Handprint/extensions/tree/main/tracks/github', "
+            "'https://github.com/takebox/extensions/tree/main/tracks/github', "
             "'github:Handprint/extensions/tracks/github', "
             "'/path/to/track'"
         ),

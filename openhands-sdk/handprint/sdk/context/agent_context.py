@@ -102,7 +102,7 @@ class AgentContext(BaseModel):
         default=False,
         description=(
             "Whether to automatically load tracks from the public Handprint "
-            "tracks repository at https://github.com/Handprint/extensions. "
+            "tracks repository at https://github.com/takebox/extensions. "
             "This allows you to get the latest tracks without SDK updates."
         ),
         json_schema_extra={"acp_compatible": True},

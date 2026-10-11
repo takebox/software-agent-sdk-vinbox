@@ -3,7 +3,7 @@
 Both :class:`Agent` entry points: the sync path streams too, so an async-only
 fix would cover half the problem.
 
-See https://github.com/OpenHands/software-agent-sdk/issues/4682.
+See https://github.com/takebox/software-agent-sdk/issues/4682.
 """
 
 from collections.abc import Sequence

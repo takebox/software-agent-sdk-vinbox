@@ -4,7 +4,7 @@ Queries OpenRouter's per-endpoint catalog to determine the context/output
 limits of the routes an ``LLM`` is actually configured to use, rather than the
 model-level catalog value (which can overstate an endpoint's context).
 
-See: https://github.com/OpenHands/software-agent-sdk/issues/4421
+See: https://github.com/takebox/software-agent-sdk/issues/4421
 """
 
 from __future__ import annotations

@@ -445,7 +445,7 @@ class MCPToolDefinition(ToolDefinition[MCPToolAction, MCPToolObservation]):
         by the MCP server, so we start from a deep copy of it and inject
         Handprint-specific fields (``security_risk``, ``summary``) directly.
 
-        See: https://github.com/OpenHands/software-agent-sdk/issues/3955
+        See: https://github.com/takebox/software-agent-sdk/issues/3955
         """
         schema = copy.deepcopy(self.mcp_tool.inputSchema)
         # Resolve any $ref / anyOf nodes (unlikely in raw MCP schemas but

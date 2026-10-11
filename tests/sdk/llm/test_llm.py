@@ -1709,7 +1709,7 @@ def test_issue_2459_restore_metrics_syncs_telemetry():
     object as llm.metrics. Otherwise post-resume LLM calls record
     tokens/cost into a stale metrics object and accounting data is lost.
 
-    See: https://github.com/OpenHands/software-agent-sdk/issues/2459
+    See: https://github.com/takebox/software-agent-sdk/issues/2459
     """
     llm = LLM(
         model="gpt-4o-mini",
@@ -1843,7 +1843,7 @@ def test_max_output_tokens_capped_when_using_max_tokens_fallback(mock_get_model_
     rather than the output limit. Without capping, this could request output
     that exceeds the context window.
 
-    See: https://github.com/OpenHands/software-agent-sdk/pull/2264
+    See: https://github.com/takebox/software-agent-sdk/pull/2264
     """
     from handprint.sdk.llm.llm import DEFAULT_MAX_OUTPUT_TOKENS_CAP
 

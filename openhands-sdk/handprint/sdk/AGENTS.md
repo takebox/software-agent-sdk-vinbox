@@ -139,11 +139,11 @@ These are enforced by `check_sdk_api_breakage.py` (runs on release PRs). Depreca
 
 ## Documentation workflow
 
-Documentation lives in **github.com/Handprint/docs** under the `sdk/` folder. When adding features or modifying APIs, you MUST update documentation there.
+Documentation lives in **github.com/takebox/docs** under the `sdk/` folder. When adding features or modifying APIs, you MUST update documentation there.
 
 ### Workflow
 
-1. Clone docs repo next to this repository: `git clone https://github.com/Handprint/docs.git ../handprint-docs`
+1. Clone docs repo next to this repository: `git clone https://github.com/takebox/docs.git ../handprint-docs`
 2. Create matching branch in both repos
 3. Update documentation in `handprint-docs/sdk/` folder
 4. **If you are creating a PR to `OpenHands/software-agent-sdk`**, you must also create a corresponding PR to `Handprint/docs` with documentation updates in the `sdk/` folder

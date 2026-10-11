@@ -7,7 +7,7 @@ Tests cover four bugs that made LLM.subscription_login() unusable:
 4. Reasoning item IDs cause 404 on follow-up requests (store=false)
 5. Retry path must not add unsupported temperature param
 
-See: https://github.com/OpenHands/software-agent-sdk/issues/2797
+See: https://github.com/takebox/software-agent-sdk/issues/2797
 """
 
 import json

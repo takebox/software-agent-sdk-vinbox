@@ -28,10 +28,10 @@ dependencies = [
 ]
 
 [project.urls]
-Source = "https://github.com/OpenHands/software-agent-sdk"
-Homepage = "https://github.com/OpenHands/software-agent-sdk"
+Source = "https://github.com/takebox/software-agent-sdk"
+Homepage = "https://github.com/takebox/software-agent-sdk"
 Documentation = "https://docs.handprint.dev/sdk"
-"Bug Tracker" = "https://github.com/OpenHands/software-agent-sdk/issues"
+"Bug Tracker" = "https://github.com/takebox/software-agent-sdk/issues"
 
 [project.optional-dependencies]
 boto3 = ["boto3>=1.35.0"]

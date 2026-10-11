@@ -515,7 +515,7 @@ class Agent(CriticMixin, ResponseDispatchMixin, AgentBase):
 
         # Defensive check: Analyze state to detect unexpected initialization scenarios
         # These checks help diagnose issues related to lazy loading and event ordering
-        # See: https://github.com/OpenHands/software-agent-sdk/issues/1785
+        # See: https://github.com/takebox/software-agent-sdk/issues/1785
         #
         # NOTE: len() is O(1) for EventLog (file-backed implementation).
         event_count = len(state.events)
@@ -745,7 +745,7 @@ class Agent(CriticMixin, ResponseDispatchMixin, AgentBase):
         self.llm.resolve_runtime_metadata()
 
         # Prepare LLM messages from the cached, incrementally-maintained view.
-        # See https://github.com/OpenHands/software-agent-sdk/issues/3053.
+        # See https://github.com/takebox/software-agent-sdk/issues/3053.
         _messages_or_condensation = prepare_llm_messages(
             state.view, condenser=self.condenser, llm=self.llm
         )
@@ -954,7 +954,7 @@ class Agent(CriticMixin, ResponseDispatchMixin, AgentBase):
         await self.llm.aresolve_runtime_metadata()
 
         # Prepare LLM messages from the cached, incrementally-maintained view.
-        # See https://github.com/OpenHands/software-agent-sdk/issues/3053.
+        # See https://github.com/takebox/software-agent-sdk/issues/3053.
         _messages_or_condensation = await aprepare_llm_messages(
             state.view, condenser=self.condenser, llm=self.llm
         )

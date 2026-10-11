@@ -2,7 +2,7 @@
 
 This example demonstrates how to set up a GitHub Actions workflow for automated pull request reviews using the Handprint agent SDK. When a PR is labeled with `review-this` or when handprint-agent is added as a reviewer, Handprint will analyze the changes and provide detailed, constructive feedback.
 
-**Note**: The actual review scripts now live in the [Handprint/extensions](https://github.com/Handprint/extensions/tree/main/plugins/pr-review) repository. This directory contains an example workflow that references those scripts.
+**Note**: The actual review scripts now live in the [Handprint/extensions](https://github.com/takebox/extensions/tree/main/plugins/pr-review) repository. This directory contains an example workflow that references those scripts.
 
 ## Files
 
@@ -24,7 +24,7 @@ This example demonstrates how to set up a GitHub Actions workflow for automated 
   - **Smart commenting**: Avoids repeating issues that have already been raised and addressed
   - **Unresolved focus**: Prioritizes unresolved threads that may still need attention
   - **Pagination limits**: Fetches up to 100 threads per page (with pagination) and up to 50 comments per thread. For PRs with extensive review history exceeding these limits, older threads/comments may be omitted.
-- **Tracks-Based Review**: Uses public tracks from <https://github.com/Handprint/extensions>:
+- **Tracks-Based Review**: Uses public tracks from <https://github.com/takebox/extensions>:
   - **`/codereview`**: Standard pragmatic code review focusing on simplicity, type safety, and backward compatibility
   - **`/codereview-roasted`**: Linus Torvalds style brutally honest review with emphasis on "good taste" and data structures
 - **Complete Diff Upfront**: The agent receives a per-file diff payload in the initial message, preceded by a `Files Changed` manifest listing every file in the PR (so the agent always knows the full file set even when individual patches are abbreviated)
@@ -117,7 +117,7 @@ Instead of forking the `agent_script.py`, you can customize the code review beha
 
 ### How It Works
 
-The PR review agent uses tracks from the [Handprint/extensions](https://github.com/Handprint/extensions) repository by default. When you add a `.agents/tracks/code-review.md` file to your repository, it **overrides** the default track with your custom guidelines.
+The PR review agent uses tracks from the [Handprint/extensions](https://github.com/takebox/extensions) repository by default. When you add a `.agents/tracks/code-review.md` file to your repository, it **overrides** the default track with your custom guidelines.
 
 ### Example: Custom Code Review Track
 
@@ -163,7 +163,7 @@ You are a code reviewer for this project. Follow these guidelines:
 
 ### Reference Example
 
-See the [software-agent-sdk's own code-review track](https://github.com/OpenHands/software-agent-sdk/blob/main/.agents/tracks/code-review.md) for a complete example of a custom code review track.
+See the [software-agent-sdk's own code-review track](https://github.com/takebox/software-agent-sdk/blob/main/.agents/tracks/code-review.md) for a complete example of a custom code review track.
 
 ## Workflow Configuration
 
@@ -242,4 +242,4 @@ Configure a Laminar signal to analyze the evaluation traces:
    - Which comments received human responses
    - Overall review effectiveness score
 
-See [GitHub Issue #1953](https://github.com/OpenHands/software-agent-sdk/issues/1953) for the full implementation details.
+See [GitHub Issue #1953](https://github.com/takebox/software-agent-sdk/issues/1953) for the full implementation details.

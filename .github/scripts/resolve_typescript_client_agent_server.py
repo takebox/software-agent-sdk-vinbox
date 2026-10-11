@@ -22,7 +22,7 @@ IMAGE_RE = re.compile(
     r"^ghcr\.io/handprint/agent-server:(?P<version>\d+\.\d+\.\d+)-python$"
 )
 OPENAPI_URL = (
-    "https://github.com/OpenHands/software-agent-sdk/releases/download/"
+    "https://github.com/takebox/software-agent-sdk/releases/download/"
     "v{version}/openapi.json"
 )
 

@@ -501,7 +501,7 @@ def service_install_track(
     Args:
         source: Track source - git URL, GitHub shorthand, or local path.
             Supports formats like:
-            - GitHub URL: https://github.com/Handprint/extensions/tree/main/tracks/github
+            - GitHub URL: https://github.com/takebox/extensions/tree/main/tracks/github
             - GitHub shorthand: github:Handprint/extensions/tracks/github
             - Local path: /path/to/track
         ref: Optional branch, tag, or commit to install.

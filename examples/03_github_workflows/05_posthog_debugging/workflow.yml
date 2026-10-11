@@ -64,8 +64,8 @@ jobs:
                   cd posthog_debug_tools
 
                   # Download the debugging script and template
-                  curl -O https://raw.githubusercontent.com/OpenHands/software-agent-sdk/main/examples/03_github_workflows/05_posthog_debugging/posthog_debugging.py
-                  curl -O https://raw.githubusercontent.com/OpenHands/software-agent-sdk/main/examples/03_github_workflows/05_posthog_debugging/debug_prompt.jinja
+                  curl -O https://raw.githubusercontent.com/takebox/software-agent-sdk/main/examples/03_github_workflows/05_posthog_debugging/posthog_debugging.py
+                  curl -O https://raw.githubusercontent.com/takebox/software-agent-sdk/main/examples/03_github_workflows/05_posthog_debugging/debug_prompt.jinja
 
                   chmod +x posthog_debugging.py
 

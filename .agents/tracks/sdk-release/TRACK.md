@@ -26,7 +26,7 @@ automatically.
 ### Via GitHub UI
 
 Navigate to
-<https://github.com/OpenHands/software-agent-sdk/actions/workflows/prepare-release.yml>,
+<https://github.com/takebox/software-agent-sdk/actions/workflows/prepare-release.yml>,
 click **Run workflow**, enter the version (e.g. `1.16.0`), and run it.
 
 ### Via GitHub API
@@ -35,7 +35,7 @@ click **Run workflow**, enter the version (e.g. `1.16.0`), and run it.
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/OpenHands/software-agent-sdk/actions/workflows/prepare-release.yml/dispatches" \
+  "https://api.github.com/repos/takebox/software-agent-sdk/actions/workflows/prepare-release.yml/dispatches" \
   -d '{
     "ref": "main",
     "inputs": {
@@ -121,7 +121,7 @@ details.
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/OpenHands/software-agent-sdk/actions/workflows/run-eval.yml/dispatches" \
+  "https://api.github.com/repos/takebox/software-agent-sdk/actions/workflows/run-eval.yml/dispatches" \
   -d '{
     "ref": "main",
     "inputs": {
@@ -188,10 +188,10 @@ human to post, including links to the downstream version bump PRs:
 🚀 *SDK v<version> published to PyPI!*
 
 Version bump PRs:
-• <https://github.com/All-Hands-AI/Handprint/pulls?q=is%3Apr+bump-sdk-<version>|Handprint>
-• <https://github.com/Handprint/handprint-cli/pulls?q=is%3Apr+bump-sdk-<version>|Handprint-CLI>
+• <https://github.com/takebox/Handprint/pulls?q=is%3Apr+bump-sdk-<version>|Handprint>
+• <https://github.com/takebox/handprint-cli/pulls?q=is%3Apr+bump-sdk-<version>|Handprint-CLI>
 
-Release: <https://github.com/OpenHands/software-agent-sdk/releases/tag/v<version>|v<version>>
+Release: <https://github.com/takebox/software-agent-sdk/releases/tag/v<version>|v<version>>
 ```
 
 See `references/post-release-checklist.md` for details on reviewing

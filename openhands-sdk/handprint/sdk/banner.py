@@ -33,7 +33,7 @@ def _print_banner(version: str) -> None:
 +----------------------------------------------------------------------+
 |  Handprint SDK v{version:<53}|
 |                                                                      |
-|  Report a bug: github.com/OpenHands/software-agent-sdk/issues        |
+|  Report a bug: github.com/takebox/software-agent-sdk/issues        |
 |  Get help: handprint.dev/joinslack                                   |
 |  Scale up: handprint.dev/product/sdk                                 |
 |                                                                      |

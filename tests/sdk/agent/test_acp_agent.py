@@ -2252,7 +2252,7 @@ class TestACPAgentStep:
     def test_step_retires_its_stream_on_the_turn_finish_action(self, tmp_path):
         """An ACP turn's streamed text lands in the FinishAction, not a message.
 
-        See https://github.com/OpenHands/software-agent-sdk/issues/4682.
+        See https://github.com/takebox/software-agent-sdk/issues/4682.
         """
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)

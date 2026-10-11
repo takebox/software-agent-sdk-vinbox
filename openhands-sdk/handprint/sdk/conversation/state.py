@@ -236,7 +236,7 @@ class ConversationState(HandprintModel):
     # read. Derived state — never persisted. `_view_branch_leaf` is the resolved
     # leaf the cache reflects: equal to the active leaf -> reuse; an ancestor ->
     # extend with the tail; otherwise -> rebuild (branch switch).
-    # See https://github.com/OpenHands/software-agent-sdk/issues/3053.
+    # See https://github.com/takebox/software-agent-sdk/issues/3053.
     _view: View = PrivateAttr(default_factory=View)
     _view_branch_leaf: EventID | None = PrivateAttr(default=None)
     _view_lock: threading.RLock = PrivateAttr(default_factory=threading.RLock)
