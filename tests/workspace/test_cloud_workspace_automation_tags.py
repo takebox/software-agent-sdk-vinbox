@@ -300,26 +300,26 @@ class TestPluginSourceUrl:
         """Should convert github:owner/repo to full URL."""
         from handprint.sdk.plugin import PluginSource
 
-        plugin = PluginSource(source="github:Handprint/tracks")
-        assert plugin.source_url == "https://github.com/takebox/tracks"
+        plugin = PluginSource(source="github:HandPrint-AI/tracks")
+        assert plugin.source_url == "https://github.com/HandPrint-AI/tracks"
 
     def test_github_shorthand_with_ref(self):
         """Should add tree/ref for github: sources with ref."""
         from handprint.sdk.plugin import PluginSource
 
-        plugin = PluginSource(source="github:Handprint/tracks", ref="v1.0.0")
-        assert plugin.source_url == "https://github.com/takebox/tracks/tree/v1.0.0"
+        plugin = PluginSource(source="github:HandPrint-AI/tracks", ref="v1.0.0")
+        assert plugin.source_url == "https://github.com/HandPrint-AI/tracks/tree/v1.0.0"
 
     def test_github_shorthand_with_repo_path(self):
         """Should add tree/main/path for github: sources with repo_path."""
         from handprint.sdk.plugin import PluginSource
 
         plugin = PluginSource(
-            source="github:Handprint/monorepo", repo_path="plugins/security"
+            source="github:HandPrint-AI/monorepo", repo_path="plugins/security"
         )
         assert (
             plugin.source_url
-            == "https://github.com/takebox/monorepo/tree/main/plugins/security"
+            == "https://github.com/HandPrint-AI/monorepo/tree/main/plugins/security"
         )
 
     def test_github_shorthand_with_ref_and_path(self):
@@ -327,13 +327,13 @@ class TestPluginSourceUrl:
         from handprint.sdk.plugin import PluginSource
 
         plugin = PluginSource(
-            source="github:Handprint/monorepo",
+            source="github:HandPrint-AI/monorepo",
             ref="feature-branch",
             repo_path="plugins/security",
         )
         assert (
             plugin.source_url
-            == "https://github.com/takebox/monorepo/tree/feature-branch/plugins/security"
+            == "https://github.com/HandPrint-AI/monorepo/tree/feature-branch/plugins/security"
         )
 
     def test_urls_returned_as_is(self):
@@ -341,16 +341,16 @@ class TestPluginSourceUrl:
         from handprint.sdk.plugin import PluginSource
 
         # Full GitHub URL
-        plugin = PluginSource(source="https://github.com/takebox/tracks")
-        assert plugin.source_url == "https://github.com/takebox/tracks"
+        plugin = PluginSource(source="https://github.com/HandPrint-AI/tracks")
+        assert plugin.source_url == "https://github.com/HandPrint-AI/tracks"
 
         # GitHub blob URL
         plugin = PluginSource(
-            source="https://github.com/takebox/tracks/blob/main/TRACK.md"
+            source="https://github.com/HandPrint-AI/tracks/blob/main/TRACK.md"
         )
         assert (
             plugin.source_url
-            == "https://github.com/takebox/tracks/blob/main/TRACK.md"
+            == "https://github.com/HandPrint-AI/tracks/blob/main/TRACK.md"
         )
 
         # GitLab URL (returned as-is, no ref appending)
@@ -393,8 +393,8 @@ class TestPluginsTagInConversation:
         mock_workspace.default_conversation_tags = {}
 
         plugins = [
-            PluginSource(source="github:Handprint/security-track", ref="v1.0.0"),
-            PluginSource(source="github:Handprint/review-track"),
+            PluginSource(source="github:HandPrint-AI/security-track", ref="v1.0.0"),
+            PluginSource(source="github:HandPrint-AI/review-track"),
         ]
 
         with patch(
@@ -415,9 +415,9 @@ class TestPluginsTagInConversation:
             plugin_urls = effective_tags["plugins"].split(",")
             assert len(plugin_urls) == 2
             assert (
-                "https://github.com/takebox/security-track/tree/v1.0.0" in plugin_urls
+                "https://github.com/HandPrint-AI/security-track/tree/v1.0.0" in plugin_urls
             )
-            assert "https://github.com/takebox/review-track" in plugin_urls
+            assert "https://github.com/HandPrint-AI/review-track" in plugin_urls
 
     def test_credentials_redacted_in_plugins_tag(self):
         """Inline creds must not reach the persisted plugins tag; ${VAR} survives."""
@@ -457,7 +457,7 @@ class TestPluginsTagInConversation:
         mock_workspace.default_conversation_tags = {}
 
         plugins = [
-            PluginSource(source="github:Handprint/track"),
+            PluginSource(source="github:HandPrint-AI/track"),
             PluginSource(source="/local/path/to/plugin"),  # Should be skipped
         ]
 
@@ -476,7 +476,7 @@ class TestPluginsTagInConversation:
             effective_tags = call_kwargs["tags"]
 
             # Should only have one plugin (the GitHub one)
-            assert effective_tags["plugins"] == "https://github.com/takebox/track"
+            assert effective_tags["plugins"] == "https://github.com/HandPrint-AI/track"
 
     def test_plugins_tag_merges_with_other_tags(self):
         """Plugins tag should merge with workspace and user tags."""
@@ -492,7 +492,7 @@ class TestPluginsTagInConversation:
             "automationid": "auto-123",
         }
 
-        plugins = [PluginSource(source="github:Handprint/track")]
+        plugins = [PluginSource(source="github:HandPrint-AI/track")]
 
         with patch(
             "handprint.sdk.conversation.impl.remote_conversation.RemoteConversation"
@@ -512,5 +512,5 @@ class TestPluginsTagInConversation:
             # All tags should be present
             assert effective_tags["automationtrigger"] == "webhook"
             assert effective_tags["automationid"] == "auto-123"
-            assert effective_tags["plugins"] == "https://github.com/takebox/track"
+            assert effective_tags["plugins"] == "https://github.com/HandPrint-AI/track"
             assert effective_tags["custom"] == "value"

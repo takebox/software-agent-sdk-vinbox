@@ -7,7 +7,7 @@ import {
   Agent,
   Workspace,
   Event
-} from '@takebox-ai/agent-server-typescript-client';
+} from '@handprint-ai/agent-server-typescript-client';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface ConversationData extends ConversationInfo {

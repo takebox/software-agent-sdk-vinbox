@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LLM } from '@takebox-ai/typescript-client';
+import { LLM } from '@handprint-ai/typescript-client';
 import { AuthScreen } from './components/AuthScreen';
 import { ChatInterface } from './components/ChatInterface';
 import { SettingsModal } from './components/SettingsModal';

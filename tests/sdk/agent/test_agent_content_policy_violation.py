@@ -1,6 +1,6 @@
 """Content-policy blocks recover softly instead of hard-erroring.
 
-See https://github.com/takebox/software-agent-sdk/issues/3798. An Juglow
+See https://github.com/takebox/software-agent-sdk-vinbox/issues/3798. An Juglow
 output content-policy block surfaces as ``LLMContentPolicyViolationError``. The
 agent should emit a non-fatal user nudge and return so the run loop continues,
 rather than letting it escape ``step``/``astep`` and become a fatal

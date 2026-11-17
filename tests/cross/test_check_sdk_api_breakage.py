@@ -46,8 +46,8 @@ get_pypi_baseline_version = _prod.get_pypi_baseline_version
 # Reusable test config matching the _write_pkg_init helper
 _SDK_CFG = PackageConfig(
     package="handprint.sdk",
-    distribution="openhands-sdk",
-    source_dir="openhands-sdk",
+    distribution="vinbox-sdk",
+    source_dir="vinbox-sdk",
 )
 
 
@@ -99,13 +99,13 @@ def _mock_pypi_releases(monkeypatch, releases: list[str]) -> None:
 def test_get_pypi_baseline_version_returns_current_when_published(monkeypatch):
     _mock_pypi_releases(monkeypatch, ["1.0.0", "1.1.0"])
 
-    assert get_pypi_baseline_version("openhands-sdk", "1.1.0") == "1.1.0"
+    assert get_pypi_baseline_version("vinbox-sdk", "1.1.0") == "1.1.0"
 
 
 def test_get_pypi_baseline_version_falls_back_to_previous(monkeypatch):
     _mock_pypi_releases(monkeypatch, ["1.0.0", "1.1.0"])
 
-    assert get_pypi_baseline_version("openhands-sdk", "1.2.0") == "1.1.0"
+    assert get_pypi_baseline_version("vinbox-sdk", "1.2.0") == "1.1.0"
 
 
 def _git(repo_root: Path, *args: str) -> str:
@@ -129,7 +129,7 @@ def _init_git_repo(tmp_path: Path) -> Path:
 
 
 def _write_repo_sdk_model(repo_root: Path, default: str) -> None:
-    pkg = repo_root / "openhands-sdk" / "handprint" / "sdk"
+    pkg = repo_root / "vinbox-sdk" / "handprint" / "sdk"
     pkg.mkdir(parents=True, exist_ok=True)
     (pkg.parent / "__init__.py").write_text("")
     (pkg / "__init__.py").write_text(
@@ -532,8 +532,8 @@ def test_workspace_removed_export_is_breaking(tmp_path):
     """Breakage detection works for non-SDK packages (handprint.workspace)."""
     ws_cfg = PackageConfig(
         package="handprint.workspace",
-        distribution="openhands-workspace",
-        source_dir="openhands-workspace",
+        distribution="vinbox-workspace",
+        source_dir="vinbox-workspace",
     )
     _write_pkg_init(
         tmp_path, "old", ["Foo", "Bar"], module_parts=("handprint", "workspace")
@@ -560,8 +560,8 @@ def test_unresolved_alias_exports_do_not_crash_breakage_detection(tmp_path):
 
     ws_cfg = PackageConfig(
         package="handprint.workspace",
-        distribution="openhands-workspace",
-        source_dir="openhands-workspace",
+        distribution="vinbox-workspace",
+        source_dir="vinbox-workspace",
     )
 
     def _write_workspace(root: str, *, include_method: bool) -> None:
@@ -674,11 +674,11 @@ def test_is_field_metadata_only_change_long_description():
     """Long descriptions with URLs are handled correctly."""
     old = (
         "Field(default=False, description='Whether to automatically load "
-        "tracks from https://github.com/takebox/tracks.')"
+        "tracks from https://github.com/HandPrint-AI/tracks.')"
     )
     new = (
         "Field(default=False, description='Whether to automatically load "
-        "tracks from https://github.com/takebox/extensions.')"
+        "tracks from https://github.com/HandPrint-AI/extensions.')"
     )
     assert _is_field_metadata_only_change(old, new) is True
 
@@ -1203,7 +1203,7 @@ def test_collect_field_default_changes_since_ref_is_quiet_for_structural_changes
     tmp_path, capsys
 ):
     repo_root = _init_git_repo(tmp_path)
-    pkg = repo_root / "openhands-sdk" / "handprint" / "sdk"
+    pkg = repo_root / "vinbox-sdk" / "handprint" / "sdk"
     pkg.mkdir(parents=True, exist_ok=True)
     (pkg.parent / "__init__.py").write_text("")
     (pkg / "__init__.py").write_text(

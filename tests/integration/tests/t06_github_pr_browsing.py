@@ -6,7 +6,7 @@ from tests.integration.base import BaseIntegrationTest, TestResult
 
 
 INSTRUCTION = (
-    "Look at https://github.com/takebox/Handprint/pull/8, and tell me "
+    "Look at https://github.com/HandPrint-AI/Handprint/pull/8, and tell me "
     "what is happening there and what did @asadm suggest. "
 )
 

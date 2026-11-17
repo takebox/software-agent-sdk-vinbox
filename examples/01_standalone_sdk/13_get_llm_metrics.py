@@ -64,7 +64,7 @@ conversation = Conversation(
 
 logger.info("Starting conversation with MCP integration...")
 conversation.send_message(
-    "Read https://github.com/takebox/Handprint and write 3 facts "
+    "Read https://github.com/HandPrint-AI/Handprint and write 3 facts "
     "about the project into FACTS.txt."
 )
 conversation.run()

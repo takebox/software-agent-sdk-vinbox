@@ -1,5 +1,5 @@
 import { Settings } from '../components/SettingsModal';
-import { HttpClient, RemoteConversation, RemoteWorkspace } from '@takebox-ai/agent-server-typescript-client';
+import { HttpClient, RemoteConversation, RemoteWorkspace } from '@handprint-ai/agent-server-typescript-client';
 
 export interface ServerStatus {
   isConnected: boolean;

@@ -58,7 +58,7 @@ tools = [
 #       system_prompt_kwargs={"cli_mode": True, "repo": "my-project"},
 #   )
 #
-# See: https://docs.handprint.dev/sdk/guides/track#customizing-system-prompts
+# See: https://handprint.juglow.my.id/sdk/guides/track#customizing-system-prompts
 agent_context = AgentContext(
     tracks=[
         Track(
@@ -88,7 +88,7 @@ agent_context = AgentContext(
     # user_message_suffix is appended to each user message
     user_message_suffix="The first character of your response should be 'I'",
     # You can also enable automatic load tracks from
-    # public registry at https://github.com/takebox/extensions
+    # public registry at https://github.com/HandPrint-AI/extensions
     load_public_tracks=True,
 )
 

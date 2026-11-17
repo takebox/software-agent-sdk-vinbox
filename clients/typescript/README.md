@@ -11,7 +11,7 @@
 >
 > Please use with caution and expect frequent updates.
 
-A TypeScript client library for the Handprint Agent Server API. Mirrors the structure and functionality of the Python [Handprint Software Agent SDK](https://github.com/takebox/software-agent-sdk),
+A TypeScript client library for the Handprint Agent Server API. Mirrors the structure and functionality of the Python [Handprint Software Agent SDK](https://github.com/takebox/software-agent-sdk-vinbox),
 but only supports remote conversations.
 
 ## ✨ Browser Compatible
@@ -33,13 +33,13 @@ Add this to your `.npmrc` file:
 Then install normally:
 
 ```bash
-npm install @takebox-ai/typescript-client
+npm install @handprint-ai/typescript-client
 ```
 
 ### Option 2: Direct install with registry flag
 
 ```bash
-npm install @takebox-ai/typescript-client --registry=https://npm.pkg.github.com
+npm install @handprint-ai/typescript-client --registry=https://npm.pkg.github.com
 ```
 
 ## Agent Server API contract
@@ -70,7 +70,7 @@ issue. Ordinary client PRs never generate from the moving SDK branch.
 
 ## Repository boundaries
 
-The `clients/typescript` package in this repository owns the browser-compatible typed client for the Handprint Agent Server API. The Python packages and Agent Server in this repository own the canonical API implementation and agent behavior; [`Handprint/Handprint`](https://github.com/takebox/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/takebox/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/takebox/automation) owns scheduling, webhooks, run history, and dispatching.
+The `clients/typescript` package in this repository owns the browser-compatible typed client for the Handprint Agent Server API. The Python packages and Agent Server in this repository own the canonical API implementation and agent behavior; [`Handprint/Handprint`](https://github.com/HandPrint-AI/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/HandPrint-AI/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/HandPrint-AI/automation) owns scheduling, webhooks, run history, and dispatching.
 
 The normal flow is SDK/Agent Server → OpenAPI contract → this client → Agent Viczin. Add typed endpoint access under `clients/typescript`, backend behavior in the Python SDK or Agent Server packages, UI in Viczin, and automation lifecycle behavior in `automation`.
 
@@ -90,7 +90,7 @@ docker run -p 127.0.0.1:9000:8000 -p 127.0.0.1:9001:8001 \
 ### Creating a Conversation
 
 ```typescript
-import { Conversation, Agent, Workspace } from '@takebox-ai/typescript-client';
+import { Conversation, Agent, Workspace } from '@handprint-ai/typescript-client';
 
 const agent = new Agent({
   llm: {
@@ -174,7 +174,7 @@ const downloadResult = await conversation.workspace.fileDownload(
 ### Server-wide Operations
 
 ```typescript
-import { ConversationManager } from '@takebox-ai/typescript-client';
+import { ConversationManager } from '@handprint-ai/typescript-client';
 
 const manager = new ConversationManager({
   host: 'http://localhost:4000',
@@ -215,7 +215,7 @@ request to the corresponding Agent Server MCP settings operation.
 If you need the lower-level endpoint-specific clients directly, import them from the secondary entrypoint:
 
 ```typescript
-import { ServerClient, BashClient } from '@takebox-ai/typescript-client/clients';
+import { ServerClient, BashClient } from '@handprint-ai/typescript-client/clients';
 ```
 
 ### Aggregate Agent Server and Cloud Clients
@@ -223,7 +223,7 @@ import { ServerClient, BashClient } from '@takebox-ai/typescript-client/clients'
 The `/clients` entrypoint also exposes aggregate clients. `AgentServerClient` bundles every agent-server endpoint client behind namespaces, and `CloudClient` covers the Handprint Cloud app API (bearer auth, org scoping, and an optional proxy for runtime-sandbox calls):
 
 ```typescript
-import { AgentServerClient, CloudClient } from '@takebox-ai/typescript-client/clients';
+import { AgentServerClient, CloudClient } from '@handprint-ai/typescript-client/clients';
 
 const agentServer = new AgentServerClient({
   host: 'http://localhost:4000',
@@ -248,7 +248,7 @@ const created = await cloud.createConversation({ initial_message: 'Fix the bug' 
 To obtain a Cloud API key interactively, use the device-flow helpers:
 
 ```typescript
-import { startDeviceFlow, pollForToken } from '@takebox-ai/typescript-client/clients';
+import { startDeviceFlow, pollForToken } from '@handprint-ai/typescript-client/clients';
 
 const requestMetadata = {
   headers: { 'X-My-Client': 'my-client-name' },
@@ -403,7 +403,7 @@ The library includes comprehensive TypeScript type definitions:
 When the server answers with an error status, the client throws an `HttpError`:
 
 ```typescript
-import { isHttpError } from '@takebox-ai/typescript-client';
+import { isHttpError } from '@handprint-ai/typescript-client';
 
 try {
   await conversation.sendMessage('Hello');
@@ -575,7 +575,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Browser conversation event streams
 
-`ConversationEventStream` from `@takebox-ai/typescript-client/clients` owns the
+`ConversationEventStream` from `@handprint-ai/typescript-client/clients` owns the
 Agent Server event socket transport. Use it when an application already manages
 conversation state and needs raw event frames and connection lifecycle callbacks.
 It authenticates with the first frame, preserves replay parameters, reconnects
@@ -586,7 +586,7 @@ after 10 seconds. It does not retain message history.
 import {
   ConversationEventStream,
   buildConversationEventStreamUrl,
-} from '@takebox-ai/typescript-client/clients';
+} from '@handprint-ai/typescript-client/clients';
 
 const stream = new ConversationEventStream({
   url: buildConversationEventStreamUrl(agentServerUrl, conversationId),

@@ -77,7 +77,7 @@ def test_release_pr_uses_source_contract(tmp_path, urlopen):
         "use_source_contract": "true",
     }
     assert calls == [
-        "https://github.com/takebox/software-agent-sdk/releases/download/"
+        "https://github.com/takebox/software-agent-sdk-vinbox/releases/download/"
         "v1.53.0/openapi.json"
     ]
 

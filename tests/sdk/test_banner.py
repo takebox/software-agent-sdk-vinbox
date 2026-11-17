@@ -25,7 +25,7 @@ def test_banner_prints_to_stderr(reset_banner_state, capsys):
 
     captured = capsys.readouterr()
     assert "Handprint SDK v1.0.0" in captured.err
-    assert "github.com/takebox/software-agent-sdk/issues" in captured.err
+    assert "github.com/takebox/software-agent-sdk-vinbox/issues" in captured.err
     assert "handprint.dev/joinslack" in captured.err
     assert "handprint.dev/product/sdk" in captured.err
     assert "HANDPRINT_SUPPRESS_BANNER=1" in captured.err

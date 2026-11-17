@@ -5,15 +5,15 @@ description: This track should be used when the user asks to "test a saas cross-
 
 # Cross-Repo Testing: SDK ↔ Handprint Cloud
 
-How to end-to-end test features that span `OpenHands/software-agent-sdk` and `Handprint/Handprint` (the Cloud backend).
+How to end-to-end test features that span `takebox/software-agent-sdk-vinbox` and `Handprint/Handprint` (the Cloud backend).
 
 ## Repository Map
 
 | Repo | Role | What lives here |
 |------|------|-----------------|
-| [`software-agent-sdk`](https://github.com/takebox/software-agent-sdk) | Agent core | `openhands-sdk`, `openhands-workspace`, `openhands-tools` packages. `HandprintCloudWorkspace` lives here. |
-| [`Handprint`](https://github.com/takebox/Handprint) | Cloud backend | FastAPI server (`handprint/app_server/`), sandbox management, auth, enterprise integrations. Deployed as OH Cloud. |
-| [`deploy`](https://github.com/takebox/deploy) | Infrastructure | Helm charts + GitHub Actions that build the enterprise Docker image and deploy to staging/production. |
+| [`software-agent-sdk`](https://github.com/takebox/software-agent-sdk-vinbox) | Agent core | `vinbox-sdk`, `vinbox-workspace`, `vinbox-tools` packages. `HandprintCloudWorkspace` lives here. |
+| [`Handprint`](https://github.com/HandPrint-AI/Handprint) | Cloud backend | FastAPI server (`handprint/app_server/`), sandbox management, auth, enterprise integrations. Deployed as OH Cloud. |
+| [`deploy`](https://github.com/HandPrint-AI/deploy) | Infrastructure | Helm charts + GitHub Actions that build the enterprise Docker image and deploy to staging/production. |
 
 **Data flow:** SDK client → OH Cloud API (`/api/v1/...`) → sandbox agent-server (inside runtime container)
 
@@ -51,7 +51,7 @@ In `software-agent-sdk`, implement the client code (e.g., new methods on `Handpr
 
 ```bash
 cd software-agent-sdk
-pip install -e openhands-sdk -e openhands-workspace
+pip install -e vinbox-sdk -e vinbox-workspace
 pytest tests/ -v
 ```
 
@@ -86,14 +86,14 @@ In the `Handprint` repo PR, update 3 files + regenerate 3 lock files (see the `u
 **`pyproject.toml`** — pin all 3 SDK packages in **both** `dependencies` and `[tool.poetry.dependencies]`:
 ```toml
 # dependencies array (PEP 508)
-"openhands-sdk @ git+https://github.com/takebox/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-sdk",
-"openhands-agent-server @ git+https://github.com/takebox/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-agent-server",
-"openhands-tools @ git+https://github.com/takebox/software-agent-sdk.git@<COMMIT>#subdirectory=openhands-tools",
+"vinbox-sdk @ git+https://github.com/takebox/software-agent-sdk-vinbox.git@<COMMIT>#subdirectory=vinbox-sdk",
+"vinbox-agent-server @ git+https://github.com/takebox/software-agent-sdk-vinbox.git@<COMMIT>#subdirectory=vinbox-agent-server",
+"vinbox-tools @ git+https://github.com/takebox/software-agent-sdk-vinbox.git@<COMMIT>#subdirectory=vinbox-tools",
 
 # [tool.poetry.dependencies]
-openhands-sdk = { git = "https://github.com/takebox/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-sdk" }
-openhands-agent-server = { git = "https://github.com/takebox/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-agent-server" }
-openhands-tools = { git = "https://github.com/takebox/software-agent-sdk.git", rev = "<COMMIT>", subdirectory = "openhands-tools" }
+vinbox-sdk = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "vinbox-sdk" }
+vinbox-agent-server = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "vinbox-agent-server" }
+vinbox-tools = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "vinbox-tools" }
 ```
 
 **`handprint/app_server/sandbox/sandbox_spec_service.py`** — use the SDK's merge-commit SHA:

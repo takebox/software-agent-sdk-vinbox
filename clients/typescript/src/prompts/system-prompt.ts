@@ -42,7 +42,7 @@ export const DEFAULT_SYSTEM_PROMPT = `You are Handprint agent, a helpful AI assi
 </CODE_QUALITY>
 
 <VERSION_CONTROL>
-* If there are existing git user credentials already configured, use them and add Co-authored-by: handprint <handprint@all-hands.dev> to any commits messages you make.
+* If there are existing git user credentials already configured, use them and add Co-authored-by: handprint <handprint@juglow.my.id> to any commits messages you make.
 * Exercise caution with git operations. Do NOT make potentially dangerous changes (e.g., pushing to main, deleting repositories) unless explicitly asked to do so.
 * When committing changes, use \`git status\` to see all modified files, and stage all files necessary for the commit.
 * Do NOT commit files that typically shouldn't go into version control (e.g., node_modules/, .env files, build directories, cache files, large binaries) unless explicitly instructed by the user.

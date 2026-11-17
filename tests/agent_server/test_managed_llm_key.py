@@ -1,7 +1,7 @@
 """Tests for wiring the SDK refresh-on-401 hook onto managed-proxy LLMs.
 
 ``register_managed_llm_key_refresh`` is the agent-server half of
-OpenHands/software-agent-sdk#5189: it registers
+takebox/software-agent-sdk-vinbox#5189: it registers
 :meth:`handprint.sdk.llm.LLM.set_api_key_refresh_hook` on the managed LLMs so a
 stale managed key recovers in place. These tests assert the wiring is inert
 unless the control plane opts in, that it targets only the managed-proxy LLMs,

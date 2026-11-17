@@ -4,7 +4,7 @@ Covers the OpenRouter adapter (route-aware context limits), the LLM facade
 methods, the precedence rules, TTL/negative caching, concurrent de-duplication,
 and that ``effective_max_input_tokens`` stays side-effect free.
 
-See: https://github.com/takebox/software-agent-sdk/issues/4421
+See: https://github.com/takebox/software-agent-sdk-vinbox/issues/4421
 """
 
 from __future__ import annotations

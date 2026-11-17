@@ -930,7 +930,7 @@ describe('Auxiliary API clients', () => {
         {
           name: 'city-weather',
           description: 'Weather plugin',
-          source: 'github:Handprint/extensions',
+          source: 'github:HandPrint-AI/extensions',
           ref: null,
           repo_path: 'plugins/city-weather',
           installed: false,
@@ -2857,7 +2857,7 @@ describe('Auxiliary API clients', () => {
           items: [
             {
               id: '123',
-              full_name: 'OpenHands/software-agent-sdk',
+              full_name: 'takebox/software-agent-sdk-vinbox',
               git_provider: 'github',
               is_public: true,
               stargazers_count: 7,
@@ -2880,7 +2880,7 @@ describe('Auxiliary API clients', () => {
       pageId: '1',
     });
 
-    expect(result.items[0].full_name).toBe('OpenHands/software-agent-sdk');
+    expect(result.items[0].full_name).toBe('takebox/software-agent-sdk-vinbox');
     expect(result.next_page_id).toBe('2');
     expect(global.fetch).toHaveBeenCalledWith(
       'http://example.com/api/git/repositories/search?provider=github&query=Handprint&limit=30&page_id=1',

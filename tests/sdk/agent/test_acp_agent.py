@@ -2252,7 +2252,7 @@ class TestACPAgentStep:
     def test_step_retires_its_stream_on_the_turn_finish_action(self, tmp_path):
         """An ACP turn's streamed text lands in the FinishAction, not a message.
 
-        See https://github.com/takebox/software-agent-sdk/issues/4682.
+        See https://github.com/takebox/software-agent-sdk-vinbox/issues/4682.
         """
         agent = _make_agent()
         conversation = self._make_conversation_with_message(tmp_path)
@@ -4187,7 +4187,7 @@ class TestACPToolCallAccumulation:
 class TestACPToolCallLiveEmission:
     """Tests that ``session_update`` fires ``on_event`` live (not batched).
 
-    Closes OpenHands/software-agent-sdk#2866: tool-call events must reach
+    Closes takebox/software-agent-sdk-vinbox#2866: tool-call events must reach
     ``on_event`` as each ACP notification arrives, so the event stream
     reflects real subprocess progress instead of a single end-of-turn burst.
     """

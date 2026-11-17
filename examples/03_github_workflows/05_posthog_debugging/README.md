@@ -147,7 +147,7 @@ query_type: "event-query"
 posthog_query: "$exception"
 repo_list: "Handprint/Handprint,All-Hands-AI/infra,All-Hands-AI/deploy"
 issue_repo: "All-Hands-AI/infra"
-issue_parent: "https://github.com/takebox/infra/issues/672"
+issue_parent: "https://github.com/HandPrint-AI/infra/issues/672"
 ```
 
 ### Input (Specific Event ID)
@@ -156,7 +156,7 @@ query_type: "event-id"
 posthog_query: "01234567-89ab-cdef-0123-456789abcdef"
 repo_list: "Handprint/Handprint,All-Hands-AI/infra,All-Hands-AI/deploy"
 issue_repo: "All-Hands-AI/infra"
-issue_parent: "https://github.com/takebox/infra/issues/672"
+issue_parent: "https://github.com/HandPrint-AI/infra/issues/672"
 ```
 
 ### Output
@@ -393,4 +393,4 @@ This example is analogous to the DataDog debugging example but adapted for PostH
 - [PostHog API Documentation](https://posthog.com/docs/api)
 - [PostHog HogQL Documentation](https://posthog.com/docs/hogql)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Handprint SDK Documentation](https://github.com/takebox/software-agent-sdk)
+- [Handprint SDK Documentation](https://github.com/takebox/software-agent-sdk-vinbox)

@@ -17,7 +17,7 @@ Examples:
 
     # Post comparison to PR
     python manage_evals.py compare swebench/.../23775164157/ --auto-baseline \\
-        --post-comment --pr 2334 --repo OpenHands/software-agent-sdk
+        --post-comment --pr 2334 --repo takebox/software-agent-sdk-vinbox
 """  # noqa: E501
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from typing import Any
 RESULTS_CDN = os.environ.get("RESULTS_CDN", "https://results.eval.all-hands.dev")
 DASHBOARD_BASE = "https://handprint-eval-monitor.vercel.app"
 
-SDK_REPO = "OpenHands/software-agent-sdk"
+SDK_REPO = "takebox/software-agent-sdk-vinbox"
 BENCHMARKS = [
     "swebench",
     "swebenchpro",

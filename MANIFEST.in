@@ -8,41 +8,41 @@ include pyproject.toml
 include uv.lock
 
 # ==============================================================================
-# openhands-sdk
+# vinbox-sdk
 # ==============================================================================
-include openhands-sdk/pyproject.toml
-recursive-include openhands-sdk *.py
-recursive-include openhands-sdk *.j2
-recursive-include openhands-sdk py.typed
+include vinbox-sdk/pyproject.toml
+recursive-include vinbox-sdk *.py
+recursive-include vinbox-sdk *.j2
+recursive-include vinbox-sdk py.typed
 
 # ==============================================================================
-# openhands-tools
+# vinbox-tools
 # ==============================================================================
-include openhands-tools/pyproject.toml
-recursive-include openhands-tools *.py
-recursive-include openhands-tools *.j2
-recursive-include openhands-tools py.typed
+include vinbox-tools/pyproject.toml
+recursive-include vinbox-tools *.py
+recursive-include vinbox-tools *.j2
+recursive-include vinbox-tools py.typed
 
 # ==============================================================================
-# openhands-workspace
+# vinbox-workspace
 # ==============================================================================
-include openhands-workspace/pyproject.toml
-recursive-include openhands-workspace *.py
-recursive-include openhands-workspace py.typed
+include vinbox-workspace/pyproject.toml
+recursive-include vinbox-workspace *.py
+recursive-include vinbox-workspace py.typed
 
 # ==============================================================================
-# openhands-agent-server
+# vinbox-agent-server
 # ==============================================================================
-include openhands-agent-server/pyproject.toml
-recursive-include openhands-agent-server *.py
-recursive-include openhands-agent-server py.typed
+include vinbox-agent-server/pyproject.toml
+recursive-include vinbox-agent-server *.py
+recursive-include vinbox-agent-server py.typed
 
 # Docker build files
-include openhands-agent-server/handprint/agent_server/docker/Dockerfile
-include openhands-agent-server/handprint/agent_server/docker/wallpaper.svg
+include vinbox-agent-server/handprint/agent_server/docker/Dockerfile
+include vinbox-agent-server/handprint/agent_server/docker/wallpaper.svg
 
 # PyInstaller spec
-include openhands-agent-server/handprint/agent_server/agent-server.spec
+include vinbox-agent-server/handprint/agent_server/agent-server.spec
 
 # VSCode extensions
-recursive-include openhands-agent-server/handprint/agent_server/vscode_extensions *
+recursive-include vinbox-agent-server/handprint/agent_server/vscode_extensions *

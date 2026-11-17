@@ -33,7 +33,7 @@ class TestLLMTimeoutDefaults:
         to prevent indefinitely hanging requests that could cause runtime
         idle detection to kill active runtimes.
 
-        See: https://github.com/takebox/software-agent-sdk/issues/1633
+        See: https://github.com/takebox/software-agent-sdk-vinbox/issues/1633
         """
         llm = LLM(model="gpt-4o-mini", usage_id="test-llm")
 

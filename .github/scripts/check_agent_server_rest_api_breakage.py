@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""REST API breakage detection for openhands-agent-server using oasdiff.
+"""REST API breakage detection for vinbox-agent-server using oasdiff.
 
 This script compares the current OpenAPI schema for the public agent-server REST API
 (the `/api/**` surface) against an already-published release. The baseline version is
@@ -84,8 +84,8 @@ from handprint.agent_server.openapi import filter_public_openapi
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-AGENT_SERVER_PYPROJECT = REPO_ROOT / "openhands-agent-server" / "pyproject.toml"
-PYPI_DISTRIBUTION = "openhands-agent-server"
+AGENT_SERVER_PYPROJECT = REPO_ROOT / "vinbox-agent-server" / "pyproject.toml"
+PYPI_DISTRIBUTION = "vinbox-agent-server"
 # Keep this in sync with REST_ROUTE_DEPRECATION_RE in check_deprecations.py so
 # the REST breakage and deprecation checks recognize the same wording.
 REST_ROUTE_DEPRECATION_RE = re.compile(
@@ -124,10 +124,10 @@ from pathlib import Path
 
 source_tree = Path(sys.argv[1])
 sys.path = [
-    str(source_tree / "openhands-agent-server"),
-    str(source_tree / "openhands-sdk"),
-    str(source_tree / "openhands-tools"),
-    str(source_tree / "openhands-workspace"),
+    str(source_tree / "vinbox-agent-server"),
+    str(source_tree / "vinbox-sdk"),
+    str(source_tree / "vinbox-tools"),
+    str(source_tree / "vinbox-workspace"),
 ] + sys.path
 
 from handprint.agent_server.api import create_app
@@ -320,7 +320,7 @@ def _find_sdk_deprecated_fastapi_routes_in_file(
 
 
 def _find_sdk_deprecated_fastapi_routes(repo_root: Path) -> list[str]:
-    app_root = repo_root / "openhands-agent-server" / "handprint" / "agent_server"
+    app_root = repo_root / "vinbox-agent-server" / "handprint" / "agent_server"
     errors: list[str] = []
 
     for file_path in sorted(app_root.rglob("*.py")):

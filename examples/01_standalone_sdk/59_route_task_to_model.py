@@ -88,7 +88,7 @@ try:
     # ── 3. Build the agent via HandprintAgentSettings ─────────────────────
     # ``create_agent()`` defaults to the standard exec tools (terminal,
     # file_editor, task_tracker) by name; their implementations live in
-    # ``openhands-tools`` and must be registered before the agent initializes.
+    # ``vinbox-tools`` and must be registered before the agent initializes.
     register_default_tools(enable_browser=False)
 
     # Enabling the tool + setting the active meta-profile name is all it takes

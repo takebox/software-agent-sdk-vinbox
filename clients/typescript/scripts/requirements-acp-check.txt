@@ -1,6 +1,6 @@
 # Pinned dependency for scripts/check-acp-drift.py.
-# Tracks `main` of OpenHands/software-agent-sdk intentionally: the drift
+# Tracks `main` of takebox/software-agent-sdk-vinbox intentionally: the drift
 # check exists to fail CI when ACP_PROVIDERS moves upstream so this repo's
 # JSON mirror gets updated. Do NOT pin to a tag or sha. CI resolves a companion
 # SDK PR linked in the TypeScript client PR description before installing.
-openhands-sdk @ git+https://github.com/takebox/software-agent-sdk@main#subdirectory=openhands-sdk
+vinbox-sdk @ git+https://github.com/takebox/software-agent-sdk-vinbox@main#subdirectory=vinbox-sdk

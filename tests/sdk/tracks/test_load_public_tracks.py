@@ -82,7 +82,7 @@ def mock_repo_with_agenttracks_references(tmp_path):
 
     This reproduces the issue where markdown files in subdirectories of a TRACK.md
     directory (like themes/ or references/) are incorrectly loaded as separate tracks.
-    See: https://github.com/takebox/software-agent-sdk/issues/1981
+    See: https://github.com/takebox/software-agent-sdk-vinbox/issues/1981
     """
     repo_dir = tmp_path / "mock_repo"
     repo_dir.mkdir()
@@ -277,7 +277,7 @@ def test_update_tracks_repository_clone_new(tmp_path):
         "handprint.sdk.git.utils.subprocess.run", return_value=mock_result
     ) as mock_run:
         repo_path = update_tracks_repository(
-            "https://github.com/takebox/extensions",
+            "https://github.com/HandPrint-AI/extensions",
             "main",
             cache_dir,
         )
@@ -312,7 +312,7 @@ def test_update_tracks_repository_update_existing(tmp_path):
         "handprint.sdk.git.utils.subprocess.run", return_value=mock_result
     ) as mock_run:
         result_path = update_tracks_repository(
-            "https://github.com/takebox/extensions",
+            "https://github.com/HandPrint-AI/extensions",
             "main",
             cache_dir,
         )
@@ -345,7 +345,7 @@ def test_update_tracks_repository_clone_timeout(tmp_path):
         side_effect=subprocess.TimeoutExpired("git", 60),
     ) as mock_run:
         repo_path = update_tracks_repository(
-            "https://github.com/takebox/extensions",
+            "https://github.com/HandPrint-AI/extensions",
             "main",
             cache_dir,
         )
@@ -376,7 +376,7 @@ def test_update_tracks_repository_update_fails_uses_cache(tmp_path):
         return_value=mock_result,
     ):
         result_path = update_tracks_repository(
-            "https://github.com/takebox/extensions",
+            "https://github.com/HandPrint-AI/extensions",
             "main",
             cache_dir,
         )
@@ -552,7 +552,7 @@ def test_load_public_tracks_excludes_reference_markdown_in_agenttracks_folders(
     """Test that markdown files in TRACK.md subdirs are NOT loaded as tracks.
 
     This is a regression test for issue #1981:
-    https://github.com/takebox/software-agent-sdk/issues/1981
+    https://github.com/takebox/software-agent-sdk-vinbox/issues/1981
 
     When a track directory contains a TRACK.md file (AgentTracks format), any
     markdown files in subdirectories (like themes/, references/, etc.) should

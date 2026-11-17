@@ -79,7 +79,7 @@ examples/local/
 This example demonstrates using the `LLM` class from the TypeScript SDK. The `LLM` class uses OpenRouter under the hood to provide access to 300+ models:
 
 ```typescript
-import { LLM } from '@takebox-ai/typescript-client';
+import { LLM } from '@handprint-ai/typescript-client';
 
 // Create LLM instance (uses OpenRouter under the hood)
 const llm = new LLM({

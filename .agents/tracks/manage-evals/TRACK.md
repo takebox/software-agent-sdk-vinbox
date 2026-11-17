@@ -32,7 +32,7 @@ python .agents/tracks/manage-evals/scripts/manage_evals.py compare \
 python .agents/tracks/manage-evals/scripts/manage_evals.py compare \
     "<benchmark>/<model_slug>/<run_id>/" \
     --auto-baseline \
-    --post-comment --pr <PR_NUMBER> --repo OpenHands/software-agent-sdk
+    --post-comment --pr <PR_NUMBER> --repo takebox/software-agent-sdk-vinbox
 ```
 
 ## Triggering Evaluations
@@ -104,7 +104,7 @@ Eval runs are triggered by adding labels like `run-eval-50` to a PR. The `all-ha
 **Option A — From bot comments on the PR:**
 
 ```bash
-gh api repos/OpenHands/software-agent-sdk/issues/<PR_NUMBER>/comments \
+gh api repos/takebox/software-agent-sdk-vinbox/issues/<PR_NUMBER>/comments \
     --jq '.[] | select(.user.login == "all-hands-bot") | .body' \
     | grep -o 'Evaluation:.*' | head -1
 ```
@@ -114,7 +114,7 @@ The evaluation name follows the format `{github_run_id}-{model_slug_short}` (e.g
 **Option B — From the "Evaluation Triggered" bot comment:**
 
 ```bash
-gh api repos/OpenHands/software-agent-sdk/issues/<PR_NUMBER>/comments \
+gh api repos/takebox/software-agent-sdk-vinbox/issues/<PR_NUMBER>/comments \
     --jq '.[] | select(.body | test("Evaluation Triggered")) | .body'
 ```
 
@@ -171,7 +171,7 @@ Or with auto-baseline and PR comment posting:
 python .agents/tracks/manage-evals/scripts/manage_evals.py compare \
     "swebench/litellm_proxy-haijun-codtral/23775164157/" \
     --auto-baseline \
-    --post-comment --pr 2334 --repo OpenHands/software-agent-sdk
+    --post-comment --pr 2334 --repo takebox/software-agent-sdk-vinbox
 ```
 
 ## Available Data Per Run

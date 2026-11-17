@@ -119,7 +119,7 @@ examples/local-agent/
 The key pattern demonstrated in `AgentChatInterface.tsx`:
 
 ```typescript
-import { LocalConversation, LocalWorkspace, Agent, Tool, ToolCall } from '@takebox-ai/typescript-client';
+import { LocalConversation, LocalWorkspace, Agent, Tool, ToolCall } from '@handprint-ai/typescript-client';
 
 // Define custom tools
 const TOOLS: Tool[] = [

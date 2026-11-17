@@ -4,7 +4,7 @@ When a completion/responses call fails with an authentication error (HTTP 401,
 e.g. a rotated/healed managed proxy key that LiteLLM reports as
 ``token_not_found_in_db``) and an API-key refresh hook is registered, the LLM
 re-resolves the key once and retries the call a single time. See
-OpenHands/software-agent-sdk#5189.
+takebox/software-agent-sdk-vinbox#5189.
 """
 
 from typing import Literal
@@ -375,7 +375,7 @@ def test_completion_no_retry_when_hook_returns_empty_key(mock_litellm_completion
 # so it must carry the same threaded per-conversation context (prompt_cache_key
 # / x-litellm-session-id) as the initial attempt. The async paths previously
 # dropped the threaded context and fell back to the LLM's bound _call_context,
-# diverging from the sync paths (#3443). See OpenHands/software-agent-sdk#5218.
+# diverging from the sync paths (#3443). See takebox/software-agent-sdk-vinbox#5218.
 # ---------------------------------------------------------------------------
 
 

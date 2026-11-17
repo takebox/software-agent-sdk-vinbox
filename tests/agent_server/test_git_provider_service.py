@@ -110,7 +110,7 @@ async def test_search_provider_repositories_maps_github_repositories(monkeypatch
         [
             FakeResponse(
                 [
-                    _repo("OpenHands/software-agent-sdk", 123),
+                    _repo("takebox/software-agent-sdk-vinbox", 123),
                     {
                         **_repo("Handprint/other", 456),
                         "private": True,
@@ -145,7 +145,7 @@ async def test_search_provider_repositories_maps_github_repositories(monkeypatch
     assert len(result.items) == 2
     repo = result.items[0]
     assert repo.id == "123"
-    assert repo.full_name == "OpenHands/software-agent-sdk"
+    assert repo.full_name == "takebox/software-agent-sdk-vinbox"
     assert repo.git_provider == "github"
     assert repo.is_public is True
     assert repo.stargazers_count == 123
@@ -162,7 +162,7 @@ async def test_search_provider_repositories_filters_across_pages(monkeypatch):
             FakeResponse([_repo("Handprint/first-page", 1)], next_page=2),
             FakeResponse(
                 [
-                    _repo("OpenHands/software-agent-sdk", 2),
+                    _repo("takebox/software-agent-sdk-vinbox", 2),
                     _repo("Handprint/software-agents", 3),
                     _repo("Handprint/another", 4),
                 ]
@@ -195,7 +195,7 @@ async def test_search_provider_repositories_filters_across_pages(monkeypatch):
         ),
     ]
     assert [item.full_name for item in result.items] == [
-        "OpenHands/software-agent-sdk",
+        "takebox/software-agent-sdk-vinbox",
         "Handprint/software-agents",
     ]
     assert result.next_page_id is None
@@ -209,7 +209,7 @@ async def test_search_provider_repositories_continues_from_offset_cursor(monkeyp
         [
             FakeResponse(
                 [
-                    _repo("OpenHands/software-agent-sdk", 1),
+                    _repo("takebox/software-agent-sdk-vinbox", 1),
                     _repo("Handprint/software-agents", 2),
                 ],
                 next_page=3,

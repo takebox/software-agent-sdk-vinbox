@@ -11,7 +11,7 @@ succeeds. It creates PRs in two repositories:
 ### Handprint-CLI (`Handprint/handprint-cli`)
 
 - Branch: `bump-sdk-<version>`
-- Updates `openhands-sdk` and `openhands-tools` via `uv add`
+- Updates `vinbox-sdk` and `vinbox-tools` via `uv add`
 - Verify the PR passes CLI tests before merging
 
 ```bash
@@ -22,7 +22,7 @@ gh pr list --repo Handprint/handprint-cli \
 ### Handprint (`All-Hands-AI/Handprint`)
 
 - Branch: `bump-sdk-<version>`
-- Updates `openhands-sdk`, `openhands-tools`, and `openhands-agent-server`
+- Updates `vinbox-sdk`, `vinbox-tools`, and `vinbox-agent-server`
   in `pyproject.toml`
 - Regenerates `poetry.lock`
 - Updates `AGENT_SERVER_IMAGE` in `sandbox_spec_service.py`
@@ -51,7 +51,7 @@ against the published version:
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/takebox/software-agent-sdk/actions/workflows/run-eval.yml/dispatches" \
+  "https://api.github.com/repos/takebox/software-agent-sdk-vinbox/actions/workflows/run-eval.yml/dispatches" \
   -d '{
     "ref": "main",
     "inputs": {
@@ -78,7 +78,7 @@ Re-run the `pypi-release.yml` workflow manually. It uses `--check-url`
 to skip already-published packages, so partial reruns are safe.
 
 ```bash
-gh workflow run pypi-release.yml --repo OpenHands/software-agent-sdk
+gh workflow run pypi-release.yml --repo takebox/software-agent-sdk-vinbox
 ```
 
 ### Version bump PR has conflicts
@@ -89,7 +89,7 @@ or re-trigger `version-bump-prs.yml` with the version input.
 
 ```bash
 gh workflow run version-bump-prs.yml \
-  --repo OpenHands/software-agent-sdk \
+  --repo takebox/software-agent-sdk-vinbox \
   -f version=<version>
 ```
 

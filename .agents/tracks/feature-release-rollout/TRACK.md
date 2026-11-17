@@ -22,7 +22,7 @@ This track guides the complete feature release workflow across the Handprint eco
 
 When a feature is implemented in the SDK, it may need propagation through several repositories:
 
-1. **SDK** (`OpenHands/software-agent-sdk`) — Core feature implementation
+1. **SDK** (`takebox/software-agent-sdk-vinbox`) — Core feature implementation
 2. **CLI** (`Handprint/Handprint-CLI`) — Terminal interface support
 3. **GUI** (`Handprint/Handprint` frontend directory) — Web interface support
 4. **Docs** (`Handprint/docs`) — Documentation updates (sdk/ folder)
@@ -42,7 +42,7 @@ First, identify what feature(s) to analyze. The user may specify:
 **For release tags:**
 ```bash
 # Clone SDK if not present
-git clone https://github.com/takebox/software-agent-sdk.git
+git clone https://github.com/takebox/software-agent-sdk-vinbox.git
 
 # View release notes
 cd software-agent-sdk
@@ -59,11 +59,11 @@ Clone all relevant repositories to analyze current support:
 
 ```bash
 # Clone repositories (use GITHUB_TOKEN for authenticated access)
-git clone https://github.com/takebox/software-agent-sdk.git
-git clone https://github.com/takebox/Handprint-CLI.git
-git clone https://github.com/takebox/Handprint.git        # Frontend in frontend/
-git clone https://github.com/takebox/docs.git
-git clone https://github.com/takebox/growth-utils.git
+git clone https://github.com/takebox/software-agent-sdk-vinbox.git
+git clone https://github.com/HandPrint-AI/Handprint-CLI.git
+git clone https://github.com/HandPrint-AI/Handprint.git        # Frontend in frontend/
+git clone https://github.com/HandPrint-AI/docs.git
+git clone https://github.com/HandPrint-AI/growth-utils.git
 ```
 
 For each feature, check support status:

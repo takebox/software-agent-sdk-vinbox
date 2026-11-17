@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SERVER_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "server.yml"
 AGENT_SERVER_DOCKERFILE = (
     REPO_ROOT
-    / "openhands-agent-server"
+    / "vinbox-agent-server"
     / "handprint"
     / "agent_server"
     / "docker"
@@ -19,14 +19,14 @@ AGENT_SERVER_DOCKERFILE = (
 )
 AGENT_SERVER_SPEC = (
     REPO_ROOT
-    / "openhands-agent-server"
+    / "vinbox-agent-server"
     / "handprint"
     / "agent_server"
     / "agent-server.spec"
 )
 ACP_INSTALL_CATALOG_PY = (
     REPO_ROOT
-    / "openhands-sdk"
+    / "vinbox-sdk"
     / "handprint"
     / "sdk"
     / "settings"
@@ -105,10 +105,10 @@ def test_agent_server_binary_copies_handprint_distribution_metadata() -> None:
     spec_text = AGENT_SERVER_SPEC.read_text(encoding="utf-8")
 
     for distribution in (
-        "openhands-agent-server",
-        "openhands-sdk",
-        "openhands-tools",
-        "openhands-workspace",
+        "vinbox-agent-server",
+        "vinbox-sdk",
+        "vinbox-tools",
+        "vinbox-workspace",
     ):
         assert f'*copy_metadata("{distribution}")' in spec_text
 
@@ -218,7 +218,7 @@ def test_agent_server_dockerfile_acp_stage_uses_install_catalog() -> None:
     dockerfile_text = AGENT_SERVER_DOCKERFILE.read_text(encoding="utf-8")
 
     assert (
-        "COPY openhands-sdk/handprint/sdk/settings/acp_install_catalog.py "
+        "COPY vinbox-sdk/handprint/sdk/settings/acp_install_catalog.py "
         "/tmp/acp_install_catalog.py" in dockerfile_text
     )
     assert "python3 /tmp/acp_install_catalog.py" in dockerfile_text

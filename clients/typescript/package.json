@@ -1,5 +1,5 @@
 {
-  "name": "@takebox-ai/typescript-client",
+  "name": "@handprint-ai/typescript-client",
   "version": "1.53.0",
   "description": "TypeScript client for Handprint Agent Server",
   "main": "dist/index.js",
@@ -110,11 +110,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/takebox/software-agent-sdk.git",
+    "url": "https://github.com/takebox/software-agent-sdk-vinbox.git",
     "directory": "clients/typescript"
   },
   "bugs": {
-    "url": "https://github.com/takebox/software-agent-sdk/issues"
+    "url": "https://github.com/takebox/software-agent-sdk-vinbox/issues"
   },
-  "homepage": "https://github.com/takebox/software-agent-sdk/tree/main/clients/typescript#readme"
+  "homepage": "https://github.com/takebox/software-agent-sdk-vinbox/tree/main/clients/typescript#readme"
 }

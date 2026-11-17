@@ -118,6 +118,12 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Token penerbitan paket - jangan pernah masuk repo
+.pypi-token
+.pypi-test-token
+.pypirc
+*pypi*token*
+
 # Environments
 .env
 .venv

@@ -8,7 +8,7 @@ The client is designed to mirror the structure and functionality of the Python S
 
 ## Cross-Repository Boundaries
 
-This directory owns the browser-compatible TypeScript client for the Handprint Agent Server API. The canonical API implementation and behavior live in the Python SDK and Agent Server packages in this repository; [`Handprint/Handprint`](https://github.com/takebox/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/takebox/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/takebox/automation) owns scheduling, webhooks, run history, and dispatching.
+This directory owns the browser-compatible TypeScript client for the Handprint Agent Server API. The canonical API implementation and behavior live in the Python SDK and Agent Server packages in this repository; [`Handprint/Handprint`](https://github.com/HandPrint-AI/Handprint) consumes this client for Agent Viczin UI; and [`Handprint/extensions`](https://github.com/HandPrint-AI/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/HandPrint-AI/automation) owns scheduling, webhooks, run history, and dispatching.
 
 The normal flow is SDK/Agent Server → OpenAPI contract → this client → Agent Viczin. Keep backend behavior and endpoints in the Python SDK or Agent Server packages, typed API access in this directory, UI in Agent Viczin, and automation lifecycle behavior in `automation`.
 
@@ -60,7 +60,7 @@ This TypeScript client is based on the following source materials:
 
 ### 2. Python SDK Reference Implementation
 
-- **Source**: `openhands-sdk/` in this repository
+- **Source**: `vinbox-sdk/` in this repository
 - **Key Components**:
   - `RemoteConversation` class - Main conversation management
   - `RemoteWorkspace` class - Workspace file operations
@@ -70,7 +70,7 @@ This TypeScript client is based on the following source materials:
 
 ### 3. Agent Server Implementation
 
-- **Source**: `openhands-agent-server/` in this repository
+- **Source**: `vinbox-agent-server/` in this repository
 - **Purpose**: The actual server implementation that this client communicates with
 - **Usage**: Reference for understanding expected request/response formats and WebSocket event structures
 
@@ -122,7 +122,7 @@ src/workspace/
 - `createWorkspace({ type, options })` - Explicit type selection
 - `createWorkspaceAuto(options)` - Auto-detect based on presence of `host` option
 
-**Ergonomic API note**: Keep `Workspace`/`RemoteWorkspace` as the main user-facing entry point for remote execution. Lower-level bash endpoint access should hang off `workspace.bash`, while direct endpoint-specific clients belong in the secondary `@takebox-ai/typescript-client/clients` entrypoint instead of the root SDK surface.
+**Ergonomic API note**: Keep `Workspace`/`RemoteWorkspace` as the main user-facing entry point for remote execution. Lower-level bash endpoint access should hang off `workspace.bash`, while direct endpoint-specific clients belong in the secondary `@handprint-ai/typescript-client/clients` entrypoint instead of the root SDK surface.
 
 ### LLM Architecture
 
@@ -148,7 +148,7 @@ src/llm/
 **Usage Example**:
 
 ```typescript
-import { createOpenRouterLLM } from '@takebox-ai/typescript-client';
+import { createOpenRouterLLM } from '@handprint-ai/typescript-client';
 
 const llm = createOpenRouterLLM({
   apiKey: 'your-openrouter-api-key',
@@ -207,7 +207,7 @@ src/conversation/
 **Local Conversation Example**:
 
 ```typescript
-import { LocalWorkspace, LocalConversation, OpenRouterLLM } from '@takebox-ai/typescript-client';
+import { LocalWorkspace, LocalConversation, OpenRouterLLM } from '@handprint-ai/typescript-client';
 
 // Create components
 const workspace = new LocalWorkspace({ workingDir: '/path/to/project' });
@@ -407,8 +407,8 @@ The agent should focus on code development, testing, and documentation tasks. On
 
 ## Related Repositories
 
-- **[Handprint/Handprint](https://github.com/takebox/Handprint)**: Agent Viczin application
-- **[Handprint/docs](https://github.com/takebox/docs)**: User documentation
+- **[Handprint/Handprint](https://github.com/HandPrint-AI/Handprint)**: Agent Viczin application
+- **[Handprint/docs](https://github.com/HandPrint-AI/docs)**: User documentation
 
 ## Usage Context
 

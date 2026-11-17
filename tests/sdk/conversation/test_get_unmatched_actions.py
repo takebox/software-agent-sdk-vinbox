@@ -6,7 +6,7 @@ Tests the behavior of action matching with various observation types including:
 - UserRejectObservation
 - AgentErrorEvent (crash recovery scenario)
 
-Related Issue: https://github.com/takebox/agent-sdk/issues/2298
+Related Issue: https://github.com/HandPrint-AI/agent-sdk/issues/2298
 """
 
 from litellm import ChatCompletionMessageToolCall
@@ -124,7 +124,7 @@ def test_action_with_agent_error_event_is_matched():
     3. On restart, crash recovery emits AgentErrorEvent (tool_call_id=X)
     4. The action should now be considered "matched" and NOT be re-executed
 
-    Related issue: https://github.com/takebox/agent-sdk/issues/2298
+    Related issue: https://github.com/HandPrint-AI/agent-sdk/issues/2298
     """
     action = _create_action_event(call_id="call_crash")
     error_event = AgentErrorEvent(

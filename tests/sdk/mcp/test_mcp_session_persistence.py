@@ -3,7 +3,7 @@
 Verifies that MCP connections are reused across multiple tool calls,
 avoiding the overhead of reconnecting for each call.
 
-Related issue: https://github.com/takebox/software-agent-sdk/issues/1739
+Related issue: https://github.com/takebox/software-agent-sdk-vinbox/issues/1739
 """
 
 import asyncio

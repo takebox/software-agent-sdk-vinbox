@@ -511,7 +511,7 @@ class TestRemoteConversation:
         RemoteConversation(
             agent=self.agent,
             workspace=self.workspace,
-            observability_metadata={"repo": "OpenHands/software-agent-sdk"},
+            observability_metadata={"repo": "takebox/software-agent-sdk-vinbox"},
             observability_tags=["sdk", "remote"],
             observability_span_name="pr_review_evaluation",
             user_id="test-user-42",
@@ -528,7 +528,7 @@ class TestRemoteConversation:
         assert create_call is not None, "No POST /api/conversations call found"
         payload = create_call.kwargs["json"]
         assert payload["observability_metadata"] == {
-            "repo": "OpenHands/software-agent-sdk"
+            "repo": "takebox/software-agent-sdk-vinbox"
         }
         assert payload["observability_tags"] == ["sdk", "remote"]
         assert payload["observability_span_name"] == "pr_review_evaluation"

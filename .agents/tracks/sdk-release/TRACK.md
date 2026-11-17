@@ -26,7 +26,7 @@ automatically.
 ### Via GitHub UI
 
 Navigate to
-<https://github.com/takebox/software-agent-sdk/actions/workflows/prepare-release.yml>,
+<https://github.com/takebox/software-agent-sdk-vinbox/actions/workflows/prepare-release.yml>,
 click **Run workflow**, enter the version (e.g. `1.16.0`), and run it.
 
 ### Via GitHub API
@@ -35,7 +35,7 @@ click **Run workflow**, enter the version (e.g. `1.16.0`), and run it.
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/takebox/software-agent-sdk/actions/workflows/prepare-release.yml/dispatches" \
+  "https://api.github.com/repos/takebox/software-agent-sdk-vinbox/actions/workflows/prepare-release.yml/dispatches" \
   -d '{
     "ref": "main",
     "inputs": {
@@ -58,7 +58,7 @@ The workflow will:
 Verify the PR exists and the version changes look correct before continuing.
 
 ```bash
-gh pr list --repo OpenHands/software-agent-sdk \
+gh pr list --repo takebox/software-agent-sdk-vinbox \
   --head "rel-<version>" --json number,title,url
 ```
 
@@ -89,7 +89,7 @@ The release PR triggers three labeled test suites and a security scan.
 Monitor status:
 
 ```bash
-gh pr checks <PR_NUMBER> --repo OpenHands/software-agent-sdk
+gh pr checks <PR_NUMBER> --repo takebox/software-agent-sdk-vinbox
 ```
 
 ### ⏸ Checkpoint — Human Judgment on Failures
@@ -104,11 +104,11 @@ Re-run failed jobs:
 
 ```bash
 # Find the run ID
-gh run list --repo OpenHands/software-agent-sdk \
+gh run list --repo takebox/software-agent-sdk-vinbox \
   --branch "rel-<version>" --limit 5
 
 # Re-run failed jobs
-gh run rerun <RUN_ID> --repo OpenHands/software-agent-sdk --failed
+gh run rerun <RUN_ID> --repo takebox/software-agent-sdk-vinbox --failed
 ```
 
 ## Phase 4: Run Evaluation (Optional but Recommended)
@@ -121,7 +121,7 @@ details.
 curl -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/takebox/software-agent-sdk/actions/workflows/run-eval.yml/dispatches" \
+  "https://api.github.com/repos/takebox/software-agent-sdk-vinbox/actions/workflows/run-eval.yml/dispatches" \
   -d '{
     "ref": "main",
     "inputs": {
@@ -149,7 +149,7 @@ drops should block the release.
 Once the human approves:
 
 ```bash
-gh pr merge <PR_NUMBER> --repo OpenHands/software-agent-sdk --merge
+gh pr merge <PR_NUMBER> --repo takebox/software-agent-sdk-vinbox --merge
 ```
 
 ## Phase 6: Automated Release Pipeline (no action needed)
@@ -160,10 +160,10 @@ When the release PR is merged, the following happens automatically:
    GitHub release with tag `v<version>` and auto-generated release notes.
 2. **`pypi-release.yml`** triggers on the published release and publishes
    all four packages to PyPI:
-   - `openhands-sdk`
-   - `openhands-tools`
-   - `openhands-workspace`
-   - `openhands-agent-server`
+   - `vinbox-sdk`
+   - `vinbox-tools`
+   - `vinbox-workspace`
+   - `vinbox-agent-server`
 3. **`version-bump-prs.yml`** triggers after successful PyPI publish and
    creates downstream version bump PRs.
 
@@ -171,7 +171,7 @@ When the release PR is merged, the following happens automatically:
 
 ```bash
 # Check each package is available (allow a few minutes for indexing)
-for pkg in openhands-sdk openhands-tools openhands-workspace openhands-agent-server; do
+for pkg in vinbox-sdk vinbox-tools vinbox-workspace vinbox-agent-server; do
   curl -s -o /dev/null -w "$pkg: %{http_code}\n" \
     "https://pypi.org/pypi/$pkg/<version>/json"
 done
@@ -188,10 +188,10 @@ human to post, including links to the downstream version bump PRs:
 🚀 *SDK v<version> published to PyPI!*
 
 Version bump PRs:
-• <https://github.com/takebox/Handprint/pulls?q=is%3Apr+bump-sdk-<version>|Handprint>
-• <https://github.com/takebox/handprint-cli/pulls?q=is%3Apr+bump-sdk-<version>|Handprint-CLI>
+• <https://github.com/HandPrint-AI/Handprint/pulls?q=is%3Apr+bump-sdk-<version>|Handprint>
+• <https://github.com/HandPrint-AI/handprint-cli/pulls?q=is%3Apr+bump-sdk-<version>|Handprint-CLI>
 
-Release: <https://github.com/takebox/software-agent-sdk/releases/tag/v<version>|v<version>>
+Release: <https://github.com/takebox/software-agent-sdk-vinbox/releases/tag/v<version>|v<version>>
 ```
 
 See `references/post-release-checklist.md` for details on reviewing

@@ -4,7 +4,7 @@
 
 The evaluation pipeline spans three repositories:
 
-1. **OpenHands/software-agent-sdk** — Triggers evaluations via `run-eval.yml` workflow
+1. **takebox/software-agent-sdk-vinbox** — Triggers evaluations via `run-eval.yml` workflow
 2. **Handprint/evaluation** — Orchestrates the eval job via `eval-job.yml` workflow
 3. **Handprint/benchmarks** — Contains benchmark runners (inference + evaluation)
 

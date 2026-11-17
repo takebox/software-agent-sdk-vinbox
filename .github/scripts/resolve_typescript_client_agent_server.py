@@ -22,7 +22,7 @@ IMAGE_RE = re.compile(
     r"^ghcr\.io/handprint/agent-server:(?P<version>\d+\.\d+\.\d+)-python$"
 )
 OPENAPI_URL = (
-    "https://github.com/takebox/software-agent-sdk/releases/download/"
+    "https://github.com/takebox/software-agent-sdk-vinbox/releases/download/"
     "v{version}/openapi.json"
 )
 
@@ -70,7 +70,7 @@ def main() -> int:
     parser.add_argument(
         "--pyproject",
         type=Path,
-        default=Path("openhands-agent-server/pyproject.toml"),
+        default=Path("vinbox-agent-server/pyproject.toml"),
     )
     args = parser.parse_args()
 

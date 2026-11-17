@@ -18,7 +18,7 @@ from types import ModuleType
 from typing import Any
 
 
-_REPO = "https://github.com/takebox/evaluation.git"
+_REPO = "https://github.com/HandPrint-AI/evaluation.git"
 _RELATIVE_RESOLVER = Path("eval-job/model-config/resolve_model_config.py")
 _FALLBACK_REF = "feat/port-model-resolution"
 

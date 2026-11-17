@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { LLM } from '@takebox-ai/typescript-client';
+import type { LLM } from '@handprint-ai/typescript-client';
 
 interface Message {
   id: string;

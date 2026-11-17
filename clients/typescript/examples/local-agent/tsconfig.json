@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@takebox-ai/typescript-client": ["../../dist"]
+      "@handprint-ai/typescript-client": ["../../dist"]
     }
   },
   "include": ["src"]

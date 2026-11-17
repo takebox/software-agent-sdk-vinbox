@@ -153,8 +153,8 @@ jobs:
             - name: Install Handprint dependencies
               run: |
                   # Install Handprint SDK and tools from git repository
-                  uv pip install --system "openhands-sdk @ git+https://github.com/takebox/agent-sdk.git@main#subdirectory=openhands-sdk"
-                  uv pip install --system "openhands-tools @ git+https://github.com/takebox/agent-sdk.git@main#subdirectory=openhands-tools"
+                  uv pip install --system "vinbox-sdk @ git+https://github.com/HandPrint-AI/agent-sdk.git@main#subdirectory=vinbox-sdk"
+                  uv pip install --system "vinbox-tools @ git+https://github.com/HandPrint-AI/agent-sdk.git@main#subdirectory=vinbox-tools"
 
             - name: Copy agent files
               run: |
@@ -259,7 +259,7 @@ jobs:
 
                   Automatically implemented by Handprint agent.
 
-                  Co-authored-by: handprint <handprint@all-hands.dev>"
+                  Co-authored-by: handprint <handprint@juglow.my.id>"
 
                   # Push branch
                   git push origin "$BRANCH_NAME"

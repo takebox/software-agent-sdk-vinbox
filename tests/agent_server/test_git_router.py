@@ -37,7 +37,7 @@ def test_git_repositories_search_success(client):
         items=[
             GitProviderRepository(
                 id="123",
-                full_name="OpenHands/software-agent-sdk",
+                full_name="takebox/software-agent-sdk-vinbox",
                 git_provider="github",
                 is_public=True,
                 stargazers_count=7,
@@ -65,7 +65,7 @@ def test_git_repositories_search_success(client):
         "items": [
             {
                 "id": "123",
-                "full_name": "OpenHands/software-agent-sdk",
+                "full_name": "takebox/software-agent-sdk-vinbox",
                 "git_provider": "github",
                 "is_public": True,
                 "stargazers_count": 7,

@@ -825,13 +825,13 @@ class TestMarketplaceCatalogEndpoint:
                 MarketplaceTrackInfo(
                     name="github",
                     description="GitHub integration track",
-                    source="github:Handprint/extensions/tracks/github",
+                    source="github:HandPrint-AI/extensions/tracks/github",
                     installed=True,
                 ),
                 MarketplaceTrackInfo(
                     name="docker",
                     description="Docker management track",
-                    source="github:Handprint/extensions/tracks/docker",
+                    source="github:HandPrint-AI/extensions/tracks/docker",
                     installed=False,
                 ),
             ]

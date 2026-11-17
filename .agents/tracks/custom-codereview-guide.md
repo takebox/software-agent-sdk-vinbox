@@ -1,11 +1,11 @@
 ---
 name: custom-codereview-guide
-description: Repository-specific review guidance for OpenHands/software-agent-sdk.
+description: Repository-specific review guidance for takebox/software-agent-sdk-vinbox.
 triggers:
   - /codereview
 ---
 
-# OpenHands/software-agent-sdk review guide
+# takebox/software-agent-sdk-vinbox review guide
 
 Apply this guide with the general code-review track and the closest `AGENTS.md`
 for every changed package. This file identifies the repository-specific checks

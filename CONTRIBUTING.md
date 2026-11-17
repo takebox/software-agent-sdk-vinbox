@@ -6,12 +6,12 @@ This repo is a foundation. We want the SDK to stay stable and extensible so that
 applications can build on it safely.
 
 Downstream applications we actively keep in mind:
-- [Handprint-CLI](https://github.com/takebox/Handprint-CLI) (client)
-- [Handprint app-server](https://github.com/takebox/Handprint/blob/main/handprint/app_server/README.md) (client)
-- [Handprint Enterprise](https://github.com/takebox/Handprint/blob/main/enterprise/README.md) (client)
+- [Handprint-CLI](https://github.com/HandPrint-AI/Handprint-CLI) (client)
+- [Handprint app-server](https://github.com/HandPrint-AI/Handprint/blob/main/handprint/app_server/README.md) (client)
+- [Handprint Enterprise](https://github.com/HandPrint-AI/Handprint/blob/main/enterprise/README.md) (client)
 
 The SDK itself has a Python interface. In addition, the
-[agent-server](https://docs.handprint.dev/sdk/guides/agent-server/overview) is the
+[agent-server](https://handprint.juglow.my.id/sdk/guides/agent-server/overview) is the
 REST/WebSocket server component that exposes the SDK for remote execution and integrations.
 Changes should keep both interfaces stable and consistent.
 
@@ -75,7 +75,7 @@ through the shape of a clean interface.
 This file is mostly about principles. For the mechanics, please see:
 - [AGENTS.md](AGENTS.md) for AI agents
 - [DEVELOPMENT.md](DEVELOPMENT.md) for humans
-- [openhands-sdk/handprint/sdk/subagent/AGENTS.md](openhands-sdk/handprint/sdk/subagent/AGENTS.md) for file-based subagent discovery, precedence, and task handoff conventions
+- [vinbox-sdk/handprint/sdk/subagent/AGENTS.md](vinbox-sdk/handprint/sdk/subagent/AGENTS.md) for file-based subagent discovery, precedence, and task handoff conventions
 - `examples/01_standalone_sdk/41_task_tool_set.py` for delegating work to registered subagents with resume support
 - `examples/01_standalone_sdk/42_file_based_subagents.py` for programmatic `AgentDefinition` registration
 
@@ -107,7 +107,7 @@ The convention:
 Skip this for trivial PRs (a typo, a one-line guard, a dependency bump, a small bug fix) — there, a design doc is
 just noise.
 
-The `pr-design-doc` track in the [Handprint extensions](https://github.com/takebox/extensions)
+The `pr-design-doc` track in the [Handprint extensions](https://github.com/HandPrint-AI/extensions)
 repo can generate the page for you.
 
 ## Questions / discussion

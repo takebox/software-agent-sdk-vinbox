@@ -2,7 +2,7 @@
     "name": "mixed-tracks-marketplace",
     "owner": {
         "name": "Handprint Team",
-        "email": "contact@all-hands.dev"
+        "email": "handprint@juglow.my.id"
     },
     "description": "Example marketplace with both local and remote tracks",
     "plugins": [],
@@ -14,7 +14,7 @@
         },
         {
             "name": "github",
-            "source": "https://github.com/takebox/extensions/blob/main/tracks/github",
+            "source": "https://github.com/HandPrint-AI/extensions/blob/main/tracks/github",
             "description": "GitHub best practices from the Handprint extensions repository"
         }
     ]

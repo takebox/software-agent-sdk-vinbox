@@ -70,7 +70,7 @@ example/
 ## Key Configuration
 
 ### package.json
-- **Local SDK Dependency**: `"@takebox-ai/agent-server-typescript-client": "file:../agent-server-typescript-client"`
+- **Local SDK Dependency**: `"@handprint-ai/agent-server-typescript-client": "file:../agent-server-typescript-client"`
 - **Build Script**: `"build:sdk": "cd ../agent-server-typescript-client && npm run build"`
 - **Dev Script**: Builds SDK before starting Vite
 

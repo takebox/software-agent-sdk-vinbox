@@ -46,7 +46,7 @@ jobs:
 
                   # Detect test files hiding inside source packages instead of tests/
                   # Excludes */testing/* dirs (testing utilities, not runnable tests)
-                  stray=$(find openhands-sdk openhands-tools openhands-workspace openhands-agent-server \
+                  stray=$(find vinbox-sdk vinbox-tools vinbox-workspace vinbox-agent-server \
                     \( -name 'test_*.py' -o -name '*_test.py' \) \
                     -not -path '*/testing/*' \
                     2>/dev/null || true)
@@ -67,7 +67,7 @@ jobs:
                   echo "✓ All test directories are in the allowlist"
 
     sdk-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v7.0.1
@@ -78,7 +78,7 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-sdk/**
+                      vinbox-sdk/**
                       tests/sdk/**
                       pyproject.toml
                       uv.lock
@@ -116,7 +116,7 @@ jobs:
                   # coverage collection. --forked prevents coverage from child processes.
                   CI=true uv run python -m pytest -vvs \
                     -n auto \
-                    --cov=openhands-sdk \
+                    --cov=vinbox-sdk \
                     --cov-report=term-missing \
                     --cov-fail-under=0 \
                     --cov-config=pyproject.toml \
@@ -143,7 +143,7 @@ jobs:
     # when ACP registry/catalog files actually change (Handprint/
     # software-agent-sdk#4830 P0-1/2/3).
     acp-live-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         timeout-minutes: 15
         steps:
             - name: Checkout
@@ -155,8 +155,8 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-sdk/handprint/sdk/settings/acp_providers.py
-                      openhands-sdk/handprint/sdk/settings/acp_install_catalog.py
+                      vinbox-sdk/handprint/sdk/settings/acp_providers.py
+                      vinbox-sdk/handprint/sdk/settings/acp_install_catalog.py
                       tests/sdk/agent/test_acp_conformance.py
                       tests/sdk/settings/test_acp_install_catalog_pins_live.py
                       pyproject.toml
@@ -193,7 +193,7 @@ jobs:
                     tests/sdk/settings/test_acp_install_catalog_pins_live.py
 
     tools-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         timeout-minutes: 15
         steps:
             - name: Checkout
@@ -205,7 +205,7 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-tools/**
+                      vinbox-tools/**
                       tests/tools/**
                       pyproject.toml
                       uv.lock
@@ -231,7 +231,7 @@ jobs:
                   # when running in parallel (shared /tmp paths, subprocess management)
                   CI=true uv run python -m pytest -vvs \
                     --forked \
-                    --cov=openhands-tools \
+                    --cov=vinbox-tools \
                     --cov-report=term-missing \
                     --cov-fail-under=0 \
                     --cov-config=pyproject.toml \
@@ -265,7 +265,7 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-tools/**
+                      vinbox-tools/**
                       tests/tools/**
                       pyproject.toml
                       uv.lock
@@ -298,7 +298,7 @@ jobs:
                   # Browser/file-editor e2e and terminal shell assumptions remain
                   # tracked in #2986 and #2988.
                   uv run python -m pytest -vvs `
-                    --cov=openhands-tools `
+                    --cov=vinbox-tools `
                     --cov-report=term-missing `
                     --cov-fail-under=0 `
                     --cov-config=pyproject.toml `
@@ -326,7 +326,7 @@ jobs:
 
 
     agent-server-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v7.0.1
@@ -337,7 +337,7 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-agent-server/**
+                      vinbox-agent-server/**
                       tests/agent_server/**
                       pyproject.toml
                       uv.lock
@@ -363,7 +363,7 @@ jobs:
                   # coverage collection. --forked prevents coverage from child processes.
                   CI=true uv run python -m pytest -vvs \
                     -n auto \
-                    --cov=openhands-agent-server \
+                    --cov=vinbox-agent-server \
                     --cov-report=term-missing \
                     --cov-fail-under=0 \
                     --cov-config=pyproject.toml \
@@ -383,7 +383,7 @@ jobs:
                   if-no-files-found: warn
 
     agent-server-stress-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         timeout-minutes: 10
         steps:
             - name: Checkout
@@ -395,7 +395,7 @@ jobs:
               uses: tj-actions/changed-files@v47
               with:
                   files: |
-                      openhands-agent-server/**
+                      vinbox-agent-server/**
                       tests/agent_server/stress/**
                       pyproject.toml
                       uv.lock
@@ -425,7 +425,7 @@ jobs:
                     tests/agent_server/stress
 
     workspace-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v7.0.1
@@ -436,7 +436,7 @@ jobs:
               uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
               with:
                   files: |
-                      openhands-workspace/**
+                      vinbox-workspace/**
                       tests/workspace/**
                       pyproject.toml
                       uv.lock
@@ -460,7 +460,7 @@ jobs:
                   rm -f .coverage
                   CI=true uv run python -m pytest -vvs \
                     -n auto \
-                    --cov=openhands-workspace \
+                    --cov=vinbox-workspace \
                     --cov-report=term-missing \
                     --cov-fail-under=0 \
                     --cov-config=pyproject.toml \
@@ -480,7 +480,7 @@ jobs:
                   if-no-files-found: warn
 
     cross-tests:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v7.0.1
@@ -537,7 +537,7 @@ jobs:
                   if-no-files-found: warn
 
     coverage-report:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: ubuntu-latest
         needs: [sdk-tests, tools-tests, agent-server-tests, workspace-tests, cross-tests]
         if: always() && github.event_name == 'pull_request'
         steps:

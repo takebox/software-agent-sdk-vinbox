@@ -1,203 +1,118 @@
-<a name="readme-top"></a>
+# software-agent-sdk-vinbox
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/takebox/docs/main/handprint/static/img/logo.png" alt="Logo" width="200">
-  <h1 align="center">Handprint Software Agent SDK </h1>
-</div>
+Runtime agent untuk **Vinbox**. Repo ini **hanya berjalan di dalam mesin
+Vinbox** — bukan produk mandiri, bukan SDK umum, dan tidak pernah membuka
+desktop, browser, atau jalur model sendiri.
 
+```bash
+pip install software-agent-sdk-vinbox
+```
 
-<div align="center">
-  <a href="https://github.com/takebox/software-agent-sdk/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenHands/software-agent-sdk?style=for-the-badge&color=blue" alt="MIT License"></a>
-  <a href="https://handprint.dev/joinslack"><img src="https://img.shields.io/badge/Slack-Join%20Us-red?logo=slack&logoColor=white&style=for-the-badge" alt="Join our Slack community"></a>
-  <br>
-  <a href="https://docs.handprint.dev/sdk"><img src="https://img.shields.io/badge/Documentation-000?logo=googledocs&logoColor=FFE165&style=for-the-badge" alt="Check out the documentation"></a>
-  <a href="https://arxiv.org/abs/2511.03690"><img src="https://img.shields.io/badge/Paper-000?logoColor=FFE165&logo=arxiv&style=for-the-badge" alt="Tech Report"></a>
-  <a href="https://docs.google.com/spreadsheets/d/1wOUdFCMyY6Nt0AIqF705KN4JKOWgeI4wUGUP60krXXs/edit?gid=811504672#gid=811504672"><img src="https://img.shields.io/badge/SWEBench-77.6-000?logoColor=FFE165&style=for-the-badge" alt="Benchmark Score"></a>
-  <br>
-  <!-- Keep these links. Translations will automatically update with the README. -->
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=de">Deutsch</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=es">Español</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=fr">français</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=ja">日本語</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=ko">한국어</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=pt">Português</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=ru">Русский</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/software-agent-sdk?lang=zh">中文</a>
+Perintah itu memasang empat paket sekaligus (lihat [Isi paket](#isi-paket)).
+Sesudah itu `agent-server` hidup di dalam Vinbox dan memakai semua yang sudah
+disediakan Vinbox.
 
-  <hr>
-</div>
+## Kenapa repo ini terpisah
 
-The Handprint Software Agent SDK provides Python, TypeScript, and REST APIs for **building agents that work with code**.
+`handprint-vinbox` adalah **peta alur**: ia menunjukkan bahwa UI yang dipakai
+adalah milik Vinbox. Repo ini adalah **bagian yang benar-benar melihat dan
+bertindak**: mata, tangan, shell, dan jalur model. HandPrint tidak punya layar
+sendiri; satu-satunya layar adalah dashboard Vinbox (`app/dashboard-7331`).
 
-You can use the Handprint Software Agent SDK for:
-* One-off tasks, like building a README for your repo
-* Routine maintenance tasks, like updating dependencies
-* Major tasks that involve multiple agents, like refactors and rewrites
+| Kemampuan | Pemilik di dalam Vinbox | Default |
+|---|---|---|
+| Mata & tangan (screenshot, klik, ketik, scroll, tab) | Chromium Vinbox lewat CDP | `VINBOX_CDP_URL=http://127.0.0.1:9222` |
+| Shell | pwsh Vinbox, di `app/program-file` | `VINBOX_SHELL_PATH=/usr/bin/pwsh` |
+| Direktori kerja | folder program Vinbox | `VINBOX_PROGRAM_FILE=/app/vinbox/app/program-file` |
+| Jalur model | bridge OpenAI-compatible Vinbox | `VINBOX_LLM_BASE_URL=http://127.0.0.1:4097/v1` |
+| Di balik bridge | `opencode serve` / `llama-server` | `127.0.0.1:4096` / `127.0.0.1:8088` |
+| UI | dashboard Vinbox (panel tengah) | `VINBOX_UI_DIR=/app/vinbox/app/dashboard-7331` |
+| Agent server (REST/WS) | repo ini | `VINBOX_AGENT_SERVER_PORT=18000` |
 
-Importantly, agents can either use the local machine as their workspace, or run inside ephemeral workspaces
-(e.g. in Docker or Kubernetes) using the Agent Server.
+Kontrak itu tinggal di satu tempat: `vinbox-sdk/handprint/sdk/vinbox.py`.
+Modul itu diimpor otomatis oleh `handprint.sdk`, jadi semua komponen membaca
+nilai yang sama. Detail lengkap ada di [VINBOX.md](VINBOX.md).
 
-You can even use the SDK to build new developer experiences: it’s the engine behind the
-[Handprint CLI](https://github.com/takebox/Handprint-CLI) and [Handprint Cloud](https://github.com/takebox/Handprint).
+## Isi paket
 
-Get started with some [examples](https://docs.handprint.dev/sdk/guides/hello-world) or [check out the docs](https://docs.handprint.dev/sdk) to learn more.
+| Distribusi | Folder | Isi |
+|---|---|---|
+| `handprint-vinbox-sdk` | `vinbox-sdk/` | `handprint.sdk` — agent core, wiring LLM, kontrak `vinbox.py` |
+| `handprint-vinbox-tools` | `vinbox-tools/` | `handprint.tools` — `browser_use` (mata & tangan), terminal pwsh, file editor |
+| `handprint-vinbox-workspace` | `vinbox-workspace/` | `handprint.workspace` — workspace lokal di dalam tree Vinbox |
+| `handprint-vinbox-agent-server` | `vinbox-agent-server/` | `handprint.agent_server` — REST/WS `agent-server`, loopback `127.0.0.1:18000` |
+| `software-agent-sdk-vinbox` | `vinbox-package/` | meta paket; mengunci keempat paket di atas pada versi yang sama |
 
-## Quick Start
+Versi kelimanya selalu sama (sekarang `1.53.0`).
 
-Here's what building with the SDK looks like:
+## Menjalankan di dalam Vinbox
+
+```bash
+agent-server --host 127.0.0.1 --port 18000
+```
+
+Semua default lingkungan bisa dioverride lewat `VINBOX_*`:
+
+| Variabel | Default |
+|---|---|
+| `VINBOX_MODE` | `1` (`0` hanya untuk debugging di laptop) |
+| `VINBOX_HOME` | `/app/vinbox` |
+| `VINBOX_CDP_URL` | `http://127.0.0.1:9222` |
+| `VINBOX_PROFILES_DIR` | `<home>/data/browser_profiles` |
+| `VINBOX_CHROMIUM_PATH` | `/usr/bin/chromium` |
+| `VINBOX_SHELL_PATH` | `/usr/bin/pwsh` |
+| `VINBOX_TERMINAL_TYPE` | `powershell` |
+| `VINBOX_PROGRAM_FILE` | `<home>/app/program-file` |
+| `VINBOX_LLM_BASE_URL` | `http://127.0.0.1:4097/v1` |
+| `VINBOX_LLM_MODEL` | `vinbox` |
+| `VINBOX_LLM_API_KEY` | `vinbox-local` |
+| `VINBOX_UI_DIR` | `<home>/app/dashboard-7331` |
+| `VINBOX_AGENT_SERVER_PORT` | `18000` |
+
+Contoh memakai SDK di dalam proses Vinbox:
 
 ```python
-import os
-
 from handprint.sdk import LLM, Agent, Conversation, Tool
-from handprint.tools.file_editor import FileEditorTool
-from handprint.tools.task_tracker import TaskTrackerTool
+from handprint.sdk import vinbox
 from handprint.tools.terminal import TerminalTool
 
+llm = LLM(**vinbox.llm_kwargs())          # bridge Vinbox, bukan provider luar
+agent = Agent(llm=llm, tools=[Tool(name=TerminalTool.name)])
 
-llm = LLM(
-    model="gpt-5.5",
-    api_key=os.getenv("LLM_API_KEY"),
-)
-
-agent = Agent(
-    llm=llm,
-    tools=[
-        Tool(name=TerminalTool.name),
-        Tool(name=FileEditorTool.name),
-        Tool(name=TaskTrackerTool.name),
-    ],
-)
-
-cwd = os.getcwd()
-conversation = Conversation(agent=agent, workspace=cwd)
-
-conversation.send_message("Write 3 facts about the current project into FACTS.txt.")
+conversation = Conversation(agent=agent, workspace=str(vinbox.program_file()))
+conversation.send_message("Tulis 3 fakta tentang proyek ini ke FACTS.txt.")
 conversation.run()
-print("All done!")
 ```
 
-For installation instructions and detailed setup, see the [Getting Started Guide](https://docs.handprint.dev/sdk/getting-started).
-For local development from this repository, run `make build` to install the workspace dependencies and pre-commit hooks.
+`browser_use` menempel ke Chromium yang sudah dijalankan Vinbox (`cdp_url`),
+bukan meluncurkan browser pribadi.
 
-## Repository boundaries
+## Yang tidak boleh ditambahkan kembali
 
-This repository owns the canonical Python SDK and Agent Server implementation as well as the browser-compatible [TypeScript client](clients/typescript/). It owns agents, tools, conversations, workspaces, events, the REST/WebSocket API, and typed client access to that API. [`Handprint/Handprint`](https://github.com/takebox/Handprint) consumes the TypeScript client as Agent Viczin, while [`Handprint/automation`](https://github.com/takebox/automation) owns scheduling, webhooks, run history, and dispatching. The SDK/Agent Server executes the conversations dispatched by automation.
+- Browser bundel, unduhan Playwright Chromium, atau Chrome headless sendiri.
+- Desktop kedua, Xvfb, VNC, atau "layar HandPrint".
+- Provider key eksternal, login cloud, atau pendaftaran marketplace.
+- Sumber, tes, cache, atau `__pycache__` yang ikut masuk image Vinbox — Vinbox
+  hanya memasang wheel.
 
-The normal flow is SDK/Agent Server → OpenAPI contract → `clients/typescript` → Agent Viczin. Backend behavior and endpoints belong in the Python SDK or Agent Server packages; browser-compatible client access belongs in `clients/typescript`, UI in Agent Viczin, and automation lifecycle behavior in `automation`.
+## Pengembangan
 
-## Documentation
-
-For detailed documentation, tutorials, and API reference, visit:
-
-**[https://docs.handprint.dev/sdk](https://docs.handprint.dev/sdk)**
-
-The documentation includes:
-- [Getting Started Guide](https://docs.handprint.dev/sdk/getting-started) - Installation and setup
-- [Architecture & Core Concepts](https://docs.handprint.dev/sdk/arch/overview) - Agents, tools, workspaces, and more
-- [Guides](https://docs.handprint.dev/sdk/guides/hello-world) - Hello World, custom tools, MCP, tracks, and more
-- [Agent Server API Reference](https://docs.handprint.dev/sdk/guides/agent-server/api-reference/server-details/alive) - REST API reference for the remote agent server
-
-## Examples
-
-The `examples/` directory contains comprehensive usage examples:
-
-- **Standalone SDK** (`examples/01_standalone_sdk/`) - Basic agent usage, custom tools, and core workflows
-- **Remote Agent Server** (`examples/02_remote_agent_server/`) - Client-server architecture and WebSocket connections
-- **GitHub Workflows** (`examples/03_github_workflows/`) - CI/CD integration and automated workflows
-- **Tracks and Plugins** (`examples/05_tracks_and_plugins/`) - AgentTracks, plugins, and marketplace examples
-
-## Tracks for modern package tooling
-
-If you enable public tracks with `AgentContext(load_public_tracks=True)`, the default
-`Handprint/extensions` marketplace includes, for example, `uv` and `deno` tracks.
-Agents can automatically pick up current package-management guidance for repositories
-that use markers like `uv.lock`, `deno.json`, `deno.jsonc`, or `deno.lock`.
-
-See `examples/01_standalone_sdk/03_activate_track.py` for a minimal example that
-turns on public track loading.
-
-## Contributing
-
-For development setup, testing, and contribution guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
-
-## Community
-
-- [Join Slack](https://handprint.dev/joinslack) - Connect with the Handprint community
-- [GitHub Repository](https://github.com/takebox/software-agent-sdk) - Source code and issues
-- [Documentation](https://docs.handprint.dev/sdk) - Complete documentation
-
-## Cite
-
+```bash
+uv lock                 # kunci dependensi (uv.lock dipakai CI dan uv sync)
+uv sync                 # pasang seluruh workspace
+python -m pytest tests/ # jalankan tes
 ```
-@misc{wang2025handprintsoftwareagentsdk,
-      title={The Handprint Software Agent SDK: A Composable and Extensible Foundation for Production Agents}, 
-      author={Xingyao Wang and Simon Rosenberg and Juan Michelini and Calvin Smith and Hoang Tran and Engel Nyst and Rohit Malhotra and Xuhui Zhou and Valerie Chen and Robert Brennan and Graham Neubig},
-      year={2025},
-      eprint={2511.03690},
-      archivePrefix={arXiv},
-      primaryClass={cs.SE},
-      url={https://arxiv.org/abs/2511.03690}, 
-}
-```
-<hr>
 
-### Thank You to Our Contributors
+Ganti nama folder paket tidak mengubah nama distribusi: folder `vinbox-sdk`
+berisi distribusi `handprint-vinbox-sdk`, dan seterusnya. Yang dibaca `pip`
+selalu nama distribusi, bukan nama folder.
 
-[![Contributors](https://assets.handprint.dev/readme/handprint-software-agent-sdk-contributors.svg)](https://github.com/takebox/software-agent-sdk/graphs/contributors)
+## Menerbitkan ke PyPI
 
-<hr>
+Ikuti [PUBLISH-VINBOX.md](PUBLISH-VINBOX.md). Urutannya: TestPyPI dulu, uji
+`pip install` dari TestPyPI, baru PyPI. Empat paket dulu, meta paket terakhir.
 
-### Trusted by Engineers at
+## Lisensi
 
-<div align="center">
-<br/><br/>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/tiktok.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/tiktok.svg" alt="TikTok" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/vmware.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/vmware.svg" alt="VMware" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/roche.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/roche.svg" alt="Roche" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/amazon.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/amazon.svg" alt="Amazon" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/c3-ai.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/c3-ai.svg" alt="C3 AI" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/netflix.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/netflix.svg" alt="Netflix" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/mastercard.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/mastercard.svg" alt="Mastercard" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/red-hat.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/red-hat.svg" alt="Red Hat" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/mongodb.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/mongodb.svg" alt="MongoDB" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/apple.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/apple.svg" alt="Apple" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/nvidia.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/nvidia.svg" alt="NVIDIA" height="17" hspace="5">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://assets.handprint.dev/logos/external/white/google.svg">
-  <img src="https://assets.handprint.dev/logos/external/black/google.svg" alt="Google" height="17" hspace="5">
-</picture>
-</div>
+MIT. Repo ini diturunkan dari Handprint Software Agent SDK (MIT) dan telah
+diubah agar hanya berjalan di dalam Vinbox.

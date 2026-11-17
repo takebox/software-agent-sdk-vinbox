@@ -133,7 +133,7 @@ def main(files: list[str] | None = None) -> int:
         0 if no violations found, 1 otherwise.
     """
     repo_root = Path(__file__).parent.parent
-    tools_path = repo_root / "openhands-tools" / "handprint" / "tools"
+    tools_path = repo_root / "vinbox-tools" / "handprint" / "tools"
 
     # Skip checking certain files/directories
     skip_patterns = {

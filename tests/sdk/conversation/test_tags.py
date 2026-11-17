@@ -91,7 +91,7 @@ def test_tags_in_pydantic_model():
 
 def test_validate_observability_metadata_valid():
     metadata = {
-        "repo_name": "OpenHands/software-agent-sdk",
+        "repo_name": "takebox/software-agent-sdk-vinbox",
         "private": True,
         "retry_count": 3,
         "cost": 1.5,

@@ -133,7 +133,7 @@ try {
     '--package',
     packageFixture,
     '--run-url',
-    'https://github.com/takebox/typescript-client/actions/runs/123',
+    'https://github.com/HandPrint-AI/typescript-client/actions/runs/123',
     '--output',
     report,
   ]);

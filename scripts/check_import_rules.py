@@ -121,10 +121,10 @@ def main(files: list[str] | None = None) -> int:
         0 if no violations found, 1 otherwise.
     """
     repo_root = Path(__file__).parent.parent
-    sdk_path = repo_root / "openhands-sdk" / "handprint" / "sdk"
-    tools_path = repo_root / "openhands-tools" / "handprint" / "tools"
+    sdk_path = repo_root / "vinbox-sdk" / "handprint" / "sdk"
+    tools_path = repo_root / "vinbox-tools" / "handprint" / "tools"
     agent_server_path = (
-        repo_root / "openhands-agent-server" / "handprint" / "agent_server"
+        repo_root / "vinbox-agent-server" / "handprint" / "agent_server"
     )
 
     # If specific files are provided, filter checks to only those directories

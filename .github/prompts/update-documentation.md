@@ -14,8 +14,8 @@ You are a world-class documentation writer tasked with keeping the Handprint Age
 ### 1. Codebase Analysis
 
 - Scan `examples/` for available examples
-- Scan `openhands-tools/` for all available runtime tools
-- Check `openhands-sdk/handprint/tool/builtins/` for built-in tools
+- Scan `vinbox-tools/` for all available runtime tools
+- Check `vinbox-sdk/handprint/tool/builtins/` for built-in tools
 - Identify any new tools or removed tools since last update
 
 ### 2. Documentation Review
@@ -103,7 +103,7 @@ Update documentation to reflect current codebase
 - [Diagrams simplified/corrected]
 - [Examples verified/fixed]
 
-Co-authored-by: handprint <handprint@all-hands.dev>
+Co-authored-by: handprint <handprint@juglow.my.id>
 ```
 
 Focus on making the documentation immediately useful for developers who need to understand and use the Handprint Tools System.

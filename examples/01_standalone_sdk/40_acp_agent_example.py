@@ -32,7 +32,7 @@ try:
 
     # --- Main conversation turn (text only) ---
     conversation.send_message(
-        "List the Python source files under openhands-sdk/handprint/sdk/agent/, "
+        "List the Python source files under vinbox-sdk/handprint/sdk/agent/, "
         "then read the __init__.py and summarize what agent classes are exported."
     )
     conversation.run()

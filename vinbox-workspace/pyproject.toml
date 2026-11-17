@@ -1,0 +1,37 @@
+[project]
+name = "handprint-vinbox-workspace"
+version = "1.53.0"
+description = "HandPrint Vinbox Workspace - local workspace bound to the Vinbox tree"
+
+requires-python = ">=3.12"
+dependencies = [
+    "handprint-vinbox-sdk",
+    "handprint-vinbox-agent-server",
+    "pydantic>=2.13.5",
+]
+
+[project.optional-dependencies]
+# AgentSandboxWorkspace: run the agent server in a kubernetes-sigs/agent-sandbox pod.
+agent-sandbox = [
+    "k8s-agent-sandbox>=0.5.0",
+]
+
+[project.urls]
+Source = "https://github.com/takebox/software-agent-sdk-vinbox"
+Homepage = "https://github.com/takebox/software-agent-sdk-vinbox"
+Documentation = "https://handprint.juglow.my.id/sdk"
+"Bug Tracker" = "https://github.com/takebox/software-agent-sdk-vinbox/issues"
+
+[build-system]
+requires = ["setuptools>=83.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-dir]
+"" = "."
+
+[tool.setuptools.packages.find]
+include = ["handprint.workspace*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]

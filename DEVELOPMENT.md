@@ -3,14 +3,14 @@
 ## Setup
 
 ```bash
-git clone https://github.com/takebox/software-agent-sdk.git
+git clone https://github.com/takebox/software-agent-sdk-vinbox.git
 cd software-agent-sdk
 make build
 ```
 
 ## Repository boundaries
 
-This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Viczin in [`Handprint/Handprint`](https://github.com/takebox/Handprint); automation scheduling, webhooks, run history, and dispatch belong in [`Handprint/automation`](https://github.com/takebox/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md) for every PR.
+This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Viczin in [`Handprint/Handprint`](https://github.com/HandPrint-AI/Handprint); automation scheduling, webhooks, run history, and dispatch belong in [`Handprint/automation`](https://github.com/HandPrint-AI/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md) for every PR.
 
 ## Code Quality
 
@@ -34,10 +34,10 @@ uv run pytest tests/tools/               # Tools tests only
 
 ```
 software-agent-sdk/
-├── openhands-sdk/          # Core SDK package
-├── openhands-tools/        # Built-in tools
-├── openhands-workspace/    # Workspace management
-├── openhands-agent-server/ # Agent server
+├── vinbox-sdk/          # Core SDK package
+├── vinbox-tools/        # Built-in tools
+├── vinbox-workspace/    # Workspace management
+├── vinbox-agent-server/ # Agent server
 ├── examples/               # Usage examples
 └── tests/                  # Test suites
 ```
@@ -57,10 +57,10 @@ For questions, join our [Slack community](https://handprint.dev/joinslack).
 the first `user` message.**
 
 The canonical enforcement lives in `Agent.init_state()`
-(`openhands-sdk/handprint/sdk/agent/agent.py`): it guarantees the `SystemPromptEvent`
+(`vinbox-sdk/handprint/sdk/agent/agent.py`): it guarantees the `SystemPromptEvent`
 sits at the head of the event stream (index 0/1) and raises `AssertionError` if a user
 `MessageEvent` appears before it. `LLMConvertibleEvent.events_to_messages()`
-(`openhands-sdk/handprint/sdk/event/base.py`) projects the event stream to messages in
+(`vinbox-sdk/handprint/sdk/event/base.py`) projects the event stream to messages in
 order, preserving the system lead-in on the main agent loop.
 
 This applies to **all** standalone LLM calls, not just the agent loop: condensers, goal

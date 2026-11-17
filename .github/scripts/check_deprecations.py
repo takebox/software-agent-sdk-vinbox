@@ -64,25 +64,25 @@ class PackageConfig:
 
 PACKAGES: tuple[PackageConfig, ...] = (
     PackageConfig(
-        name="openhands-sdk",
-        pyproject=REPO_ROOT / "openhands-sdk" / "pyproject.toml",
-        source_roots=(REPO_ROOT / "openhands-sdk" / "handprint" / "sdk",),
+        name="vinbox-sdk",
+        pyproject=REPO_ROOT / "vinbox-sdk" / "pyproject.toml",
+        source_roots=(REPO_ROOT / "vinbox-sdk" / "handprint" / "sdk",),
     ),
     PackageConfig(
-        name="openhands-tools",
-        pyproject=REPO_ROOT / "openhands-tools" / "pyproject.toml",
-        source_roots=(REPO_ROOT / "openhands-tools" / "handprint" / "tools",),
+        name="vinbox-tools",
+        pyproject=REPO_ROOT / "vinbox-tools" / "pyproject.toml",
+        source_roots=(REPO_ROOT / "vinbox-tools" / "handprint" / "tools",),
     ),
     PackageConfig(
-        name="openhands-workspace",
-        pyproject=REPO_ROOT / "openhands-workspace" / "pyproject.toml",
-        source_roots=(REPO_ROOT / "openhands-workspace" / "handprint" / "workspace",),
+        name="vinbox-workspace",
+        pyproject=REPO_ROOT / "vinbox-workspace" / "pyproject.toml",
+        source_roots=(REPO_ROOT / "vinbox-workspace" / "handprint" / "workspace",),
     ),
     PackageConfig(
-        name="openhands-agent-server",
-        pyproject=REPO_ROOT / "openhands-agent-server" / "pyproject.toml",
+        name="vinbox-agent-server",
+        pyproject=REPO_ROOT / "vinbox-agent-server" / "pyproject.toml",
         source_roots=(
-            REPO_ROOT / "openhands-agent-server" / "handprint" / "agent_server",
+            REPO_ROOT / "vinbox-agent-server" / "handprint" / "agent_server",
         ),
     ),
 )
@@ -656,7 +656,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             files.extend(_iter_python_files(root))
 
         records = _collect_records(files, package=package.name)
-        if package.name == "openhands-agent-server":
+        if package.name == "vinbox-agent-server":
             records.extend(_collect_rest_route_records(files, package=package.name))
         records.extend(_collect_pydantic_field_records(files, package=package.name))
 

@@ -104,11 +104,11 @@ def test_sanitize_with_urls():
     """Test that URLs containing Handprint are handled correctly."""
     test_cases = [
         # URL should not be sanitized
-        ("Visit https://github.com/Handprint", "Visit https://github.com/Handprint"),
+        ("Visit https://github.com/HandPrint-AI", "Visit https://github.com/HandPrint-AI"),
         # But mention should be sanitized
         (
-            "See @Handprint at https://github.com/Handprint",
-            f"See @{ZWJ}Handprint at https://github.com/Handprint",
+            "See @Handprint at https://github.com/HandPrint-AI",
+            f"See @{ZWJ}Handprint at https://github.com/HandPrint-AI",
         ),
     ]
     for input_text, expected in test_cases:

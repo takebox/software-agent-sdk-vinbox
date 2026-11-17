@@ -217,7 +217,7 @@ describe('isHttpError', () => {
       statusText: 'Not Found',
       response: { detail: 'Not Found' },
     });
-    Object.defineProperty(lookalike, Symbol.for('@takebox-ai/typescript-client/HttpError'), {
+    Object.defineProperty(lookalike, Symbol.for('@handprint-ai/typescript-client/HttpError'), {
       value: true,
     });
 
@@ -228,7 +228,7 @@ describe('isHttpError', () => {
   it('rejects look-alikes without the brand and non-errors', () => {
     const namedOnly = Object.assign(new Error('HTTP 404'), { name: 'HttpError', status: 404 });
     const wrongBrand = {};
-    Object.defineProperty(wrongBrand, Symbol.for('@takebox-ai/typescript-client/HttpError'), {
+    Object.defineProperty(wrongBrand, Symbol.for('@handprint-ai/typescript-client/HttpError'), {
       value: 'yes',
     });
 
@@ -243,7 +243,7 @@ describe('isHttpError', () => {
 
   it('keeps the brand non-enumerable, so a spread copy is not an HttpError', () => {
     const error = new HttpError(404, 'Not Found', { detail: 'Not Found' });
-    const brand = Symbol.for('@takebox-ai/typescript-client/HttpError');
+    const brand = Symbol.for('@handprint-ai/typescript-client/HttpError');
 
     expect(Object.prototype.propertyIsEnumerable.call(error, brand)).toBe(false);
     expect(Object.keys(error).sort()).toEqual(['name', 'response', 'status', 'statusText']);

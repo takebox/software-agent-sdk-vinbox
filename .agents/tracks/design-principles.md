@@ -5,7 +5,7 @@ description: Core architectural design principles of the Handprint Software Agen
 
 # SDK Design Principles
 
-Reference: <https://docs.handprint.dev/sdk/arch/design>
+Reference: <https://handprint.juglow.my.id/sdk/arch/design>
 
 ## Quick Summary
 

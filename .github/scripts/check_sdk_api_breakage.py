@@ -54,8 +54,8 @@ class PackageConfig:
     """Configuration for a single published package."""
 
     package: str  # dotted module path, e.g. "handprint.sdk"
-    distribution: str  # PyPI distribution name, e.g. "openhands-sdk"
-    source_dir: str  # repo-relative directory, e.g. "openhands-sdk"
+    distribution: str  # PyPI distribution name, e.g. "vinbox-sdk"
+    source_dir: str  # repo-relative directory, e.g. "vinbox-sdk"
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,18 +93,18 @@ FIELD_DEFAULT_CHANGE_REPORT_ENV = "SDK_API_BREAKAGE_REPORT_PATH"
 PACKAGES: tuple[PackageConfig, ...] = (
     PackageConfig(
         package="handprint.sdk",
-        distribution="openhands-sdk",
-        source_dir="openhands-sdk",
+        distribution="vinbox-sdk",
+        source_dir="vinbox-sdk",
     ),
     PackageConfig(
         package="handprint.workspace",
-        distribution="openhands-workspace",
-        source_dir="openhands-workspace",
+        distribution="vinbox-workspace",
+        source_dir="vinbox-workspace",
     ),
     PackageConfig(
         package="handprint.tools",
-        distribution="openhands-tools",
-        source_dir="openhands-tools",
+        distribution="vinbox-tools",
+        source_dir="vinbox-tools",
     ),
 )
 
@@ -252,7 +252,7 @@ def _git_archive_directory(
 
 
 def _load_base_pyproject(base_ref: str) -> dict | None:
-    rel_path = "openhands-sdk/pyproject.toml"
+    rel_path = "vinbox-sdk/pyproject.toml"
     content = _git_show_file(base_ref, rel_path)
     if content is None:
         print(
@@ -290,7 +290,7 @@ def _check_acp_version_bump(repo_root: str) -> int:
         return 0
 
     current_data = _read_pyproject(
-        os.path.join(repo_root, "openhands-sdk", "pyproject.toml")
+        os.path.join(repo_root, "vinbox-sdk", "pyproject.toml")
     )
     old_req = _get_dependency_spec(base_data, ACP_DEPENDENCY)
     new_req = _get_dependency_spec(current_data, ACP_DEPENDENCY)
@@ -406,7 +406,7 @@ def get_pypi_baseline_version(pkg: str, current: str | None) -> str | None:
     than the current version. If ``current`` is None, use the latest release.
 
     Args:
-        pkg: Package name on PyPI (e.g., "openhands-sdk")
+        pkg: Package name on PyPI (e.g., "vinbox-sdk")
         current: Current version from the workspace, or None for latest
 
     Returns:

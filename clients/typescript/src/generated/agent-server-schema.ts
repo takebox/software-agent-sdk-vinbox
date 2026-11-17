@@ -1355,7 +1355,7 @@ export type AgentContextInput = {
   /**
    * Load Public Tracks
    *
-   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/takebox/extensions. This allows you to get the latest tracks without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/HandPrint-AI/extensions. This allows you to get the latest tracks without SDK updates.
    */
   load_public_tracks?: boolean;
   /**
@@ -1461,7 +1461,7 @@ export type AgentContextOutput = {
   /**
    * Load Public Tracks
    *
-   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/takebox/extensions. This allows you to get the latest tracks without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/HandPrint-AI/extensions. This allows you to get the latest tracks without SDK updates.
    */
   load_public_tracks?: boolean;
   /**
@@ -6242,7 +6242,7 @@ export type InstallPluginRequest = {
   /**
    * Source
    *
-   * Plugin source - git URL, GitHub shorthand, or local path. Examples: 'github:Handprint/extensions/plugins/city-weather', '/path/to/plugin'
+   * Plugin source - git URL, GitHub shorthand, or local path. Examples: 'github:HandPrint-AI/extensions/plugins/city-weather', '/path/to/plugin'
    */
   source: string;
 };
@@ -6274,7 +6274,7 @@ export type InstallTrackRequest = {
   /**
    * Source
    *
-   * Track source - git URL, GitHub shorthand, or local path. Examples: 'https://github.com/takebox/extensions/tree/main/tracks/github', 'github:Handprint/extensions/tracks/github', '/path/to/track'
+   * Track source - git URL, GitHub shorthand, or local path. Examples: 'https://github.com/HandPrint-AI/extensions/tree/main/tracks/github', 'github:HandPrint-AI/extensions/tracks/github', '/path/to/track'
    */
   source: string;
 };
@@ -13562,7 +13562,7 @@ export type ToolExecution = {
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install openhands-sdk[toolshield]`` and pass the rendered
+ * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -13619,7 +13619,7 @@ export type ToolShieldLlmSecurityAnalyzerInput = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install openhands-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };
@@ -13635,7 +13635,7 @@ export type ToolShieldLlmSecurityAnalyzerInput = {
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install openhands-sdk[toolshield]`` and pass the rendered
+ * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -13692,7 +13692,7 @@ export type ToolShieldLlmSecurityAnalyzerOutput = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install openhands-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };
@@ -15616,7 +15616,7 @@ export type AgentContextInputWritable = {
   /**
    * Load Public Tracks
    *
-   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/takebox/extensions. This allows you to get the latest tracks without SDK updates.
+   * Whether to automatically load tracks from the public Handprint tracks repository at https://github.com/HandPrint-AI/extensions. This allows you to get the latest tracks without SDK updates.
    */
   load_public_tracks?: boolean;
   /**
@@ -19806,7 +19806,7 @@ export type ToolDefinitionWritable =
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install openhands-sdk[toolshield]`` and pass the rendered
+ * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -19863,7 +19863,7 @@ export type ToolShieldLlmSecurityAnalyzerInputWritable = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install openhands-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };
@@ -19879,7 +19879,7 @@ export type ToolShieldLlmSecurityAnalyzerInputWritable = {
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install openhands-sdk[toolshield]`` and pass the rendered
+ * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -19936,7 +19936,7 @@ export type ToolShieldLlmSecurityAnalyzerOutputWritable = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install openhands-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };

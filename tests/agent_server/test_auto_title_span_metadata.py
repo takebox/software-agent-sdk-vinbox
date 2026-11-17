@@ -66,7 +66,7 @@ def _probe_auto_title_spans() -> dict[str, Any]:
     conversation = Conversation(
         agent=agent,
         callbacks=[],
-        observability_metadata={"repo": "OpenHands/software-agent-sdk"},
+        observability_metadata={"repo": "takebox/software-agent-sdk-vinbox"},
     )
     assert isinstance(conversation, LocalConversation)
 

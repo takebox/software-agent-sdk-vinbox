@@ -368,7 +368,7 @@ def test_issue_2416_missing_ps1_metadata_graceful_fallback():
     ANSI escape sequences) that corrupts the PS1 markers in the terminal
     screen buffer.
 
-    See: https://github.com/takebox/software-agent-sdk/issues/2416
+    See: https://github.com/takebox/software-agent-sdk-vinbox/issues/2416
     """
     mock_terminal = MagicMock()
     mock_terminal.work_dir = "/tmp"
