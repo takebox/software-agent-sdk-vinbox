@@ -180,8 +180,22 @@ class TestPeriodicFlush:
                 session._periodic_flush_loop(mock_browser_session)
             )
 
-            # Let it run for enough time to create multiple flushes
-            await asyncio.sleep(0.35)  # Should allow ~3 flush cycles
+            # Let it run until the expected number of chunks exist. Waiting on
+            # the files instead of sleeping a fixed window keeps the assertion
+            # about behaviour (a flush starts a new chunk) rather than about
+            # machine speed.
+            deadline = asyncio.get_running_loop().time() + 10.0
+            while True:
+                json_files = [
+                    name
+                    for name in os.listdir(temp_dir)
+                    if name.endswith(".json")
+                ]
+                if len(json_files) >= 2:
+                    break
+                if asyncio.get_running_loop().time() >= deadline:
+                    break
+                await asyncio.sleep(0.02)
 
             # Stop recording to end the task
             session._is_recording = False

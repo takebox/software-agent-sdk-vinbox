@@ -14,7 +14,7 @@ Prerequisites (see TESTING.md): a cluster with the agent-sandbox controller and 
 warm pool, an Ollama endpoint the *sandbox pod* can reach (in-cluster Service, or any
 reachable host), and:
 
-    pip install vinbox-workspace[agent-sandbox]
+    pip install handprint-vinbox-workspace[agent-sandbox]
 
 Env:
     OLLAMA_URL               required, e.g. http://<ollama-clusterip>:11434

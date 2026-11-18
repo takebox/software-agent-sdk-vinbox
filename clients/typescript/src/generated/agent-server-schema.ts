@@ -13562,7 +13562,7 @@ export type ToolExecution = {
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
+ * ``pip install handprint-vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -13619,7 +13619,7 @@ export type ToolShieldLlmSecurityAnalyzerInput = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install handprint-vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };
@@ -13635,7 +13635,7 @@ export type ToolShieldLlmSecurityAnalyzerInput = {
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
+ * ``pip install handprint-vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -13692,7 +13692,7 @@ export type ToolShieldLlmSecurityAnalyzerOutput = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install handprint-vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };
@@ -19806,7 +19806,7 @@ export type ToolDefinitionWritable =
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
+ * ``pip install handprint-vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -19863,7 +19863,7 @@ export type ToolShieldLlmSecurityAnalyzerInputWritable = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install handprint-vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };
@@ -19879,7 +19879,7 @@ export type ToolShieldLlmSecurityAnalyzerInputWritable = {
  *
  * By default the analyzer runs as a bare guardrail (no distilled
  * safety experiences). To enable the ToolShield seed, install
- * ``pip install vinbox-sdk[toolshield]`` and pass the rendered
+ * ``pip install handprint-vinbox-sdk[toolshield]`` and pass the rendered
  * experiences via the ``safety_experiences`` field -- typically via
  * one of the helpers (``default_safety_experiences()``,
  * ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -19936,7 +19936,7 @@ export type ToolShieldLlmSecurityAnalyzerOutputWritable = {
    *
    * Pre-generated safety guidelines injected into the guardrail's system prompt.
    * - ``""`` (default): bare guardrail -- no experiences. The analyzer still separates actor from judge; it just classifies without distilled tool-specific guidance.
-   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
+   * - Any non-empty string: used as-is. The intended pattern is to call one of the helpers (``default_safety_experiences()``, ``load_safety_experiences(tool_names)``, ``auto_detect_safety_experiences()``) which require the ``[toolshield]`` optional extra (``pip install handprint-vinbox-sdk[toolshield]``). Callers with their own source of guidelines can pass any custom string.
    */
   safety_experiences?: string;
 };

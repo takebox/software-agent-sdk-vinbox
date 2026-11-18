@@ -117,7 +117,9 @@ python tests/integration/run_infer.py \
   --eval-ids "b01_no_premature_implementation"
 ```
 
-CI automatically runs behavior and integration tests together via `.github/workflows/integration-runner.yml` when the `integration-test` label is applied or the workflow is triggered manually.
+The upstream CI wiring lives in `.github/workflows-disabled/integration-runner.yml`,
+which is not active for Vinbox. Run the same suites locally with
+`bash scripts/dev-check.sh tests/integration`.
 
 ## Test Results
 

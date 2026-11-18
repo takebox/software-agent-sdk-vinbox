@@ -18,7 +18,7 @@ Example (bare guardrail):
     >>> analyzer = ToolShieldLLMSecurityAnalyzer(llm=guardrail_llm)
 
 Example (with ToolShield tool-specific safety experiences):
-    Install the optional extra ``pip install vinbox-sdk[toolshield]``
+    Install the optional extra ``pip install handprint-vinbox-sdk[toolshield]``
     and populate ``safety_experiences`` from the ``toolshield`` PyPI
     package, which distills per-tool safety guidelines via sandbox
     self-exploration:
@@ -239,7 +239,7 @@ class ToolShieldLLMSecurityAnalyzer(SecurityAnalyzerBase):
 
     By default the analyzer runs as a bare guardrail (no distilled
     safety experiences). To enable the ToolShield seed, install
-    ``pip install vinbox-sdk[toolshield]`` and pass the rendered
+    ``pip install handprint-vinbox-sdk[toolshield]`` and pass the rendered
     experiences via the ``safety_experiences`` field -- typically via
     one of the helpers (``default_safety_experiences()``,
     ``load_safety_experiences(...)``, ``auto_detect_safety_experiences()``).
@@ -301,7 +301,7 @@ class ToolShieldLLMSecurityAnalyzer(SecurityAnalyzerBase):
             "``load_safety_experiences(tool_names)``, "
             "``auto_detect_safety_experiences()``) which require the "
             "``[toolshield]`` optional extra "
-            "(``pip install vinbox-sdk[toolshield]``). Callers with "
+            "(``pip install handprint-vinbox-sdk[toolshield]``). Callers with "
             "their own source of guidelines can pass any custom string."
         ),
     )

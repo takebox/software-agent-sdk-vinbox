@@ -38,14 +38,14 @@ class ServerInfo(BaseModel):
     title: str = "Handprint Agent Server"
 
     version: str = Field(
-        default_factory=lambda: _package_version("vinbox-agent-server")
+        default_factory=lambda: _package_version("handprint-vinbox-agent-server")
     )
-    sdk_version: str = Field(default_factory=lambda: _package_version("vinbox-sdk"))
+    sdk_version: str = Field(default_factory=lambda: _package_version("handprint-vinbox-sdk"))
     tools_version: str = Field(
-        default_factory=lambda: _package_version("vinbox-tools")
+        default_factory=lambda: _package_version("handprint-vinbox-tools")
     )
     workspace_version: str = Field(
-        default_factory=lambda: _package_version("vinbox-workspace")
+        default_factory=lambda: _package_version("handprint-vinbox-workspace")
     )
 
     build_git_sha: str = Field(

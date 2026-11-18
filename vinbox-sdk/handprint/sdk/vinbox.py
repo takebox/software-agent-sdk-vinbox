@@ -23,6 +23,7 @@ import os
 from pathlib import Path
 from typing import Any, Final
 
+
 __all__ = [
     "enabled",
     "home",
@@ -56,7 +57,8 @@ def _env(name: str, default: str) -> str:
 
 def enabled() -> bool:
     """True when running inside Vinbox (the only supported deployment)."""
-    return os.environ.get("VINBOX_MODE", "1").strip().lower() not in {"0", "false", "no"}
+    mode = os.environ.get("VINBOX_MODE", "1")
+    return mode.strip().lower() not in {"0", "false", "no"}
 
 
 def home() -> Path:
@@ -122,15 +124,12 @@ def browser_session_config() -> dict[str, Any]:
 
     ``cdp_url`` is what makes this "eyes and hands inside Vinbox": browser-use
     connects to the already-running Chromium (the one shown in the centre panel)
-    and drives it. ``executable_path``/``user_data_dir`` are kept as a fallback
-    for the case where no CDP endpoint answers, and both point at Vinbox paths.
+    and drives it. Nothing else is overridden here: ``executable_path`` and
+    ``user_data_dir`` stay as the launcher defaults (a detected Chromium and a
+    per-executor profile directory under :func:`profiles_dir`) so a run that
+    falls back to launching a browser still gets a unique profile.
     """
-    return {
-        "cdp_url": cdp_url(),
-        "headless": False,
-        "executable_path": chromium_path(),
-        "user_data_dir": str(profiles_dir()),
-    }
+    return {"cdp_url": cdp_url()}
 
 
 def terminal_defaults() -> dict[str, Any]:

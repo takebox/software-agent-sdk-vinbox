@@ -92,7 +92,7 @@ def _require_toolshield():
     except ImportError as e:
         raise ImportError(
             "toolshield is not installed. Install via "
-            "`pip install vinbox-sdk[toolshield]` to use these helpers, "
+            "`pip install handprint-vinbox-sdk[toolshield]` to use these helpers, "
             "or pass a custom string to "
             "ToolShieldLLMSecurityAnalyzer(safety_experiences=...)."
         ) from e

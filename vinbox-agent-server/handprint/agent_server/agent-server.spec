@@ -19,7 +19,7 @@ from PyInstaller.utils.hooks import (
 IS_WINDOWS = sys.platform == "win32"
 
 # Optional Vertex AI bundle. The default build stays lean; install the
-# vinbox-sdk[vertex] extra first, or pass ENABLE_VERTEX=1 to the Docker build,
+# handprint-vinbox-sdk[vertex] extra first, or pass ENABLE_VERTEX=1 to the Docker build,
 # when the binary should support vertex_ai/* partner models.
 import importlib.util as _vertex_importlib_util
 
@@ -56,7 +56,7 @@ else:
     print(
         "[agent-server.spec] vertexai not installed; "
         "skipping Vertex AI bundle collection. "
-        "Install vinbox-sdk[vertex] before building to include it."
+        "Install handprint-vinbox-sdk[vertex] before building to include it."
     )
 
 # Get the project root directory (current working directory when running PyInstaller)
@@ -172,7 +172,7 @@ a = Analysis(
         *collect_submodules("rich"),
 
         # Vertex AI SDK hidden imports (collected via collect_all above; empty
-        # if vinbox-sdk[vertex] is not installed in the build env).
+        # if handprint-vinbox-sdk[vertex] is not installed in the build env).
         *_vertex_hiddenimports,
 
         # mcp subpackages used at runtime (avoid CLI)

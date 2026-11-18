@@ -147,7 +147,7 @@ class RuntimeProperties(BaseModel):
     platform: SafeToken
     deferred_init: bool
     deployment_kind: DeploymentKind = "local"
-    source: Literal["vinbox-agent-server"] = "vinbox-agent-server"
+    source: Literal["handprint-vinbox-agent-server"] = "handprint-vinbox-agent-server"
 
 
 class _BaseProperties(BaseModel):

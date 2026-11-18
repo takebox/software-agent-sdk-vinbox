@@ -61,7 +61,7 @@ Skrip itu menolak wheel yang memuat nama lama, tes, atau `__pycache__`.
 python -m pip install --upgrade twine
 
 # empat paket dulu
-python -m twine upload --repository testpypi \
+python -m twine upload --repository-url https://test.pypi.org/legacy/ \
   -u __token__ -p "$(cat .pypi-test-token)" \
   dist-vinbox/handprint_vinbox_sdk-1.53.0-py3-none-any.whl \
   dist-vinbox/handprint_vinbox_tools-1.53.0-py3-none-any.whl \
@@ -69,10 +69,12 @@ python -m twine upload --repository testpypi \
   dist-vinbox/handprint_vinbox_agent_server-1.53.0-py3-none-any.whl
 
 # meta paket terakhir
-python -m twine upload --repository testpypi \
+python -m twine upload --repository-url https://test.pypi.org/legacy/ \
   -u __token__ -p "$(cat .pypi-test-token)" \
   dist-vinbox/software_agent_sdk_vinbox-1.53.0-py3-none-any.whl
 ```
+
+`--repository-url` dipakai eksplisit supaya tidak bergantung pada `~/.pypirc`.
 
 Uji pasang dari TestPyPI di venv bersih. `--extra-index-url` wajib karena
 dependensi pihak ketiga tidak ada di TestPyPI:
@@ -102,13 +104,15 @@ Kalau langkah ini gagal, **jangan lanjut** ke PyPI. Perbaiki dulu.
 Setelah TestPyPI lolos, ulangi dengan token PyPI:
 
 ```bash
-python -m twine upload -u __token__ -p "$(cat .pypi-token)" \
+python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
+  -u __token__ -p "$(cat .pypi-token)" \
   dist-vinbox/handprint_vinbox_sdk-1.53.0-py3-none-any.whl \
   dist-vinbox/handprint_vinbox_tools-1.53.0-py3-none-any.whl \
   dist-vinbox/handprint_vinbox_workspace-1.53.0-py3-none-any.whl \
   dist-vinbox/handprint_vinbox_agent_server-1.53.0-py3-none-any.whl
 
-python -m twine upload -u __token__ -p "$(cat .pypi-token)" \
+python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
+  -u __token__ -p "$(cat .pypi-token)" \
   dist-vinbox/software_agent_sdk_vinbox-1.53.0-py3-none-any.whl
 ```
 

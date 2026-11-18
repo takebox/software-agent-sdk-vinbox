@@ -27,13 +27,21 @@ strong bias toward simplicity and maintainable code.
 
 ## Cross-Repository Boundaries
 
-This repository owns the Python SDK and Agent Server: agent and tool behavior, conversations, workspaces, events, and the canonical REST/WebSocket API. Related responsibilities live elsewhere:
+This repository (`software-agent-sdk-vinbox`, installed with
+`pip install software-agent-sdk-vinbox`) owns the Python SDK, tools, workspace
+and Agent Server that run **inside the Vinbox machine**: agent and tool
+behavior, conversations, workspaces, events, and the canonical REST/WebSocket
+API. It is not a standalone product; it never opens a desktop, a browser, or a
+model lane of its own. The Vinbox contract lives in
+`vinbox-sdk/handprint/sdk/vinbox.py` and is summarised in [VINBOX.md](VINBOX.md).
 
-- [`Handprint/Handprint`](https://github.com/HandPrint-AI/Handprint) owns Agent Viczin UI, frontend state, backend selection, and local-stack orchestration.
+Related responsibilities live elsewhere:
+
+- [`takebox/handprint-vinbox`](https://github.com/takebox/handprint-vinbox) is the **flow map**: it owns the UI reference (what Vinbox's dashboard shows) and the documentation of the flow. It ships no runtime, no static server and no container of its own.
 - `clients/typescript/` mirrors the Agent Server API for browser-compatible TypeScript clients.
-- [`Handprint/extensions`](https://github.com/HandPrint-AI/extensions) owns reusable tracks, plugins, automations, and integrations; [`Handprint/automation`](https://github.com/HandPrint-AI/automation) owns automation definitions, scheduling, webhooks, run history, dispatch, and sandbox lifecycle orchestration; this repository executes the dispatched conversations.
+- Reusable tracks, plugins and automations belong to the Vinbox repositories, not here; this repository executes the conversations they dispatch.
 
-The usual flow is SDK/Agent Server → OpenAPI contract → `clients/typescript` → Agent Viczin. Implement backend behavior and endpoints in the Python SDK or Agent Server packages first, then update the typed client and downstream applications as needed. If a PR is opened in the wrong repository, explicitly recommend closing and moving it to the repository that owns the change rather than merging it here.
+The usual flow is SDK/Agent Server → OpenAPI contract → `clients/typescript` → Vinbox dashboard. Implement backend behavior and endpoints in the Python SDK or Agent Server packages first, then update the typed client and the dashboard as needed. If a PR is opened in the wrong repository, explicitly recommend closing and moving it to the repository that owns the change rather than merging it here.
 
 All pull requests must comply with [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md), in addition to the repository's contribution requirements and CI checks.
 

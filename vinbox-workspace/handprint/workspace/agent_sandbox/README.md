@@ -15,7 +15,7 @@ from a laptop kind or minikube cluster to a cloud cluster such as GKE.
 ## Install
 
 ```bash
-pip install vinbox-workspace[agent-sandbox]
+pip install handprint-vinbox-workspace[agent-sandbox]
 ```
 
 This pulls in the [`k8s-agent-sandbox`](https://pypi.org/project/k8s-agent-sandbox/)

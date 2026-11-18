@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
+from handprint.sdk import vinbox
 from handprint.sdk.agent import (
     Agent,
     AgentBase,
 )
-from handprint.sdk import vinbox
 from handprint.sdk.banner import _print_banner
 from handprint.sdk.context import AgentContext, load_memory
 from handprint.sdk.context.condenser import (
@@ -79,11 +79,6 @@ from handprint.sdk.settings.metadata import (
     SettingsSectionMetadata,
     field_meta,
 )
-from handprint.sdk.tracks import (
-    load_project_tracks,
-    load_tracks_from_dir,
-    load_user_tracks,
-)
 from handprint.sdk.subagent import (
     agent_definition_to_factory,
     discover_agents,
@@ -101,6 +96,11 @@ from handprint.sdk.tool import (
     register_tool,
     resolve_tool,
 )
+from handprint.sdk.tracks import (
+    load_project_tracks,
+    load_tracks_from_dir,
+    load_user_tracks,
+)
 from handprint.sdk.utils import page_iterator
 from handprint.sdk.workspace import (
     AsyncRemoteWorkspace,
@@ -111,7 +111,7 @@ from handprint.sdk.workspace import (
 
 
 try:
-    __version__ = version("vinbox-sdk")
+    __version__ = version("handprint-vinbox-sdk")
 except PackageNotFoundError:
     __version__ = "0.0.0"  # fallback for editable/unbuilt environments
 

@@ -78,7 +78,7 @@ body:
       attributes:
           label: Installation Method
           description: How did you install the Handprint SDK?
-          placeholder: ex. pip install vinbox-sdk, uv pip install vinbox-sdk, pip install -e ., etc.
+          placeholder: ex. pip install handprint-vinbox-sdk, uv pip install handprint-vinbox-sdk, pip install -e ., etc.
 
     - type: input
       id: installation-other

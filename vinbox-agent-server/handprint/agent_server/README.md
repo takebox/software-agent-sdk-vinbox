@@ -242,7 +242,7 @@ the same way as `user_id`: the frontend is responsible for setting it correctly.
 The PostHog client is an optional extra:
 
 ```bash
-pip install 'vinbox-agent-server[posthog]'
+pip install 'handprint-vinbox-agent-server[posthog]'
 ```
 
 Without it, telemetry logs one warning and stays inactive; the server starts

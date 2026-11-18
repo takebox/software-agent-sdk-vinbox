@@ -76,7 +76,7 @@ def _build_exporter(config: Config) -> TelemetryExporter | None:
         except ImportError:
             logger.warning(
                 "Telemetry exporter is 'posthog' but the extra is not installed; "
-                "telemetry is inactive. Install vinbox-agent-server[posthog]."
+                "telemetry is inactive. Install handprint-vinbox-agent-server[posthog]."
             )
             return None
 

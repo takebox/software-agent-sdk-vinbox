@@ -9,7 +9,7 @@ ARG UID=10001
 ARG GID=10001
 ARG PORT=8000
 ARG NPM_VERSION=11.19.1
-# Opt-in build flag for the Vertex AI extra (`vinbox-sdk[vertex]`). Off by
+# Opt-in build flag for the Vertex AI extra (`handprint-vinbox-sdk[vertex]`). Off by
 # default to keep the published image lean. Pass `--build-arg ENABLE_VERTEX=1`
 # to bundle google-cloud-aiplatform so the resulting binary supports
 # `vertex_ai/*` partner models (MiniMax, Qwen, Kimi MaaS endpoints).

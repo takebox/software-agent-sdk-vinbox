@@ -20,7 +20,7 @@ minikube, or any cluster your `kubectl` can reach.
 - The package with its optional client:
 
   ```bash
-  pip install vinbox-workspace[agent-sandbox]
+  pip install handprint-vinbox-workspace[agent-sandbox]
   ```
 
 ## 1. Unit tests (no cluster)
@@ -189,4 +189,4 @@ kubectl delete -f ../deploy/sandboxwarmpool.yaml -f ../deploy/sandboxtemplate.ya
 | `model '<name>' not found` after editing the Ollama Deployment | The model store is an `emptyDir`; editing the Deployment restarts the pod and wipes it. `kubectl exec deploy/ollama -- ollama pull <model>` again (or use a PVC). |
 | `resume()` fails with a port or "network namespace is closed" error | Transient churn right after resume; the workspace retries with a fresh local port. If you see it persist, raise `health_check_timeout`. |
 | Claim never becomes Ready | First agent-server image pull is slow; pre-load it (see step 2) or raise `sandbox_ready_timeout`. |
-| `AgentSandboxWorkspace requires the 'agent-sandbox' extra` | `pip install vinbox-workspace[agent-sandbox]`. |
+| `AgentSandboxWorkspace requires the 'agent-sandbox' extra` | `pip install handprint-vinbox-workspace[agent-sandbox]`. |

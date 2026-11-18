@@ -34,7 +34,7 @@ from handprint.tools.workflow import WorkflowToolSet
 
 
 try:
-    __version__ = version("vinbox-tools")
+    __version__ = version("handprint-vinbox-tools")
 except PackageNotFoundError:
     __version__ = "0.0.0"  # fallback for editable/unbuilt environments
 

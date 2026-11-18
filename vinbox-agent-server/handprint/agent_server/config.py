@@ -541,9 +541,15 @@ def load_config(config_path: Path | None = None) -> Config:
     from handprint.sdk import vinbox
 
     if vinbox.enabled():
-        config.telemetry.exporter = "none"
-        config.telemetry.posthog_api_key = None
-        config.registered_marketplaces = []
+        # ``Config`` is frozen (see its ``model_config``), so the Vinbox
+        # overrides are applied through ``model_copy`` instead of attribute
+        # assignment.
+        telemetry = config.telemetry.model_copy(
+            update={"exporter": "none", "posthog_api_key": None}
+        )
+        config = config.model_copy(
+            update={"telemetry": telemetry, "registered_marketplaces": []}
+        )
 
     return config
 

@@ -374,7 +374,7 @@ def _package_version() -> str:
     try:
         from importlib.metadata import version
 
-        return version("vinbox-sdk")
+        return version("handprint-vinbox-sdk")
     except Exception:
         # If package is not installed, try reading from pyproject.toml
         try:

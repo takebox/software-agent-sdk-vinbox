@@ -1,9 +1,11 @@
 """Tests for browser tool executor initialization and timeout handling."""
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from handprint.sdk import vinbox
 from handprint.tools.browser_use.impl import BrowserToolExecutor
 from handprint.tools.utils.timeout import TimeoutError
 
@@ -109,6 +111,9 @@ class TestBrowserInitialization:
                 "chromium_sandbox": True,  # Enabled for non-root
                 "custom_param": "test",
                 "user_data_dir": executor._config["user_data_dir"],
+                # Vinbox contract: the executor attaches to the Chromium Vinbox
+                # already runs instead of launching a private one.
+                "cdp_url": vinbox.cdp_url(),
             }
 
             assert executor._config == expected_config
@@ -274,8 +279,15 @@ class TestUniqueUserDataDir:
             assert dir_a != dir_b, (
                 "Two executor instances must have distinct user_data_dir values"
             )
-            assert "browseruse" in dir_a and "profiles" in dir_a
-            assert "browseruse" in dir_b and "profiles" in dir_b
+            # Both profiles live under the runtime's profile root: Vinbox's
+            # Linux volume inside Vinbox, browser-use's own cache outside it.
+            profile_root = (
+                vinbox.profiles_dir()
+                if vinbox.enabled()
+                else Path.home() / ".config" / "browseruse" / "profiles"
+            )
+            assert Path(dir_a).parent == profile_root
+            assert Path(dir_b).parent == profile_root
 
     def test_explicit_user_data_dir_overrides_default(self):
         """An explicit user_data_dir passed via **config must override the

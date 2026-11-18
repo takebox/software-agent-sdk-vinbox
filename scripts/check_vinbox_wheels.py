@@ -25,6 +25,7 @@ import pathlib
 import sys
 import zipfile
 
+
 EXPECTED = {
     "handprint-vinbox-sdk": "handprint/sdk/vinbox.py",
     "handprint-vinbox-tools": "handprint/tools/__init__.py",

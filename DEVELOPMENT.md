@@ -4,13 +4,30 @@
 
 ```bash
 git clone https://github.com/takebox/software-agent-sdk-vinbox.git
-cd software-agent-sdk
+cd software-agent-sdk-vinbox
 make build
 ```
 
+Python 3.12+ is required. `uv` manages the workspace and the lock file
+(`uv.lock` is committed and CI uses `uv sync --frozen`).
+
 ## Repository boundaries
 
-This repository owns the Python SDK and Agent Server. Put agent/tool behavior, conversations, workspaces, events, and new REST/WebSocket endpoints here. The API contract flows through `clients/typescript/` to Agent Viczin in [`Handprint/Handprint`](https://github.com/HandPrint-AI/Handprint); automation scheduling, webhooks, run history, and dispatch belong in [`Handprint/automation`](https://github.com/HandPrint-AI/automation). If a PR is opened in the wrong repository, recommend closing and moving it to the owning repository. Follow [`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md) for every PR.
+This repository is the runtime that runs **inside Vinbox**: the Python SDK, the
+tools (browser_use over CDP, pwsh terminal, file editing), the local workspace,
+and the Agent Server that listens on loopback `127.0.0.1:18000`. Everything it
+needs already exists in the Vinbox machine — Chromium on CDP `9222`, `pwsh`,
+the model bridge on `4097`, and the dashboard at `app/dashboard-7331`. The
+single source of truth for those values is
+[`vinbox-sdk/handprint/sdk/vinbox.py`](vinbox-sdk/handprint/sdk/vinbox.py); read
+[VINBOX.md](VINBOX.md) before adding a path, port, or provider.
+
+The UI reference and the flow map live in
+[`takebox/handprint-vinbox`](https://github.com/takebox/handprint-vinbox), which
+ships no runtime. Do not add a browser bundle, a desktop shell, a static server,
+or an external model provider here. Follow
+[`.agents/tracks/custom-codereview-guide.md`](.agents/tracks/custom-codereview-guide.md)
+for every PR.
 
 ## Code Quality
 
@@ -33,7 +50,7 @@ uv run pytest tests/tools/               # Tools tests only
 ## Project Structure
 
 ```
-software-agent-sdk/
+software-agent-sdk-vinbox/
 ├── vinbox-sdk/          # Core SDK package
 ├── vinbox-tools/        # Built-in tools
 ├── vinbox-workspace/    # Workspace management

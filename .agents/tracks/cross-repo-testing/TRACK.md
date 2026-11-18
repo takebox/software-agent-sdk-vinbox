@@ -92,7 +92,7 @@ In the `Handprint` repo PR, update 3 files + regenerate 3 lock files (see the `u
 
 # [tool.poetry.dependencies]
 vinbox-sdk = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "vinbox-sdk" }
-vinbox-agent-server = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "vinbox-agent-server" }
+vinbox-agent-server = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "handprint-vinbox-agent-server" }
 vinbox-tools = { git = "https://github.com/takebox/software-agent-sdk-vinbox.git", rev = "<COMMIT>", subdirectory = "vinbox-tools" }
 ```
 

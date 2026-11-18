@@ -18,7 +18,7 @@ Compared with the other remote backends this one adds:
 
 Requires the optional dependency::
 
-    pip install vinbox-workspace[agent-sandbox]
+    pip install handprint-vinbox-workspace[agent-sandbox]
 """
 
 import os
@@ -159,7 +159,7 @@ class AgentSandboxWorkspace(RemoteWorkspace):
         except ImportError as e:
             raise ImportError(
                 "AgentSandboxWorkspace requires the 'agent-sandbox' extra. Install "
-                "with: pip install vinbox-workspace[agent-sandbox]"
+                "with: pip install handprint-vinbox-workspace[agent-sandbox]"
             ) from e
 
         # 1) Claim a pod from the warm pool (blocks until the Sandbox is Ready).

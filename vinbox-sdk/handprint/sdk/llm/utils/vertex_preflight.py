@@ -1,6 +1,6 @@
 """Preflight check for Vertex AI partner-model dependencies.
 
-`google-cloud-aiplatform` is an optional extra (`vinbox-sdk[vertex]`). When a
+`google-cloud-aiplatform` is an optional extra (`handprint-vinbox-sdk[vertex]`). When a
 caller targets a `vertex_ai/*` model without the extra installed, LiteLLM fails
 with a low-level `ModuleNotFoundError` from inside its provider handler. We
 catch that earlier and surface a friendly install hint instead.
@@ -15,7 +15,7 @@ from handprint.sdk.llm.exceptions import LLMBadRequestError
 
 _INSTALL_HINT = (
     "Vertex AI partner models require the Vertex SDK. "
-    'Install with: pip install "vinbox-sdk[vertex]"'
+    'Install with: pip install "handprint-vinbox-sdk[vertex]"'
 )
 
 

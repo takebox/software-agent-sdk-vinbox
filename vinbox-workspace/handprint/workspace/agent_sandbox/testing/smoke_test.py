@@ -8,7 +8,7 @@ changes needed) because it never leaves the pod to reach an LLM.
 Prerequisites (see TESTING.md): a cluster reachable via your kubeconfig with the
 agent-sandbox controller installed and a warm pool of agent-server pods. Then:
 
-    pip install vinbox-workspace[agent-sandbox]
+    pip install handprint-vinbox-workspace[agent-sandbox]
     python smoke_test.py
 
 Env (optional):

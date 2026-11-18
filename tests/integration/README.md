@@ -63,9 +63,16 @@ uv run python tests/integration/run_infer.py --llm-config '{"model": "litellm_pr
 
 Tests are automatically executed via GitHub Actions using two separate workflows:
 
+Vinbox does not run the upstream integration lanes, so both workflows live in
+`.github/workflows-disabled/`. Inside Vinbox the same suites are run locally:
+
+```bash
+bash scripts/dev-check.sh tests/integration
+```
+
 ### Integration/Behavior Tests Workflow
 
-Defined in `.github/workflows/integration-runner.yml`, this workflow runs integration and behavior tests.
+Defined in `.github/workflows-disabled/integration-runner.yml`, this workflow runs integration and behavior tests.
 
 **Triggers:**
 1. **Pull Request Labels**: When a PR is labeled with `integration-test` or `behavior-test`
@@ -75,7 +82,7 @@ Defined in `.github/workflows/integration-runner.yml`, this workflow runs integr
 
 ### Condenser Tests Workflow
 
-Defined in `.github/workflows/condenser-runner.yml`, this workflow runs condenser stress tests separately.
+Defined in `.github/workflows-disabled/condenser-runner.yml`, this workflow runs condenser stress tests separately.
 
 **Triggers:**
 1. **Pull Request Labels**: When a PR is labeled with `condenser-test`

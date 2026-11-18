@@ -656,7 +656,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             files.extend(_iter_python_files(root))
 
         records = _collect_records(files, package=package.name)
-        if package.name == "vinbox-agent-server":
+        if package.name == "handprint-vinbox-agent-server":
             records.extend(_collect_rest_route_records(files, package=package.name))
         records.extend(_collect_pydantic_field_records(files, package=package.name))
 

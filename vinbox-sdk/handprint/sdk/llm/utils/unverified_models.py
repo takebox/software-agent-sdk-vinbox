@@ -25,7 +25,7 @@ def _list_bedrock_foundation_models(
     if boto3 is None:
         logger.warning(
             "boto3 is not installed. To use Bedrock models,"
-            "install with: vinbox-sdk[boto3]"
+            "install with: handprint-vinbox-sdk[boto3]"
         )
         return []
 

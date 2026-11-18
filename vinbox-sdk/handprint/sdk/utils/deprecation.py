@@ -21,7 +21,7 @@ _FuncT = TypeVar("_FuncT", bound=Callable[..., Any])
 @cache
 def _current_version() -> str:
     try:
-        return get_version("vinbox-sdk")
+        return get_version("handprint-vinbox-sdk")
     except PackageNotFoundError:
         return "0.0.0"
 

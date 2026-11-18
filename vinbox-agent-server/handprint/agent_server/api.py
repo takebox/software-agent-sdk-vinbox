@@ -388,7 +388,7 @@ def _create_fastapi_instance(config: Config) -> FastAPI:
     """
     return FastAPI(
         title="Handprint Agent Server",
-        version=version("vinbox-agent-server"),
+        version=version("handprint-vinbox-agent-server"),
         description=(
             "Handprint Agent Server - REST/WebSocket interface for Handprint AI Agent"
         ),

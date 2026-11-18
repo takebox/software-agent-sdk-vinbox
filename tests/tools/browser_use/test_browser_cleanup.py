@@ -218,10 +218,10 @@ class TestBrowserCleanup:
         mock_executor._async_executor.close.assert_called_once()
 
     def test_del_method_calls_close(self, mock_executor):
-        """Test that __del__ method calls close."""
+        """Finalizers delegate to close() in non-blocking finalizer mode."""
         with patch.object(mock_executor, "close") as mock_close:
             mock_executor.__del__()
-            mock_close.assert_called_once()
+            mock_close.assert_called_once_with(from_finalizer=True)
 
     def test_del_method_handles_close_exception(self, mock_executor):
         """Test that __del__ method handles close exceptions gracefully."""
@@ -230,6 +230,20 @@ class TestBrowserCleanup:
         ):
             # Should not raise exception
             mock_executor.__del__()
+
+    def test_del_method_never_waits_for_cleanup_portal(self, mock_executor):
+        """A finalizer must not schedule cleanup on the async portal.
+
+        ``__del__`` can run inside any library while that library holds a lock
+        (the logging handler in practice). Waiting for the portal there, while
+        the portal thread itself logs, deadlocks the whole process.
+        """
+        mock_executor._async_executor.run_async = MagicMock()
+
+        mock_executor.__del__()
+
+        mock_executor._async_executor.run_async.assert_not_called()
+        assert mock_executor._cleanup_initiated is True
 
     def test_close_method_timeout_configuration(self, mock_executor):
         """Test that close method uses correct timeout for cleanup."""

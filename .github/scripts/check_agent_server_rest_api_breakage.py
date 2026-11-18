@@ -85,7 +85,7 @@ from handprint.agent_server.openapi import filter_public_openapi
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AGENT_SERVER_PYPROJECT = REPO_ROOT / "vinbox-agent-server" / "pyproject.toml"
-PYPI_DISTRIBUTION = "vinbox-agent-server"
+PYPI_DISTRIBUTION = "handprint-vinbox-agent-server"
 # Keep this in sync with REST_ROUTE_DEPRECATION_RE in check_deprecations.py so
 # the REST breakage and deprecation checks recognize the same wording.
 REST_ROUTE_DEPRECATION_RE = re.compile(

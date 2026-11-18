@@ -260,6 +260,14 @@ class BrowserToolExecutor(ToolExecutor[BrowserAction, BrowserObservation]):
         Returns:
             Path to Chromium binary if found, None otherwise
         """
+        # Inside Vinbox the browser binary lives at the path the Vinbox
+        # contract advertises (VINBOX_CHROMIUM_PATH), so honour that first
+        # instead of guessing host-specific locations.
+        if vinbox.enabled():
+            vinbox_binary = Path(vinbox.chromium_path())
+            if vinbox_binary.exists():
+                return str(vinbox_binary)
+
         # Check standard installation paths (prefer full Chrome installs)
         for path in _standard_chromium_paths():
             if path.exists():
@@ -348,14 +356,20 @@ class BrowserToolExecutor(ToolExecutor[BrowserAction, BrowserObservation]):
                     "(required for root). This reduces security isolation."
                 )
 
+            # Inside Vinbox the profile must live on Vinbox's Linux volume, but
+            # still be unique per executor: a crashed session's SingletonLock
+            # must not block the next one.
+            profile_root = Path.home() / ".config" / "browseruse" / "profiles"
+            if vinbox.enabled():
+                profile_root = vinbox.profiles_dir()
+            self._profile_root = profile_root
+
             self._config = {
                 "headless": headless,
                 "allowed_domains": allowed_domains or [],
                 "executable_path": executable_path,
                 "chromium_sandbox": not running_as_root,
-                "user_data_dir": str(
-                    Path.home() / ".config" / "browseruse" / "profiles" / uuid4().hex
-                ),
+                "user_data_dir": str(profile_root / uuid4().hex),
                 # Inside Vinbox: attach to the Chromium Vinbox already runs
                 # (CDP 9222, the one in the centre panel) instead of opening a
                 # private browser. Explicit caller config still wins.
@@ -681,8 +695,24 @@ class BrowserToolExecutor(ToolExecutor[BrowserAction, BrowserObservation]):
         except Exception as e:
             logger.warning(f"Error during browser cleanup: {e}")
 
-    def close(self):
-        """Close the browser executor and cleanup resources."""
+    def close(self, *, from_finalizer: bool = False):
+        """Close the browser executor and cleanup resources.
+
+        ``from_finalizer`` is set by :meth:`__del__` only. A finalizer can run
+        at any allocation point — including inside a library that holds one of
+        its own locks — so it must never block. Blocking cleanup here waits for
+        the browser-use portal, while the portal thread logs its own teardown
+        message; if the finalizer was triggered while the logging handler lock
+        was held, the main thread waits for the portal and the portal waits for
+        the handler lock: a process-wide deadlock. Finalizers therefore only
+        detach the shared reference, and ``AsyncExecutor.__del__``/``atexit``
+        perform the bounded shutdown.
+        """
+        if from_finalizer:
+            self._cleanup_initiated = True
+            self._release_shared_executor_reference()
+            return
+
         with self._close_lock:
             shared_close_lock_acquired = self._detach_shared_executor_for_close()
             if self._cleanup_initiated:
@@ -696,12 +726,17 @@ class BrowserToolExecutor(ToolExecutor[BrowserAction, BrowserObservation]):
             except Exception as e:
                 logger.warning(f"Error during browser cleanup: {e}")
             finally:
-                # Remove the browser profile directory to avoid disk accumulation.
-                # browser_use doesn't clean up the user_data_dir on shutdown.
+                # Remove the per-executor browser profile directory to avoid
+                # disk accumulation: browser_use never cleans up user_data_dir
+                # on shutdown. Only delete the directory this executor created
+                # (a direct child of the profile root) so an explicitly
+                # supplied user_data_dir is never removed.
                 user_data_dir = self._config.get("user_data_dir")
-                if user_data_dir and "browseruse/profiles/" in user_data_dir:
+                profile_root = getattr(self, "_profile_root", None)
+                if user_data_dir and profile_root is not None:
                     try:
-                        shutil.rmtree(user_data_dir, ignore_errors=True)
+                        if Path(user_data_dir).parent == Path(profile_root):
+                            shutil.rmtree(user_data_dir, ignore_errors=True)
                     except Exception:
                         pass
                 try:
@@ -748,8 +783,8 @@ class BrowserToolExecutor(ToolExecutor[BrowserAction, BrowserObservation]):
                 BrowserToolSet._shared_executor = None
 
     def __del__(self):
-        """Cleanup on deletion."""
+        """Detach from the shared executor; never block during finalization."""
         try:
-            self.close()
+            self.close(from_finalizer=True)
         except Exception:
             pass  # Ignore cleanup errors during deletion

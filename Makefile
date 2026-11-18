@@ -32,7 +32,7 @@ check-uv-version:
 	$(ECHO) "$(GREEN)uv version $$UV_VERSION meets requirements$(RESET)"
 
 build: check-uv-version
-	@$(ECHO) "$(CYAN)Setting up Handprint V1 development environment...$(RESET)"
+	@$(ECHO) "$(CYAN)Setting up the Vinbox runtime development environment...$(RESET)"
 	@$(ECHO) "$(YELLOW)Installing dependencies with uv sync --dev...$(RESET)"
 	@uv sync --dev
 	@$(ECHO) "$(GREEN)Dependencies installed successfully.$(RESET)"
@@ -66,7 +66,7 @@ clean:
 
 # Show help
 help:
-	@$(ECHO) "$(CYAN)Handprint V1 Makefile$(RESET)"
+	@$(ECHO) "$(CYAN)software-agent-sdk-vinbox Makefile$(RESET)"
 	@$(ECHO) ""
 	@$(ECHO) "$(UNDERLINE)Usage:$(RESET) make <COMMAND>"
 	@$(ECHO) ""

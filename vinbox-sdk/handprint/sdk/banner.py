@@ -29,15 +29,18 @@ def _print_banner(version: str) -> None:
         return
     _BANNER_PRINTED = True
 
-    banner = f"""\
-+----------------------------------------------------------------------+
-|  Handprint SDK v{version:<53}|
-|                                                                      |
-|  Report a bug: github.com/takebox/software-agent-sdk-vinbox/issues        |
-|  Get help: handprint.dev/joinslack                                   |
-|  Scale up: handprint.dev/product/sdk                                 |
-|                                                                      |
-|  Set HANDPRINT_SUPPRESS_BANNER=1 to hide this message                |
-+----------------------------------------------------------------------+
-"""
-    print(banner, file=sys.stderr)
+    body = [
+        f"Handprint SDK v{version}",
+        "",
+        "Report a bug: github.com/takebox/software-agent-sdk-vinbox/issues",
+        "Get help: handprint.dev/joinslack",
+        "Scale up: handprint.dev/product/sdk",
+        "",
+        "Set HANDPRINT_SUPPRESS_BANNER=1 to hide this message",
+    ]
+    # Width follows the longest line so a longer repository URL can never
+    # break the box.
+    content_width = max(len(line) for line in body)
+    border = "+" + "-" * (content_width + 4) + "+"
+    lines = [border, *(f"|  {line:<{content_width}}  |" for line in body), border]
+    print("\n".join(lines), file=sys.stderr)
