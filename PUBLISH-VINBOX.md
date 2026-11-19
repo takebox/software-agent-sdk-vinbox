@@ -77,7 +77,25 @@ python -m twine upload --repository-url https://test.pypi.org/legacy/ \
 `--repository-url` dipakai eksplisit supaya tidak bergantung pada `~/.pypirc`.
 
 Uji pasang dari TestPyPI di venv bersih. `--extra-index-url` wajib karena
-dependensi pihak ketiga tidak ada di TestPyPI:
+dependensi pihak ketiga tidak ada di TestPyPI.
+
+> **Jebakan TestPyPI.** `--extra-index-url` menggabungkan kedua index, dan
+> TestPyPI menyimpan proyek jiplakan bernama sama dengan versi yang lebih
+> tinggi — misalnya `fastapi (=1.0)` yang sdist-nya rusak
+> (`FileNotFoundError: DESCRIPTION.txt`). Resolusi gabungan akan memilih versi
+> itu dan gagal, padahal paket kita benar. Jadi uji dengan cara ini:
+>
+> ```bash
+> pip download --no-deps -d /tmp/w --index-url https://test.pypi.org/simple/ \
+>   software-agent-sdk-vinbox==1.53.0 handprint-vinbox-sdk==1.53.0 \
+>   handprint-vinbox-tools==1.53.0 handprint-vinbox-workspace==1.53.0 \
+>   handprint-vinbox-agent-server==1.53.0
+> pip install --find-links /tmp/w --index-url https://pypi.org/simple/ \
+>   software-agent-sdk-vinbox==1.53.0
+> ```
+>
+> Pada PyPI tidak ada masalah ini: `pip install software-agent-sdk-vinbox`
+> biasa sudah benar.
 
 ```bash
 python -m venv /tmp/vinbox-testpypi
@@ -101,7 +119,11 @@ Kalau langkah ini gagal, **jangan lanjut** ke PyPI. Perbaiki dulu.
 
 ## 3. Terbitkan ke PyPI
 
-Setelah TestPyPI lolos, ulangi dengan token PyPI:
+Setelah TestPyPI lolos, ulangi dengan token PyPI. Untuk akun baru, PyPI
+membatasi pembuatan proyek baru dan menjawab `HTTPError: 429 Too Many
+Requests`; ulangi unggahan paket meta dengan jeda beberapa menit sampai lolos.
+Paket yang sudah terunggah tidak perlu diulang (namanya akan ditolak sebagai
+`File already exists`).
 
 ```bash
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
