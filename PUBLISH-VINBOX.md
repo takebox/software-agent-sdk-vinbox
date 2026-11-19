@@ -119,11 +119,23 @@ Kalau langkah ini gagal, **jangan lanjut** ke PyPI. Perbaiki dulu.
 
 ## 3. Terbitkan ke PyPI
 
-Setelah TestPyPI lolos, ulangi dengan token PyPI. Untuk akun baru, PyPI
-membatasi pembuatan proyek baru dan menjawab `HTTPError: 429 Too Many
-Requests`; ulangi unggahan paket meta dengan jeda beberapa menit sampai lolos.
-Paket yang sudah terunggah tidak perlu diulang (namanya akan ditolak sebagai
-`File already exists`).
+Setelah TestPyPI lolos, ulangi dengan token PyPI. Empat paket inti dulu, paket
+meta terakhir, karena metanya mengunci keempatnya pada versi yang sama.
+
+Paket meta adalah **proyek baru** di PyPI, dan PyPI membatasi pembuatan proyek
+baru: responsnya `HTTPError: 429 Too Many Requests` dengan badan
+`Too many new projects created` dan **tanpa** header `Retry-After`, jadi
+jendela waktunya tidak bisa dibaca. Ini bukan token salah dan bukan paket
+rusak — empat paket inti tetap terbit normal. Pakai skrip penunggu supaya
+tidak perlu menebak:
+
+```bash
+bash scripts/publish-meta-until-quota.sh   # satu percobaan / 20 menit, ~24 jam
+```
+
+Skrip itu berhenti sendiri begitu PyPI menerima paketnya, dan aman diulang:
+paket yang sudah terunggah ditolak sebagai `File already exists`, bukan
+terbit dua kali.
 
 ```bash
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
@@ -140,11 +152,26 @@ python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
 
 ## 4. Verifikasi dari PyPI
 
+Di venv kosong, tanpa `--extra-index-url` dan tanpa wheel lokal:
+
 ```bash
 pip install software-agent-sdk-vinbox==1.53.0
 agent-server --version || agent-server --help
 python -c "import handprint.sdk.vinbox as v; print(v.cdp_url(), v.llm_base_url())"
 ```
+
+Yang harus terlihat:
+
+- `pip list` memuat **lima** distribusi: `software-agent-sdk-vinbox` dan empat
+  `handprint-vinbox-*`.
+- Kontrak mencetak `http://127.0.0.1:9222 http://127.0.0.1:4097/v1`.
+- `agent-server --help` keluar dengan status 0.
+- Tidak ada `openhands-*`, dan tidak ada `software-agent-sdk` polos. Kalau
+  salah satunya muncul, paket yang terbit salah — jangan lanjut.
+
+Memasang `handprint-vinbox-agent-server` saja (tanpa meta) juga sah: hasilnya
+tiga distribusi (`-agent-server`, `-sdk`, `-tools`), karena `-workspace` hanya
+ditarik oleh meta paket.
 
 ## 5. Setelah terbit
 
