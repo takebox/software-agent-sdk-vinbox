@@ -508,6 +508,21 @@ def _default_llm_settings() -> LLM:
     return LLM(model=model)
 
 
+def _default_acp_llm() -> LLM:
+    """Credential-free default for the deprecated ACP ``llm`` channel.
+
+    :attr:`ACPAgentSettings.llm` is ignored — the ACP subprocess makes its own
+    model calls and provider credentials ride the conversation secrets channel.
+    It therefore must not inherit Vinbox's placeholder bridge key from
+    :func:`_default_llm_settings`: a fake key in an ``api_key`` field reads as a
+    real credential to anything inspecting settings (and to operators reading
+    logs), even though nothing uses it.
+    """
+    model = LLM.model_fields["model"].get_default()
+    assert isinstance(model, str)
+    return LLM(model=model)
+
+
 _RequestT = TypeVar("_RequestT")
 
 type AgentKind = Literal["handprint", "llm", "acp"]
@@ -1864,7 +1879,7 @@ class ACPAgentSettings(AgentSettingsBase):
         ),
     )
     llm: LLM = Field(
-        default_factory=_default_llm_settings,
+        default_factory=_default_acp_llm,
         exclude=True,
         description=(
             "Deprecated since v1.51.0 and scheduled for removal in v1.56.0. "

@@ -18,7 +18,7 @@ class TestParseGitHubURL:
             "https://github.com/HandPrint-AI/extensions/blob/main/tracks/github"
         )
         assert result is not None
-        assert result.owner == "Handprint"
+        assert result.owner == "HandPrint-AI"
         assert result.repo == "extensions"
         assert result.branch == "main"
         assert result.path == "tracks/github"

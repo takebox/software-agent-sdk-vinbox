@@ -219,7 +219,7 @@ class TestExpandMcpVariables:
         result = expand_mcp_variables(config, variables, get_secret=secrets.get)
 
         assert result["mcpServers"]["test-server"]["url"] == (
-            "https://localhost:9080/api/v1"
+            "https://localhost:8080/api/v1"
         )
 
     def test_no_get_secret_callback(self):

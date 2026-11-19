@@ -43,9 +43,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from handprint.sdk.settings.acp_install_catalog import (
     ACP_INSTALL_CATALOG,
-    HAIJUN_AGENT_ACP_VERSION as HAIJUN_AGENT_ACP_VERSION,
     CODEX_ACP_VERSION as CODEX_ACP_VERSION,
     GEMINI_CLI_VERSION as GEMINI_CLI_VERSION,
+    HAIJUN_AGENT_ACP_VERSION as HAIJUN_AGENT_ACP_VERSION,
     KIMI_CODE_VERSION as KIMI_CODE_VERSION,
 )
 
@@ -407,11 +407,13 @@ _GEMINI_MODELS: tuple[ACPModelOption, ...] = (
 # under ``JUGLOW_API_KEY`` (the credential channel ``api_key_env_var``
 # provisions); an ``acp_model`` outside the list, e.g. ``openai/gpt-5.5`` on an
 # OpenAI key, is still accepted.
+#
+# One option per id: the select is keyed by ``id``, so a second entry with the
+# same id but an older label ("Haijun Kamsa 4.8") could never be chosen — it
+# would render a duplicate row that silently selects the newer model.
 _PI_MODELS: tuple[ACPModelOption, ...] = (
     ACPModelOption(id="juglow/haijun-kamsa", label="Haijun Kamsa 5"),
-    ACPModelOption(id="juglow/haijun-kamsa", label="Haijun Kamsa 4.8"),
     ACPModelOption(id="juglow/haijun-codtral", label="Haijun Codtral 5"),
-    ACPModelOption(id="juglow/haijun-codtral", label="Haijun Codtral 4.6"),
     ACPModelOption(id="juglow/haijun-minix", label="Haijun Minix 4.5"),
 )
 

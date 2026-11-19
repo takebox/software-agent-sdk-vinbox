@@ -18,6 +18,21 @@ from handprint.sdk.llm.utils.metrics import Metrics
 from tests.command_utils import python_command
 
 
+def _wait_for_file(path, timeout: float = 10.0) -> None:
+    """Wait until an async hook's side effect lands.
+
+    Async hooks are real subprocesses, so a fixed sleep races the spawned
+    interpreter: it holds on an idle machine and fails when the suite runs
+    under ``-n auto``. Poll instead, with a deadline long enough to absorb
+    scheduling noise.
+    """
+    import time
+
+    deadline = time.monotonic() + timeout
+    while not path.exists() and time.monotonic() < deadline:
+        time.sleep(0.05)
+
+
 class TestHookExecutor:
     """Tests for HookExecutor."""
 
@@ -233,9 +248,7 @@ class TestAsyncHookExecution:
         assert len(executor.async_process_manager._processes) == 1
 
         # Wait for process to complete and verify marker file created
-        import time
-
-        time.sleep(0.5)
+        _wait_for_file(marker)
         assert marker.exists()
 
     def test_execute_async_hook_receives_stdin(self, executor, sample_event, tmp_path):
@@ -258,10 +271,7 @@ class TestAsyncHookExecution:
         assert result.async_started
 
         # Wait for async process to complete
-        import json
-        import time
-
-        time.sleep(0.3)
+        _wait_for_file(output_file)
 
         assert output_file.exists()
         content = json.loads(output_file.read_text())
@@ -329,10 +339,14 @@ class TestAsyncHookExecution:
         assert results[1].async_started is True
         assert results[2].async_started is False
 
-        # Wait for async hook to complete
+        # Wait for the async hook to finish. Poll the marker rather than
+        # sleeping a fixed window: the hook is a real Python subprocess, so on a
+        # loaded machine (CI runs the suite with -n auto) 200 ms is not enough.
         import time
 
-        time.sleep(0.2)
+        deadline = time.monotonic() + 10.0
+        while not marker.exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
         assert marker.exists()
 
 
