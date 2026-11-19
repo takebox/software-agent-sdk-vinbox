@@ -1,6 +1,6 @@
 [project]
 name = "handprint-vinbox-tools"
-version = "1.53.0"
+version = "1.53.1"
 description = "HandPrint Vinbox Tools - eyes and hands inside Vinbox (browser_use over CDP, pwsh terminal, file tools)"
 
 requires-python = ">=3.12"

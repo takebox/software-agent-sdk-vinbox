@@ -1,6 +1,6 @@
 [project]
 name = "software-agent-sdk-vinbox"
-version = "1.53.0"
+version = "1.53.1"
 description = "Complete HandPrint agent runtime for Vinbox: eyes and hands (browser_use over CDP), SDK, workspace and the REST/WebSocket agent server"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,10 +13,10 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
 ]
 dependencies = [
-  "handprint-vinbox-sdk==1.53.0",
-  "handprint-vinbox-tools==1.53.0",
-  "handprint-vinbox-workspace==1.53.0",
-  "handprint-vinbox-agent-server==1.53.0",
+  "handprint-vinbox-sdk==1.53.1",
+  "handprint-vinbox-tools==1.53.1",
+  "handprint-vinbox-workspace==1.53.1",
+  "handprint-vinbox-agent-server==1.53.1",
 ]
 
 [project.urls]

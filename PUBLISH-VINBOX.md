@@ -12,7 +12,7 @@ disesuaikan untuk Vinbox:
 | 4 | `handprint-vinbox-agent-server` | `vinbox-agent-server/` |
 | 5 | `software-agent-sdk-vinbox` (meta) | `vinbox-package/` |
 
-Versi: **1.53.0** untuk semuanya. Meta paket mengunci keempatnya di `==1.53.0`,
+Versi: **1.53.1** untuk semuanya. Meta paket mengunci keempatnya di `==1.53.1`,
 jadi urutan upload penting: **1–4 dulu, meta terakhir**.
 
 Yang dipasang orang lewat `pip install software-agent-sdk-vinbox` adalah paket
@@ -40,11 +40,11 @@ bash scripts/build_vinbox_packages.sh
 Hasilnya di `dist-vinbox/`:
 
 ```
-handprint_vinbox_sdk-1.53.0-py3-none-any.whl
-handprint_vinbox_tools-1.53.0-py3-none-any.whl
-handprint_vinbox_workspace-1.53.0-py3-none-any.whl
-handprint_vinbox_agent_server-1.53.0-py3-none-any.whl
-software_agent_sdk_vinbox-1.53.0-py3-none-any.whl
+handprint_vinbox_sdk-1.53.1-py3-none-any.whl
+handprint_vinbox_tools-1.53.1-py3-none-any.whl
+handprint_vinbox_workspace-1.53.1-py3-none-any.whl
+handprint_vinbox_agent_server-1.53.1-py3-none-any.whl
+software_agent_sdk_vinbox-1.53.1-py3-none-any.whl
 ```
 
 Periksa dulu isinya sebelum upload:
@@ -63,15 +63,15 @@ python -m pip install --upgrade twine
 # empat paket dulu
 python -m twine upload --repository-url https://test.pypi.org/legacy/ \
   -u __token__ -p "$(cat .pypi-test-token)" \
-  dist-vinbox/handprint_vinbox_sdk-1.53.0-py3-none-any.whl \
-  dist-vinbox/handprint_vinbox_tools-1.53.0-py3-none-any.whl \
-  dist-vinbox/handprint_vinbox_workspace-1.53.0-py3-none-any.whl \
-  dist-vinbox/handprint_vinbox_agent_server-1.53.0-py3-none-any.whl
+  dist-vinbox/handprint_vinbox_sdk-1.53.1-py3-none-any.whl \
+  dist-vinbox/handprint_vinbox_tools-1.53.1-py3-none-any.whl \
+  dist-vinbox/handprint_vinbox_workspace-1.53.1-py3-none-any.whl \
+  dist-vinbox/handprint_vinbox_agent_server-1.53.1-py3-none-any.whl
 
 # meta paket terakhir
 python -m twine upload --repository-url https://test.pypi.org/legacy/ \
   -u __token__ -p "$(cat .pypi-test-token)" \
-  dist-vinbox/software_agent_sdk_vinbox-1.53.0-py3-none-any.whl
+  dist-vinbox/software_agent_sdk_vinbox-1.53.1-py3-none-any.whl
 ```
 
 `--repository-url` dipakai eksplisit supaya tidak bergantung pada `~/.pypirc`.
@@ -87,11 +87,11 @@ dependensi pihak ketiga tidak ada di TestPyPI.
 >
 > ```bash
 > pip download --no-deps -d /tmp/w --index-url https://test.pypi.org/simple/ \
->   software-agent-sdk-vinbox==1.53.0 handprint-vinbox-sdk==1.53.0 \
->   handprint-vinbox-tools==1.53.0 handprint-vinbox-workspace==1.53.0 \
->   handprint-vinbox-agent-server==1.53.0
+>   software-agent-sdk-vinbox==1.53.1 handprint-vinbox-sdk==1.53.1 \
+>   handprint-vinbox-tools==1.53.1 handprint-vinbox-workspace==1.53.1 \
+>   handprint-vinbox-agent-server==1.53.1
 > pip install --find-links /tmp/w --index-url https://pypi.org/simple/ \
->   software-agent-sdk-vinbox==1.53.0
+>   software-agent-sdk-vinbox==1.53.1
 > ```
 >
 > Pada PyPI tidak ada masalah ini: `pip install software-agent-sdk-vinbox`
@@ -103,7 +103,7 @@ source /tmp/vinbox-testpypi/bin/activate   # Windows: .venv\Scripts\activate
 
 pip install --index-url https://test.pypi.org/simple/ \
   --extra-index-url https://pypi.org/simple/ \
-  software-agent-sdk-vinbox==1.53.0
+  software-agent-sdk-vinbox==1.53.1
 
 agent-server --help
 python -c "import handprint.sdk.vinbox as v; print(v.cdp_url(), v.llm_base_url())"
@@ -140,14 +140,14 @@ terbit dua kali.
 ```bash
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
   -u __token__ -p "$(cat .pypi-token)" \
-  dist-vinbox/handprint_vinbox_sdk-1.53.0-py3-none-any.whl \
-  dist-vinbox/handprint_vinbox_tools-1.53.0-py3-none-any.whl \
-  dist-vinbox/handprint_vinbox_workspace-1.53.0-py3-none-any.whl \
-  dist-vinbox/handprint_vinbox_agent_server-1.53.0-py3-none-any.whl
+  dist-vinbox/handprint_vinbox_sdk-1.53.1-py3-none-any.whl \
+  dist-vinbox/handprint_vinbox_tools-1.53.1-py3-none-any.whl \
+  dist-vinbox/handprint_vinbox_workspace-1.53.1-py3-none-any.whl \
+  dist-vinbox/handprint_vinbox_agent_server-1.53.1-py3-none-any.whl
 
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
   -u __token__ -p "$(cat .pypi-token)" \
-  dist-vinbox/software_agent_sdk_vinbox-1.53.0-py3-none-any.whl
+  dist-vinbox/software_agent_sdk_vinbox-1.53.1-py3-none-any.whl
 ```
 
 ## 4. Verifikasi dari PyPI
@@ -155,7 +155,7 @@ python -m twine upload --repository-url https://upload.pypi.org/legacy/ \
 Di venv kosong, tanpa `--extra-index-url` dan tanpa wheel lokal:
 
 ```bash
-pip install software-agent-sdk-vinbox==1.53.0
+pip install software-agent-sdk-vinbox==1.53.1
 agent-server --version || agent-server --help
 python -c "import handprint.sdk.vinbox as v; print(v.cdp_url(), v.llm_base_url())"
 ```
@@ -166,7 +166,8 @@ Yang harus terlihat:
   `handprint-vinbox-*`.
 - Kontrak mencetak `http://127.0.0.1:9222 http://127.0.0.1:4097/v1`.
 - `agent-server --help` keluar dengan status 0.
-- Tidak ada `openhands-*`, dan tidak ada `software-agent-sdk` polos. Kalau
+- Tidak ada paket bernama lama (lihat `FORBIDDEN_TEXT` di
+  `scripts/check_vinbox_wheels.py`), dan tidak ada `software-agent-sdk` polos. Kalau
   salah satunya muncul, paket yang terbit salah — jangan lanjut.
 
 Memasang `handprint-vinbox-agent-server` saja (tanpa meta) juga sah: hasilnya
@@ -178,7 +179,7 @@ ditarik oleh meta paket.
 Dockerfile Vinbox memakai:
 
 ```
-ARG HANDPRINT_VINBOX_VERSION=1.53.0
+ARG HANDPRINT_VINBOX_VERSION=1.53.1
 pip install --no-index --find-links ... software-agent-sdk-vinbox==${HANDPRINT_VINBOX_VERSION}
 ```
 

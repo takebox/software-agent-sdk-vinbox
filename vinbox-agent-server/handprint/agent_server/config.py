@@ -69,7 +69,7 @@ def _default_web_url() -> str | None:
     return None
 
 
-DEFAULT_CONVERSATION_IMAGE = "ghcr.io/openhands/agent-server:latest-python"
+DEFAULT_CONVERSATION_IMAGE = "ghcr.io/handprint/agent-server:latest-python"
 
 
 class WebhookSpec(BaseModel):

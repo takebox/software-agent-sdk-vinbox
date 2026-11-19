@@ -31,7 +31,7 @@ _prod = _load_prod_module()
 def _fixture(root: Path, pinned: str, source: str) -> tuple[Path, Path]:
     client = root / "client"
     client.mkdir()
-    image = f"ghcr.io/openhands/agent-server:{pinned}-python"
+    image = f"ghcr.io/handprint/agent-server:{pinned}-python"
     (client / "package.json").write_text(
         json.dumps({"config": {"agentServerImage": image}})
     )

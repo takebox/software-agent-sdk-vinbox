@@ -121,7 +121,7 @@ try {
     packageFixture,
     `${JSON.stringify({
       config: {
-        agentServerImage: 'ghcr.io/openhands/agent-server:1.37.0-python',
+        agentServerImage: 'ghcr.io/handprint/agent-server:1.37.0-python',
       },
     })}\n`
   );

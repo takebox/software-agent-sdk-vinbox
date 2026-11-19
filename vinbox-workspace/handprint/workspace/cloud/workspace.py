@@ -71,7 +71,7 @@ class HandprintCloudWorkspace(RemoteWorkspace):
         workspace = HandprintCloudWorkspace(
             cloud_api_url="https://app.all-hands.dev",
             cloud_api_key="your-api-key",
-            sandbox_spec_id="ghcr.io/openhands/agent-server:main-python",
+            sandbox_spec_id="ghcr.io/handprint/agent-server:main-python",
         )
 
         # Running inside an Handprint Cloud Runtime (local agent-server mode)

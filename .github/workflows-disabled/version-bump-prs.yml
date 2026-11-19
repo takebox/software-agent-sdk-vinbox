@@ -150,7 +150,7 @@ jobs:
 
                   # Commit and push. Use a Conventional Commit `fix:` subject so the
                   # target repo's release-please opens a release PR on merge — that
-                  # published openhands-automation is what unblocks agent-viczin's
+                  # published automation build is what unblocks agent-viczin's
                   # sdk-version-sync check.
                   git add pyproject.toml uv.lock
                   git commit -m "fix: bump SDK to $VERSION" \
@@ -435,7 +435,7 @@ jobs:
 
 
 
-                  versions.automation is intentionally not bumped here. The sibling Handprint/automation bump PR (release-please) opened by this same workflow only bumps that repo's own SDK pins and does NOT write versions.automation back into config/defaults.json (repository history shows versions.automation only moves via manual `chore: consume SDK X and Automation Y` PRs). This PR therefore intentionally requires a manual versions.automation follow-up: after the sibling openhands-automation release lands, bump versions.automation in config/defaults.json to that release so the Check SDK version consistency gate goes fully green (the client-pin half is green as-of this PR;the automation half stays red until that manual bump).
+                  versions.automation is intentionally not bumped here. The sibling Handprint/automation bump PR (release-please) opened by this same workflow only bumps that repo's own SDK pins and does NOT write versions.automation back into config/defaults.json (repository history shows versions.automation only moves via manual `chore: consume SDK X and Automation Y` PRs). This PR therefore intentionally requires a manual versions.automation follow-up: after the sibling automation release lands, bump versions.automation in config/defaults.json to that release so the Check SDK version consistency gate goes fully green (the client-pin half is green as-of this PR;the automation half stays red until that manual bump).
 
 
 
@@ -698,7 +698,7 @@ jobs:
                   VERSION: ${{ steps.get_version.outputs.version }}
               run: |
                   set -euo pipefail
-                  IMAGE="ghcr.io/openhands/agent-server:${VERSION}-python"
+                  IMAGE="ghcr.io/handprint/agent-server:${VERSION}-python"
                   for ATTEMPT in $(seq 1 90); do
                     if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
                       echo "✅ ${IMAGE} is published"
@@ -847,7 +847,7 @@ jobs:
                   IMAGE_TAG: ${{ steps.get_version.outputs.image_tag }}
               run: |
                   set -euo pipefail
-                  IMAGE="ghcr.io/openhands/agent-server:${IMAGE_TAG}"
+                  IMAGE="ghcr.io/handprint/agent-server:${IMAGE_TAG}"
                   for ATTEMPT in $(seq 1 90); do
                     if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
                       echo "✅ ${IMAGE} is published"

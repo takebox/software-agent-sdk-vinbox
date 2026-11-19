@@ -6,7 +6,7 @@ tidak ada di repo Vinbox ini:
 
 | Workflow | Kenapa dipindah |
 |---|---|
-| `release-binaries.yml` | menerbitkan binary ke GHCR `ghcr.io/openhands/agent-server` |
+| `release-binaries.yml` | menerbitkan binary ke GHCR `ghcr.io/handprint/agent-server` |
 | `create-release.yml`, `prepare-release.yml` | rilis upstream yang memanggil repo `Handprint/automation` |
 | `version-bump-prs.yml`, `version-bump-guard.yml` | otomasi versi lintas repo upstream |
 | `run-eval.yml`, `cancel-eval.yml` | eval SWE-bench upstream |

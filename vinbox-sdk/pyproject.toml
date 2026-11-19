@@ -1,6 +1,6 @@
 [project]
 name = "handprint-vinbox-sdk"
-version = "1.53.0"
+version = "1.53.1"
 description = "HandPrint Vinbox SDK - agent core tailored to the Vinbox machine (CDP browser, pwsh, Vinbox model lane)"
 
 requires-python = ">=3.12"

@@ -19,7 +19,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT" || exit 1
 
 TOKEN_FILE=${TOKEN_FILE:-.pypi-token}
-WHEEL=${WHEEL:-dist-vinbox/software_agent_sdk_vinbox-1.53.0-py3-none-any.whl}
+WHEEL=${WHEEL:-dist-vinbox/software_agent_sdk_vinbox-1.53.1-py3-none-any.whl}
 ATTEMPTS=${ATTEMPTS:-72}
 DELAY=${DELAY:-1200}
 

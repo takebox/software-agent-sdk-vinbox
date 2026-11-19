@@ -43,7 +43,7 @@ nilai yang sama. Detail lengkap ada di [VINBOX.md](VINBOX.md).
 | `handprint-vinbox-agent-server` | `vinbox-agent-server/` | `handprint.agent_server` — REST/WS `agent-server`, loopback `127.0.0.1:18000` |
 | `software-agent-sdk-vinbox` | `vinbox-package/` | meta paket; mengunci keempat paket di atas pada versi yang sama |
 
-Versi kelimanya selalu sama (sekarang `1.53.0`).
+Versi kelimanya selalu sama (sekarang `1.53.1`).
 
 ## Menjalankan di dalam Vinbox
 

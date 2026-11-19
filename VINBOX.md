@@ -105,10 +105,21 @@ The package still ships the upstream Docker, Apptainer, remote-API and cloud
 workspace classes, because they are part of the same module tree. Inside Vinbox
 none of them is selected: the workspace is the local Vinbox tree, the browser is
 Vinbox's Chromium, the shell is Vinbox's pwsh, and the model lane is Vinbox's
-bridge. `ghcr.io/openhands/agent-server` image names that survive in those
-classes point at the real upstream image and are never pulled by Vinbox.
+bridge.
+
+Those classes still carry image defaults, under the `ghcr.io/handprint/agent-server`
+name. Vinbox pulls no agent-server image at all: `G:\vinbox\Dockerfile` installs
+these wheels and runs `agent-server` locally (`conversation_runtime=local`), so
+the sandbox defaults are never exercised. No multi-arch image is published for
+that name yet — if a Docker, Apptainer or remote sandbox is ever used, build the
+image first (`python -m handprint.agent_server.docker.build --image <name>`) or
+pass `conversation_image` / `server_image` explicitly. Do not treat the default
+as a pullable tag.
 
 ## What must not be added back
+
+* Any reference to the upstream image namespace or upstream package names.
+  `scripts/check_no_upstream_names.py` fails the build if they come back.
 
 * A bundled browser, Playwright Chromium download, or headless Chrome of its own.
 * A second desktop, Xvfb, VNC, or any "HandPrint screen".

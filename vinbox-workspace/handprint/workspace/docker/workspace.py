@@ -62,7 +62,7 @@ class DockerWorkspace(RemoteWorkspace):
 
     Example:
         with DockerWorkspace(
-            server_image="ghcr.io/openhands/agent-server:latest"
+            server_image="ghcr.io/handprint/agent-server:latest"
         ) as workspace:
             result = workspace.execute_command("ls -la")
     """
@@ -79,7 +79,7 @@ class DockerWorkspace(RemoteWorkspace):
 
     # Docker-specific configuration
     server_image: str | None = Field(
-        default="ghcr.io/openhands/agent-server:latest-python",
+        default="ghcr.io/handprint/agent-server:latest-python",
         description="Pre-built agent server image to use.",
     )
     host_port: int | None = Field(

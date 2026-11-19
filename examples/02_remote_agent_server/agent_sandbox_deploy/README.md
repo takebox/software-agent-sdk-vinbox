@@ -36,7 +36,7 @@ kubectl apply -f sandboxtemplate.yaml
 kubectl apply -f sandboxwarmpool.yaml
 ```
 
-The first pull of `ghcr.io/openhands/agent-server` can take a minute. Watch the pool
+The first pull of `ghcr.io/handprint/agent-server` can take a minute. Watch the pool
 fill up (pods become `Ready` once the agent server passes its `/health` probe):
 
 ```bash

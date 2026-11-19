@@ -1,6 +1,6 @@
 [project]
 name = "handprint-vinbox-workspace"
-version = "1.53.0"
+version = "1.53.1"
 description = "HandPrint Vinbox Workspace - local workspace bound to the Vinbox tree"
 
 requires-python = ">=3.12"

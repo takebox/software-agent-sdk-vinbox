@@ -25,7 +25,7 @@ class APIRemoteWorkspace(RemoteWorkspace):
         workspace = APIRemoteWorkspace(
             runtime_api_url="https://runtime.eval.all-hands.dev",
             runtime_api_key="your-api-key",
-            server_image="ghcr.io/openhands/agent-server:lastest-python",
+            server_image="ghcr.io/handprint/agent-server:lastest-python",
         )
     """  # noqa: E501
 

@@ -51,12 +51,12 @@ kubectl apply -f ../deploy/sandboxwarmpool.yaml
 kubectl get pods -w    # wait for the warm pool pods to become Ready
 ```
 
-The first pull of `ghcr.io/openhands/agent-server` can take a minute. On kind you can
+The first pull of `ghcr.io/handprint/agent-server` can take a minute. On kind you can
 pre-load it to avoid an in-cluster pull:
 
 ```bash
-docker pull ghcr.io/openhands/agent-server:1.42.1-python
-kind load docker-image ghcr.io/openhands/agent-server:1.42.1-python --name <cluster>
+docker pull ghcr.io/handprint/agent-server:1.42.1-python
+kind load docker-image ghcr.io/handprint/agent-server:1.42.1-python --name <cluster>
 ```
 
 ## 3. Keyless workspace smoke test (no LLM)

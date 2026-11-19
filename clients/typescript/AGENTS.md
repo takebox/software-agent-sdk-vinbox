@@ -285,7 +285,7 @@ Server image version remains independent and may lag the client package version.
 
 This client is tested and documented against a specific `software-agent-sdk`
 release, expressed as the agent-server image tag
-(`ghcr.io/openhands/agent-server:<version>-python`, where `<version>` equals the
+(`ghcr.io/handprint/agent-server:<version>-python`, where `<version>` equals the
 SDK release `vX.Y.Z`). The **source of truth** is `package.json` →
 `config.agentServerImage`; `AGENTS.md`, `README.md`, and the generated schema
 mirror the same version.
@@ -361,7 +361,7 @@ export LLM_MODEL="juglow/haijun-codtral"
 # Start agent-server in Docker (matching the pinned image in package.json -> config.agentServerImage)
 docker run -d --name agent-server -p 127.0.0.1:9010:8000 \
   -v /tmp/agent-workspace:/workspace \
-  ghcr.io/openhands/agent-server:1.51.0-python --host 0.0.0.0
+  ghcr.io/handprint/agent-server:1.51.0-python --host 0.0.0.0
 
 # Run integration tests
 npm run test:integration
@@ -391,7 +391,7 @@ Required GitHub secrets:
 
 ### CI Image Version
 
-- The pinned agent-server image for the TypeScript client is `package.json` → `config.agentServerImage` (currently `ghcr.io/openhands/agent-server:1.51.0-python`), which is the source of truth the generated schema and integration workflows use.
+- The pinned agent-server image for the TypeScript client is `package.json` → `config.agentServerImage` (currently `ghcr.io/handprint/agent-server:1.51.0-python`), which is the source of truth the generated schema and integration workflows use.
 - Keep the TypeScript client tests strict against that released server image rather than adding compatibility fallbacks for older prerelease builds.
 
 ## Agent Behavior Guidelines

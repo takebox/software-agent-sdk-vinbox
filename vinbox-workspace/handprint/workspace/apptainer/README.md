@@ -35,7 +35,7 @@ from handprint.workspace import ApptainerWorkspace
 
 # Use a pre-built agent server image
 with ApptainerWorkspace(
-    server_image="ghcr.io/openhands/agent-server:latest-python",
+    server_image="ghcr.io/handprint/agent-server:latest-python",
     host_port=9010,
 ) as workspace:
     result = workspace.execute_command("echo 'Hello from Apptainer!'")
@@ -63,7 +63,7 @@ from handprint.workspace import ApptainerWorkspace
 
 # Mount a host directory into the container
 with ApptainerWorkspace(
-    server_image="ghcr.io/openhands/agent-server:latest-python",
+    server_image="ghcr.io/handprint/agent-server:latest-python",
     host_port=9010,
     mount_dir="/path/to/host/directory",
 ) as workspace:
@@ -77,7 +77,7 @@ with ApptainerWorkspace(
 from handprint.workspace import ApptainerWorkspace
 
 with ApptainerWorkspace(
-    server_image="ghcr.io/openhands/agent-server:latest-python",
+    server_image="ghcr.io/handprint/agent-server:latest-python",
     host_port=9010,
     enable_gpu=True,
 ) as workspace:

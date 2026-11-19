@@ -63,7 +63,7 @@ Each publisher validates that its checked-out package version matches the reques
 - ✅ Generates a combined `SHA256SUMS` and attaches the binaries and
   `openapi.json` to the GitHub release on release/manual runs
 - ✅ Verifies that the multi-arch Docker manifest
-  `ghcr.io/openhands/agent-server:<image-tag>-<variant>` published by
+  `ghcr.io/handprint/agent-server:<image-tag>-<variant>` published by
   `server.yml` covers both `linux/amd64` and `linux/arm64` for every variant
   (`python`, `java`, `golang`)
 - ✅ Pulls each variant on each architecture with `--platform=linux/<arch>`,
@@ -100,7 +100,7 @@ If the matching manifest is already in GHCR, the wait step exits immediately.
 
 After successful PyPI publication, the workflow will automatically create PRs to update SDK versions in downstream repositories:
 
-- **[automation](https://github.com/HandPrint-AI/automation)** - Updates `vinbox-sdk` and `vinbox-workspace` versions. Opened with a `fix:` title so the repo's release-please cuts a patch release, publishing an `openhands-automation` build pinned to this SDK (which the agent-viczin `sdk-version-sync` check requires).
+- **[automation](https://github.com/HandPrint-AI/automation)** - Updates `vinbox-sdk` and `vinbox-workspace` versions. Opened with a `fix:` title so the repo's release-please cuts a patch release, publishing the automation build pinned to this SDK (which the agent-viczin `sdk-version-sync` check requires).
 - **TypeScript client (`clients/typescript`)** - Normally a no-op: the release PR already pins the client. It only opens a PR in this repository if the client is behind the release. It waits for the exact GHCR image and release `openapi.json`, updates `config.agentServerImage`, regenerates the checked-in transport types, and includes an API-change summary.
 
 These PRs will:
@@ -113,7 +113,7 @@ These PRs will:
 ### Step 6: Post-Release Tasks
 
 - [ ] Merge the release PR to main
-- [ ] Review and merge the auto-created version bump PRs in automation and the TypeScript client (merging the automation PR triggers its release-please release PR; merge that too to publish the pinned `openhands-automation`)
+- [ ] Review and merge the auto-created version bump PRs in automation and the TypeScript client (merging the automation PR triggers its release-please release PR; merge that too to publish the pinned automation build)
 - [ ] Announce the release
 
 ## Manual Publication Recovery

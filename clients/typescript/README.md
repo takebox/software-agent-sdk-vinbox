@@ -84,7 +84,7 @@ You'll need an AgentServer running somewhere for the client to connect to. You c
 docker run -p 127.0.0.1:9000:8000 -p 127.0.0.1:9001:8001 \
   -e SESSION_API_KEY="$SESSION_API_KEY" \
   -e OH_ALLOW_CORS_ORIGINS='["*"]' \
-  ghcr.io/openhands/agent-server:71b070d-python
+  ghcr.io/handprint/agent-server:71b070d-python
 ```
 
 ### Creating a Conversation
@@ -501,7 +501,7 @@ Integration tests require a running agent-server in Docker with a mounted worksp
      --name agent-server \
      -p 127.0.0.1:9010:8000 \
      -v /tmp/agent-workspace:/workspace \
-     ghcr.io/openhands/agent-server:1.44.0-python --host 0.0.0.0
+     ghcr.io/handprint/agent-server:1.44.0-python --host 0.0.0.0
    ```
 
 3. Wait for the server to be ready:
