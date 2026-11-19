@@ -7,9 +7,19 @@ a flaky Windows job is the shape of the script, not any Python behavior.
 
 from pathlib import Path
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SERVER_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "server.yml"
+
+pytestmark = pytest.mark.skipif(
+    not SERVER_WORKFLOW.exists(),
+    reason=(
+        "server.yml is disabled in this Vinbox-only fork; see "
+        ".github/workflows-disabled/README.md"
+    ),
+)
 
 
 def _smoke_step() -> str:

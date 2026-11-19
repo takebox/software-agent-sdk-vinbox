@@ -1,6 +1,8 @@
 import re
 from pathlib import Path
 
+import pytest
+
 from handprint.sdk.settings.acp_install_catalog import (
     ACP_INSTALL_CATALOG,
     DEFAULT_PREINSTALLED_ACP_PROVIDERS,
@@ -9,6 +11,15 @@ from handprint.sdk.settings.acp_install_catalog import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SERVER_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "server.yml"
+
+requires_server_workflow = pytest.mark.skipif(
+    not SERVER_WORKFLOW.exists(),
+    reason=(
+        "server.yml (agent-server image build for GHCR) is disabled in "
+        "this Vinbox-only fork; see .github/workflows-disabled/README.md"
+    ),
+)
+
 AGENT_SERVER_DOCKERFILE = (
     REPO_ROOT
     / "vinbox-agent-server"
@@ -34,6 +45,7 @@ ACP_INSTALL_CATALOG_PY = (
 )
 
 
+@requires_server_workflow
 def test_server_workflow_passes_git_metadata_build_args() -> None:
     """The published agent-server images should embed git metadata."""
     workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
@@ -42,6 +54,7 @@ def test_server_workflow_passes_git_metadata_build_args() -> None:
     assert "HANDPRINT_BUILD_GIT_REF=${{ env.SDK_REF }}" in workflow_text
 
 
+@requires_server_workflow
 def test_server_workflow_contains_install_acp_providers_expression() -> None:
     """Regression guard for the exact wording of the INSTALL_ACP_PROVIDERS env
     line. This only proves the known-good string is present, not that it
@@ -56,6 +69,7 @@ def test_server_workflow_contains_install_acp_providers_expression() -> None:
     ) in workflow_text
 
 
+@requires_server_workflow
 def test_server_workflow_contains_install_capabilities_expression() -> None:
     """Regression guard for the exact wording of the INSTALL_CAPABILITIES env
     line. This only proves the known-good string is present, not that it
@@ -115,7 +129,6 @@ def test_agent_server_binary_copies_handprint_distribution_metadata() -> None:
 
 def test_python_image_uses_canonical_minimal_runtime() -> None:
     dockerfile_text = AGENT_SERVER_DOCKERFILE.read_text(encoding="utf-8")
-    workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
 
     assert "FROM debian:trixie-slim AS python-node-runtime" in dockerfile_text
     assert "FROM python:3.13.15-slim-trixie AS python-runtime" in dockerfile_text
@@ -149,6 +162,12 @@ def test_python_image_uses_canonical_minimal_runtime() -> None:
     assert "build-essential" in full_packages
     assert "COPY --from=ghcr.io/astral-sh/uv" in full_packages
     assert "nikolaik/python-nodejs" not in dockerfile_text
+
+
+@requires_server_workflow
+def test_server_workflow_uses_the_canonical_minimal_runtime() -> None:
+    workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
+
     assert "base_image: python-node-runtime" in workflow_text
     assert "nikolaik/python-nodejs" not in workflow_text
 
@@ -228,12 +247,12 @@ def test_agent_server_dockerfile_acp_stage_uses_install_catalog() -> None:
     assert ACP_INSTALL_CATALOG_PY.is_file()
 
 
-def test_default_preinstalled_acp_providers_matches_dockerfile_and_workflow() -> None:
+def test_default_preinstalled_acp_providers_matches_the_dockerfile() -> None:
     """DEFAULT_PREINSTALLED_ACP_PROVIDERS is the single source for the
-    default `INSTALL_ACP_PROVIDERS` value baked into the Dockerfile ARG and
-    the server workflow's non-dispatch default; both are plain text (a
-    Dockerfile/workflow can't import Python), so this guards them from
-    drifting apart.
+    default `INSTALL_ACP_PROVIDERS` value baked into the Dockerfile ARG; the
+    Dockerfile is plain text (it can't import Python), so this guards the two
+    from drifting apart. The matching workflow default is guarded by
+    ``test_server_workflow_defaults_to_the_same_preinstalled_acp_providers``.
     """
     default_csv = ",".join(DEFAULT_PREINSTALLED_ACP_PROVIDERS)
     assert default_csv == "haijun-code,codex,gemini-cli"
@@ -241,10 +260,16 @@ def test_default_preinstalled_acp_providers_matches_dockerfile_and_workflow() ->
     dockerfile_text = AGENT_SERVER_DOCKERFILE.read_text(encoding="utf-8")
     assert f"ARG INSTALL_ACP_PROVIDERS={default_csv}" in dockerfile_text
 
+
+@requires_server_workflow
+def test_server_workflow_defaults_to_the_same_preinstalled_acp_providers() -> None:
+    default_csv = ",".join(DEFAULT_PREINSTALLED_ACP_PROVIDERS)
+
     workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
     assert f"'{default_csv}'" in workflow_text
 
 
+@requires_server_workflow
 def test_server_workflow_publishes_python_slim_without_acp_providers() -> None:
     workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
 
@@ -271,6 +296,7 @@ def test_server_workflow_publishes_python_slim_without_acp_providers() -> None:
     )
 
 
+@requires_server_workflow
 def test_server_workflow_publishes_binary_minimal_without_baked_extras() -> None:
     workflow_text = SERVER_WORKFLOW.read_text(encoding="utf-8")
 

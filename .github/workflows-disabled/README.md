@@ -23,5 +23,13 @@ tidak ada di repo Vinbox ini:
 Vinbox memasang paket lewat `pypi-release.yml` dan membangun image lewat
 `Dockerfile` Vinbox, jadi workflow di atas tidak diperlukan.
 
+Penjaga (test) untuk workflow yang dinonaktifkan tetap ada di `tests/cross/`,
+tetapi dilewati dengan alasan yang jelas selama file workflow-nya tidak ada —
+lihat `requires_server_workflow` di `test_agent_server_build_metadata.py`,
+`pytestmark` di `test_server_workflow_binary_smoke.py`, dan
+`requires_snapshot_workflow` di `test_update_debian_snapshot.py`. Jadi aturan
+di dalamnya tidak hilang: begitu workflow dipulihkan, test-nya otomatis jalan
+lagi.
+
 Kalau suatu saat salah satunya dibutuhkan lagi, pindahkan kembali ke
 `.github/workflows/` dan sesuaikan rahasia serta nama image-nya.

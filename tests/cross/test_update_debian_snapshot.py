@@ -6,6 +6,16 @@ import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+SNAPSHOT_WORKFLOW = (
+    REPO_ROOT / ".github" / "workflows" / "update-debian-snapshot.yml"
+)
+requires_snapshot_workflow = pytest.mark.skipif(
+    not SNAPSHOT_WORKFLOW.exists(),
+    reason=(
+        "update-debian-snapshot.yml is disabled in this Vinbox-only fork; see "
+        ".github/workflows-disabled/README.md"
+    ),
+)
 SCRIPT_PATH = REPO_ROOT / ".github" / "scripts" / "update_debian_snapshot.py"
 SPEC = spec_from_file_location("update_debian_snapshot", SCRIPT_PATH)
 assert SPEC and SPEC.loader
@@ -58,10 +68,9 @@ def test_update_dockerfile_rejects_missing_pin(tmp_path: Path) -> None:
         snapshot.update_dockerfile(dockerfile, "20260908T000000Z")
 
 
+@requires_snapshot_workflow
 def test_workflow_builds_and_scans_before_opening_pr() -> None:
-    workflow = (
-        REPO_ROOT / ".github" / "workflows" / "update-debian-snapshot.yml"
-    ).read_text()
+    workflow = SNAPSHOT_WORKFLOW.read_text()
 
     build = workflow.index("- name: Build binary-minimal")
     scan = workflow.index("- name: Scan binary-minimal")
