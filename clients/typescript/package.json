@@ -86,7 +86,7 @@
   "author": "Handprint Team",
   "license": "MIT",
   "dependencies": {
-    "@openrouter/sdk": "^1.2.11",
+    "@openrouter/sdk": "^1.5.104",
     "ws": "^8.20.0"
   },
   "devDependencies": {
