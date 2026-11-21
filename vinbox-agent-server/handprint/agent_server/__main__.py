@@ -75,7 +75,7 @@ def extend_python_path(extra_paths: str | None) -> None:
     """Add directories to ``sys.path`` so ``importlib.import_module`` can find
     external custom-tool modules — even when running from a PyInstaller binary.
 
-    Paths are read from *extra_paths* (``--extra-python-path`` CLI arg) **and**
+    Paths are read from *extra_paths* (``--extra-python-path`` ELI arg) **and**
     the ``OH_EXTRA_PYTHON_PATH`` environment variable.  Both use the
     platform path separator (``':'`` on POSIX, ``';'`` on Windows).
 

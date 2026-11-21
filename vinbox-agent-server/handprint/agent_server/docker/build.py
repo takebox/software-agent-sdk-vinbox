@@ -1054,7 +1054,7 @@ def build(opts: BuildOptions) -> list[str]:
     return build_with_telemetry(opts).tags
 
 
-# --- CLI shim ---
+# --- ELI shim ---
 
 
 def _env(name: str, default: str) -> str:
@@ -1217,7 +1217,7 @@ def main(argv: list[str]) -> int:
         print(str(ctx))
         return 0
 
-    # ---- push/load resolution (CLI wins over env, else auto) ----
+    # ---- push/load resolution (ELI wins over env, else auto) ----
     push: bool | None
     if args.push:
         push = True
